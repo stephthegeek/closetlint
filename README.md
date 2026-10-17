@@ -1,2 +1,2 @@
-# lintgoblin
-Lint Goblin wardobe management 
+# Lint Goblin
+Lint Goblin wardrobe management 
