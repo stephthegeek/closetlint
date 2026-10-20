@@ -9,5 +9,9 @@ function fn(n){const a=source.indexOf('function '+n+'('),b=source.indexOf('\nfun
  ctx.state.board.pieces[0].x=99;assert.equal(saved.pieces[0].x,5);let left=false;ctx.leaveOutfitEditor(()=>left=true);assert.equal(left,false);assert.ok(confirm);confirm();assert.equal(left,true);assert.equal(ctx.state.board,scratch);
  await ctx.saveOutfit();assert.equal(ctx.state.board,scratch);assert.equal(scratch.id,null,'save makes an independent outfit, not a linked working board');assert.equal(writes.length,1);
  ctx.ofOpen(saved,{b:{}});ctx.state.board.name='Dinner revised';await ctx.saveOutfit();assert.equal(writes[1].id,'saved');assert.equal(ctx.outfitEditorDirty(),false);ctx.leaveOutfitEditor(()=>{});assert.equal(ctx.state.board,scratch);assert.equal(scratch.pieces[0].id,'a');
+ const badge={hidden:true,textContent:''},nav={querySelector:()=>badge,setAttribute(k,v){this[k]=v},getAttribute(k){return this[k]}},label={textContent:''};
+ ctx.$=id=>id==='go-board'?nav:label;vm.runInContext(fn('paintBoardContext'),ctx);
+ ctx.paintBoardContext();assert.equal(badge.textContent,'1');assert.equal(nav['aria-label'],'Working board (1 piece)');assert.equal(label.textContent,'Working board');
+ ctx.state.editingOutfit=true;ctx.state.scratchBoard=scratch;ctx.state.board=saved;ctx.paintBoardContext();assert.equal(badge.textContent,'1','navigation counts the working board, not the open saved outfit');assert.equal(label.textContent,'Editing saved outfit');
  console.log('Board: scratchpad isolation, saved-edit cloning, discard guard, independent saves and return to scratchpad pass.');
 })().catch(e=>{console.error(e);process.exit(1)});
