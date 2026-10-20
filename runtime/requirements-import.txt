@@ -1,2 +1,2 @@
 # Only the assistant photo-import command needs this; the web server remains stdlib-only.
-Pillow>=13.0.0,<14
+Pillow>=12.3.0,<13

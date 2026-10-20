@@ -86,8 +86,8 @@ def require_safe_pillow():
         version = tuple(int(p) for p in PIL.__version__.split('.')[:3])
     except ValueError:
         version = ()
-    if version < (13, 0, 0):
-        raise ValueError('Photo tools need Pillow 13.0.0 or newer. Update the optional photo environment before processing images.')
+    if version < (12, 3, 0):
+        raise ValueError('Photo tools need Pillow 12.3.0 or newer. Update the optional photo environment before processing images.')
 
 
 def encode(value):

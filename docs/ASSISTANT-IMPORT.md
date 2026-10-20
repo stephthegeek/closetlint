@@ -44,7 +44,7 @@ The rest of this page is for the assistant doing the import, or anyone who wants
 
 ### One-time preparation
 
-The server still runs with Python’s standard library. Photo intake additionally needs Python 3.11 or newer and Pillow for decoding, orientation, resizing, and metadata removal:
+The server still runs with Python’s standard library. Photo intake additionally uses Pillow for decoding, orientation, resizing, and metadata removal:
 
 ```bash
 python3 -m pip install -r runtime/requirements-import.txt
