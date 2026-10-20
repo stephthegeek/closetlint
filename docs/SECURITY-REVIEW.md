@@ -52,6 +52,8 @@ pip-audit found zero known advisories in the 29-package resolved optional graph 
 
 The statements above describe the 2026-10-19 review, before the public repository and static demo exporter existed. The exporter now requires an explicit collection and photo review, copies allowlisted style fields, re-encodes approved photos without source metadata, and emits a static page with no writable server. Its synthetic-data tests pass. A 12-piece synthetic export loaded with photos on SiteGround. This does not certify hosting headers, browser isolation, or a future export of Stephanie’s own collection. Review that collection’s names, tags, photographs, privacy, and publication rights before building or uploading it. The clean committed tree and current verification limits are recorded in [TESTING.md](TESTING.md).
 
+The first public CI run then found eight newly published advisories affecting the optional Pillow 12.3.0 baseline. The minimum has been raised to Pillow 13.0.0, which also raises optional photo tooling to Python 3.11 or newer. The standard-library server still supports Python 3.10. Existing optional photo environments must be updated explicitly.
+
 ## References
 
 - [OWASP secure code review](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Code_Review_Cheat_Sheet.html)

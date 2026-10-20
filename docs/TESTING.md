@@ -65,6 +65,8 @@ The existing tests check relevant synchronization and source invariants.
 
 On 2026-10-20, a clean extraction of the committed source passed the full JavaScript suite and 47 Python tests, including the static demo exporter. The public-source boundary check found an empty embedded wardrobe and no built-in secret or machine-path pattern matches. A separate static 12-piece synthetic demo was loaded on SiteGround, with its photos visible.
 
+After CI flagged new Pillow 12.3.0 advisories, the optional photo minimum was raised to 13.0.0. The full local suite passed again in a clean copy using Pillow 13.0.0; the updated dependency audit and complete CI run must pass before tagging 0.1.
+
 These checks are not a fresh-machine installation certification. Windows and macOS installation, fresh optional-tool setup, and final browser/device checks remain open. A new listening-server check could not run in the restricted shell used for this checkpoint because socket creation was denied; existing HTTP-handler tests and the earlier hosted demo check cover different parts of that path. Do not describe the current tree as a verified 0.1 release.
 
 CI is configured for synthetic tests, dependency audits, public-source checks, and full-history secret scanning. Verify the result of the release-prep push in GitHub Actions before tagging a release. See [SECURITY-REVIEW.md](SECURITY-REVIEW.md) for the dated security findings, tooling evidence, and limits.

@@ -88,9 +88,9 @@ class SecurityTests(unittest.TestCase):
         self.assertFalse(self.store.state()['collections']['custom'])
 
     def test_old_photo_decoder_version_is_blocked(self):
-        with patch.dict(sys.modules, {'PIL': SimpleNamespace(__version__='12.1.1')}):
-            with self.assertRaisesRegex(ValueError, 'Pillow 12.3.0'): require_safe_pillow()
-        with patch.dict(sys.modules, {'PIL': SimpleNamespace(__version__='12.3.0')}): require_safe_pillow()
+        with patch.dict(sys.modules, {'PIL': SimpleNamespace(__version__='12.3.0')}):
+            with self.assertRaisesRegex(ValueError, 'Pillow 13.0.0'): require_safe_pillow()
+        with patch.dict(sys.modules, {'PIL': SimpleNamespace(__version__='13.0.0')}): require_safe_pillow()
 
     def test_ambiguous_lengths(self):
         for headers in ({'Transfer-Encoding':'chunked'},{'Content-Length':'-1'},{'Content-Length':'33554433'}):

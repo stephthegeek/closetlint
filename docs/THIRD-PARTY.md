@@ -39,7 +39,7 @@ These components are installed separately, not copied into the source tree:
 | Component | Reviewed version | Declared license |
 | --- | --- | --- |
 | Playwright (development only) | 1.64.1 | Apache-2.0 |
-| Pillow (optional photo tools) | 12.3.0 | MIT-CMU |
+| Pillow (optional photo tools) | 13.0.0 | MIT-CMU |
 | Rembg (optional background removal) | 2.0.85 | MIT |
 | ONNX Runtime (optional CPU inference) | 1.31.0 | MIT |
 
