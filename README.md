@@ -1,2 +1,2 @@
-# Lint Goblin
-Lint Goblin wardrobe management 
+# Closet Lint
+Closet Lint wardrobe management 
