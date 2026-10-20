@@ -1,0 +1,42 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(require('node:path').join(__dirname,'../app/closet-lint.html'),'utf8');
+function fn(name){const start=source.indexOf('function '+name+'('),end=source.indexOf('\nfunction ',start+1);return source.slice(start,end<0?undefined:end)}
+const ctx={Math:Object.assign(Object.create(Math),{random:()=>0.1}),labTopish:x=>x.meta==='Tops',itemWeight:x=>x.weight||'regular',labParts:o=>[o.one,o.top,o.bottom,o.layer,o.under].filter(Boolean),labUnder:pool=>pool.under[0]||null};vm.createContext(ctx);
+vm.runInContext(['layerNeed','needsLayer','labThinTop','labPullover','labCanCover','labBareTop','labOrdinaryShirt','labUnderFits','labCompleteLayers','isSheer','isUnderCand'].map(fn).join('\n'),ctx);
+const tee={id:'tee',meta:'Tops',sub:'Tees',material:[]},vest={id:'vest',meta:'Tops',sub:'Sweaters',kind:'vest',weight:'regular',labAs:'either',material:[]},pinafore={id:'pinafore',meta:'One-pieces',needsUnder:true,material:[]},coat={id:'coat',meta:'Outerwear',sub:'Coats'},cardigan={id:'cardi',meta:'Tops',sub:'Sweaters',kind:'cardigan'},sweater={id:'sweater',meta:'Tops',sub:'Sweaters',kind:'pullover',weight:'thick'};
+let o={one:pinafore};assert.equal(ctx.labCompleteLayers(o,{top:[tee],under:[]}),true);assert.equal(o.under.id,'tee');
+assert.equal(ctx.labCompleteLayers({one:pinafore},{top:[],under:[]}),false);
+for(const weight of ['regular','thick']){assert.equal(ctx.labCanCover({...sweater,weight},cardigan),false);assert.equal(ctx.labCanCover({...sweater,weight},coat),true)}
+assert.equal(ctx.labCanCover({...sweater,weight:'thin'},cardigan),true);
+assert.equal(ctx.labCanCover({...sweater,weight:'thin'},{...sweater,id:'second'}),false);
+assert.equal(ctx.labCanCover({...tee,weight:'thick'},cardigan),true);
+assert.equal(ctx.labCompleteLayers({top:vest,under:tee,layer:cardigan},{top:[],under:[]}),true);
+assert.equal(ctx.layerNeed({...pinafore,layerNeed:'none'}),'none');
+assert.equal(ctx.layerNeed({meta:'Bottoms',material:['sheer'],layerNeed:'under'}),'none','bottoms are outside MVP rules');
+assert.equal(ctx.layerNeed({...tee,layerNeed:'prefer'}),'none');
+assert.equal(ctx.layerNeed({...tee,layerNeed:'top'}),'under');
+assert.equal(ctx.labCompleteLayers({top:{...tee,layerNeed:'over'}},{top:[],under:[]}),false);
+assert.equal(ctx.labCompleteLayers({top:{...tee,layerNeed:'either'},layer:cardigan},{top:[],under:[]}),true);
+const tank={...tee,id:'tank',sub:'Tanks',weight:'thin'};
+o={top:{...tee,layerNeed:'either'}};assert.equal(ctx.labCompleteLayers(o,{top:[],under:[tank]}),true);assert.equal(o.under.id,'tank');
+assert.equal(ctx.labCompleteLayers({top:{...tee,layerNeed:'under'}},{top:[],under:[{...tank,functional:true}]}),false);
+assert.equal(ctx.labCompleteLayers({top:sweater,layer:cardigan},{top:[],under:[]}),false,'hard gate, not a score penalty');
+// A requirement is not permission to stack ordinary sleeved shirts.
+const ruffle={...tee,id:'ruffle',sleeve:'short',weight:'thin'},openShirt={...tee,id:'stripe',labAs:'either'};
+o={top:{...tee,layerNeed:'under'},under:ruffle,layer:openShirt};
+assert.equal(ctx.labCompleteLayers(o,{top:[ruffle],under:[]}),false,'three shirts cannot satisfy the requirement');
+o={top:{...tee,layerNeed:'under'},under:ruffle,layer:openShirt};
+assert.equal(ctx.labCompleteLayers(o,{top:[ruffle],under:[tank]}),true);assert.equal(o.under.id,'tank','replace an unsuitable shirt with a cami/tank');
+assert.equal(ctx.labCompleteLayers({top:{...openShirt,layerNeed:'under'},layer:{...openShirt,id:'outer'}},{top:[ruffle],under:[]}),false,'either-role shirts cannot bypass the three-shirt exclusion');
+o={top:tee,under:ruffle,layer:openShirt};assert.equal(ctx.labCompleteLayers(o,{top:[],under:[]}),true);assert.equal(o.under,undefined,'drop an optional unsuitable under-layer');
+o={top:{...sweater,layerNeed:'under'},layer:coat};assert.equal(ctx.labCompleteLayers(o,{top:[ruffle],under:[]}),true);assert.equal(o.under.id,'ruffle');
+o={top:{...tee,material:['sheer'],layerNeed:'under'},under:tank,layer:coat};assert.equal(ctx.labCompleteLayers(o,{top:[],under:[]}),true,'cami + sheer top + coat remains valid');
+Object.assign(ctx,{state:{lab:{seasons:{summer:true}}},labPick:items=>items[0]||null,labSelSeasons:()=>['summer']});
+vm.runInContext(fn('labDraw'),ctx);
+const pool={top:[{...tee,layerNeed:'under'},ruffle],bottom:[{id:'pants',meta:'Bottoms'}],one:[],layer:[openShirt],under:[]};
+assert.equal(ctx.labDraw(pool,null,{}, {layerP:1}),null,'generator rejects the three-shirt candidate');
+pool.under=[tank];
+o=ctx.labDraw(pool,null,{}, {layerP:1});assert.ok(o);assert.equal(o.under.id,'tank');assert.equal(o.layer.id,'stripe');
+let shoeCalls=0,sockCalls=0;Object.assign(ctx,{labPickShoes:()=>{shoeCalls++;return {id:'shoe',socksRequired:true}},labPickSocks:()=>{sockCalls++;return {id:'sock'}},labSockOK:()=>true,labNeedTights:()=>false,labAccessorize:()=>{throw Error('optional extras should stay off')}});
+vm.runInContext(fn('labEnsureSocks')+'\n'+fn('labEnsureAcc'),ctx);o={one:{id:'dress'}};ctx.labEnsureAcc(o,{accAuto:false});ctx.labEnsureAcc(o,{accAuto:false});assert.equal(shoeCalls,1);assert.equal(sockCalls,1);assert.equal(o.acc.shoes.id,'shoe');assert.equal(o.acc.socks.id,'sock');
+console.log('Layering: upper-body requirements, sweater exclusions, vest combinations, manual overrides, shoes and required socks pass.');

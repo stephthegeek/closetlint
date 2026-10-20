@@ -1,0 +1,54 @@
+# Private wardrobe data never goes in this repo
+private/
+_blob/
+db/
+embedded-data/
+*.zip
+backup.json
+closet-backup-*.json
+closet-full-backup-*.zip
+# a data-bearing build of the app (keep only the code-only app/closet-lint.html here)
+*-v[0-9]*.html
+index.html
+
+node_modules/
+test-results/
+*.png
+
+# Local runtime databases and generated artifacts
+*.sqlite3
+*.sqlite3-*
+*.db
+staging/
+recovery/
+__pycache__/
+*.pyc
+
+# Credentials, environments, reports, and local media
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jpg
+*.jpeg
+*.webp
+*.avif
+*.heic
+*.gif
+.venv/
+venv/
+background-removal/
+*.onnx
+outputs/
+*security-report*.json
+
+# Only these original mascot sources belong in the public repository.
+!app/assets/linty/linty-logo-original.png
+!app/assets/linty/linty-side-peek-sock.png
+!app/assets/linty/linty-favicon-face-1024.png
+
+# Only the fictional demo product photos are included; personal photos stay excluded.
+!app/assets/demo/0[1-9]-*.jpg
+!app/assets/demo/1[0-2]-*.jpg

@@ -1,0 +1,79 @@
+{
+  "generator": "OpenAI built-in image generation",
+  "created": "2026-10-19",
+  "purpose": "Fictional demo wardrobe; AI-generated product photos, not real retailer products.",
+  "images": [
+    {
+      "file": "01-black-tee.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe garment photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: A black everyday crew-neck T-shirt, substantial matte cotton jersey, gently boxy contemporary fit, clean short sleeves and a fine ribbed neckline. No print. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire garment fully visible and centered, front view, naturally shaped as if on an invisible mannequin, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic seams, stitching, drape, and material texture. Portrait composition, garment fills roughly 82% of height, generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "02-burgundy-top.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe garment photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: A burgundy cotton top, refined shallow scoop neckline, elbow-length sleeves, subtle fitted shape, visible soft cotton rib texture, understated and wearable. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire garment fully visible and centered, front view, naturally shaped as if on an invisible mannequin, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic seams, stitching, drape, and material texture. Portrait composition, garment fills roughly 82% of height, generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "03-black-trousers.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe garment photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: Black straight-leg tailored trousers, contemporary high rise, full length, flat front with discreet pleats, soft structured wool-blend-like fabric, clean waistband and side pockets. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire garment fully visible and centered, front view, naturally shaped as if on an invisible mannequin, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic seams, stitching, drape, and material texture. Portrait composition, garment fills roughly 82% of height, generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "04-blue-jeans.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe garment photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: Medium-blue straight-leg jeans, contemporary high rise and full length, rigid-looking denim with subtle natural fading, clean hems, five-pocket construction, no rips. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire garment fully visible and centered, front view, naturally shaped as if on an invisible mannequin, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic seams, stitching, drape, and material texture. Portrait composition, garment fills roughly 82% of height, generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "05-beige-skirt.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe garment photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: A sand-beige midi skirt, contemporary gently A-line silhouette with clean high waistband, soft cotton twill, discreet side pockets and a small back vent, no print. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire garment fully visible and centered, front view, naturally shaped as if on an invisible mannequin, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic seams, stitching, drape, and material texture. Portrait composition, garment fills roughly 82% of height, generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "06-black-dress.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe garment photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: A black everyday midi dress, contemporary softly square neckline, wide shoulder straps, gently fitted bodice and softly flared skirt, matte substantial cotton fabric, understated tailoring. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire garment fully visible and centered, front view, naturally shaped as if on an invisible mannequin, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic seams, stitching, drape, and material texture. Portrait composition, garment fills roughly 82% of height, generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "07-beige-cardigan.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe product photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: An oatmeal-beige cardigan, contemporary relaxed cropped-to-high-hip length, V-neck, five simple tonal buttons, soft medium-gauge knit texture, gently dropped shoulders and full long sleeves. Display the cardigan buttoned. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire item fully visible and centered, natural dimension and realistic construction, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic seams, stitching, and material texture. Portrait composition, subject fills roughly 80% of the frame with generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "08-white-sneakers.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe product photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: One pair of clean white low-top leather sneakers with subtle off-white rubber soles and white laces, streamlined modern everyday silhouette, no branding or decorative logos. Photograph both complete shoes in a neat three-quarter arrangement; realistic leather grain, stitching, and sole texture. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire item fully visible and centered, natural dimension and realistic construction, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic seams, stitching, and material texture. Portrait composition, subject fills roughly 80% of the frame with generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "09-black-boots.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe product photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: One pair of black leather ankle boots with modern almond toe, low 3cm block heel, slim ankle shaft, subtle side zipper, matte polished leather. Both complete boots in a neat three-quarter arrangement, no branding. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire item fully visible and centered, natural dimension and realistic construction, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic seams, stitching, and material texture. Portrait composition, subject fills roughly 80% of the frame with generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "10-silver-necklace.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe product photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: A delicate silver necklace with a fine trace chain and one small organically oval polished silver pendant, contemporary understated sculptural jewelry. Entire chain closed in a tall oval loop with clasp at top and pendant below, fully visible with no cropping; realistic silver metal with gentle reflections. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire item fully visible and centered, naturally shaped as if on an invisible mannequin where applicable, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic construction, drape, and material texture. Portrait composition, item fills roughly 82% of height, generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "11-burgundy-blouse.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe product photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: A deep burgundy modern blouse, softly draped matte crepe, relaxed body, long sleeves with simple cuffs, open V-neck with a narrow collarless placket, slightly curved hem and subtle shoulder gathers. No frills or print. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire item fully visible and centered, naturally shaped as if on an invisible mannequin where applicable, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic construction, drape, and material texture. Portrait composition, item fills roughly 82% of height, generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "file": "12-black-skirt.jpg",
+      "prompt": "Use case: product-mockup. Asset type: fictional capsule wardrobe product photo for an open-source app demo. Create ONE highly realistic professional fashion e-commerce product photograph. Subject: A black contemporary bias-cut midi skirt in soft satin with a restrained natural sheen, simple narrow waistband, elegant flowing slight A-line silhouette, no slit or decorations. Classic wardrobe staple with modern proportions suitable for 2026; original unbranded design, no trademark details. Entire item fully visible and centered, naturally shaped as if on an invisible mannequin where applicable, no visible body or hanger, no other garments or props, soft studio lighting, crisp realistic construction, drape, and material texture. Portrait composition, item fills roughly 82% of height, generous clear margin on every side, plain very light neutral gray seamless background. Not an illustration, not a 3D render, no collage, no inset, no words, no labels, no watermark. Produce a high resolution image.",
+      "width": 1024,
+      "height": 1536
+    }
+  ]
+}

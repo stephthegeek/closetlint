@@ -1,0 +1,20 @@
+# Updating, moving, and rolling back
+
+Before updating, save open edits and download **Utilities → Full backup (data + photos)**. Keep that ZIP and your previous app folder until you have checked the update.
+
+1. Stop the server with Ctrl+C.
+2. Extract the new source into a new app folder. Keep your wardrobe data in its existing, separate folder; never replace that folder with source files.
+3. Start the new version with the same absolute `--data` path. Relative paths are resolved from the terminal's current folder, so check them carefully when moving the source.
+4. Open the printed address, check your pieces and photos, and try a full backup.
+
+Only one server should access a wardrobe at a time. Browser tabs may cache old code; refresh after the server restarts. Display preferences belong to the browser/origin and are not a substitute for a wardrobe backup.
+
+## Rollback limits
+
+There is no tested general cross-version downgrade guarantee yet. Keeping the same data folder while relocating the same build is different from proving that a future database migration is reversible. Until release-specific migration instructions say otherwise, restore your pre-update backup into a separate data folder and run the previous app against that restored copy. Do not overwrite newer work by guessing that an older app can read an updated database.
+
+Restore from **Utilities → Restore a full backup**, review the counts, and explicitly confirm replacement. The local service keeps a recovery snapshot before replacing a nonempty destination, but a separate backup is still necessary.
+
+## Moving computers
+
+Install the app on the destination, start it with a new data folder, and restore the full backup. Photos and cutout/source relationships are included. Browser display preferences and the optional background-removal installation are machine-specific and need setting up separately. Never import a machine configuration file from an untrusted wardrobe bundle.

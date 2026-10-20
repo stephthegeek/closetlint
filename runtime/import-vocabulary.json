@@ -1,0 +1,559 @@
+{
+  "categories": [
+    "Tops",
+    "Bottoms",
+    "One-pieces",
+    "Outerwear",
+    "Underwear",
+    "Swimwear",
+    "Loungewear",
+    "Activewear",
+    "Costumes",
+    "Footwear",
+    "Legwear",
+    "Hats",
+    "Bags",
+    "Hair accessories",
+    "Glasses",
+    "Other accessories",
+    "Jewelry",
+    "Lingerie"
+  ],
+  "subcategories": {
+    "Tops": [
+      "Tees",
+      "Tanks",
+      "Shirts",
+      "Blouses & fashion tops",
+      "Sweaters",
+      "Sweatshirts",
+      "Blazers",
+      "Bralettes"
+    ],
+    "Bottoms": [
+      "Skirts",
+      "Shorts",
+      "Pants",
+      "Leggings",
+      "Jeans"
+    ],
+    "One-pieces": [
+      "Dresses",
+      "Jumpsuits & rompers",
+      "Bodysuits"
+    ],
+    "Activewear": [
+      "Tops",
+      "Bottoms",
+      "Sets",
+      "Dancewear"
+    ],
+    "Costumes": [
+      "Full costumes",
+      "Wigs",
+      "Accessories"
+    ],
+    "Outerwear": [
+      "Jackets",
+      "Coats"
+    ],
+    "Footwear": [
+      "Sneakers",
+      "Boots",
+      "Sandals",
+      "Slippers",
+      "Flats",
+      "Heels"
+    ],
+    "Jewelry": [
+      "Necklaces",
+      "Earrings",
+      "Rings",
+      "Bracelets",
+      "Anklets",
+      "Other jewelry"
+    ],
+    "Underwear": [
+      "Bras",
+      "Panties",
+      "Shapewear",
+      "Slips & crinolines",
+      "Intimates"
+    ],
+    "Legwear": [
+      "Socks",
+      "Tights",
+      "Stockings",
+      "Leg warmers"
+    ],
+    "Swimwear": [
+      "Tops",
+      "Bottoms",
+      "Sets",
+      "Cover-ups"
+    ],
+    "Loungewear": [
+      "Tops",
+      "Bottoms",
+      "Nightgowns",
+      "Pajama sets",
+      "One-pieces",
+      "Robes"
+    ],
+    "Bags": [
+      "Bags",
+      "Totes",
+      "Wallets & pouches"
+    ],
+    "Hats": [
+      "Sun hats",
+      "Bucket hats",
+      "Beanies",
+      "Other hats"
+    ],
+    "Hair accessories": [
+      "Claws & clips",
+      "Barrettes & pins",
+      "Scrunchies & ties",
+      "Headbands",
+      "Other"
+    ],
+    "Glasses": [
+      "Glasses",
+      "Accessories"
+    ],
+    "Other accessories": [
+      "Gloves",
+      "Scarves",
+      "Belts",
+      "Watch bands",
+      "Other"
+    ],
+    "Lingerie": [
+      "Sets",
+      "Bras",
+      "Teddies & bodysuits",
+      "Other"
+    ]
+  },
+  "fields": [
+    {
+      "key": "colors",
+      "multi": true,
+      "vocab": [
+        "black",
+        "white",
+        "gray",
+        "beige",
+        "brown",
+        "red",
+        "burgundy",
+        "pastel pink",
+        "hot pink",
+        "orange",
+        "yellow",
+        "green",
+        "teal",
+        "blue",
+        "purple",
+        "gold",
+        "silver",
+        "multicolor"
+      ]
+    },
+    {
+      "key": "seasons",
+      "multi": true,
+      "vocab": [
+        "spring",
+        "summer",
+        "fall",
+        "winter"
+      ]
+    },
+    {
+      "key": "kind",
+      "multi": false,
+      "vocab": [
+        "stud",
+        "hoop",
+        "dangle",
+        "climber",
+        "chain / threader",
+        "cuff / clip-on",
+        "set",
+        "open / adjustable",
+        "band",
+        "stone / statement",
+        "multi-finger",
+        "midi / toe",
+        "pendant",
+        "chain",
+        "layered",
+        "collar",
+        "pullover",
+        "cardigan",
+        "vest",
+        "ankle",
+        "mid-calf",
+        "knee-high",
+        "over-the-knee",
+        "low-top",
+        "high-top",
+        "slide",
+        "flip-flop",
+        "strappy",
+        "gladiator",
+        "pump",
+        "block",
+        "stiletto",
+        "kitten",
+        "ballet",
+        "loafer",
+        "slip-on",
+        "bootie",
+        "clog"
+      ]
+    },
+    {
+      "key": "styles",
+      "multi": true,
+      "vocab": [
+        "casual",
+        "dressy",
+        "professional",
+        "lounge",
+        "sleep",
+        "party",
+        "date night",
+        "formal",
+        "festival",
+        "workout",
+        "costume",
+        "holidays"
+      ]
+    },
+    {
+      "key": "looks",
+      "multi": true,
+      "vocab": [
+        "gothic",
+        "punk",
+        "grunge",
+        "witchy",
+        "spooky",
+        "holiday-themed",
+        "boho",
+        "cottagecore",
+        "fairy",
+        "preppy",
+        "dark academia",
+        "retro",
+        "vintage",
+        "y2k",
+        "cute",
+        "quirky",
+        "coquette",
+        "masculine",
+        "romantic",
+        "elegant",
+        "glam",
+        "theatrical",
+        "edgy",
+        "sexy",
+        "minimalist",
+        "maximalist",
+        "classic",
+        "cozy",
+        "sporty",
+        "streetwear",
+        "western",
+        "resort"
+      ]
+    },
+    {
+      "key": "fits",
+      "multi": true,
+      "vocab": [
+        "oversized",
+        "relaxed",
+        "fitted",
+        "bodycon",
+        "a-line",
+        "flowy",
+        "structured",
+        "cinched waist",
+        "high-waisted",
+        "low-rise",
+        "wide-leg",
+        "skinny",
+        "straight",
+        "flared"
+      ]
+    },
+    {
+      "key": "stretch",
+      "multi": true,
+      "vocab": [
+        "non-stretch",
+        "slight stretch",
+        "high stretch"
+      ]
+    },
+    {
+      "key": "neckline",
+      "multi": true,
+      "vocab": [
+        "v-neck",
+        "plunging",
+        "scoop",
+        "square",
+        "crew",
+        "boat",
+        "halter",
+        "off-shoulder",
+        "one-shoulder",
+        "strapless",
+        "sweetheart",
+        "cowl",
+        "turtleneck",
+        "high neck",
+        "keyhole",
+        "collared"
+      ]
+    },
+    {
+      "key": "pattern",
+      "multi": true,
+      "vocab": [
+        "tortoiseshell",
+        "solid",
+        "floral",
+        "striped",
+        "plaid",
+        "gingham",
+        "polka dot",
+        "animal print",
+        "tie-dye",
+        "graphic",
+        "slogan",
+        "skull",
+        "cartoon",
+        "geometric",
+        "ombre",
+        "color block",
+        "checkered",
+        "celestial",
+        "hearts",
+        "food",
+        "novelty print"
+      ]
+    },
+    {
+      "key": "material",
+      "multi": true,
+      "vocab": [
+        "knit",
+        "ribbed",
+        "denim",
+        "velvet",
+        "lace",
+        "mesh",
+        "sheer",
+        "satin",
+        "cotton",
+        "corduroy",
+        "fleece",
+        "faux leather",
+        "faux fur",
+        "suede",
+        "sequin",
+        "waffle",
+        "linen",
+        "fishnet",
+        "tulle",
+        "crochet",
+        "metallic / lamé",
+        "vinyl / PVC",
+        "jersey",
+        "brocade"
+      ]
+    },
+    {
+      "key": "details",
+      "multi": true,
+      "vocab": [
+        "pockets",
+        "ruffles",
+        "bows",
+        "cutouts",
+        "corset / lacing",
+        "buckles",
+        "chains",
+        "tassels",
+        "zipper",
+        "button-front",
+        "tie-front",
+        "ruched",
+        "pleated",
+        "backless",
+        "drawstring",
+        "fringe",
+        "rhinestones",
+        "studs",
+        "distressed",
+        "embroidered",
+        "patches / appliqué",
+        "lace trim",
+        "puff sleeves",
+        "hood"
+      ]
+    },
+    {
+      "key": "sleeve",
+      "multi": false,
+      "vocab": [
+        "sleeveless",
+        "strapless",
+        "cap",
+        "short",
+        "three-quarter",
+        "long"
+      ]
+    },
+    {
+      "key": "length",
+      "multi": false,
+      "vocab": [
+        "crop",
+        "regular",
+        "longline",
+        "mini",
+        "knee",
+        "midi",
+        "maxi",
+        "short",
+        "capri",
+        "ankle",
+        "full length",
+        "choker",
+        "medium",
+        "long"
+      ]
+    },
+    {
+      "key": "statement",
+      "multi": false,
+      "vocab": [
+        "plain",
+        "medium",
+        "loud"
+      ]
+    },
+    {
+      "key": "sockType",
+      "multi": false,
+      "vocab": [
+        "ankle",
+        "crew",
+        "knee high",
+        "thigh high"
+      ]
+    },
+    {
+      "key": "shape",
+      "multi": false,
+      "vocab": [
+        "round",
+        "cat-eye",
+        "square",
+        "rectangular",
+        "oval",
+        "browline",
+        "aviator",
+        "geometric",
+        "heart",
+        "oversized",
+        "butterfly"
+      ]
+    },
+    {
+      "key": "shoefeat",
+      "multi": true,
+      "vocab": [
+        "platform",
+        "mary jane",
+        "waterproof",
+        "open toe",
+        "lace-up",
+        "slingback",
+        "ankle strap",
+        "chunky sole",
+        "wedge",
+        "slip-on",
+        "zip",
+        "fur / fleece-lined"
+      ]
+    },
+    {
+      "key": "eartags",
+      "multi": true,
+      "vocab": [
+        "cartilage",
+        "hidden helix",
+        "multi-hole",
+        "flatback",
+        "threaded",
+        "push-pin",
+        "singles",
+        "micro"
+      ]
+    },
+    {
+      "key": "jfeat",
+      "multi": true,
+      "vocab": [
+        "gemstones",
+        "crystals / rhinestones",
+        "pearls",
+        "enamel",
+        "beaded",
+        "charms / dangle",
+        "mixed metals"
+      ]
+    },
+    {
+      "key": "jmetal",
+      "multi": true,
+      "vocab": [
+        "titanium",
+        "stainless steel",
+        "sterling silver",
+        "gold-filled / solid gold",
+        "plated",
+        "copper / brass / alloy",
+        "acrylic / resin",
+        "glass / ceramic"
+      ]
+    },
+    {
+      "key": "lens",
+      "multi": true,
+      "vocab": [
+        "transitions",
+        "progressive",
+        "clip-on",
+        "polarized",
+        "blue-light",
+        "gradient tint",
+        "tinted"
+      ]
+    }
+  ],
+  "glassesTypes": [
+    "Distance",
+    "Computer",
+    "Readers",
+    "Sunglasses"
+  ]
+}

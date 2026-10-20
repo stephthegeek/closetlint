@@ -1,0 +1,28 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const src=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8'),c={Set,Error};vm.createContext(c);
+vm.runInContext(src.slice(src.indexOf('function photoFraming('),src.indexOf('function photoRecord(')),c);
+vm.runInContext(src.slice(src.indexOf('function piecePhotos('),src.indexOf('function piecePhotoPanel(')),c);
+vm.runInContext(src.slice(src.indexOf('function tidyPhotoCandidates('),src.indexOf('function openTidyPhotos(')),c);
+const tick=()=>new Promise(setImmediate);
+(async()=>{
+ const items=Array.from({length:25},(_,i)=>({id:'p'+i,name:'Synthetic '+i,photoId:'photo'+i,photos:[{photoId:'photo'+i,kind:'model'}]}));
+ const input=JSON.stringify(items);let prepared=0,writes=0,attempts=0,failSave=true;
+ const candidates=c.tidyPhotoCandidates(items,null,true);
+ const q=c.createTidyQueue(candidates,{change(){},remove:async()=>{prepared++;return {size:10}},save:async(row,main)=>{attempts++;if(row.itemId==='p1'&&failSave)throw Error('Synthetic save failure');writes++;assert.equal(main,false)}});
+ await q.next();assert.equal(prepared,12);assert.equal(writes,0,'preparing a batch never writes');assert.equal(q.page.length,12);
+ q.page[0].checked=q.page[1].checked=true;await q.keep(false);
+ assert.equal(writes,1);assert.equal(q.page[0].status,'kept');assert.equal(q.page[1].status,'ready','failed save stays reviewable');
+ failSave=false;await q.keep(false);assert.equal(writes,2);assert.equal(attempts,3,'already kept rows are not saved again');
+ await q.next();assert.equal(prepared,24);assert.equal(writes,2,'moving past unchecked results never saves them');await q.next();assert.equal(prepared,25);assert.equal(q.page.length,1);
+ assert.equal(JSON.stringify(items),input,'candidate selection and preparation leave source records unchanged');
+ const withCutout={...items[0],photos:[...items[0].photos,{photoId:'cutout',sourcePhotoId:'photo0',cutout:true}]};
+ assert.equal(c.tidyPhotoCandidates([withCutout],null,true).length,0);assert.equal(c.tidyPhotoCandidates([withCutout],null,false).length,1);
+ assert.equal(c.tidyPhotoCandidates(items,['p4'],true)[0].itemId,'p4');
+ assert.equal(c.tidyPhotoCandidates([items[0],{...items[0],id:'other-variant'}],null,true).length,2,'separate pieces sharing a source are not lost');
+ let release;
+ const cancelled=c.createTidyQueue(candidates,{change(){},remove:()=>new Promise(r=>release=r),save:async()=>{throw Error('must not save')}});
+ const running=cancelled.next();cancelled.cancel();release({size:10});await running;assert.equal(cancelled.page.filter(x=>x.status==='ready').length,0);assert.equal(cancelled.running,false);
+ let n=0;const failed=c.createTidyQueue(candidates.slice(0,2),{change(){},remove:async()=>{if(!n++)throw Error('Synthetic mask failure');return {size:10}},save:async()=>{}});await failed.next();assert.equal(failed.page[0].status,'error');assert.equal(failed.page[1].status,'ready');
+ assert.equal(c.photoFraming({kind:'model'}),'cover');assert.equal(c.photoFraming({kind:'model',cutout:true}),'contain');assert.equal(c.photoFraming({kind:'model',framing:'contain'}),'contain');assert.equal(c.photoFraming({kind:'unclassified'}),'contain');
+ console.log('Tidy photos: 12-result pages, explicit saves, skip defaults, variant retention, cancellation, failures, retries, and framing defaults pass.');
+})().catch(e=>{console.error(e);process.exit(1)});

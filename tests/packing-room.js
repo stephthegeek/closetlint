@@ -1,0 +1,20 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const s=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
+const c={TRIP_BAGS:[['carry','Carry-on',36]],itemWeight:x=>x.weight||'regular',weightCat:x=>x.meta==='Legwear'?(x.sub==='Socks'?'socks':'tights'):null};vm.createContext(c);vm.runInContext(s.slice(s.indexOf('function tripBudget('),s.indexOf('function tripStyleHas(')),c);
+const thin={meta:'Legwear',sub:'Socks',weight:'thin'},thick={...thin,weight:'thick'};
+assert(c.tripBulk(thick)>c.tripBulk(thin),'actual thick socks take more room');
+assert(c.tripBasicsBulk({items:[thick,thick],n:2,bulk:.25})>c.tripBasicsBulk({items:[thin,thin],n:2,bulk:.25}),'selected basics affect room');
+assert(c.tripBulk({meta:'Bottoms',sub:'Skirts',length:'maxi'})>c.tripBulk({meta:'Bottoms',sub:'Skirts',length:'mini'}));
+assert(c.tripBulk({meta:'Footwear',sub:'Boots',name:'Tall knee boots'})>c.tripBulk({meta:'Footwear',sub:'Boots',name:'Ankle boots'}));
+assert(c.tripBudget({bag:'carry'})<36,'reserve headroom for non-clothing essentials');
+assert.equal(c.tripPackingLabel(.3),'Comfortably packed');assert.equal(c.tripPackingLabel(.8),'Getting snug');assert.equal(c.tripPackingLabel(1.2),'Tight squeeze');
+console.log('Packing room: actual basics, garment length, boot height, headroom, and relative labels pass.');
+
+vm.runInContext(s.slice(s.indexOf('function tripBasicCount('),s.indexOf('function tripBasics(')),c);
+assert.equal(c.tripBasicCount('bras',1,'Bras'),'1 bra');
+assert.equal(c.tripBasicCount('bras',2,'Bras'),'2 bras');
+assert.equal(c.tripBasicCount('bras',0,'Bras'),'0 bras');
+assert.equal(c.tripBasicCount('socks',1,'Socks'),'1 pair of socks');
+assert.equal(c.tripBasicCount('tights',2,'Tights'),'2 pairs of tights');
+assert.equal(c.tripBasicCount('underwear',1,'Underwear'),'1 underwear');
+console.log('Packing basics: singular bras and paired legwear pass.');

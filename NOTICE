@@ -1,0 +1,27 @@
+Closet Lint
+Copyright (C) 2026 Stephanie (stephthegeek) and Closet Lint contributors
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+The original Closet Lint code, documentation, and Linty artwork in this
+repository are licensed under the GNU General Public License, version 3
+or, at your option, any later version. See LICENSE for the full terms.
+
+You may redistribute and/or modify these works under those terms. They
+are provided without warranty, including any implied warranty of
+merchantability or fitness for a particular purpose.
+
+The license applies to copyright and related rights held by contributors;
+it does not create rights in otherwise unprotected AI-generated material.
+See AI_USE.md for the project's AI-use disclosure.
+
+Third-party components retain their own licenses. See docs/THIRD-PARTY.md.
+User wardrobe data and imported photographs are not covered by this
+project-wide license merely because they are stored or used by the app.
+
+Reuse does not imply endorsement by the original Closet Lint project.
+No trademark rights are granted by this notice.
+
+Editable Linty assets are provided in app/assets/linty/, with the
+favicon SVG in app/assets/linty-smile.svg. No separate proprietary or
+noncommercial restriction is applied to the Linty artwork.
