@@ -1,3 +1,3 @@
 # Optional environment only; model weights are downloaded separately during setup.
 rembg[cpu]>=2.0.85,<3
-Pillow>=12.3.0,<13
+Pillow>=13.0.0,<14
