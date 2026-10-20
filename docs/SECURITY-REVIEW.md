@@ -48,6 +48,10 @@ pip-audit found zero known advisories in the 29-package resolved optional graph 
 - Tokens/cross-site protections do not prevent an authorized LAN client from editing data or filling its disk. One trusted editing device at a time remains the supported model.
 - Code and Linty artwork are now GPL-3.0-or-later. GitHub private vulnerability reporting is the chosen route; enable it on the actual repository before publication. Publish a factual review status, not a “security certified” claim. Decide whether an independent review is a release requirement; another AI review is useful, but is not a human audit.
 
+## Deployment follow-up — 2026-10-20
+
+The statements above describe the 2026-10-19 review, before the public repository and static demo exporter existed. The exporter now requires an explicit collection and photo review, copies allowlisted style fields, re-encodes approved photos without source metadata, and emits a static page with no writable server. Its synthetic-data tests pass. A 12-piece synthetic export loaded with photos on SiteGround. This does not certify hosting headers, browser isolation, or a future export of Stephanie’s own collection. Review that collection’s names, tags, photographs, privacy, and publication rights before building or uploading it. The clean committed tree and current verification limits are recorded in [TESTING.md](TESTING.md).
+
 ## References
 
 - [OWASP secure code review](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Code_Review_Cheat_Sheet.html)

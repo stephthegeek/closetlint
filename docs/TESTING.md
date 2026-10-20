@@ -63,8 +63,8 @@ The existing tests check relevant synchronization and source invariants.
 
 ## Release evidence and outstanding checks
 
-The latest local full JavaScript and Python suites passed before this documentation cleanup. Focused sample-photo tests also passed after adding the realistic demo assets. A clean source extraction was exercised on Linux with Python 3.14.4 for initialization, persistence, assistant intake using an existing Pillow installation, and backup/restore.
+On 2026-10-20, a clean extraction of the committed source passed the full JavaScript suite and 47 Python tests, including the static demo exporter. The public-source boundary check found an empty embedded wardrobe and no built-in secret or machine-path pattern matches. A separate static 12-piece synthetic demo was loaded on SiteGround, with its photos visible.
 
-That rehearsal was not a fresh-machine installation certification. Windows and macOS installation, fresh optional-tool setup, complete listening-server flows, and final browser/device checks remain open. Earlier visual spot checks do not cover every subsequent change. Do not describe the current tree as a verified 0.1 release.
+These checks are not a fresh-machine installation certification. Windows and macOS installation, fresh optional-tool setup, and final browser/device checks remain open. A new listening-server check could not run in the restricted shell used for this checkpoint because socket creation was denied; existing HTTP-handler tests and the earlier hosted demo check cover different parts of that path. Do not describe the current tree as a verified 0.1 release.
 
-CI is configured for synthetic tests, dependency audits, public-source checks, and full-history secret scanning. It has not run on GitHub yet. See [SECURITY-REVIEW.md](SECURITY-REVIEW.md) for the dated security findings, tooling evidence, and limits.
+CI is configured for synthetic tests, dependency audits, public-source checks, and full-history secret scanning. Verify the result of the release-prep push in GitHub Actions before tagging a release. See [SECURITY-REVIEW.md](SECURITY-REVIEW.md) for the dated security findings, tooling evidence, and limits.
