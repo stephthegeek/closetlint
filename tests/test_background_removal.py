@@ -80,13 +80,35 @@ class BackgroundRemovalTests(unittest.TestCase):
         model = self.root / 'models/u2net/u2net.onnx';model.parent.mkdir(parents=True);model.touch()
         spec = importlib.util.spec_from_file_location('worker_under_test',Path(__file__).resolve().parents[1]/'runtime/background_worker.py')
         module = importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-        mock = SimpleNamespace(new_session=lambda *a,**kw:object(),remove=lambda im,**kw:Image.new('L',im.size,128))
-        with patch.dict(sys.modules,{'rembg':mock}),patch.dict('os.environ',{'U2NET_HOME':str(self.root)}),patch.object(sys,'argv',['worker',str(source),str(target)]):
+        mock = SimpleNamespace(disable_telemetry_events=lambda:None,
+            SessionOptions=lambda:SimpleNamespace(), InferenceSession=lambda *a,**kw:object())
+        with patch.dict(sys.modules,{'onnxruntime':mock}),patch.object(module,'verify_model'), \
+                patch.object(module,'infer_mask',side_effect=lambda im,session:Image.new('L',im.size,128)), \
+                patch.dict('os.environ',{'U2NET_HOME':str(self.root)}),patch.object(sys,'argv',['worker',str(source),str(target)]):
             module.main()
         result = Image.open(target)
         self.assertIsNone(ImageChops.difference(image.convert('RGB'), result.convert('RGB')).getbbox())
         self.assertEqual(result.getchannel('A').getextrema(),(50,50))
         self.assertEqual(Image.open(source).getchannel('A').getextrema(),(100,100))
+
+    def test_setup_refuses_wrong_model_checksum(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('worker_checksum',Path(__file__).resolve().parents[1]/'runtime/background_worker.py')
+        module = importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        model = self.root/'u2net.onnx';model.write_bytes(b'not a model')
+        with self.assertRaisesRegex(ValueError,'checksum'):
+            module.prepare(self.root)
+        self.assertEqual(model.read_bytes(),b'not a model')
+
+    def test_bad_model_download_is_not_installed(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('worker_download',Path(__file__).resolve().parents[1]/'runtime/background_worker.py')
+        module = importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        with patch.object(module,'urlopen',return_value=io.BytesIO(b'bad model')):
+            with self.assertRaisesRegex(ValueError,'checksum'):
+                module.prepare(self.root)
+        self.assertFalse((self.root/'models/u2net/u2net.onnx').exists())
+        self.assertFalse((self.root/'models/u2net/u2net.download').exists())
 
 
 if __name__ == '__main__':

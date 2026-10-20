@@ -9,7 +9,7 @@ The server uses the Python standard library, including SQLite. The client is pla
 ## Optional tools
 
 - Assistant photo import uses Pillow, installed separately through `runtime/requirements-import.txt`.
-- Local background removal installs Rembg, ONNX Runtime, Pillow, and their dependencies into a separate environment. Setup downloads the U2Net model. Neither the environment nor model weights are included in the source archive. Package and model terms should be reviewed separately before any future redistribution.
+- Local background removal installs ONNX Runtime, NumPy, Pillow, and their dependencies into a separate environment. Setup downloads and verifies the U²-Net model. Neither the environment nor model weights are included in the source archive. Package and model terms should be reviewed separately before any future redistribution.
 
 ## Fonts and network requests
 
@@ -22,7 +22,7 @@ Native emoji appearance comes from the user's operating system/browser. The opti
 The app includes Linty artwork (inline images, explicitly packaged PNG originals in app/assets/linty/, and an editable favicon SVG) and a 1×1 blank GIF used by the UI. No retailer product photographs or personal wardrobe photos are part of the public source package. The fictional sample includes 12 AI-generated product photos of invented, unbranded pieces, with prompt provenance in app/assets/demo/. The sample generator uses the bundled photos and needs only Python’s standard library.
 
 Upstream projects and license information:
-- Rembg: https://github.com/danielgatis/rembg
+- Rembg's U²-Net model release and inference reference: https://github.com/danielgatis/rembg
 - U2Net: https://github.com/xuebinqin/U-2-Net
 - Pillow: https://python-pillow.github.io/
 - Google Fonts source and per-family license files: https://github.com/google/fonts
@@ -39,8 +39,8 @@ These components are installed separately, not copied into the source tree:
 | Component | Reviewed version | Declared license |
 | --- | --- | --- |
 | Playwright (development only) | 1.64.1 | Apache-2.0 |
-| Pillow (optional photo tools) | 12.3.0 | MIT-CMU |
-| Rembg (optional background removal) | 2.0.85 | MIT |
+| Pillow (optional photo tools) | 13.0.0 | MIT-CMU |
+| NumPy (optional background removal) | 2.5.4 | BSD-3-Clause |
 | ONNX Runtime (optional CPU inference) | 1.31.0 | MIT |
 
 These declarations come from the reviewed package metadata. Their dependencies retain their own notices and are obtained through their package distributions. Model weights and font files are not redistributed here; review their respective terms and include required notices before bundling them in a future release.

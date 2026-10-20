@@ -42,7 +42,7 @@ pip-audit found zero known advisories in the 29-package resolved optional graph 
 - Source can include measurement, fit-log, price, wear-history, and lingerie features. Personal records must be absent from the source/demo. Removing functionality does not substitute for dataset separation. A future curated public export needs an explicit field allowlist, clean product URLs, photo metadata/background review, and rights review. The fictional sample avoids that blocker for the first commit.
 - The local sample is intentionally editable. It is not a read-only public demo. Do not expose this service directly on the public internet. No authentication, TLS termination, multi-user isolation, or hardened reverse-proxy configuration was added in this review.
 - Core image validation is structural/header-based, not a complete image decoder or malware scanner. Restored assets and direct API uploads preserve their bytes, including potential metadata. Normal UI/assistant ingestion re-encodes; public exports need independent privacy checks. Animated files, decoder vulnerabilities, OS resource exhaustion, disk quotas, and total wardrobe growth are not comprehensively sandboxed.
-- Worker timeout/thread limits do not impose an OS memory limit on ONNX or Pillow. Models and optional dependencies are downloaded at setup; weights are not redistributed in source. A container/OS resource boundary and offline/model checksum guarantees would be additional work.
+- Worker timeout/thread limits do not impose an OS memory limit on ONNX or Pillow. Models and optional dependencies are downloaded at setup; weights are not redistributed in source. The U²-Net model checksum is now verified at setup and before inference, but a container/OS resource boundary would be additional work.
 - Browser storage is origin-scoped convenience/draft storage, not encrypted storage. Local databases/backups rely on OS permissions and device security. External Google Fonts requests remain documented; the app is not advertised as making zero network requests.
 - Schema checks cover common fields and unsafe shapes, not a formally complete schema for every profile/trip/outfit setting. Further fuzzing and independent review are useful.
 - Tokens/cross-site protections do not prevent an authorized LAN client from editing data or filling its disk. One trusted editing device at a time remains the supported model.
@@ -51,6 +51,10 @@ pip-audit found zero known advisories in the 29-package resolved optional graph 
 ## Deployment follow-up — 2026-10-20
 
 The statements above describe the 2026-10-19 review, before the public repository and static demo exporter existed. The exporter now requires an explicit collection and photo review, copies allowlisted style fields, re-encodes approved photos without source metadata, and emits a static page with no writable server. Its synthetic-data tests pass. A 12-piece synthetic export loaded with photos on SiteGround. This does not certify hosting headers, browser isolation, or a future export of Stephanie’s own collection. Review that collection’s names, tags, photographs, privacy, and publication rights before building or uploading it. The clean committed tree and current verification limits are recorded in [TESTING.md](TESTING.md).
+
+## Optional photo environment follow-up — 2026-10-20
+
+Pillow 13 fixed advisories that remained in Pillow 12.3. Rembg 2.0.85 requires Pillow below 13, so the optional worker now calls the same U²-Net model through ONNX Runtime directly. Both optional photo environments require Pillow 13 or newer. The installer reuses a verified existing model where available, and new model downloads are checked against a pinned SHA-256 before use. Existing optional installations need to run setup again. The original-photo and preview boundaries are unchanged. See [TESTING.md](TESTING.md) for current verification.
 
 ## References
 
