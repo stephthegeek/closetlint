@@ -40,7 +40,7 @@ On Windows, use `py -3.12` instead of `python3.12`. Adjust the version if you in
 
 Setup needs an internet connection and downloads a model and supporting software. Allow extra disk space and memory. Afterward, processing stays on your computer, with no paid AI service required. Refresh the app when setup finishes. Your phone can use the same tool through the running app.
 
-Repeat setup after moving to another computer. Re-run it if you set up background removal before the Pillow 13 update; the existing model can be reused.
+Repeat setup after moving to another computer. If removal stops working after an app update, rerun setup; it can reuse a verified existing model.
 
 ## If something looks wrong
 

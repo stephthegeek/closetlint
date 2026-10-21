@@ -4,7 +4,7 @@ A wardrobe goblin who lives in your closet and knows where everything is.
 
 Browse everything you own (or are scheming to own), drag pieces around an outfit board until something clicks, and rate the outfits it dreams up for you: love it, meh, absolutely not. It learns your taste from those ratings, ranks your wishlist by how much it would actually earn its keep in your closet, and helps you plan trips and packing lists.
 
-**Pre-release development snapshot.** Version 0.1 is still being prepared. Installation and interface testing are still in progress.
+**0.1 release candidate.** Final mobile testing is in progress.
 
 ## How to run Closet Lint on your computer
 

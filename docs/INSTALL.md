@@ -26,7 +26,7 @@ You’ll need Python 3.10 or newer, a web browser, and the downloaded Closet Lin
 
 Keep the terminal open while using the app. Press **Ctrl+C** to stop it, and use the same command to start again. Saved pieces and photos stay in `closet-lint-data`, separate from the app folder.
 
-Installation testing for Windows and macOS is still in progress.
+Installation has been checked on Linux. The Windows and macOS commands are provided, but installation on those systems has not been tested.
 
 ## Optional: try the sample collection
 

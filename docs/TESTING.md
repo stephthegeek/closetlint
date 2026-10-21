@@ -21,7 +21,7 @@ Coverage includes:
 - Import validation, duplicate handling, image metadata, retry/idempotency, and transactional failure behavior.
 - Storage persistence, full backup/restore, missing-photo rejection, recovery snapshots, and rollback.
 - Unsafe text/URLs, poisoned JSON keys, malformed archives and image headers, request tokens, origin/Host checks, and CSP generation.
-- The fictional 12-piece sample’s taxonomy, photos, export/restore, and refusal to replace a nonempty wardrobe.
+- The 12-piece sample’s taxonomy, photos, export/restore, and refusal to replace a nonempty wardrobe.
 
 HTTP-handler tests use in-memory connections. They do not replace a listening-server test. JavaScript VM tests do not verify native dialogs, focus behavior, rendering, or mobile keyboards.
 
@@ -61,12 +61,22 @@ The served HTML contains embedded copies of several maintained source files. Aft
 
 The existing tests check relevant synchronization and source invariants.
 
-## Release evidence and outstanding checks
+## 0.1 candidate verification
 
-On 2026-10-20, a clean extraction of the committed source passed the full JavaScript suite and 47 Python tests, including the static demo exporter. The public-source boundary check found an empty embedded wardrobe and no built-in secret or machine-path pattern matches. A separate static 12-piece synthetic demo was loaded on SiteGround, with its photos visible.
+The release branch excludes Sky. The development build and dev site retain it; checks of those builds do not establish that Sky is part of 0.1.
 
-These checks are not a fresh-machine installation certification. Windows and macOS installation, fresh optional-tool setup, and final browser/device checks remain open. A new listening-server check could not run in the restricted shell used for this checkpoint because socket creation was denied; existing HTTP-handler tests and the earlier hosted demo check cover different parts of that path. Do not describe the current tree as a verified 0.1 release.
+Completed on the candidate:
 
-CI is configured for synthetic tests, dependency audits, public-source checks, and full-history secret scanning. Verify the result of the release-prep push in GitHub Actions before tagging a release. See [SECURITY-REVIEW.md](SECURITY-REVIEW.md) for the dated security findings, tooling evidence, and limits.
+- GitHub Actions passed the full JavaScript suite, 53 Python tests, dependency advisory checks, public-source checks, and full-history Gitleaks scanning. Actions are pinned to commit revisions.
+- A separate Python 3.10 CI job passed core runtime tests and sample initialization, startup preparation, and backup export without optional packages. The full suite also runs on Python 3.12.
+- On Linux with Python 3.14, a freshly extracted ZIP started a listening server without site packages. Its manifest matched its files, and its source contained no embedded wardrobe or Sky modules.
+- A browser downloaded a full sample backup containing 12 photos, a saved outfit, and a working board. Cancelling restore preserved a sample edit. Confirming restore reproduced the backed-up catalog, collections, and board exactly; the automatic recovery snapshot retained the replaced edit. Updated extracted source reopened the same data successfully. This checks source replacement, not a general future-version migration or downgrade guarantee.
+- Browse-title padding and theme typography were checked at 390 × 844 and 1300 × 900 across all three themes in light and dark. Lab accessory labels, shoe preservation while accessorizing, and positive-first My Taste ordering were checked with synthetic data.
+- A read-only performance pass used an existing 1,100-piece wardrobe at 390 × 844 in desktop Chrome. Search, category filtering, scrolling, and board-tray search responded without a visible stall. Browse mounted 60 cards plus its loading sentinel rather than the whole wardrobe. This was a bounded observation, not a hardware benchmark or physical-phone test; long board-tray and Lab lists remain future optimization work.
+- The optional photo worker uses direct U²-Net/ONNX inference and Pillow 13 or newer. A synthetic setup rehearsal and inference check passed previously, and the mask matched the former implementation without changing RGB pixels. The latest dependency advisory checks passed; a fresh optional-tool installation was not repeated during the final recovery pass.
 
-On 2026-10-20, the optional photo worker was changed to direct U²-Net/ONNX inference so both photo environments can use Pillow 13. A clean source snapshot passed the full JavaScript suite, 49 Python tests, and the public-source check. `pip-audit` reported no known advisories for the combined optional requirements. The new mask matched the previous Rembg mask pixel for pixel on a synthetic garment photo, and its RGB pixels were unchanged. A synthetic installer rehearsal and a synthetic-photo run through Stephanie’s updated local optional environment succeeded. No browser or other operating system was checked for this change.
+The passing source/security and minimum-Python jobs are recorded in [this CI run](https://github.com/stephthegeek/closetlint/actions/runs/39668276536). Changes after that commit need their relevant checks.
+
+Still open before tagging: Stephanie’s final physical-mobile workflow pass and resolution of any blockers it finds. Windows and macOS installation, broad assistive-technology coverage, and an independent human security audit have not been completed. State these limits in release notes rather than implying every platform or workflow has been certified.
+
+See [the security review](SECURITY-REVIEW.md) for security boundaries and residual risks.
