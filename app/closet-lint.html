@@ -6309,17 +6309,17 @@ function showNotice(){
   if(photoState.failed)msgs.push('Some photos did not load ('+photoState.failed+' of '+photoState.total+' photo files). Reload the page to try again.');
   else if(photoState.loaded<photoState.total)msgs.push('Loading photos ('+photoState.loaded+' of '+photoState.total+' files)...');
   if(state.pub){
-    if(PUB.site==='demo')msgs.push('12 sample pieces included with Closet Lint.');
-    else if(PUB.site==='dev')msgs.push('Stephanie\u2019s rapidly changing personal playground, with over 1,000 pieces and the latest code.');
+    if(PUB.site==='demo')msgs.push(el('span',null,'12 sample pieces included with ',el('a',{href:'https://www.closetlint.com/',text:'Closet Lint'}),'.'));
+    else if(PUB.site==='dev')msgs.push(el('span',null,'Stephanie\u2019s wardrobe playground, with over 1,000 pieces, running the latest ',el('a',{href:'https://www.closetlint.com/',text:'Closet Lint'}),' code.'));
     else msgs.push('You are looking at a public copy of a closet.');
     msgs.push('Changes stay only in your browser. Reset them from the menu.');
   }else if(window.ClosetLintRuntime&&window.ClosetLintRuntime.error)msgs.push(window.ClosetLintRuntime.error);
   else if(state.capsDone&&!state.db)msgs.push('Edits, outfits and new pieces are not saved in this view. Start the local service to keep them.');
-  n.textContent=msgs.join(' ');
+  n.textContent='';msgs.forEach(function(msg,i){if(i)n.appendChild(document.createTextNode(' '));n.appendChild(typeof msg==='string'?document.createTextNode(msg):msg)});
   if(state.pub&&PUB.peerReady&&(PUB.site==='demo'||PUB.site==='dev')){
     var link=document.createElement('a');
     link.href=PUB.site==='demo'?'https://dev.closetlint.com/':'https://demo.closetlint.com/';
-    link.textContent=PUB.site==='demo'?'Stephanie\u2019s dev playground \u2192':'Explore the 12-piece demo \u2192';
+    link.textContent=PUB.site==='demo'?'Stephanie\u2019s wardrobe playground \u2192':'Explore the 12-piece demo \u2192';
     n.appendChild(document.createTextNode(' '));n.appendChild(link);
   }
   n.classList.toggle('hide',!msgs.length);
