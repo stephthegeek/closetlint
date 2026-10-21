@@ -121,8 +121,16 @@ class Handler(BaseHTTPRequestHandler):
         origin = self.headers.get('Origin')
         if origin is not None and origin != 'http://' + host:
             return False
-        if self.headers.get('Sec-Fetch-Site') not in (None, 'same-origin', 'none'):
-            return False
+        site = self.headers.get('Sec-Fetch-Site')
+        if site not in (None, 'same-origin', 'none'):
+            # Browser extensions and links may initiate a top-level visit from
+            # another origin. Only the app document may be opened this way;
+            # API and photo requests still require a same-origin context.
+            if not (self.command == 'GET' and urlsplit(self.path).path == '/'
+                    and site == 'cross-site' and origin is None
+                    and self.headers.get('Sec-Fetch-Mode') == 'navigate'
+                    and self.headers.get('Sec-Fetch-Dest') == 'document'):
+                return False
         return not token or secrets.compare_digest(self.headers.get('X-ClosetLint-Token', ''), self.server.token)
 
     def body_length(self, limit):

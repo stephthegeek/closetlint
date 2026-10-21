@@ -3,9 +3,9 @@ const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8'),routes=f
 function fn(n){const a=html.indexOf('function '+n+'('),b=html.indexOf('\nfunction ',a+1);assert(a>=0,n);return html.slice(a,b)}
 function fixture(hash=''){
  const nodes={},listeners={},stack=[{state:null,url:hash}],writes=[],prompts=[],notices=[];let pos=0,allow=true;
- function node(id){return nodes[id]||(nodes[id]={value:'',open:false,scrollTop:0,fields:[],images:[],dataset:{},events:{},classList:{toggle(){}},setAttribute(){},getAttribute(){return ''},querySelectorAll(sel){return sel==='.ph img'?this.images:this.fields},querySelector(){return null},addEventListener(k,f){(this.events[k]??=[]).push(f)},close(){if(!this.open)return;this.open=false;(this.events.close||[]).forEach(f=>f({}))},showModal(){this.open=true}})}
+ function node(id){return nodes[id]||(nodes[id]={value:'',open:false,scrollTop:0,fields:[],images:[],pressed:[],dataset:{},events:{},classList:{toggle(){}},setAttribute(){},getAttribute(){return ''},querySelectorAll(sel){return sel==='.ph img'?this.images:sel.includes('.form .tagfield')?this.pressed:this.fields},querySelector(){return null},addEventListener(k,f){(this.events[k]??=[]).push(f)},close(){if(!this.open)return;this.open=false;(this.events.close||[]).forEach(f=>f({}))},showModal(){this.open=true}})}
  const location={hash},win={location,scrollY:0,addEventListener(k,f){(listeners[k]??=[]).push(f)},scrollTo(x,y){this.scrollY=y},confirm(m){prompts.push(m);return allow},ClosetLintRuntime:{setBoard(b){writes.push(JSON.parse(JSON.stringify(b)))}}};
- const hist=win.history={pushState(state,x,url){stack.splice(pos+1);stack.push({state,url});pos++;location.hash=url},replaceState(state,x,url){stack[pos]={state,url};location.hash=url},go(delta){pos+=delta;assert(pos>=0&&pos<stack.length);location.hash=stack[pos].url;this.state=stack[pos].state;(listeners.popstate||[]).forEach(f=>f({state:this.state}));(listeners.hashchange||[]).forEach(f=>f({}))},back(){this.go(-1)},forward(){this.go(1)}};
+ const hist=win.history={pushState(state,x,url){stack.splice(pos+1);stack.push({state,url});pos++;location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},replaceState(state,x,url){stack[pos]={state,url};location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},go(delta){pos+=delta;assert(pos>=0&&pos<stack.length);location.hash=stack[pos].url.includes('#')?stack[pos].url.slice(stack[pos].url.indexOf('#')):'';this.state=stack[pos].state;(listeners.popstate||[]).forEach(f=>f({state:this.state}));(listeners.hashchange||[]).forEach(f=>f({}))},back(){this.go(-1)},forward(){this.go(1)}};
  const scratch={id:null,name:'My working pile',pieces:[{id:'a',x:1,y:2,w:30,z:1}]},saved={id:'o1',name:'Dinner',pieces:[{id:'b',x:5,y:6,w:40,z:1}]};
  const state={tab:'all',capsDone:false,db:{},pub:false,board:scratch,outfits:{o1:saved},trips:{t1:{name:'Weekend',settings:{dest:'Home'},plan:{}}},q:'',collectionFilter:{},of:{},fantasy:false};
  const ctx={window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
@@ -18,9 +18,12 @@ function fixture(hash=''){
 {
  const f=fixture('#/outfits/o1'),{ctx,state,scratch,saved,win,hist}=f;
  win.ClosetLintRoutes.ready();assert.equal(state.editingOutfit,undefined,'deep link waits for storage');f.ready();
+ assert.equal(ctx.document.title,'Dinner · Closet Lint');
  assert.equal(state.editingOutfit,true);assert.equal(state.scratchBoard,scratch);assert.equal(state.board.id,'o1');assert.notEqual(state.board.pieces[0],saved.pieces[0]);assert.equal(f.writes.length,1);assert.equal(f.writes[0].pieces[0].id,'a');
  state.board.pieces[0].x=99;const edited=state.board;ctx.openEdit({id:'b'});assert.equal(win.location.hash,'#/pieces/b');assert.equal(f.prompts.length,0,'piece can open over unsaved outfit');
+ assert.equal(ctx.document.title,'Piece · Closet Lint');
  hist.back();assert.equal(win.location.hash,'#/outfits/o1');assert.equal(state.board,edited);assert.equal(state.board.pieces[0].x,99,'Back closes piece without discarding outfit edits');assert.equal(f.prompts.length,0);
+ assert.equal(ctx.document.title,'Dinner · Closet Lint');
  hist.forward();f.node('dlg').fields[0].value='Edited piece';f.setAllow(false);hist.back();assert.equal(win.location.hash,'#/pieces/b');assert.equal(f.node('dlg').open,true);assert.equal(state.board,edited);
  f.setAllow(true);hist.back();assert.equal(state.board,edited);f.setAllow(false);const n=f.stack.length;assert.equal(ctx.setTab('outfits'),false);assert.equal(f.stack.length,n);assert.equal(state.board,edited);
  f.setAllow(true);ctx.setTab('outfits');assert.equal(win.location.hash,'#/board');assert.equal(state.board,scratch);assert.equal(saved.pieces[0].x,5);assert.equal(f.writes.length,1,'routing never persists saved-editor changes as working board');
@@ -38,6 +41,12 @@ function fixture(hash=''){
  const missing=fixture('#/outfits/missing');missing.ready();assert.equal(missing.win.location.hash,'#/outfits');assert.equal(missing.state.board,missing.scratch);assert.equal(missing.writes.length,0);assert.equal(missing.notices.length,1);const inherited=fixture('#/outfits/__proto__');inherited.ready();assert.equal(inherited.win.location.hash,'#/outfits','inherited object keys are not outfit records');
 }
 {
+ const f=fixture(),chip={textContent:'Floral',pressed:'false',getAttribute(){return this.pressed}};
+ f.node('dlg').pressed=[chip];f.ready();f.ctx.openEdit({id:'a'});chip.pressed='true';f.setAllow(false);
+ f.ctx.closeDlg();assert.equal(f.node('dlg').open,true,'clicking outside cannot discard unsaved tag choices');
+ assert.equal(f.prompts.length,1);f.setAllow(true);f.ctx.closeDlg();assert.equal(f.node('dlg').open,false);
+}
+{
  const f=fixture('#/trips/t1'),{ctx,state,win,hist}=f;f.ready();assert.equal(state.trip.id,'t1');state.trip.dest='Changed';const trip=state.trip;ctx.openEdit({id:'a'});hist.back();assert.equal(state.trip,trip);assert.equal(state.trip.dest,'Changed');f.setAllow(false);assert.equal(ctx.setTab('all'),false);assert.equal(win.location.hash,'#/trips/t1');assert.equal(state.trip,trip);f.setAllow(true);ctx.setTab('all');assert.equal(state.trip,null);assert.equal(state.trips.t1.settings.dest,'Home');
 }
 {
@@ -53,4 +62,4 @@ function fixture(hash=''){
  ctx.setTab('saved');assert.equal(win.location.hash,'#/outfits');assert.equal(state.ofView,'outfits');hist.back();assert.equal(state.ofView,'history');assert.equal(state.histMonth,'2026-12');assert.equal(state.board,f.scratch);
  const d=f.node('collections-dialog');d.showModal();let name='Original',busy=false;win.ClosetLintRoutes.trackDialog(d,()=>name,()=>busy);name='Edit';f.setAllow(false);assert.equal(win.ClosetLintRoutes.closeTrackedDialog(d),false);assert.equal(d.open,true);f.setAllow(true);busy=true;assert.equal(win.ClosetLintRoutes.closeTrackedDialog(d),false);busy=false;assert.equal(win.ClosetLintRoutes.closeTrackedDialog(d),true);assert.equal(d.open,false);assert.equal(win.location.hash,'#/calendar?month=2026-12','closing collection editor preserves underlying workflow');
 }
-console.log('URL app integration: hydrated deep links, real board isolation, dirty forms/photos/outfits/trips, cancelled Back/menu navigation, direct-link close, missing records, collections, and browse context pass.');
+console.log('URL app integration: deep links, board isolation, unsaved fields and chips, trips, collections, calendar, and browser history pass.');

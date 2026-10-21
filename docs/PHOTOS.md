@@ -24,9 +24,9 @@ Each piece can have up to 10 photos, including background-removed versions. Save
 
 Background removal is optional and runs on the computer hosting Closet Lint. It keeps the original photo and creates a separate version with a transparent background. It doesn't redraw the garment or remove a person wearing it.
 
-Choose **Remove background**, check the result, and select **Keep this version** or **Discard**. You can make the new version the main photo when keeping it.
+Choose **Remove background** and check the result. **Use cutout as main photo** saves it as the main photo; **Discard** keeps the original as it was. The original remains available either way.
 
-For several pieces, open **Menu → Utilities → Tidy photos**. Choose a collection or another group, then review up to 12 pairs at a time. Select the results you like and choose **Keep selected**. Nothing is kept automatically, and originals remain available.
+For several pieces, open **Menu → Utilities → Tidy photos**. Choose a collection or another group, then review up to 12 pairs at a time. Each piece starts with **Original** selected. Click a **Cutout** to save it as the main photo, then continue. Photos left on **Original** will not be suggested in Tidy photos again. Originals remain available, and you can retry background removal from an individual piece page. Failed removals can still be retried later.
 
 ### Set up background removal
 

@@ -13,6 +13,8 @@ function closetRouteHash(route){
   return '#/'+route.type+(route.id?'/'+encodeURIComponent(route.id):'')+(route.type==='closet'&&route.category&&route.category!=='all'?'?category='+encodeURIComponent(route.category):route.type==='calendar'&&route.month?'?month='+encodeURIComponent(route.month):'');
 }
 
+function closetRouteHref(route){return closetRouteHash(route)}
+
 function createClosetHistory(env){
   var current=null,entries={},bounce=null;
   function copy(x){return x==null?x:JSON.parse(JSON.stringify(x))}
@@ -55,6 +57,16 @@ function installClosetRoutes(){
   function capture(){var values={};browseKeys.forEach(function(k){if(state[k]!==undefined)values[k]=copy(state[k])});return {tab:state.tab,values:values,scroll:window.scrollY||0,filterScroll:$('filters')?$('filters').scrollTop:0}}
   function restoreValues(context){if(!context)return;Object.keys(context.values||{}).forEach(function(k){if(browseKeys.indexOf(k)>=0)state[k]=copy(context.values[k])});if($('qbox'))$('qbox').value=state.q||''}
   function restoreScroll(context){var revision=scrollRevision;requestAnimationFrame(function(){requestAnimationFrame(function(){if(revision!==scrollRevision)return;window.scrollTo(0,context.scroll||0);if($('filters'))$('filters').scrollTop=context.filterScroll||0})})}
+  function pageTitle(route){
+    var name='Closet';
+    if(route.type==='closet')name=({all:'Closet',clothing:'Clothing',accessories:'Accessories',jewelry:'Jewelry',offduty:'Off-duty'})[route.category]||'Closet';
+    else if(route.type==='pieces')name=(byId()[route.id]||{}).name||'Piece';
+    else if(route.type==='outfits')name=route.id?(state.outfits[route.id]||{}).name||'Outfit':'Outfits';
+    else if(route.type==='collections')name=route.id?(collectionList().find(function(c){return c.id===route.id})||{}).name||'Collection':'Collections';
+    else if(route.type==='trips')name=route.id&&route.id!=='new'?(state.trips[route.id]||{}).name||'Trip':route.id==='new'?'Plan a trip':'Trips';
+    else name=({board:'Board',calendar:'Calendar',lab:'Outfit Lab','wishlist-ranking':'Wishlist ranking','buy-check':'Buy check'})[route.type]||'Closet';
+    document.title=name+' · Closet Lint';
+  }
   function routeFromState(){
     if(formTrack&&formTrack.id&&$('dlg').open)return {type:'pieces',id:formTrack.id};
     if(state.editingOutfit&&state.board.id)return {type:'outfits',id:state.board.id};
@@ -72,7 +84,7 @@ function installClosetRoutes(){
   }
   function signature(){
     var d=$('dlg');if(!d.open)return '';
-    return JSON.stringify(Array.from(d.querySelectorAll('input,select,textarea')).filter(function(n){return !/^(button|submit|color|range)$/.test(n.type||'')&&!n.closest('.photo-options,.phtools,.photo-primary-action')}).map(function(n){return [n.name||n.getAttribute('aria-label')||'',n.type==='file'?Array.from(n.files||[]).map(function(f){return [f.name,f.size,f.lastModified]}):n.type==='checkbox'||n.type==='radio'?n.checked:n.value]}).concat([d.querySelector('.titlewrap')?d.querySelector('.titlewrap').textContent:'',formTrack&&!formTrack.id?Array.from(d.querySelectorAll('.ph img')).map(function(n){return n.src}):[]]));
+    return JSON.stringify(Array.from(d.querySelectorAll('input,select,textarea')).filter(function(n){return !/^(button|submit|color|range)$/.test(n.type||'')&&!n.closest('.photo-options,.phtools,.photo-primary-action')}).map(function(n){return [n.name||n.getAttribute('aria-label')||'',n.type==='file'?Array.from(n.files||[]).map(function(f){return [f.name,f.size,f.lastModified]}):n.type==='checkbox'||n.type==='radio'?n.checked:n.value]}).concat([Array.from(d.querySelectorAll('.form .tagfield .chip[aria-pressed],.form .chips .chip[aria-pressed]')).map(function(n){return [n.textContent,n.getAttribute('aria-pressed')] }),d.querySelector('.titlewrap')?d.querySelector('.titlewrap').textContent:'',formTrack&&!formTrack.id?Array.from(d.querySelectorAll('.ph img')).map(function(n){return n.src}):[]]));
   }
   function track(id){formTrack={id:id||null};formBase=signature()}
   function dirtyForm(){return !!formTrack&&$('dlg').open&&signature()!==formBase&&(!formTrack.id||!!byId()[formTrack.id])}
@@ -109,7 +121,7 @@ function installClosetRoutes(){
       else if(route.type==='trips'&&route.id){if(!sameTrip(route)){original.setTab('trip');if(route.id==='new'){state.trip=tripNew();original.tripRender()}else original.tripOpen(route.id)}else original.tripRender()}
       else{original.setTab(route.type==='closet'?route.category||'all':({board:'outfits',outfits:'saved',trips:'trip',lab:'lab','wishlist-ranking':'wrank','buy-check':'buy'})[route.type]||'all')}
       if(context){restoreValues(context);if(isClosetTab(state.tab)){renderFilters();original.renderGrid()}else if(state.tab==='saved')renderSaved()}
-    }finally{applying=false;state.routeScrollRestore=false}
+    }finally{pageTitle(route);applying=false;state.routeScrollRestore=false}
   }
   var history=createClosetHistory({history:window.history,location:window.location,resolve:resolve,guard:guard,capture:capture,apply:apply,restoreScroll:restoreScroll});
   function navigate(route,action){if(!started||applying)return action? action():false;var same=closetRouteHash(route)===closetRouteHash(history.current().route);return history.go(route,{force:same,replace:same})}

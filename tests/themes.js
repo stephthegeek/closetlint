@@ -12,6 +12,8 @@ assert.equal(node('root').attrs['data-skin'],'fieldnotes');assert.equal(node('ro
 node('site-theme').value='editorial';node('icon-pack').value='masc';node('emoji-treatment').value='lilac';node('emoji-edge').value='glow';node('photo-finish').value='warm';ctx.storeDisplayPrefs();
 assert.equal(writes.length,1);assert.equal(writes[0][0],'closetlint.display.v1');assert.equal(writes[0][1].skin,'editorial');assert.equal(writes[0][1].icons,'masc');assert.equal(writes[0][1].theme,'light');assert.equal(writes[0][1].density,3);assert.equal(node('go-closet-icon').textContent,'🧥');assert.equal(node('go-lab-icon').textContent,'🧑‍🔬');
 const clean=ctx.cleanDisplayPrefs({skin:'bad',icons:'bad',emoji:'bad',edge:'bad',photo:'bad'});assert.equal(clean.skin,'workshop');assert.equal(clean.icons,'femme');assert.equal(clean.photo,'original');assert.equal(ctx.cleanDisplayPrefs({photo:'warm'}).photo,'original','retired tint never alters garment colors');
+assert.equal(ctx.cleanDisplayPrefs({photo:'light'}).photo,'light','the light photo backdrop remains a view preference');
+ctx.applyDisplayPrefs({photo:'light'});assert.equal(node('root').attrs['data-photo'],'light');
 vm.runInContext(source.match(/function ratingEmoji\(r\)\{[^\n]+/)[0]+'\n'+source.match(/function ratingWord\(r\)\{[^\n]+/)[0],ctx);assert.equal(ctx.ratingEmoji(0),'😏');assert.equal(ctx.ratingWord(0),'Liked in the Lab');assert.ok(!source.includes("[0,'😐','Meh']"));
 assert.ok(source.includes('role="switch" aria-checked="false" aria-label="Fantasy mode"'));
 const embedded=source.split('/* BEGIN LIVE THEMES (source: app/styles/themes.css) */\n')[1].split('\n/* END LIVE THEMES */')[0];assert.equal(embedded,fs.readFileSync(path.join(__dirname,'../app/styles/themes.css'),'utf8'));

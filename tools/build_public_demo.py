@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
-"""Prepare and build a static, explicitly reviewed collection demo.
+"""Prepare and build a static public closet snapshot.
 
 Prepare: python3 tools/build_public_demo.py --data DATA --collection-id ID --review-dir REVIEW
-Build:   python3 tools/build_public_demo.py --data DATA --review-dir REVIEW --out OUT
+Showcase: python3 tools/build_public_demo.py --data DATA --collection-id ID --review-dir REVIEW --mode showcase
+Dev:     python3 tools/build_public_demo.py --data DATA --all-pieces --review-dir REVIEW --mode showcase
+Build:   python3 tools/build_public_demo.py --data DATA --review-dir REVIEW --out OUT --site demo
 
 REVIEW and OUT must be new folders outside the source tree. The review folder is
 private: it contains source asset IDs and candidate photos. Nothing is uploaded.
+The default wardrobe mode publishes selected pieces only. Showcase also includes
+eligible saved outfits and exact wear dates; its mode is recorded in the review.
+All active pieces may be selected for the owner's dev site. Pieces without photos
+are allowed there, while collection demos still require approved photos.
 """
 import argparse
 import base64
+import datetime as dt
 import hashlib
 import html
 import io
 import json
+import math
 from pathlib import Path
 import re
 import sqlite3
@@ -30,9 +38,27 @@ OTHER_TEXT = {'labAs', 'layerNeed', 'weight', 'knitWeight', 'layer', 'needsUnder
               'sockWeight', 'heel', 'metal'}
 OTHER_BOOL = {'wish', 'functional', 'socksOk', 'socksRequired'}
 ASSET_ID = re.compile(r'[0-9a-f]{32}\Z')
+DATE = re.compile(r'\d{4}-\d{2}-\d{2}\Z')
+MODES = ('wardrobe', 'showcase')
+SITES = ('generic', 'demo', 'dev')
+ALL_ACTIVE = '__all_active__'
 
 
-def public_fields(source):
+def wear_dates(value):
+    if not isinstance(value, list):
+        return []
+    dates = []
+    for item in value[:10000]:
+        if isinstance(item, str) and DATE.fullmatch(item):
+            try:
+                dt.date.fromisoformat(item)
+            except ValueError:
+                continue
+            dates.append(item)
+    return sorted(set(dates))
+
+
+def public_fields(source, mode='wardrobe'):
     """Allow known style fields only; never copy the source record wholesale."""
     result = {}
     for key in ('name', 'meta', 'sub', 'section'):
@@ -56,14 +82,83 @@ def public_fields(source):
     for key in OTHER_BOOL:
         if source.get(key) is True:
             result[key] = True
+    if mode == 'showcase':
+        if source.get('fav') is True:
+            result['fav'] = True
+        dates = wear_dates(source.get('wears'))
+        if dates:
+            result['wears'] = dates
     return result
+
+
+def public_outfit(source, allowed_ids):
+    """Keep only layout, style tags, and wear history for selected pieces."""
+    parts = source.get('pieces')
+    if not isinstance(parts, list) or not parts or len(parts) > 100 or any(
+            not isinstance(part, dict) or not isinstance(part.get('id'), str) or part['id'] not in allowed_ids for part in parts):
+        return None
+    name = source.get('name')
+    if not isinstance(name, str) or not name.strip():
+        return None
+    result = {'name': name[:200], 'pieces': []}
+    for part in parts:
+        clean = {'id': part['id']}
+        for key in ('x', 'y', 'w', 'z', 'rot', 'zm', 'px', 'py'):
+            value = part.get(key)
+            if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and abs(value) <= 10000:
+                clean[key] = value
+        for key in ('fx', 'fy', 'nf', 'c'):
+            if part.get(key) == 1:
+                clean[key] = 1
+        clip = part.get('clip')
+        if isinstance(clip, list) and 3 <= len(clip) <= 100 and all(
+                isinstance(point, list) and len(point) == 2 and all(
+                    isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and 0 <= value <= 100
+                    for value in point) for point in clip):
+            clean['clip'] = clip
+        result['pieces'].append(clean)
+    for key in ('seasons', 'styles', 'looks'):
+        value = source.get(key)
+        if isinstance(value, list):
+            clean = [item for item in value if isinstance(item, str) and item in TAG_FIELDS[key]][:30]
+            if clean:
+                result[key] = clean
+    if source.get('fav') is True:
+        result['fav'] = True
+    if type(source.get('rating')) in (int, float) and source['rating'] in (-1, 0, 1):
+        result['rating'] = source['rating']
+    logs = []
+    for entry in (source.get('wearLog') or [])[:10000] if isinstance(source.get('wearLog'), list) else []:
+        if not isinstance(entry, dict) or not wear_dates([entry.get('d')]):
+            continue
+        ids = entry.get('ids')
+        if not isinstance(ids, list) or any(not isinstance(item, str) or item not in allowed_ids for item in ids):
+            continue
+        clean = {'d': entry['d'], 'ids': list(dict.fromkeys(ids))}
+        added = entry.get('added')
+        if isinstance(added, list):
+            clean['added'] = list(dict.fromkeys(item for item in added if isinstance(item, str) and item in clean['ids']))
+        logs.append(clean)
+    if logs:
+        result['wearLog'] = logs
+    return result
+
+
+def reviewed_outfits(state, allowed_ids):
+    return [{'sourceId': outfit_id, 'include': True, 'public': clean}
+            for outfit_id, source in sorted(state['collections']['outfits'].items())
+            if isinstance(source, dict) and (clean := public_outfit(source, allowed_ids))]
 
 
 def selected_pieces(state, collection_id):
     cols = state['collections']
-    collection = cols['profile'].get(collection_id)
-    if not isinstance(collection, dict) or collection.get('kind') != 'piece-collection' or collection.get('deleted'):
-        raise ValueError('Choose an existing, active piece collection ID')
+    if collection_id == ALL_ACTIVE:
+        ids = [item['id'] for item in state['base']['catalog']] + ['c-' + key for key in cols['custom']]
+        collection = {'name': "Stephanie's closet", 'description': '', 'ids': ids}
+    else:
+        collection = cols['profile'].get(collection_id)
+        if not isinstance(collection, dict) or collection.get('kind') != 'piece-collection' or collection.get('deleted'):
+            raise ValueError('Choose an existing, active piece collection ID')
     catalog = {item['id']: item for item in state['base']['catalog']}
     tags = state['base']['tags']
     cleanup = cols['profile'].get('cleanup', {}).get('map', {})
@@ -77,6 +172,10 @@ def selected_pieces(state, collection_id):
         if not isinstance(source, dict):
             raise ValueError('Collection contains a missing piece; repair it before export')
         merged = {**source, **tags.get(piece_id, {}), **cleanup.get(piece_id, {}), **cols['edits'].get(piece_id, {})}
+        if collection_id == ALL_ACTIVE and (merged.get('hidden') or merged.get('removed')):
+            continue
+        if collection_id == ALL_ACTIVE and not merged.get('name'):
+            merged['name'] = 'Untitled ' + str(merged.get('sub') or merged.get('meta') or 'piece')[:80].lower()
         if not merged.get('photoId') and photo_map.get(piece_id):
             merged['photoId'] = photo_map[piece_id][0]
         result.append((piece_id, merged))
@@ -166,19 +265,23 @@ def checked_folder(path):
     return path
 
 
-def prepare(store, collection_id, folder):
+def prepare(store, collection_id, folder, mode='wardrobe'):
+    if mode not in MODES:
+        raise ValueError('Choose wardrobe or showcase export mode')
     state = store.state()
     collection, pieces = selected_pieces(state, collection_id)
     fallbacks = bundle_fallbacks(store, state, pieces)
     entries = []
     for piece_id, piece in pieces:
         entries.append({'sourceId': piece_id, 'include': not (piece.get('hidden') or piece.get('removed')),
-                        'public': public_fields(piece), 'photos': photo_candidates(piece) or ([fallbacks[piece_id]] if piece_id in fallbacks else [])})
-    review = {'format': 'closet-lint-public-demo/v1', 'approved': False,
+                        'public': public_fields(piece, mode), 'photos': photo_candidates(piece) or ([fallbacks[piece_id]] if piece_id in fallbacks else [])})
+    allowed_ids = {entry['sourceId'] for entry in entries if entry['include']}
+    outfits = reviewed_outfits(state, allowed_ids) if mode == 'showcase' else []
+    review = {'format': 'closet-lint-public-demo/v1', 'approved': False, 'mode': mode,
               'sourceInstance': state['instance'], 'sourceRevision': state['revision'],
               'collection': {'sourceId': collection_id, 'name': collection['name'],
                              'description': str(collection.get('description', ''))[:1000]},
-              'pieces': entries}
+              'pieces': entries, 'outfits': outfits}
     folder.mkdir(parents=True)
     (folder / 'review.json').write_text(json.dumps(review, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     cards = []
@@ -193,10 +296,12 @@ def prepare(store, collection_id, folder):
             (folder / name).write_bytes(photo)
             previews.append(f'<figure><img src="{name}" alt=""><figcaption>{html.escape(candidate["kind"])}</figcaption></figure>')
         label = html.escape(entry['public']['name'])
-        cards.append(f'<article><div class="photos">{"".join(previews)}</div><strong>{label}</strong><small>{html.escape(entry["public"]["meta"])} · {len(entry["photos"])} photo candidate(s)</small></article>')
-    page = '<!doctype html><meta charset="utf-8"><title>Closet Lint demo review</title><style>body{font:16px system-ui;background:#f5efdf;color:#292d28;margin:2rem}main{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem}article{background:#fff;padding:1rem;border:1px solid #d8ceb9;border-radius:12px}.photos{display:flex;gap:.4rem;overflow:auto}figure{margin:0;min-width:160px}img{width:160px;aspect-ratio:1;object-fit:contain}figcaption,small{font-size:.8rem;color:#666}strong,small{display:block;margin-top:.5rem}</style><h1>Demo candidate review</h1><p>Private preview only. Edit review.json to approve pieces and photos; nothing here has been published.</p><main>' + ''.join(cards) + '</main>'
+        count = len(entry['public'].get('wears', []))
+        cards.append(f'<article><div class="photos">{"".join(previews)}</div><strong>{label}</strong><small>{html.escape(entry["public"]["meta"])} · {len(entry["photos"])} photo candidate(s)'+(f' · {count} wear date(s)' if mode == 'showcase' else '')+'</small></article>')
+    outfit_list = ''.join('<li>'+html.escape(entry['public']['name'])+' · '+str(len(entry['public'].get('wearLog', [])))+' logged wear(s)</li>' for entry in outfits)
+    page = '<!doctype html><meta charset="utf-8"><title>Closet Lint demo review</title><style>body{font:16px system-ui;background:#f5efdf;color:#292d28;margin:2rem}main{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem}article{background:#fff;padding:1rem;border:1px solid #d8ceb9;border-radius:12px}.photos{display:flex;gap:.4rem;overflow:auto}figure{margin:0;min-width:160px}img{width:160px;aspect-ratio:1;object-fit:contain}figcaption,small{font-size:.8rem;color:#666}strong,small{display:block;margin-top:.5rem}</style><h1>Demo candidate review</h1><p>Private preview only. Export mode: <strong>'+html.escape(mode)+'</strong>. Edit review.json to approve pieces and photos; nothing here has been published.</p>'+(('<p>Showcase mode publishes saved outfits and exact wear dates for included pieces. Only outfits made entirely from included pieces qualify. Review the outfit list and review.json before approval.</p><ul>'+outfit_list+'</ul>') if mode == 'showcase' else '')+'<main>' + ''.join(cards) + '</main>'
     (folder / 'index.html').write_text(page, encoding='utf-8')
-    (folder / 'README.txt').write_text('PRIVATE demo review — do not upload this folder.\nOpen index.html to inspect names and photo candidates. In review.json, set approved to true for the whole review, set include to false for anything to omit, and approve only photos you have permission to publish. A photo can instead use a file path relative to this folder for your own replacement photo. Build into a separate output folder when review is complete.\n', encoding='utf-8')
+    (folder / 'README.txt').write_text('PRIVATE demo review — do not upload this folder.\nOpen index.html to inspect names, photo candidates, and the export mode. In review.json, set approved to true for the whole review, set include to false for anything to omit, and approve only photos you have permission to publish. Showcase mode also publishes the included pieces\' exact wear dates and the listed saved outfits; set an outfit\'s include field to false to omit it. A photo can instead use a file path relative to this folder for your own replacement photo. Build into a separate output folder when review is complete.\n', encoding='utf-8')
     return len(entries)
 
 
@@ -209,10 +314,15 @@ def embed(page, key, value):
     return page
 
 
-def build(store, review_folder, out):
+def build(store, review_folder, out, site='generic', link_peer=False):
+    if site not in SITES:
+        raise ValueError('Choose generic, demo, or dev site copy')
     review = json.loads((review_folder / 'review.json').read_text(encoding='utf-8'))
     if review.get('format') != 'closet-lint-public-demo/v1' or review.get('approved') is not True:
         raise ValueError('The review manifest must be explicitly approved before building')
+    mode = review.get('mode', 'wardrobe')
+    if mode not in MODES:
+        raise ValueError('Choose wardrobe or showcase export mode')
     state = store.state()
     if review.get('sourceInstance') != state['instance'] or review.get('sourceRevision') != state['revision']:
         raise ValueError('The wardrobe changed since review; prepare a fresh manifest')
@@ -223,10 +333,17 @@ def build(store, review_folder, out):
     blob = out / '_blob'
     blob.mkdir(parents=True)
     catalog = []
+    id_map = {}
+    # Preserve the closet's relative browse order without publishing acquisition dates.
+    ranked = [(entry['sourceId'], source) for entry, (_, source) in zip(review['pieces'], current)
+              if entry.get('include')]
+    ranked.sort(key=lambda row: str(row[1].get('name') or '').casefold())
+    ranked.sort(key=lambda row: row[1].get('date') if isinstance(row[1].get('date'), str) else '', reverse=True)
+    newest_order = {piece_id: index for index, (piece_id, _) in enumerate(ranked)}
     for index, (entry, (_, source)) in enumerate(zip(review['pieces'], current), 1):
         if not entry.get('include'):
             continue
-        if entry.get('public') != public_fields(source):
+        if entry.get('public') != public_fields(source, mode):
             raise ValueError('Piece details changed since review')
         photos = []
         allowed = photo_candidates(source) or ([fallbacks[entry['sourceId']]] if entry['sourceId'] in fallbacks else [])
@@ -244,22 +361,47 @@ def build(store, review_folder, out):
                 data = candidate_data(store, candidate)
             photo, size = safe_image(data)
             asset_id = hashlib.sha256(photo).hexdigest()[:32]
-            (blob / asset_id).write_bytes(photo)
+            (blob / (asset_id + '.webp')).write_bytes(photo)
             kind = candidate.get('kind')
             photos.append({'photoId': asset_id, 'ar': round(size[0] / size[1], 4),
                            'kind': kind if kind in KINDS else 'unclassified', 'width': size[0], 'height': size[1]})
-        if not photos:
+        if not photos and site != 'dev':
             raise ValueError('Every included piece needs at least one approved photo')
         if len(photos) > 10:
             raise ValueError('A piece has more than ten approved photos')
-        catalog.append({'id': f'demo-{index:03}', **entry['public'], 'photoId': photos[0]['photoId'],
-                        'photos': photos, 'ar': photos[0]['ar']})
+        public_id = f'demo-{index:03}'
+        id_map[entry['sourceId']] = public_id
+        public_piece = {'id': public_id, **entry['public'], 'photos': photos,
+                        'newestOrder': newest_order[entry['sourceId']]}
+        if photos:
+            public_piece.update(photoId=photos[0]['photoId'], ar=photos[0]['ar'])
+        catalog.append(public_piece)
     if not catalog:
         raise ValueError('No pieces were included')
     public_collection = {'kind': 'piece-collection', 'name': review['collection']['name'],
                          'description': review['collection']['description'],
                          'ids': [piece['id'] for piece in catalog], 'deleted': False}
-    snapshot = {'custom': {}, 'profile': {'collection-demo': public_collection}}
+    snapshot = {'site': site, 'peerReady': bool(link_peer), 'custom': {}, 'profile': {'collection-demo': public_collection}}
+    if mode == 'showcase':
+        expected = reviewed_outfits(state, {entry['sourceId'] for entry in review['pieces'] if entry.get('include')})
+        provided = review.get('outfits')
+        if not isinstance(provided, list) or len(provided) != len(expected) or any(
+                not isinstance(item, dict) or item.get('sourceId') != original['sourceId'] or
+                item.get('public') != original['public'] or type(item.get('include')) is not bool
+                for item, original in zip(provided, expected)):
+            raise ValueError('Saved outfit review does not match the selected collection')
+        snapshot['outfits'] = {}
+        for index, entry in enumerate(provided, 1):
+            if not entry['include']:
+                continue
+            outfit = json.loads(json.dumps(entry['public']))
+            outfit['pieces'] = [{**part, 'id': id_map[part['id']]} for part in outfit['pieces']]
+            for log in outfit.get('wearLog', []):
+                log['ids'] = [id_map[item] for item in log['ids']]
+                if 'added' in log:
+                    log['added'] = [id_map[item] for item in log['added']]
+            outfit['updatedAt'] = index
+            snapshot['outfits'][f'demo-outfit-{index:03}'] = outfit
     page = (ROOT / 'app/closet-lint.html').read_text(encoding='utf-8')
     for key, value in (('catalog', catalog), ('tags', {}), ('bundles', []), ('pubdata', snapshot)):
         page = embed(page, key, value)
@@ -278,6 +420,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data', type=Path, required=True)
     parser.add_argument('--collection-id')
+    parser.add_argument('--all-pieces', action='store_true', help='Prepare all active pieces for the personal dev playground')
+    parser.add_argument('--mode', choices=MODES, default='wardrobe', help='Wardrobe only, or wardrobe with saved outfits and exact wear dates')
+    parser.add_argument('--site', choices=SITES, default='generic', help='Public notice and cross-link for a specific site (build only)')
+    parser.add_argument('--link-peer', action='store_true', help='Show the link to the other site once it is ready for visitors')
     parser.add_argument('--review-dir', type=Path, required=True)
     parser.add_argument('--out', type=Path)
     args = parser.parse_args()
@@ -285,19 +431,19 @@ def main():
         data = args.data.resolve()
         if data.is_relative_to(ROOT) or not (data / 'wardrobe.sqlite3').is_file():
             raise ValueError('Choose an existing wardrobe data folder outside the source tree')
-        if args.out and args.collection_id or not args.out and not args.collection_id:
-            raise ValueError('Prepare with --collection-id, or build with --out')
+        if args.collection_id and args.all_pieces or args.out and (args.collection_id or args.all_pieces) or not args.out and not (args.collection_id or args.all_pieces):
+            raise ValueError('Prepare with --collection-id or --all-pieces, or build with --out')
         store = Store(data)
         if args.out:
             folder = args.review_dir.resolve()
             if folder.is_relative_to(ROOT) or not (folder / 'review.json').is_file():
                 raise ValueError('Choose a private review folder outside the source tree')
             out = checked_folder(args.out)
-            count = build(store, folder, out)
-            print(f'Built a local static demo with {count} reviewed pieces: {out}')
+            count = build(store, folder, out, args.site, args.link_peer)
+            print(f'Built a local static site with {count} approved pieces: {out}')
         else:
             folder = checked_folder(args.review_dir)
-            count = prepare(store, args.collection_id, folder)
+            count = prepare(store, ALL_ACTIVE if args.all_pieces else args.collection_id, folder, args.mode)
             print(f'Prepared {count} candidates for private review: {folder}')
     except (ValueError, OSError, KeyError, TypeError, sqlite3.Error) as error:
         parser.exit(2, f'Could not prepare the public demo: {error}\n')
