@@ -288,7 +288,7 @@ dialog:has(.dlgwide.narrow){width:min(640px,calc(100vw - 24px))}
 .srow .sel{padding:6px 8px;font-weight:400;color:var(--ink)}
 .crow{display:flex;gap:8px;align-items:center;margin:0 0 8px;font-size:13.5px;cursor:pointer}
 .crow.off{opacity:.5;cursor:default}
-@media (max-width:820px){.boardrow{flex-direction:column}.boardwrap{flex:none;width:100%}.bstyle{flex:none;width:100%;max-height:none}.bl{display:none}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){.boardrow{flex-direction:column}.boardwrap{flex:none;width:100%}.bstyle{flex:none;width:100%;max-height:none}.bl{display:none}}
 
 .tools .btn:disabled{cursor:default}
 .accrow{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;margin:6px 0 8px}
@@ -326,7 +326,7 @@ dialog:has(.dlgwide.narrow){width:min(640px,calc(100vw - 24px))}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:14px;z-index:60;max-width:calc(100vw - 32px)}
 .hide{display:none!important}
 
-@media (max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
   .top{padding:10px 14px;gap:10px}
   .brand{font-size:24px}
   .closet,.outfits{grid-template-columns:1fr}
@@ -457,7 +457,7 @@ dialog.lbox[open]{display:flex}
 .sheethead b{flex:1;font:700 16px var(--display)}
 .sheethead .btn.primary{display:none}
 .form .actions{position:sticky;bottom:0;background:var(--panel);padding:10px 0 2px;margin-top:4px;border-top:1px solid var(--line)}
-@media (max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
   .filters:not(.collapsed){position:fixed;left:0;right:0;bottom:0;top:auto;max-height:76vh;z-index:45;overflow:auto;border:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -10px 34px rgba(0,0,0,.4);padding-top:0}
   .sheethead .btn.primary{display:inline-block}
   .sheethead{position:sticky;top:0;background:var(--panel);padding:12px 0 10px;z-index:2;border-bottom:1px solid var(--line)}
@@ -496,7 +496,7 @@ a.btn{display:inline-block;text-decoration:none;color:var(--ink)}
 .wearchip button{border:0;background:none;cursor:pointer;color:var(--ink2);padding:0 0 0 2px;font-size:14px;line-height:1}
 .wearchip button:hover{color:var(--danger)}
 .form input[type=date]{padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
-@media (max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
   dialog{overflow:hidden}
   .dlg{display:block;max-height:calc(100dvh - 12px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
   .dlg .ph{flex:0 0 auto;height:30vh;min-height:130px;max-height:36vh}
@@ -536,7 +536,7 @@ a.btn{display:inline-block;text-decoration:none;color:var(--ink)}
 .editview .cap{display:flex;flex-direction:column;gap:6px;height:auto;overflow:visible}
 .editview .cap>*{margin:0}
 .editview .capsel{display:block;width:100%}
-@media (max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
   .dlgleft{flex:0 0 auto}
   .dlgleft .ph{flex:0 0 auto;height:min(125vw,74dvh);min-height:260px;max-height:none}
   .dlgleft .ph.fit{height:auto;min-height:0;max-height:74dvh}
@@ -545,7 +545,7 @@ a.btn{display:inline-block;text-decoration:none;color:var(--ink)}
 .subrow{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px 12px;padding-left:10px;border-left:2px solid var(--line)}
 .chip.sub{font-size:12px;padding:3px 10px;opacity:.95}
 
-@media (max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
   .toolwrap{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
   .toolwrap>.tools{display:contents}
   .toolwrap .spacer{display:none}
@@ -558,7 +558,7 @@ a.btn{display:inline-block;text-decoration:none;color:var(--ink)}
   #seltools .ctxl{display:none}
   #seltools .btn{width:36px;padding:8px 0;text-align:center}
 }
-@media (min-width:821px){.toolwrap{display:block}}
+@media (min-width:1101px), (min-width:821px) and (hover:hover), (min-width:821px) and (pointer:fine), (min-width:821px) and (pointer:none){.toolwrap{display:block}}
 @media (prefers-reduced-motion:no-preference){
   .card,.chip,.btn{transition:border-color .12s}
 }
@@ -711,8 +711,9 @@ a.btn{display:inline-block;text-decoration:none;color:var(--ink)}
 .filter-dialog .filters:not(.collapsed){display:block;position:static;max-height:80vh;max-height:80dvh;width:100%;padding:0 16px 20px;border:0;box-shadow:none;border-radius:0;overscroll-behavior:contain}
 .filter-dialog .sheethead{top:0;background:var(--panel);z-index:1}
 .filter-dialog button,.filter-dialog summary{min-height:44px}
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  .keyboard-open .primary-nav,.keyboard-open .lab-dock{display:none}
+ .keyboard-open .top{position:static}
  .keyboard-open body{padding-bottom:12px}
  .keyboard-open .labview.has-ratings{padding-bottom:20px!important}
  button,input,select,textarea,summary,[tabindex]{scroll-margin-block:85px 160px}
@@ -726,7 +727,7 @@ a.btn{display:inline-block;text-decoration:none;color:var(--ink)}
 .local-restore::backdrop{background:#0007}.local-restore h2{font-size:20px;margin:0 0 12px}.local-restore p{line-height:1.5}.local-restore input{max-width:100%}.local-restore .actions{margin-top:20px;flex-wrap:wrap}.local-restore button{min-height:44px}
 
 .lab-adjust{border-bottom:1px solid var(--line);margin:12px 0 18px;padding:0 0 10px}.lab-adjust>summary{cursor:pointer;min-height:44px;align-content:center;color:var(--ink2);font-size:13px}.lab-adjust .labctl{margin-top:12px}.lab-dock{background:var(--bg);border-top:1px solid var(--line);padding:10px 0}.lab-dock .labrate{position:static;border:0;margin:0;padding:0}.lab-dock .labmore{margin:8px 0 0}
-@media(max-width:820px){.lab-dock{position:fixed;bottom:calc(65px + env(safe-area-inset-bottom,0px));left:14px;right:14px;z-index:30;box-shadow:0 -10px 14px var(--bg)}.labview.has-ratings{padding-bottom:190px!important}.lab-dock .ratebtn{min-height:48px}.lab-dock .labmore .btn{min-height:44px;font-size:12px;padding:7px 9px}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){.lab-dock{position:fixed;bottom:calc(65px + env(safe-area-inset-bottom,0px));left:14px;right:14px;z-index:30;box-shadow:0 -10px 14px var(--bg)}.labview.has-ratings{padding-bottom:190px!important}.lab-dock .ratebtn{min-height:48px}.lab-dock .labmore .btn{min-height:44px;font-size:12px;padding:7px 9px}}
 :root{--bg:#fafbf7;--panel:#f1f3ec;--card:#fff;--ink:#29332d;--ink2:#69736a;--line:#dce1d5;--sel:#405623;--selbg:#e7eed8;--catbg:#ecf0e3;--tag:#e7eed8;--tagink:#283515;--photo:#fff;--display:"Hanken Grotesk",system-ui,sans-serif;--piece-min:168px;--piece-columns:2}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#191f21;--panel:#202729;--card:#232b2b;--ink:#ecefe9;--ink2:#a0aaa4;--line:#34403c;--sel:#d4e69c;--selbg:#303c26;--catbg:#2a352e;--tag:#d4e69c;--tagink:#252f16;--photo:#fff;--danger:#ff9b91;color-scheme:dark}}
 :root[data-theme=dark]{--bg:#191f21;--panel:#202729;--card:#232b2b;--ink:#ecefe9;--ink2:#a0aaa4;--line:#34403c;--sel:#d4e69c;--selbg:#303c26;--catbg:#2a352e;--tag:#d4e69c;--tagink:#252f16;--photo:#fff;--danger:#ff9b91;color-scheme:dark}
@@ -762,7 +763,7 @@ a.btn{display:inline-block;text-decoration:none;color:var(--ink)}
 #displayprefs select{width:100%;min-height:44px;background:var(--card);border:1px solid var(--line);border-radius:5px;padding:8px}
 #thumbsize{width:100%;min-height:44px;accent-color:var(--sel)}
 .prefs-range{display:flex;justify-content:space-between;color:var(--ink2);font-size:12px;margin-bottom:20px}
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
  .top{flex-wrap:nowrap;gap:8px;padding:10px 14px}
  .brand{font-size:23px}
@@ -799,7 +800,7 @@ body{font:400 16px/1.5 var(--body)}.brand{font:500 27px/1 var(--display)}.fine,.
 :root[data-edge=outline] :is(.nav-emoji,.scope-emoji),:root[data-edge=auto][data-theme=light] #go-lab .nav-emoji{--emoji-edge:drop-shadow(.6px 0 0 var(--ink)) drop-shadow(-.6px 0 0 var(--ink)) drop-shadow(0 .6px 0 var(--ink)) drop-shadow(0 -.6px 0 var(--ink))}:root[data-edge=glow] :is(.nav-emoji,.scope-emoji){--emoji-edge:drop-shadow(0 0 1px var(--ink)) drop-shadow(0 0 3px var(--ink))}
 @media(prefers-color-scheme:light){:root[data-edge=auto]:not([data-theme=dark]) #go-lab .nav-emoji{--emoji-edge:drop-shadow(.6px 0 0 var(--ink)) drop-shadow(-.6px 0 0 var(--ink)) drop-shadow(0 .6px 0 var(--ink)) drop-shadow(0 -.6px 0 var(--ink))}}
 .project-credit{text-align:center;padding:28px 15px 18px;color:var(--ink2);font-size:14px}.project-credit a{color:inherit;display:inline-flex;flex-direction:column;align-items:center;gap:6px;text-underline-offset:3px}.linty-peek{width:68px;height:40px;overflow:hidden;position:relative;display:block}.linty-peek img{position:absolute;width:180%;max-width:none;left:-40%;top:-34px;image-rendering:pixelated}
-@media(max-width:820px){.top{gap:7px}.brand{font-size:23px}.primary-nav{gap:4px}.primary-nav :is(button,a){padding:4px 2px;font-size:13px;border-radius:0}.nav-emoji{font-size:22px}.closet-scopes button{font-size:14px}.main>.tabs .tab{font-size:13px}.cap :is(b,.piece-title){font-size:14px}.capcat{font-size:12px}:root[data-skin=editorial] .cap :is(b,.piece-title){font-size:18px}.lab-dock .labmore .btn{font-size:14px}.project-credit{padding-bottom:24px}#viewprefs{font-size:0;min-width:76px;padding:8px}#viewprefs:after{content:'✦ Theme';font-size:13px}.top .brand{font-size:22px}.prefs-heading{margin-bottom:16px}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){.top{gap:7px}.brand{font-size:23px}.primary-nav{gap:4px}.primary-nav :is(button,a){padding:4px 2px;font-size:13px;border-radius:0}.nav-emoji{font-size:22px}.closet-scopes button{font-size:14px}.main>.tabs .tab{font-size:13px}.cap :is(b,.piece-title){font-size:14px}.capcat{font-size:12px}:root[data-skin=editorial] .cap :is(b,.piece-title){font-size:18px}.lab-dock .labmore .btn{font-size:14px}.project-credit{padding-bottom:24px}#viewprefs{font-size:0;min-width:76px;padding:8px}#viewprefs:after{content:'✦ Theme';font-size:13px}.top .brand{font-size:22px}.prefs-heading{margin-bottom:16px}}
 
 /* Deliberate hover previews, rather than flashing during normal browsing. */
 .hzoom{animation:photo-preview-in 180ms ease-out both}
@@ -882,14 +883,14 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 :root[data-skin=workshop] dialog{border:1px solid var(--line);border-radius:0}
 :root[data-skin=workshop] .form :is(input,select,textarea){background:var(--control);border-color:var(--line)}
 :root[data-skin=workshop] :is(.form,.dlgwide) .chip[aria-pressed=true]{background:var(--selbg);color:var(--sel);border-color:var(--sel)}
-@media(min-width:821px){
+@media (min-width:1101px), (min-width:821px) and (hover:hover), (min-width:821px) and (pointer:fine), (min-width:821px) and (pointer:none){
  :root[data-skin=workshop] .closet{grid-template-columns:320px minmax(0,1fr)}
  :root[data-skin=workshop] dialog:has(>.dlg){overflow:hidden}
  :root[data-skin=workshop] .dlg{max-height:calc(100dvh - 24px)}
  :root[data-skin=workshop] .dlg>.form,:root[data-skin=workshop] .dlgleft{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
 }
 @media(min-width:1450px){:root[data-skin=workshop] .closet{grid-template-columns:344px minmax(0,1fr)}}
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  .brand-mark{width:44px;height:42px}.brand a{gap:6px}.top .brand{font-size:20px;min-width:0}.brand-title{min-width:0}
  :root[data-skin=workshop] .primary-nav{gap:0}
  :root[data-skin=workshop] .primary-nav :is(button,a){padding:5px 2px;font-size:13px}
@@ -900,7 +901,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 @media(hover:none){:root[data-skin] .card .plus{opacity:1}}
 
 /* Keep a compact laptop header on one row without reducing control text. */
-@media(min-width:821px) and (max-width:1150px){
+@media (min-width:1101px) and (max-width:1150px), (min-width:821px) and (max-width:1150px) and (hover:hover), (min-width:821px) and (max-width:1150px) and (pointer:fine), (min-width:821px) and (max-width:1150px) and (pointer:none){
  :root[data-skin=workshop] .top{gap:8px;padding-inline:16px}
  :root[data-skin=workshop] .brand-mark{width:46px;height:44px}
  :root[data-skin=workshop] .brand a{gap:6px}
@@ -952,7 +953,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 :root[data-skin=workshop] #view-saved .labmodes{margin-bottom:20px!important}
 :root[data-skin=workshop] .hhead{padding-top:8px;padding-bottom:12px}
 @media(max-width:1150px){:root[data-skin=workshop] .primary-nav{margin-left:10px}}
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  :root[data-skin=workshop] .top .brand{font-size:24px}
  :root[data-skin=workshop] .primary-nav{margin-left:0}
  :root[data-skin=workshop] .main>.tabs .tab{padding-inline:3px;font-size:13px}
@@ -965,7 +966,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 :root[data-skin=workshop] .dclose{border-radius:0}
 :root[data-skin=workshop] :is(.dclose,.viewdel):hover{background:var(--utility);border-color:var(--utility);color:var(--utility-ink)}
 :root[data-skin=workshop] .xmenu :is(button,a):hover{background:var(--utility);color:var(--utility-ink)}
-@media(max-width:820px){:root[data-skin=workshop] :is(.filters,.form) .chip{min-height:40px}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){:root[data-skin=workshop] :is(.filters,.form) .chip{min-height:40px}}
 
 /* First-run setup and guided DIY imports. */
 #setup-wizard{width:min(780px,calc(100vw - 28px));max-height:calc(100dvh - 28px);padding:0;overflow:auto;background:var(--bg);color:var(--ink)}
@@ -1004,7 +1005,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 #view-trip .tripform .chips{gap:8px;margin-top:10px}
 #view-trip .tripform input:not([type=checkbox]),#view-trip .tripform select{min-height:42px;font-size:16px}
 #view-trip .tripnav{margin-block:30px 20px}
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  :root[data-skin]:not([data-skin=workshop]) :is(.filters,.form) .chip{min-height:40px}
  #view-trip.labview{padding-top:22px}#view-trip .tfcard,#view-trip .tripform>.tripcard{padding:18px}
 }
@@ -1043,7 +1044,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .lab-control-group>.fine{margin-right:8px}.labctl>.chip{min-height:40px}
 .lab-dock{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(920px,calc(100% - 32px));z-index:30;border:0;padding:12px 16px;background:var(--bg);box-shadow:0 -8px 24px #00000012}
 .labview.has-ratings{padding-bottom:180px!important}
-@media(min-width:821px){
+@media (min-width:1101px), (min-width:821px) and (hover:hover), (min-width:821px) and (pointer:fine), (min-width:821px) and (pointer:none){
  :root[data-skin] .closet{grid-template-columns:320px minmax(0,1fr)}
  :root[data-skin].filters-collapsed .closet{grid-template-columns:minmax(0,1fr)}
  .filters-collapsed #view-closet>#filters{display:none}
@@ -1052,7 +1053,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 :root[data-skin=workshop] .main>.tabs{gap:4px;border-bottom:2px solid var(--line);padding-bottom:0;align-items:end}
 :root[data-skin=workshop] .main>.tabs .tab{border:1px solid var(--line);border-bottom:0;border-radius:0;padding:10px 14px;margin-bottom:0;box-shadow:none}
 :root[data-skin=workshop] .main>.tabs .tab[aria-selected=true]{background:var(--selbg);border-color:var(--sel);box-shadow:inset 0 3px var(--sel)}
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  .sidebar-toggle{display:none}.closet-heading{margin-bottom:12px}
  .lab-dock{left:12px;right:12px;transform:none;width:auto;bottom:calc(65px + env(safe-area-inset-bottom,0px));padding:10px}
  .labview.has-ratings{padding-bottom:230px!important}.lab-adjust .labctl{padding:12px;gap:10px}
@@ -1083,11 +1084,11 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .measurements-view .mgrid input{display:block;box-sizing:border-box;width:100%;min-width:0;max-width:100%;font-size:16px;padding:10px}
 .measurements-view .mrow{display:grid;grid-template-columns:100px minmax(0,1fr) 28px;gap:12px;padding-block:12px;align-items:start}.measurements-view .mrow>span{min-width:0}
 .measurements-view .chips{gap:7px;margin:10px 0 18px}.measurements-view .chip{font-size:13px!important}.measurements-view .actions{margin-block:18px!important}
-@media(max-width:820px){.top{flex-wrap:wrap}:root[data-skin] #fantbtn{font-size:12px;padding:7px;gap:6px}.labview.has-ratings{padding-bottom:260px!important}.lab-dock .labmore{gap:7px}.measurements-view .mgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.measurements-view{padding:20px!important}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){.top{flex-wrap:wrap}:root[data-skin] #fantbtn{font-size:12px;padding:7px;gap:6px}.labview.has-ratings{padding-bottom:260px!important}.lab-dock .labmore{gap:7px}.measurements-view .mgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.measurements-view{padding:20px!important}}
 @media(max-width:440px){.measurements-view .mgrid{grid-template-columns:minmax(0,1fr)}.measurements-view .mrow{grid-template-columns:minmax(0,1fr) 28px}.measurements-view .mrow>b{grid-column:1}.measurements-view .mrow>span{grid-column:1}.measurements-view .mrow>button{grid-column:2;grid-row:auto}}
 @media(prefers-reduced-motion:reduce){.switch-track:after{transition:none}}
 /* Shared card affordances; decorative favorites never cover size metadata. */
-@media(min-width:821px){.top .brand{margin-right:36px}}
+@media (min-width:1101px), (min-width:821px) and (hover:hover), (min-width:821px) and (pointer:fine), (min-width:821px) and (pointer:none){.top .brand{margin-right:36px}}
 .typechips{align-items:center}.typechips .chip{align-self:center}.more-types{align-self:center;line-height:1.4;min-height:0;flex:none}
 :root[data-skin] .card{cursor:pointer}.card :is(input,select,textarea){cursor:auto}
 :root[data-skin]:not([data-skin=workshop]) .card:is(:hover,:focus-within) .cap{background:var(--selbg)}
@@ -1122,7 +1123,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
  .cp-photo{display:block;width:100%;height:36dvh;object-fit:contain;background:var(--panel);margin-bottom:12px;touch-action:pan-y}
  .cp-mobile .cpsv{height:90px;width:100%}.cp-mobile .cphue{width:100%}.cp-mobile .cprow{flex-wrap:wrap;gap:8px}.cp-mobile .btn{min-height:44px}
 }
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  .cpop.cp-mobile{position:fixed;left:12px!important;right:12px;top:12px!important;width:min(480px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow-y:auto;z-index:100;box-sizing:border-box}
  .cp-photo{display:block;width:100%;height:36dvh;object-fit:contain;background:var(--panel);margin-bottom:12px;touch-action:pan-y}
  :root[data-menu-emoji=off] .toolwrap .btn .bl{display:inline!important}
@@ -1137,11 +1138,11 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 /* Workflow destinations stay in primary navigation, never the category strip. */
 .main>.tabs .tab[hidden]{display:none!important}
 /* Five distinct destinations; compact labels retain comfortable touch targets. */
-@media(max-width:820px){.primary-nav{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){.primary-nav{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:540px){:root[data-skin] .labctl .chip{font-size:13px;min-height:44px;padding:7px 9px}.labctl select{font-size:16px}}
 
 /* Mobile board: title first; each tool keeps its own touch target. */
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  .toolwrap{align-items:center;gap:8px}
  .toolwrap #oname{order:-2;flex:0 0 100%;width:100%;box-sizing:border-box;min-height:44px;margin:0 0 4px}
  .toolwrap .btn{flex:0 0 auto;width:44px;min-width:44px;min-height:44px;height:44px;padding:8px;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:5px}
@@ -1158,7 +1159,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 :root[data-skin=workshop] .plus{display:flex;align-items:center;justify-content:center}
 :root[data-skin=workshop] .plus.on .pixel-potion{background:#d4ef9e}
 /* Responsive review: keep header actions together rather than orphaning Menu. */
-@media(min-width:821px) and (max-width:1500px){
+@media (min-width:1101px) and (max-width:1500px), (min-width:821px) and (max-width:1500px) and (hover:hover), (min-width:821px) and (max-width:1500px) and (pointer:fine), (min-width:821px) and (max-width:1500px) and (pointer:none){
  .top{gap:10px}
  .top .brand{margin-right:auto}
  .top .primary-nav{order:2;flex-basis:100%;justify-content:center;margin-left:0}
@@ -1197,8 +1198,8 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .board-context{flex:1 0 100%;width:100%;margin:0 0 5px;color:var(--ink2);font-size:12px;font-weight:700}
 .board-count{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 3px;border-radius:9px;background:var(--selbg);color:var(--ink);font:700 11px/1 var(--body)}
 .board-count[hidden]{display:none}
-@media(max-width:820px){#go-board{position:relative}#go-board .board-count{position:absolute;top:0;right:0;transform:translate(25%,-15%)}}
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){#go-board{position:relative}#go-board .board-count{position:absolute;top:0;right:0;transform:translate(25%,-15%)}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  .toolwrap .board-title-row{order:-2;flex:1 0 100%;margin-bottom:4px}
  .toolwrap .board-title-row #oname{order:0;flex:1 1 0;width:0;margin:0}
  .toolwrap .board-title-row :is(#osave,#otitle){order:0;flex:0 0 44px;margin:0}
@@ -1238,7 +1239,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 :root[data-skin=workshop] #displayprefs input[type=text]{border-radius:0;font-family:var(--mono)}
 /* Compact browse controls keep a shared height without enlarging their text. */
 :root[data-skin] .bar :is(.qbox,.sel,.btn){height:38px;min-height:38px;box-sizing:border-box;font-size:14px;line-height:1.3;padding:7px 10px}
-@media(max-width:820px){:root[data-skin] .bar :is(.qbox,.sel,.btn){height:44px;min-height:44px}:root[data-skin] .bar :is(.qbox,.sel){font-size:16px}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){:root[data-skin] .bar :is(.qbox,.sel,.btn){height:44px;min-height:44px}:root[data-skin] .bar :is(.qbox,.sel){font-size:16px}}
 /* A compact heart becomes a word badge only after selecting it. */
 :root[data-skin=fieldnotes] .card .heart{display:flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border-radius:50%;transform:rotate(8deg);box-shadow:0 2px 4px #0002}
 :root[data-skin=fieldnotes] .card .heart:before{display:block;line-height:1;transform:translateY(-1px)}
@@ -1291,7 +1292,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .lab-adjust .recent-wears select{background:var(--card);color:var(--ink);border:1px solid var(--line)}
 .jump-top{position:fixed;right:18px;bottom:20px;z-index:35;width:42px;height:42px;padding:0!important;background:color-mix(in srgb,var(--panel) 82%,transparent)!important;backdrop-filter:blur(6px);opacity:.85}
 .jump-top:hover{opacity:1}
-@media(max-width:820px){.jump-top{bottom:calc(76px + env(safe-area-inset-bottom,0px));right:12px}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){.jump-top{bottom:calc(76px + env(safe-area-inset-bottom,0px));right:12px}}
 
 /* Photo review and compact collection previews; shared across all themes. */
 .photo-view-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:12px 0}.photo-view-tools select{width:auto;max-width:100%;min-height:38px}.background-preview{width:min(860px,calc(100vw - 24px));max-height:90dvh;overflow:auto;padding:24px;color:var(--ink);background:var(--panel);border:1px solid var(--line)}.background-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-block:16px}.background-compare figure{margin:0;min-width:0}.background-compare img{display:block;width:100%;height:320px;object-fit:contain}.background-compare figcaption{font-size:14px;padding:8px}.cutout-stage{background-color:var(--card);background-image:conic-gradient(#8882 25%,transparent 0 50%,#8882 0 75%,transparent 0);background-size:20px 20px}
@@ -1341,8 +1342,8 @@ details{background:var(--disclosure-body)}details>summary{background:var(--discl
 /* The primary board row stays visible; secondary tools fold away on small screens. */
 .board-more>summary{display:none}.board-secondary .tools{display:flex;flex-wrap:wrap;gap:8px}
 .board-title-row{margin-bottom:8px}.board-title-row #oname{box-sizing:border-box}
-@media(min-width:821px){.board-more{display:contents}.board-secondary{display:block}}
-@media(max-width:820px){
+@media (min-width:1101px), (min-width:821px) and (hover:hover), (min-width:821px) and (pointer:fine), (min-width:821px) and (pointer:none){.board-more{display:contents}.board-secondary{display:block}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  .board-more{width:100%;min-width:0}.board-more>summary{display:flex;align-items:center;justify-content:space-between;min-height:44px;box-sizing:border-box;border:1px solid var(--line);background:var(--panel);padding:10px 12px;cursor:pointer;font:inherit;list-style:none}
  .board-more>summary::-webkit-details-marker{display:none}.board-more>summary:after{content:'+'}.board-more[open]>summary:after{content:'−'}
  .board-secondary{padding:12px 0 4px}.board-secondary .tools{display:flex;flex-wrap:wrap;margin:0 0 8px}
@@ -1368,7 +1369,7 @@ details{background:var(--disclosure-body)}details>summary{background:var(--discl
 #displayprefs [hidden],#grid[hidden]{display:none!important}
 
 #view-trip .tripsteps .chip[aria-current=step]{background:var(--selbg);border-color:var(--sel);color:var(--ink)}
-@media(max-width:820px){.toolwrap .board-title-row #osave :is(.bl,.button-label){display:inline!important}}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){.toolwrap .board-title-row #osave :is(.bl,.button-label){display:inline!important}}
 
 /* Packing-result name uses the same surfaces as the trip form. */
 #view-trip .trip-plan-name{box-sizing:border-box;flex:1 1 220px;width:100%;min-width:0;max-width:100%;min-height:44px;font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
@@ -1419,7 +1420,7 @@ details{background:var(--disclosure-body)}details>summary{background:var(--discl
  :root[data-skin] .dlgleft :is(.photo-primary-action,.photo-options-body,.phtools) .btn,
  :root[data-skin] .dlgleft .photo-kind-field select,:root[data-skin] .dlgleft .phtools .product-link{height:44px;min-height:44px}
 }
-@media(max-width:820px){
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  :root[data-skin] dialog>.dlg{max-height:calc(100dvh - 14px)}
  :root[data-skin] .dlgleft .piece-photo-panel>.ph{height:min(50dvh,480px)}
  :root[data-skin] dialog:has(>.dlg)>.dclose{top:10px;right:18px}
@@ -1449,7 +1450,7 @@ summary{cursor:pointer}
 a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;color:inherit;font-weight:600;border-radius:7px}
 
 /* Quiet, always-visible touch controls without shrinking their tap areas. */
-@media(max-width:820px) and (hover:none){
+@media (max-width:820px) and (hover:none), (max-width:1100px) and (hover:none) and (pointer:coarse){
  :root[data-skin] #grid .card .phwrap>:is(.heart,.plus,.xbtn){opacity:.62}
  :root[data-skin] #grid .card .phwrap>:is(.heart,.plus)[aria-pressed=true]{opacity:.85}
  :root[data-skin] #grid .card .phwrap>:is(.heart,.plus,.xbtn):is(:active,:focus-visible){opacity:1}
@@ -2532,7 +2533,7 @@ function openColorPop(inp){
   var phImg=(inp.closest&&inp.closest('dialog')&&inp.closest('dialog').querySelector('.dlgleft .ph img'))||null;
   row.appendChild(el('button',{class:'btn small',type:'button',text:'Cancel',onclick:function(){closeColorPop(false)}}));
   row.appendChild(el('button',{class:'btn small primary',type:'button',text:'Done',onclick:function(){closeColorPop(true)}}));
-  var touchPicker=window.matchMedia('(max-width:820px)').matches;
+  var touchPicker=window.matchMedia('(max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse)').matches;
   if(touchPicker&&phImg){phImg=el('img',{src:phImg.src,alt:'Tap the photo to preview a swatch',class:'cp-photo'});pop.classList.add('cp-mobile');pop.appendChild(phImg);}
   pop.appendChild(sv);pop.appendChild(hue);pop.appendChild(row);
   if(phImg)pop.appendChild(el('div',{class:'fine',style:'margin:0',text:'Drag over the photo to preview colors. Tap outside the picker to keep the color.'}));
@@ -4024,7 +4025,7 @@ function renderBoard(){renderPullBtn();paintOMeta();
   persistBoard();renderTabs();
 }
 function initBoardTools(){
-  var tools=$('board-more'),mq=window.matchMedia('(max-width:820px)');
+  var tools=$('board-more'),mq=window.matchMedia('(max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse)');
   function sync(){tools.open=!mq.matches}sync();
   if(mq.addEventListener)mq.addEventListener('change',sync);
 }
@@ -5737,7 +5738,7 @@ function renderSaved(){
 function loadImg(src){return new Promise(function(res,rej){var im=new Image();im.onload=function(){res(im)};im.onerror=function(){rej(new Error('image failed to load'))};im.src=src})}
 /* ---------- mobile filter sheet ---------- */
 var filterHome=null,filterNext=null,filterOverflow='',filterReturn=null;
-function mobileFilters(){return !!(window.matchMedia&&window.matchMedia('(max-width:820px)').matches)}
+function mobileFilters(){return !!(window.matchMedia&&window.matchMedia('(max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse)').matches)}
 function openFilterSheet(){
   if(!mobileFilters())return;
   var sheet=$('filter-dialog'),filters=$('filters');
@@ -6647,7 +6648,7 @@ $('sortdir').addEventListener('click',function(){state.sortRev=!state.sortRev;$(
 $('togglefilters').addEventListener('click',function(){if($('filter-dialog').open)closeFilterSheet();else openFilterSheet()});
 $('dlg').addEventListener('click',function(e){if(e.target===$('dlg'))closeDlg()});
 $('dlg').addEventListener('close',function(){state.pasteFn=null});
-if(window.matchMedia&&window.matchMedia('(max-width:820px)').matches)$('filters').classList.add('collapsed');
+if(window.matchMedia&&window.matchMedia('(max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse)').matches)$('filters').classList.add('collapsed');
 
 /* ---------- Lab: shared outfit engine, Outfit Lab and Buy check ---------- */
 var LAB_NEUTRAL={black:1,white:1,gray:1,beige:1,brown:1,silver:1,gold:1,clear:1};

@@ -3,7 +3,8 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const source=fs.readFileSync(path.join(__dirname,'../app/closet-lint.html'),'utf8');
 const helpers=source.split('/* ---------- mobile filter sheet ---------- */')[1].split('/* ---------- end mobile filter sheet ---------- */')[0];
 function node(id){const attrs={},classes=new Set();return {id,attrs,isConnected:true,tagName:'BUTTON',style:{},classList:{add:k=>classes.add(k),remove:k=>classes.delete(k),toggle(k,v){if(v)classes.add(k);else classes.delete(k)},contains:k=>classes.has(k)},setAttribute(k,v){attrs[k]=v},getAttribute:k=>attrs[k]||null,focus(){context.document.activeElement=this;this.focused=true},addEventListener(name,fn){this.events[name]=fn},events:{}}}
-let width=390;
+let width=390,coarse=true,hover=false;
+function mediaMatches(query){return query.split(',').some(branch=>{const max=branch.match(/max-width:(\d+)px/);return (!max||width<=Number(max[1]))&&(!branch.includes('(hover:none)')||!hover)&&(!branch.includes('(pointer:coarse)')||coarse)})}
 const ids={filters:node('filters'),'filter-dialog':node('filter-dialog'),togglefilters:node('togglefilters')};
 const home={insertBefore(element,next){assert.equal(next,'section');element.parentNode=this;this.restored=true}};
 const done=node('filter-done'),root=node('html'),trigger=ids.togglefilters;
@@ -15,7 +16,7 @@ filter.querySelectorAll=selector=>selector==='[data-filter-group]'?[group]:[curr
 sheet.appendChild=n=>{n.parentNode=sheet};sheet.showModal=()=>{sheet.open=true};sheet.close=()=>{sheet.open=false;sheet.events.close()};
 const handlers={},documentHandlers={},viewportHandlers={};
 const viewport={height:800,offsetTop:0,addEventListener:(key,fn)=>{viewportHandlers[key]=fn}};
-const context={window:{innerHeight:800,matchMedia:()=>({matches:width<=820}),visualViewport:viewport,addEventListener:(key,fn)=>{handlers[key]=fn}},document:{activeElement:trigger,documentElement:root,addEventListener:(key,fn)=>{documentHandlers[key]=fn}},$:id=>ids[id],setTimeout:fn=>fn()};
+const context={window:{innerHeight:800,matchMedia:query=>({matches:mediaMatches(query)}),visualViewport:viewport,addEventListener:(key,fn)=>{handlers[key]=fn}},document:{activeElement:trigger,documentElement:root,addEventListener:(key,fn)=>{documentHandlers[key]=fn}},$:id=>ids[id],setTimeout:fn=>fn()};
 vm.createContext(context);vm.runInContext(helpers,context);context.initMobileUI();
 root.style.overflow='auto';context.openFilterSheet();
 assert.equal(sheet.open,true);assert.equal(filter.parentNode,sheet);assert.equal(root.style.overflow,'hidden');assert.equal(done.focused,true);assert.equal(trigger.attrs['aria-expanded'],'true');
@@ -33,3 +34,11 @@ console.log('Mobile helpers: modal mount/return, scroll lock, focus restoration,
 
 width=1200;filter.classList.remove('collapsed');width=390;handlers.resize();assert.ok(filter.classList.contains('collapsed'),'desktop sidebar must not become an unrequested fixed overlay after resizing to mobile');assert.equal(sheet.open,false);context.openFilterSheet();handlers.resize();assert.equal(sheet.open,true,'resizing an intentionally open mobile sheet keeps it open');context.closeFilterSheet();
 console.log('Breakpoint transition: desktop sidebar collapses on mobile without opening a phantom sheet.');
+
+// Wide touch viewports use the same filter and keyboard behavior as phones.
+width=980;coarse=true;hover=false;context.document.activeElement=trigger;context.openFilterSheet();assert.equal(sheet.open,true,'foldable touch viewport opens filter sheet');
+width=1101;handlers.resize();assert.equal(sheet.open,false,'larger viewport returns filters home');assert.equal(filter.parentNode,home);
+width=980;coarse=false;hover=true;context.openFilterSheet();assert.equal(sheet.open,false,'mouse desktop at the same width keeps sidebar');
+coarse=true;hover=true;context.openFilterSheet();assert.equal(sheet.open,false,'hover-capable hybrid keeps desktop layout');
+hover=false;context.document.activeElement={tagName:'INPUT'};viewport.height=480;viewportHandlers.resize();assert.ok(root.classList.contains('keyboard-open'),'wide touch keyboard receives compact navigation behavior');
+console.log('Foldable layouts: wide touch filters, desktop and hybrid exclusions, resize recovery, and keyboard handling passed.');
