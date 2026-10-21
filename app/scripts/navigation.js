@@ -64,7 +64,7 @@ function installClosetRoutes(){
     else if(route.type==='outfits')name=route.id?(state.outfits[route.id]||{}).name||'Outfit':'Outfits';
     else if(route.type==='collections')name=route.id?(collectionList().find(function(c){return c.id===route.id})||{}).name||'Collection':'Collections';
     else if(route.type==='trips')name=route.id&&route.id!=='new'?(state.trips[route.id]||{}).name||'Trip':route.id==='new'?'Plan a trip':'Trips';
-    else name=({board:'Board',calendar:'Calendar',lab:'Outfit Lab','wishlist-ranking':'Wishlist ranking','buy-check':'Buy check'})[route.type]||'Closet';
+    else name=({board:'Board',calendar:'Calendar',lab:'Outfit Lab','wishlist-ranking':'Wishlist','buy-check':'Buy check'})[route.type]||'Closet';
     document.title=name+' · Closet Lint';
   }
   function routeFromState(){
