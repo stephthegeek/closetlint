@@ -40,7 +40,7 @@ def demo_source():
                'pattern':['solid'], 'statement':'plain', 'size':'M','sizeKind':'clothing',
                'photoId':asset_id,'ar':photo['width']/photo['height'],'source':'Synthetic sample','genericPhoto':True,
                'photos':[{'photoId':asset_id,'ar':photo['width']/photo['height'],'kind':'isolated','width':photo['width'],'height':photo['height'],'generated':True}],
-               'date':'2026-01-01'}
+               'date':'2000-01-01'}
         if shape=='shoes':piece.update(size='8',sizeKind='shoe')
         if shape in ('bag','necklace'):piece.update(size='One size',sizeKind='onesize')
         if name.endswith('cardigan'):piece.update(kind='cardigan',labAs='layer')

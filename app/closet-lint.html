@@ -978,7 +978,9 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .setup-route-title{display:flex;align-items:center;gap:12px}
 .menu-emoji{display:inline-block;flex:0 0 1.6em;text-align:center;line-height:1.4;filter:var(--emoji-color)}
 #appmenu :is(button,a){display:flex;align-items:center;gap:12px}
-#appmenu .xarr{margin-right:2px}
+#appmenu .xarr{margin-right:2px;transition:transform .12s}
+#appmenu .xpar.open>button>.xarr{transform:rotate(90deg)}
+@media(min-width:561px){#appmenu .xpar:is(:hover,:focus-within)>button>.xarr{transform:rotate(90deg)}}
 :root[data-skin]:not([data-skin=workshop]) :is(.filters,.form,.dlgwide,.labctl,.ofilters,.tray,.tripform) .chip{font-size:14px;font-weight:400;line-height:1.4}
 :root[data-skin]:not([data-skin=workshop]) :is(.btn,.chip,.tab,.primary-nav :is(button,a),.closet-scopes button){transition:background-color 120ms,border-color 120ms,color 120ms}
 @media(hover:hover){:root[data-skin]:not([data-skin=workshop]) :is(.btn,.chip,.tab,.primary-nav :is(button,a),.closet-scopes button):hover:not(:disabled){background:var(--selbg);border-color:var(--sel);color:var(--ink)}}
@@ -1274,8 +1276,9 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 /* Multi-line fields should read as the same controls as text inputs in Field Notes. */
 :root[data-skin=fieldnotes] textarea{border-radius:5px;border-width:1px}
 .hbtns > :is(.heart,.plus){box-sizing:border-box;width:38px;height:38px;min-width:38px;line-height:36px}
-:root[data-skin] .hbtns .plus{background:#25252c;color:#fff;border:1px solid #c7acee;box-shadow:2px 2px 0 #1119}
-:root[data-skin] .hbtns .plus.on,:root[data-skin] .hbtns .plus:hover{background:#49375b;border-color:#e1caff;color:#fff}
+:root[data-skin] .hbtns .plus{display:inline-flex;align-items:center;justify-content:center;padding:0;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+:root[data-skin] .hbtns .plus.on{background:var(--selbg);border-color:var(--sel);color:var(--ink)}
+@media(hover:hover){:root[data-skin] .hbtns .plus:hover{background:var(--selbg);border-color:var(--sel);color:var(--ink);transform:none}}
 :root[data-skin=workshop] .hbtns > button{border-radius:2px}
 @media(max-width:540px){.hbtns > :is(.heart,.plus){width:44px;height:44px;min-width:44px;line-height:42px}}
 .lab-adjust-summary-main,.lab-adjust-active{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px}
@@ -2939,8 +2942,9 @@ function openWearDates(cur,save){
 
 /* ---------- find the original / a replacement image ---------- */
 function findRow(it){
-  var tq=encodeURIComponent((it.title||it.name||'').slice(0,220));
-  return el('div',{class:'findrow'},el('a',{class:'btn small',href:'https://www.google.com/search?q='+tq,target:'_blank',rel:'noopener noreferrer',text:'\uD83D\uDD0E Search title',title:'Search the web for this title'}));
+  var title=String(it.title||'').trim()||String(it.name||'').trim();
+  var tq=encodeURIComponent(title.slice(0,220));
+  return el('div',{class:'findrow'},el('a',{class:'btn small',href:'https://www.google.com/search?q='+tq,target:'_blank',rel:'noopener noreferrer',text:'\uD83D\uDD0E Search for original title',title:'Search the web for the original listing title'}));
 }
 
 /* ---------- hover X menu ---------- */
@@ -3543,7 +3547,8 @@ function openEdit(it){
       f.dateNode,
       f.priceNode,
       f.urlNode,
-      productURL(it.url)?el('a',{class:'btn small',href:productURL(it.url),target:'_blank',rel:'noopener noreferrer',text:'Open the original listing'}):null));
+      productURL(it.url)?el('a',{class:'btn small',href:productURL(it.url),target:'_blank',rel:'noopener noreferrer',text:'Open the original listing'}):null,
+      findRow(it)));
   var titleEl=el('h2',{text:it.name}),titleWrap=el('div',{class:'titlewrap'});
   function showTitle(){titleWrap.textContent='';titleEl.textContent=f.nameInput.value||it.name;titleWrap.appendChild(titleEl)}
   function startTitleEdit(){
@@ -3569,7 +3574,7 @@ function openEdit(it){
   var gallery=piecePhotoPanel(it,function(view,isMain){swatches.textContent='';if(realPhoto(view))swatches.appendChild(swEditor(view));primaryTools.classList.toggle('hide',!isMain)},swatches);
   var photoOptions=gallery.querySelector('.photo-options-body');if(photoOptions)photoOptions.appendChild(primaryTools);
   d.appendChild(el('div',{class:'dlg'},
-    el('div',{class:'dlgleft'},gallery,el('div',{class:'phtools photo-links'},productURL(it.url)?el('a',{class:'btn product-link',href:productURL(it.url),target:'_blank',rel:'noopener noreferrer',text:'↗ View product at '+(it.source||'store')}):null,photoOptions?null:primaryTools,findRow(it))),
+    el('div',{class:'dlgleft'},gallery,el('div',{class:'phtools photo-links'},productURL(it.url)?el('a',{class:'btn product-link',href:productURL(it.url),target:'_blank',rel:'noopener noreferrer',text:'↗ View product at '+(it.source||'store')}):null,photoOptions?null:primaryTools)),
     form));
   addClose(d);if(!d.open)d.showModal();
 }
@@ -6551,7 +6556,7 @@ $('menubtn').addEventListener('click',function(e){
   });
   function flyout(label,rows){
     var wrap=el('div',{class:'xpar'}),fly=el('div',{class:'xfly',role:'group'});
-    var par=el('button',{type:'button',role:'menuitem','aria-haspopup':'true','aria-expanded':'false',onclick:function(e){e.stopPropagation();var o=wrap.classList.toggle('open');par.setAttribute('aria-expanded',o?'true':'false')}},el('span',{class:'xarr',text:'\u2039'}),menuLabel(label));
+    var par=el('button',{type:'button',role:'menuitem','aria-haspopup':'true','aria-expanded':'false',onclick:function(e){e.stopPropagation();var o=wrap.classList.toggle('open');par.setAttribute('aria-expanded',o?'true':'false')}},el('span',{class:'xarr','aria-hidden':'true',text:'\u203A'}),menuLabel(label));
     rows.forEach(function(it){fly.appendChild(el('button',{type:'button',role:'menuitem',onclick:function(){closeAppMenu();it[1]()}},menuLabel(it[0])))});
     wrap.appendChild(par);wrap.appendChild(fly);m.appendChild(wrap);
   }
@@ -6569,7 +6574,6 @@ $('menubtn').addEventListener('click',function(e){
   m.style.top=(r.bottom+6)+'px';m.style.left=Math.max(8,Math.min(window.innerWidth-m.offsetWidth-8,r.right-m.offsetWidth))+'px';
   /* flyouts open to the left; when the menu sits too near the left edge (desktop) they open to the right instead */
   var fr=m.getBoundingClientRect().left<235&&window.innerWidth>560;m.classList.toggle('fly-r',fr);
-  [].forEach.call(m.querySelectorAll('.xarr'),function(a){a.textContent=fr?'\u203A':'\u2039'});
   var f=m.querySelector('button');if(f)f.focus();
 });
 document.addEventListener('click',function(e){if(!e.target.closest('#appmenu'))closeAppMenu()});
@@ -8749,7 +8753,7 @@ function wrRenderInner(){
     el('span',{class:'fine',title:'The colored tags are worked out live from your closet. The italic lines are notes from Claude.',text:items.length+' pieces ⓘ'}),
     el('button',{class:'btn small',type:'button',style:'margin-left:auto',text:'← Closet',onclick:function(){setTab('all')}})));
   var modes=el('div',{class:'chips labmodes'});
-  [['list','Ranking'],['battle','Battles']].forEach(function(m){modes.appendChild(chip(m[1],W.mode===m[0],function(){W.mode=m[0];W.cur=null;wrRender()}))});
+  [['list','Ranking'],['battle','Head-to-head']].forEach(function(m){modes.appendChild(chip(m[1],W.mode===m[0],function(){W.mode=m[0];W.cur=null;wrRender()}))});
   v.appendChild(modes);
   var sc=el('div',{class:'chips labctl'});
   sc.appendChild(chip('All',W.scope==='all',function(){W.scope='all';W.cur=null;wrRender()}));

@@ -196,7 +196,9 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .setup-route-title{display:flex;align-items:center;gap:12px}
 .menu-emoji{display:inline-block;flex:0 0 1.6em;text-align:center;line-height:1.4;filter:var(--emoji-color)}
 #appmenu :is(button,a){display:flex;align-items:center;gap:12px}
-#appmenu .xarr{margin-right:2px}
+#appmenu .xarr{margin-right:2px;transition:transform .12s}
+#appmenu .xpar.open>button>.xarr{transform:rotate(90deg)}
+@media(min-width:561px){#appmenu .xpar:is(:hover,:focus-within)>button>.xarr{transform:rotate(90deg)}}
 :root[data-skin]:not([data-skin=workshop]) :is(.filters,.form,.dlgwide,.labctl,.ofilters,.tray,.tripform) .chip{font-size:14px;font-weight:400;line-height:1.4}
 :root[data-skin]:not([data-skin=workshop]) :is(.btn,.chip,.tab,.primary-nav :is(button,a),.closet-scopes button){transition:background-color 120ms,border-color 120ms,color 120ms}
 @media(hover:hover){:root[data-skin]:not([data-skin=workshop]) :is(.btn,.chip,.tab,.primary-nav :is(button,a),.closet-scopes button):hover:not(:disabled){background:var(--selbg);border-color:var(--sel);color:var(--ink)}}
@@ -492,8 +494,9 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 /* Multi-line fields should read as the same controls as text inputs in Field Notes. */
 :root[data-skin=fieldnotes] textarea{border-radius:5px;border-width:1px}
 .hbtns > :is(.heart,.plus){box-sizing:border-box;width:38px;height:38px;min-width:38px;line-height:36px}
-:root[data-skin] .hbtns .plus{background:#25252c;color:#fff;border:1px solid #c7acee;box-shadow:2px 2px 0 #1119}
-:root[data-skin] .hbtns .plus.on,:root[data-skin] .hbtns .plus:hover{background:#49375b;border-color:#e1caff;color:#fff}
+:root[data-skin] .hbtns .plus{display:inline-flex;align-items:center;justify-content:center;padding:0;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+:root[data-skin] .hbtns .plus.on{background:var(--selbg);border-color:var(--sel);color:var(--ink)}
+@media(hover:hover){:root[data-skin] .hbtns .plus:hover{background:var(--selbg);border-color:var(--sel);color:var(--ink);transform:none}}
 :root[data-skin=workshop] .hbtns > button{border-radius:2px}
 @media(max-width:540px){.hbtns > :is(.heart,.plus){width:44px;height:44px;min-width:44px;line-height:42px}}
 .lab-adjust-summary-main,.lab-adjust-active{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px}
