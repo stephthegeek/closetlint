@@ -1,6 +1,6 @@
 # AI Use & Security
 
-Closet Lint is an AI-assisted project. Stephanie (stephthegeek) directs the product, interaction design, copy, and visual review. AI assistants have written and revised substantial portions of the implementation, tests, and documentation.
+Closet Lint is an AI-assisted project. StephTheGeek directs the product, interaction design, copy, and visual review. AI assistants have written and revised substantial portions of the implementation, tests, and documentation.
 
 We use synthetic fixtures for automated checks, review changes against the intended behavior, test imports and backup recovery, and record known limitations. The 0.1 candidate has passed the JavaScript and Python suites, dependency advisory checks, public-source checks, and full-history secret scanning in GitHub Actions. A separate sample installation was used for hands-on backup and restore checks. Passing those checks does not prove that the software has no defects.
 

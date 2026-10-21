@@ -64,7 +64,7 @@ function editCollection(c,initial){
   function cancel(){if(saving)return;if(window.ClosetLintRoutes)window.ClosetLintRoutes.closeTrackedDialog(d);else if(signature()===baseline||window.confirm('Discard the unsaved changes to this collection?'))d.close()}
   d.textContent='';d.oncancel=function(e){e.preventDefault();cancel()};
   box.appendChild(el('header',{class:'collection-head collection-editor-head'},el('h2',{text:c?'Edit collection':'New collection'}),el('button',{class:'btn',type:'button',text:'Close','aria-label':'Close collection editor',onclick:cancel})));
-  var name=el('input',{type:'text',maxlength:'100',value:draft.name,'aria-label':'Collection name',placeholder:'Like “Stephanie’s faves”'}),description=el('textarea',{rows:'3',maxlength:'1000','aria-label':'Collection description'});description.value=draft.description;
+  var name=el('input',{type:'text',maxlength:'100',value:draft.name,'aria-label':'Collection name',placeholder:'Like “StephTheGeek’s faves”'}),description=el('textarea',{rows:'3',maxlength:'1000','aria-label':'Collection description'});description.value=draft.description;
   body.append(setupLabel('Name',name),setupLabel('Description (optional)',description));
   var search=el('input',{type:'search','aria-label':'Find pieces for collection',placeholder:'Find pieces by title, tag or store…'}),only=el('input',{type:'checkbox','aria-label':'Show selected pieces only'}),count=el('p',{class:'fine',role:'status'}),grid=el('div',{class:'collection-pieces'}),limit=80;
   body.append(search,el('label',{class:'collection-check'},only,'Show selected pieces only'),count,grid);

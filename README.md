@@ -47,7 +47,7 @@ Each piece can have several photos, and you choose which one appears in your clo
 
 [![Proudly Vibe Coded - Aurora Pulse](https://vibecoded.fyi/badges/terminal/main/proudly-vibe-coded-aurora-pulse.svg)](https://vibecoded.fyi/)
 
-Claude and Codex generated substantial portions of the code, tests, and documentation, with Stephanie (stephthegeek) directing the product, design, and hands-on testing. Here we describe how it was built, what was checked, and what remains unverified.
+Claude and Codex generated substantial portions of the code, tests, and documentation, with StephTheGeek directing the product, design, and hands-on testing. Here we describe how it was built, what was checked, and what remains unverified.
 
 Automated tests cover imports, backup and restore, navigation, and unsafe inputs. Dependency checks, secret scanning, and an AI-assisted security review have also been run. There has not been an independent human security audit. See [AI use and security review](AI-USE-AND-SECURITY.md) and [security information and private reporting](SECURITY.md).
 

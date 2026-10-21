@@ -154,7 +154,7 @@ def selected_pieces(state, collection_id):
     cols = state['collections']
     if collection_id == ALL_ACTIVE:
         ids = [item['id'] for item in state['base']['catalog']] + ['c-' + key for key in cols['custom']]
-        collection = {'name': "Stephanie's closet", 'description': '', 'ids': ids}
+        collection = {'name': "StephTheGeek's closet", 'description': '', 'ids': ids}
     else:
         collection = cols['profile'].get(collection_id)
         if not isinstance(collection, dict) or collection.get('kind') != 'piece-collection' or collection.get('deleted'):

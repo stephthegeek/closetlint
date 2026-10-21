@@ -15,7 +15,7 @@ const path=require('path');const {chromium}=require('playwright');
     await p.selectOption('#appearance','dark');
     if(await p.locator('html').getAttribute('data-theme')!=='dark')errs.push('View theme not applied');
     await p.locator('#displayprefs button').click();
-    for(const item of ['All outfits','Outfit Lab','Wishlist ranking','Trip wizard','Measurements']){
+    for(const item of ['All outfits','Outfit Lab','Wishlist','Trip wizard','Sizes & fit']){
       await p.click('#menubtn');await p.waitForTimeout(150);
       await p.locator('#appmenu button',{hasText:item}).first().click().catch(e=>errs.push('menu '+item+': '+e.message));await p.waitForTimeout(300);
       await p.keyboard.press('Escape');

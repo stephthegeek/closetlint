@@ -49,7 +49,7 @@ def demo_source():
     cols={col:{} for col in COLLECTIONS}
     cols['views']['_seeded']={'at':1}
     cols['profile']['demo']={'synthetic':True}
-    # A release-ready fictional collection, independent of Stephanie's personal wardrobe.
+    # A release-ready fictional collection, independent of StephTheGeek's personal wardrobe.
     sample_ids=[piece['id'] for piece in catalog]
     cols['profile']['collection-imaginary']={
         'kind':'piece-collection','name':"Linty's imaginary closet",

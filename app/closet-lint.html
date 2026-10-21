@@ -2290,7 +2290,7 @@ function renderFiltersCore(){
   showRow.appendChild(chip('No photo',state.photo==='missing',function(){state.photo=state.photo==='missing'?'':'missing';renderFilters();renderGrid()},null,el('span',{class:'n',text:String(nNoPh)})));
   showRow.appendChild(chip('\uD83D\uDCF7 Has photo',state.photo==='has',function(){state.photo=state.photo==='has'?'':'has';renderFilters();renderGrid()}));
   if(state.fantasy){var nWish=items.filter(function(x){return x.wish}).length;showRow.appendChild(chip('🪄 Wishlist only',!!state.wishOnly,function(){state.wishOnly=!state.wishOnly;renderFilters();renderGrid()},null,el('span',{class:'n',text:String(nWish)})))}
-  showRow.appendChild(chip('\uD83D\uDCD0 Fits me',!!state.fitsMe,function(){if(!wearAny()){toast('Pick the sizes you wear in \u2630 Measurements & fit first');return}state.fitsMe=!state.fitsMe;renderFilters();renderGrid()}));
+  showRow.appendChild(chip('\uD83D\uDCD0 Fits me',!!state.fitsMe,function(){if(!wearAny()){toast('Pick the sizes you wear in \u2630 Sizes & fit first');return}state.fitsMe=!state.fitsMe;renderFilters();renderGrid()}));
   var nWM=items.filter(function(x){return x.wearMore}).length;
   if(nWM||state.wearMoreOnly)showRow.appendChild(chip('\uD83D\uDE80 Wear more',!!state.wearMoreOnly,function(){state.wearMoreOnly=!state.wearMoreOnly;renderFilters();renderGrid()},null,el('span',{class:'n',text:String(nWM)})));
   pinnedViews().forEach(function(v){var on=isViewOn(v);showRow.appendChild(chip(v.name,on,function(){setViewKeys(v.f,!isViewOn(v))}))});
@@ -5911,7 +5911,7 @@ function drawSetup(){
     routes.appendChild(el('button',{class:'setup-option',type:'button',disabled:s.busy,onclick:function(){s.step=5;s.message='';drawSetup()}},el('strong',{class:'setup-route-title'},el('span',{class:'menu-emoji','aria-hidden':'true',text:'📷'}),el('span',{text:'Add a few pieces myself'})),el('span',{text:'Take a photo, upload one, or paste a product shot. Add the clothes you reach for most.'})));
     routes.appendChild(el('button',{class:'setup-option',type:'button',disabled:s.busy,onclick:function(){s.step=2;s.message='';drawSetup()}},el('strong',{class:'setup-route-title'},el('span',{class:'menu-emoji','aria-hidden':'true',text:'📬'}),el('span',{text:'Bring in emails, orders or a list'})),el('span',{text:'Use your own AI assistant to prepare a batch, then check it here before adding anything.'})));
     if(window.ClosetLintRuntime&&window.ClosetLintRuntime.openRestore)routes.appendChild(el('button',{class:'setup-option',type:'button',disabled:s.busy,onclick:function(){d.close();window.ClosetLintRuntime.openRestore()}},el('strong',{class:'setup-route-title'},el('span',{class:'menu-emoji','aria-hidden':'true',text:'📦'}),el('span',{text:'Restore my Closet Lint backup'})),el('span',{text:'Already have a full backup ZIP? Review it in the restore tool. Restoring replaces this closet and keeps a recovery copy.'})));
-    body.appendChild(routes);body.appendChild(el('aside',{class:'setup-note'},el('strong',{text:'A little practice closet'}),el('p',{text:'Linty’s imaginary closet has twelve fictional pieces and simple generated illustrations. The installation guide explains how to try it in a separate sample wardrobe. Stephanie’s faves will be a separate collection.'})));
+    body.appendChild(routes);body.appendChild(el('aside',{class:'setup-note'},el('strong',{text:'A little practice closet'}),el('p',{text:'Linty’s imaginary closet has twelve fictional pieces and simple generated illustrations. The installation guide explains how to try it in a separate sample wardrobe. StephTheGeek’s faves will be a separate collection.'})));
     actions.appendChild(el('button',{class:'btn',type:'button',text:'← Back',disabled:s.busy,onclick:function(){s.step=0;drawSetup()}}));
   }else if(s.step===5){
     title='Start with the good stuff.';shell.querySelector('h2').textContent=title;
@@ -6099,7 +6099,7 @@ function editCollection(c,initial){
   function cancel(){if(saving)return;if(window.ClosetLintRoutes)window.ClosetLintRoutes.closeTrackedDialog(d);else if(signature()===baseline||window.confirm('Discard the unsaved changes to this collection?'))d.close()}
   d.textContent='';d.oncancel=function(e){e.preventDefault();cancel()};
   box.appendChild(el('header',{class:'collection-head collection-editor-head'},el('h2',{text:c?'Edit collection':'New collection'}),el('button',{class:'btn',type:'button',text:'Close','aria-label':'Close collection editor',onclick:cancel})));
-  var name=el('input',{type:'text',maxlength:'100',value:draft.name,'aria-label':'Collection name',placeholder:'Like “Stephanie’s faves”'}),description=el('textarea',{rows:'3',maxlength:'1000','aria-label':'Collection description'});description.value=draft.description;
+  var name=el('input',{type:'text',maxlength:'100',value:draft.name,'aria-label':'Collection name',placeholder:'Like “StephTheGeek’s faves”'}),description=el('textarea',{rows:'3',maxlength:'1000','aria-label':'Collection description'});description.value=draft.description;
   body.append(setupLabel('Name',name),setupLabel('Description (optional)',description));
   var search=el('input',{type:'search','aria-label':'Find pieces for collection',placeholder:'Find pieces by title, tag or store…'}),only=el('input',{type:'checkbox','aria-label':'Show selected pieces only'}),count=el('p',{class:'fine',role:'status'}),grid=el('div',{class:'collection-pieces'}),limit=80;
   body.append(search,el('label',{class:'collection-check'},only,'Show selected pieces only'),count,grid);
@@ -6319,7 +6319,7 @@ function showNotice(){
   else if(photoState.loaded<photoState.total)msgs.push('Loading photos ('+photoState.loaded+' of '+photoState.total+' files)...');
   if(state.pub){
     if(PUB.site==='demo')msgs.push(el('span',null,'12 sample pieces included with ',el('a',{href:'https://www.closetlint.com/',text:'Closet Lint'}),'.'));
-    else if(PUB.site==='dev')msgs.push(el('span',null,'Stephanie\u2019s wardrobe playground, with over 1,000 pieces, running the latest ',el('a',{href:'https://www.closetlint.com/',text:'Closet Lint'}),' code.'));
+    else if(PUB.site==='dev')msgs.push(el('span',null,'StephTheGeek\u2019s wardrobe playground, with over 1,000 pieces, running the latest ',el('a',{href:'https://www.closetlint.com/',text:'Closet Lint'}),' code.'));
     else msgs.push('You are looking at a public copy of a closet.');
     msgs.push('Changes stay only in your browser. Reset them from the menu.');
   }else if(window.ClosetLintRuntime&&window.ClosetLintRuntime.error)msgs.push(window.ClosetLintRuntime.error);
@@ -6328,8 +6328,13 @@ function showNotice(){
   if(state.pub&&PUB.peerReady&&(PUB.site==='demo'||PUB.site==='dev')){
     var link=document.createElement('a');
     link.href=PUB.site==='demo'?'https://dev.closetlint.com/':'https://demo.closetlint.com/';
-    link.textContent=PUB.site==='demo'?'Stephanie\u2019s wardrobe playground \u2192':'Explore the 12-piece demo \u2192';
-    n.appendChild(document.createTextNode(' '));n.appendChild(link);
+    if(PUB.site==='demo'){
+      n.appendChild(document.createTextNode(' For a real life example, check out '));
+      link.textContent='StephTheGeek\u2019s closet';n.appendChild(link);n.appendChild(document.createTextNode('.'));
+    }else{
+      link.textContent='Explore the 12-piece demo \u2192';
+      n.appendChild(document.createTextNode(' '));n.appendChild(link);
+    }
   }
   n.classList.toggle('hide',!msgs.length);
 }
@@ -6402,7 +6407,7 @@ function doFullBackup(){
   }
   var ws=[];for(var k=0;k<6;k++)ws.push(worker());
   Promise.all(ws).then(function(){
-    var note='Stephanie\u2019s Closet backup, '+new Date().toISOString()+'\n\nbackup.json has everything saved in the app (edits, added pieces, outfits, views, measurements, wear log and settings, ratings, trips).\nphotos/ holds your uploaded photos by id; catalog-photos/ holds the photo files that came with the catalog.\n'+(failed.length?'\n'+failed.length+' photo file(s) could not be fetched: '+failed.join(', ')+'\n':'');
+    var note='StephTheGeek\u2019s Closet backup, '+new Date().toISOString()+'\n\nbackup.json has everything saved in the app (edits, added pieces, outfits, views, measurements, wear log and settings, ratings, trips).\nphotos/ holds your uploaded photos by id; catalog-photos/ holds the photo files that came with the catalog.\n'+(failed.length?'\n'+failed.length+' photo file(s) could not be fetched: '+failed.join(', ')+'\n':'');
     var all=[{name:'README.txt',data:enc.encode(note)},{name:'backup.json',data:enc.encode(json)}].concat(files);
     var blob=zipBlob(all);
     return state.downloads.save({filename:'closet-full-backup-'+todayStr()+'.zip',data:blob}).then(function(){toast(failed.length?'Backup saved, but '+failed.length+' photo file(s) could not be included':'\u2713 Full backup saved ('+files.length+' photo files)')});
@@ -6429,7 +6434,7 @@ function openStoreDialog(ids,prefill){
   }});
   inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();go.click()}});
   d.appendChild(el('div',{class:'dlgwide narrow'},el('h2',{text:ids.length===1?'Put this piece in storage':'Put '+ids.length+' pieces in storage'}),
-    el('p',{class:'fine',text:'Stored pieces disappear from your closet until you turn on Fantasy mode or open \u2630 \u203A Not in use \u203A In storage. Type where they are, like a bin number or a box label.'}),
+    el('p',{class:'fine',text:'Stored pieces disappear from your closet until you turn on Fantasy mode or open \u2630 \u203A Stashed \u203A In storage. Type where they are, like a bin number or a box label.'}),
     el('label',null,'Where is it?',inp,dl),
     el('div',{class:'actions',style:'margin-top:14px'},el('button',{class:'btn',type:'button',text:'Cancel',onclick:function(){d.close()}}),go)));
   d.showModal();inp.focus();
@@ -6521,7 +6526,7 @@ function openMeasurements(){
     if(!lists[key].length)row.appendChild(el('span',{class:'fine',text:'No sizes recorded yet.'}));
     wrap.appendChild(row);return wrap;
   }
-  d.appendChild(el('div',{class:'dlgwide narrow measurements-view'},el('h2',{text:'Measurements & fit'}),
+  d.appendChild(el('div',{class:'dlgwide narrow measurements-view'},el('h2',{text:'Sizes & fit'}),
     el('div',{style:'display:flex;gap:8px;align-items:center;flex-wrap:wrap'},el('span',{class:'fine',text:'Show in:'}),
       chip('inches / lb',!met,function(){setUnits(false);openMeasurements()}),chip('cm / kg',met,function(){setUnits(true);openMeasurements()})),
     list.length?el('p',{style:'margin:10px 0 0;font-weight:600',text:'Latest ('+(list[0].date||'')+'): '+line(list[0])}):null,
@@ -6541,7 +6546,7 @@ $('menubtn').addEventListener('click',function(e){
   e.stopPropagation();var m=$('appmenu');
   if(!m.classList.contains('hide')){closeAppMenu();return}
   m.textContent='';
-  [['📚 Collections',function(){openCollections()},{type:'collections'}],['🏆 Wishlist ranking',function(){setTab('wrank')},{type:'wishlist-ranking'}],['🧳 Trips',function(){setTab('trip')},{type:'trips'}],['\uD83D\uDCD0 Measurements & fit',openMeasurements]].forEach(function(it){
+  [['📚 Collections',function(){openCollections()},{type:'collections'}],['🏆 Wishlist',function(){setTab('wrank')},{type:'wishlist-ranking'}],['🧳 Trips',function(){setTab('trip')},{type:'trips'}],['\uD83D\uDCD0 Sizes & fit',openMeasurements]].forEach(function(it){
     var attrs={role:'menuitem','aria-current':it[0]==='🧳 Trips'&&state.tab==='trip'?'page':null};var action=function(){closeAppMenu();it[1]()};m.appendChild(it[2]?routeAnchor(it[2],attrs,action,menuLabel(it[0])):el('button',Object.assign({type:'button',onclick:action},attrs),menuLabel(it[0])));
   });
   function flyout(label,rows){
@@ -6550,8 +6555,7 @@ $('menubtn').addEventListener('click',function(e){
     rows.forEach(function(it){fly.appendChild(el('button',{type:'button',role:'menuitem',onclick:function(){closeAppMenu();it[1]()}},menuLabel(it[0])))});
     wrap.appendChild(par);wrap.appendChild(fly);m.appendChild(wrap);
   }
-  if(state.pub)m.appendChild(el('button',{type:'button',role:'menuitem',onclick:function(){closeAppMenu();askConfirm('Forget everything you changed in this browser?','Reset',pubReset)}},menuLabel('\u21BA Reset my changes')));
-  flyout('\uD83E\uDDFA Not in use',[['\uD83D\uDE48 Hidden ('+hiddenItems().length+')',openHiddenView],['\uD83D\uDDC4\uFE0F In storage ('+storedItems().length+')',openStoredView],['\uD83D\uDCE6 Donate? ('+donateItems().length+')',openDonateView],['\uD83D\uDDD1\uFE0F Deleted ('+archItems().length+')',openDeleted]]);
+  flyout('\uD83E\uDDFA Stashed',[['\uD83D\uDE48 Hidden ('+hiddenItems().length+')',openHiddenView],['\uD83D\uDDC4\uFE0F In storage ('+storedItems().length+')',openStoredView],['\uD83D\uDCE6 Donate? ('+donateItems().length+')',openDonateView],['\uD83D\uDDD1\uFE0F Deleted ('+archItems().length+')',openDeleted]]);
   if(!state.pub){
     var backups=[['🧹 Tidy photos',openTidyPhotos],['📥 Import pieces',openImport],['🧙 Setup wizard',openSetup],['\uD83D\uDCE6 Full backup (data + photos)',doFullBackup]];
     if(window.ClosetLintRuntime)backups.push(['Restore a full backup',function(){window.ClosetLintRuntime.openRestore()}]);
@@ -6559,6 +6563,7 @@ $('menubtn').addEventListener('click',function(e){
     flyout('🧰 Utilities',backups);
   }
   if(state.pub)flyout('🧰 Utilities',[['📥 Import pieces',openImport],['🧙 Setup wizard',openSetup]]);
+  if(state.pub)m.appendChild(el('button',{type:'button',role:'menuitem',onclick:function(){closeAppMenu();askConfirm('Forget everything you changed in this browser?','Reset',pubReset)}},menuLabel('\u21BA Reset my changes')));
   m.classList.remove('hide');
   var r=$('menubtn').getBoundingClientRect();
   m.style.top=(r.bottom+6)+'px';m.style.left=Math.max(8,Math.min(window.innerWidth-m.offsetWidth-8,r.right-m.offsetWidth))+'px';
@@ -8356,7 +8361,7 @@ function tripStep3(v,T){
     if(show===false)return;
     f.appendChild(el('label',{style:'display:flex;gap:8px;align-items:flex-start'},el('input',{type:'checkbox',checked:T[key]?'checked':false,onchange:function(e){T[key]=e.target.checked}}),el('span',null,lbl,hint?el('span',{class:'fine',style:'display:block',text:hint}):null)));
   }
-  cb('Only pieces that fit now','fits','Uses the sizes you set in Measurements & fit.',wearAny());
+  cb('Only pieces that fit now','fits','Uses the sizes you set in Sizes & fit.',wearAny());
   cb('Start from my saved outfits','useSaved','Uses saved outfits that suit the weather first, then fills in with new combinations.');
   cb('Include wishlist pieces','inclWish','Pieces you do not own yet.');
   cb('Include pieces in storage','inclStored','You would need to pull them out first.');
@@ -8732,7 +8737,7 @@ function wrFail(e){
   var armed=false,rb=el('button',{class:'btn',type:'button',text:'Reset the ranking order',onclick:function(){
     if(!armed){armed=true;rb.textContent='Tap again to confirm (your pieces are not touched)';return}
     state.wr=null;wrCommit(wrSeedDoc());wrRender()}});
-  v.appendChild(el('div',{class:'labhead'},el('h2',{text:'🏆 Wishlist ranking'}),el('button',{class:'btn small',type:'button',style:'margin-left:auto',text:'← Closet',onclick:function(){setTab('all')}})));
+  v.appendChild(el('div',{class:'labhead'},el('h2',{text:'🏆 Wishlist'}),el('button',{class:'btn small',type:'button',style:'margin-left:auto',text:'← Closet',onclick:function(){setTab('all')}})));
   v.appendChild(el('p',{text:'The ranking page ran into a problem and could not draw.'}));
   v.appendChild(el('p',{class:'fine',text:'Details: '+String((e&&e.message)||e).slice(0,200)}));
   v.appendChild(el('div',{class:'wrbtns'},el('button',{class:'btn',type:'button',text:'Try again',onclick:function(){wrRender()}}),rb));
@@ -8740,7 +8745,7 @@ function wrFail(e){
 function wrRenderInner(){
   var v=$('view-wrank'),W=wrState();v.textContent='';_wrCtx=null;
   var items=wrItems();
-  v.appendChild(el('div',{class:'labhead'},el('h2',{text:'🏆 Wishlist ranking'}),
+  v.appendChild(el('div',{class:'labhead'},el('h2',{text:'🏆 Wishlist'}),
     el('span',{class:'fine',title:'The colored tags are worked out live from your closet. The italic lines are notes from Claude.',text:items.length+' pieces ⓘ'}),
     el('button',{class:'btn small',type:'button',style:'margin-left:auto',text:'← Closet',onclick:function(){setTab('all')}})));
   var modes=el('div',{class:'chips labmodes'});
@@ -9236,7 +9241,7 @@ function installClosetRoutes(){
     else if(route.type==='outfits')name=route.id?(state.outfits[route.id]||{}).name||'Outfit':'Outfits';
     else if(route.type==='collections')name=route.id?(collectionList().find(function(c){return c.id===route.id})||{}).name||'Collection':'Collections';
     else if(route.type==='trips')name=route.id&&route.id!=='new'?(state.trips[route.id]||{}).name||'Trip':route.id==='new'?'Plan a trip':'Trips';
-    else name=({board:'Board',calendar:'Calendar',lab:'Outfit Lab','wishlist-ranking':'Wishlist ranking','buy-check':'Buy check'})[route.type]||'Closet';
+    else name=({board:'Board',calendar:'Calendar',lab:'Outfit Lab','wishlist-ranking':'Wishlist','buy-check':'Buy check'})[route.type]||'Closet';
     document.title=name+' · Closet Lint';
   }
   function routeFromState(){
