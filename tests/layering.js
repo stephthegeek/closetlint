@@ -40,3 +40,12 @@ o=ctx.labDraw(pool,null,{}, {layerP:1});assert.ok(o);assert.equal(o.under.id,'ta
 let shoeCalls=0,sockCalls=0;Object.assign(ctx,{labPickShoes:()=>{shoeCalls++;return {id:'shoe',socksRequired:true}},labPickSocks:()=>{sockCalls++;return {id:'sock'}},labSockOK:()=>true,labNeedTights:()=>false,labAccessorize:()=>{throw Error('optional extras should stay off')}});
 vm.runInContext(fn('labEnsureSocks')+'\n'+fn('labEnsureAcc'),ctx);o={one:{id:'dress'}};ctx.labEnsureAcc(o,{accAuto:false});ctx.labEnsureAcc(o,{accAuto:false});assert.equal(shoeCalls,1);assert.equal(sockCalls,1);assert.equal(o.acc.shoes.id,'shoe');assert.equal(o.acc.socks.id,'sock');
 console.log('Layering: upper-body requirements, sweater exclusions, vest combinations, manual overrides, shoes and required socks pass.');
+// Accessorizing adds extras without silently replacing the shoes already shown.
+Object.assign(ctx,{labSockP:()=>0,labPickJewelry:()=>[{id:'necklace'}],labPickHair:()=>null,labPickGlasses:()=>null});
+vm.runInContext(fn('labAccessorize'),ctx);
+const originalShoe={id:'chosen-shoe',socksRequired:true};o={acc:{shoes:originalShoe}};
+const callsBefore=shoeCalls;ctx.labAccessorize(o,{});ctx.labAccessorize(o,{});
+assert.equal(o.acc.shoes,originalShoe);assert.equal(shoeCalls,callsBefore,'only the shoe reroll should replace existing shoes');
+assert.equal(o.acc.socks.id,'sock');assert.equal(o.acc.jewelry[0].id,'necklace');
+o={};ctx.labAccessorize(o,{});assert.equal(o.acc.shoes.id,'shoe','missing shoes still get a suggestion');
+console.log('Accessorize preserves suggested shoes, adds extras, and supplies shoes when absent.');
