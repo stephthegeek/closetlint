@@ -3,6 +3,21 @@ on: [push, pull_request]
 permissions:
   contents: read
 jobs:
+  minimum-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.10'
+      - name: Check core runtime without optional packages
+        run: python -S -m unittest discover -s tests -p 'test_runtime.py' -v
+      - name: Rehearse sample startup and backup on minimum Python
+        run: |
+          python -S tools/create_demo.py --data "$RUNNER_TEMP/closet-lint-sample"
+          python -S runtime/server.py --data "$RUNNER_TEMP/closet-lint-sample" --prepare-only --export-backup "$RUNNER_TEMP/sample-backup.zip"
   checks:
     runs-on: ubuntu-latest
     steps:

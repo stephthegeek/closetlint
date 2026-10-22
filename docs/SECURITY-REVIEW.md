@@ -1,60 +1,49 @@
-# Code-first security review — 2026-10-19
+# Security review for 0.1
 
-Status: initial review completed, with fixes and synthetic regression tests. This is an AI-assisted code review, not an independent audit, live penetration test, or guarantee of security. No browser or personal wardrobe writes were used.
+This is an AI-assisted code review with automated adversarial tests, not an independent human audit, penetration test, or guarantee of security. The initial review and subsequent fixes cover the candidate prepared for 0.1. Current check results and platform limits are in [TESTING.md](TESTING.md).
 
 ## Scope and trust boundaries
 
-Reviewed the Python HTTP/storage service, backup/restore validation, optional background-removal worker boundary, assistant importer, browser storage adapter, HTML/DOM insertion sites, product links, image ingestion, source packaging, and dependency declarations.
+Reviewed the Python HTTP/storage service, backup and restore, assistant importer, optional photo worker, browser storage adapter, HTML/DOM insertion, product links, image ingestion, source packaging, and dependencies.
 
-The supported deployment is one personal wardrobe on loopback, optionally on an explicitly trusted LAN. There are no accounts or signed-out users. Anyone who can reach the password-free service can access that wardrobe. Its request token helps prevent cross-site requests; it is not authentication. Private internet hosting and a shared public demo require separate access-control/deployment work before deployment.
+The local service is for one personal wardrobe on your computer, optionally accessible over a home network you trust. There are no accounts: anyone who can reach it can view and edit that wardrobe. Host, origin, and request-token checks defend against cross-site browser requests; they do not authenticate users. Do not expose the service directly to the internet.
 
-The local assistant importer accepts prepared files and metadata. It does not fetch remote URLs, scrape stores, connect to email, execute imported text, or send data to an AI provider. Its authorized local-file boundary is the manifest folder. The optional worker launches a locally configured interpreter with an argument array, not a shell command. That configuration is trusted local installation data, not an HTTP setting.
+The assistant importer reads prepared metadata and image files from an authorized local folder. It does not fetch product URLs, connect to email, execute imported text, or send data to an AI provider. The optional photo worker uses a locally configured interpreter and an argument array, not a shell command. Its configuration is trusted machine setup, not an imported wardrobe setting.
 
-## Findings fixed
+Public static demos are separate exports. They copy selected fields and photos into a snapshot; visitor edits stay in browser storage. The export flow supports a collection/photo review and re-encodes selected photos without source metadata. Publishing a snapshot is a separate privacy and image-rights decision. The editable local sample server is not a public demo server.
 
-| Finding | Boundary and impact | Change and evidence |
-| --- | --- | --- |
-| Stored SVG attribute injection | Board frame colors from a crafted backup could enter generated SVG markup through `innerHTML`. | Frame colors now accept supported hex values only. Real-renderer tests supply an attribute-breaking payload in both frame branches and verify it cannot introduce elements or handlers. |
-| Broad inline-script permission | The local server previously allowed arbitrary inline scripts and event handlers through CSP. | Script policy now hashes exact served inline blocks, including per-instance bootstrap data. It keeps self-hosted runtime.js and blocks arbitrary inline handlers/eval. Tests compute hashes from served output. Style inline permission remains for the existing styling system. |
-| Unsafe/malformed JSON accepted | Restored dictionaries and API records could carry prototype-sensitive keys, excessive nesting, or invalid common garment fields. | Reject duplicate/unsafe keys, non-finite values, excessive complexity/depth, unsupported backup versions, invalid board pieces, malformed photo lists, and common piece-field types before writes. Legacy string tags remain supported and are normalized before color migration. Existing-record preservation is tested. |
-| Weak image/bundle validation | Signature-only detection and arbitrary `data:image/` bundle content admitted unsupported content and huge declared dimensions. | Validate raster header dimensions, enforce 40 megapixels/20,000px per edge, restrict bundle images to validated JPEG/PNG/GIF/WebP data, and reject SVG. Browser uploads reject unsupported MIME types and oversized files, then rasterize/cap to 1600px. Assistant import re-encodes and strips EXIF/GPS. |
-| Restore/resource growth | Large compressed uploads were read into RAM in one operation; preview files and server request threads had no count bound. | Restore uploads stream in 1 MB chunks. Keep at most two previews, with expiry checked on mutations. HTTP service limits concurrent workers to eight and socket idle waits to 30 seconds. Duplicate lengths and transfer encodings are rejected. Tests cover preview eviction and connection-slot release after failure. |
-| Backup path ambiguity | ZIP symlinks and escaping legacy-folder symlinks were not explicitly rejected. | Reject ZIP symlinks and legacy metadata/photo paths outside the selected folder. Existing filename allowlists, expanded-size limits, CRC checks, and transactional restore/recovery remain. |
-| Optional worker output growth | Captured subprocess logs and an oversized output file could allocate avoidable memory. | Discard worker stdout/stderr and check output file size before reading; retain the 120-second timeout, original-photo preservation, and serialized processing. |
-| Known-advisory decoder baseline | Existing Pillow 12.1.1 has published advisories; resolving latest requirements alone missed this installed/minimum-version gap. | Raised Pillow minimum to 12.3.0 in both optional environments, check the version before decoding, and restrict decoders to supported raster formats. Existing installations need an explicit environment update. |
-| Dependency/release hygiene | No lockfile or automated public-source/security workflow. | Added npm lockfile, expanded ignores, optional background-removal requirements file, source-boundary checker, least-privilege CI with pinned action revisions, dependency audits, verified Gitleaks, and dependency update configuration. CI is prepared but has not run on GitHub. |
+## Protections and tested fixes
 
-External product links already used http(s) checks and `noopener noreferrer`; credential-bearing links are now rejected too. Imported titles and descriptions use text nodes. Remaining `innerHTML` sites were traced to constant UI markup or generated numeric geometry; the discovered color interpolation is fixed. No eval/new Function use was found in the reviewed app code.
+| Area | Protection |
+| --- | --- |
+| Imported text and links | Text nodes for titles/descriptions; http(s)-only links without embedded credentials; external links use `noopener noreferrer`. Board SVG frame colors accept supported hex values, closing the reviewed attribute-injection path. |
+| Script policy | The local server hashes its exact inline script blocks, including per-instance bootstrap data. Arbitrary inline handlers and eval are not allowed. Inline styles remain permitted for the current interface. |
+| JSON and schema validation | Reject unsafe/duplicate keys, non-finite values, excessive nesting/complexity, unsupported versions, malformed common piece fields, invalid board pieces, and malformed photo lists before writes. |
+| Backup and restore | Reject escaping paths and ZIP symlinks; bound archive sizes; check references, CRCs, and supported image headers. Preview does not replace data; confirmed restore uses a transaction and retains a recovery snapshot. |
+| Resource bounds | Restore uploads stream in chunks. Preview count and lifetime, request size, socket idle time, and concurrent server workers are bounded. Photo processing is serialized with an output-size check and timeout. |
+| Photos | Browser uploads restrict formats and rasterize/cap images. Assistant imports re-encode images and remove EXIF/GPS metadata. SVG uploads are rejected. Restored/direct API assets retain their bytes and may retain metadata. |
+| Optional worker | Uses direct U²-Net inference through ONNX Runtime, with Pillow 13 or newer. Setup and inference verify the model checksum; original photo pixels are retained behind a new transparency mask. |
+| Repository and dependencies | Allowlisted source packaging, empty embedded wardrobe, separate sample data, pinned Actions, locked npm dependencies, advisory checks, and full-history secret scanning. |
 
-## Checks and evidence
+Tests cover hostile SVG colors and URLs, poisoned keys, malformed fields/archives, unsupported backup versions, oversized image headers, preview cancellation/expiry, malformed restore confirmations, HTTP length ambiguity, CSP hashes, origin/Host/token rejection, import retries, rollback, and preservation of existing records.
 
-- Full dependency-free JavaScript suite, including hostile SVG color/link checks, and synthetic Python storage/import/security suites. See [TESTING.md](TESTING.md) for repeatable commands and verification limits.
-- Adversarial tests for poisoned keys, malformed field types, nested JSON, non-finite numbers, future format versions, oversized image headers, SVG bundles, ZIP symlinks, archive size bounds, malformed restore confirmations, preview eviction, HTTP length ambiguity, CSP hashes, and bounded server worker behavior.
-- Existing round-trip, rollback, recovery, cross-origin/Host/token rejection, import idempotency, photo preservation, and source/sample tests remain in the suite.
-- `npm audit`: zero known vulnerabilities in the resolved, locked development dependency graph at review time. This is advisory coverage, not proof of safety.
-- Verified official Gitleaks v8.30.1 download against its published SHA-256; directory scan of the allowlisted public-source tree found zero secrets. The source directory has no Git repository/history yet, so there was no historical scan to perform. CI is configured to scan complete history once it exists.
-- Public-source boundary check found empty catalog/tags/bundles/public-snapshot blocks and no built-in credential/machine-path pattern matches. Only project artwork and fictional AI-generated sample photos are included; no personal or retailer wardrobe photos are shipped.
+## Verification
 
-pip-audit found zero known advisories in the 29-package resolved optional graph (Pillow 12.3.0, Rembg 2.0.85, ONNX Runtime 1.31.0). A separate exact-version check found advisories on the previous Pillow 12.1.1 baseline; it is now rejected by the photo tools. Existing environments were not automatically upgraded. No Semgrep/ESLint scan, independent human review, actual HTTP socket test, browser CSP test, or public hosting header scan was performed. HTTP tests exercise real handlers with in-memory connections; deployment behavior still needs its own checkpoint.
+The candidate passed GitHub Actions for the JavaScript and Python suites, npm and optional Python dependency advisory checks, public-source boundaries, and full-history Gitleaks scanning. No known advisories or matching secrets were reported by those checks at that checkpoint; scanners cannot prove their absence. The separate Python 3.10 core-runtime check also passed.
 
-## Explicit limitations and follow-up gates
+A fresh extracted sample ran as a listening local server. Its browser backup/restore rehearsal preserved photos, saved outfits, and the working board, and verified the pre-restore recovery copy. Static sample pages and photos were also exercised on SiteGround. These checks do not amount to a penetration test, independent hosting-header audit, or comprehensive browser-security review.
 
-- Source can include measurement, fit-log, price, wear-history, and lingerie features. Personal records must be absent from the source/demo. Removing functionality does not substitute for dataset separation. A future curated public export needs an explicit field allowlist, clean product URLs, photo metadata/background review, and rights review. The fictional sample avoids that blocker for the first commit.
-- The local sample is intentionally editable. It is not a read-only public demo. Do not expose this service directly on the public internet. No authentication, TLS termination, multi-user isolation, or hardened reverse-proxy configuration was added in this review.
-- Core image validation is structural/header-based, not a complete image decoder or malware scanner. Restored assets and direct API uploads preserve their bytes, including potential metadata. Normal UI/assistant ingestion re-encodes; public exports need independent privacy checks. Animated files, decoder vulnerabilities, OS resource exhaustion, disk quotas, and total wardrobe growth are not comprehensively sandboxed.
-- Worker timeout/thread limits do not impose an OS memory limit on ONNX or Pillow. Models and optional dependencies are downloaded at setup; weights are not redistributed in source. The U²-Net model checksum is now verified at setup and before inference, but a container/OS resource boundary would be additional work.
-- Browser storage is origin-scoped convenience/draft storage, not encrypted storage. Local databases/backups rely on OS permissions and device security. External Google Fonts requests remain documented; the app is not advertised as making zero network requests.
-- Schema checks cover common fields and unsafe shapes, not a formally complete schema for every profile/trip/outfit setting. Further fuzzing and independent review are useful.
-- Tokens/cross-site protections do not prevent an authorized LAN client from editing data or filling its disk. One trusted editing device at a time remains the supported model.
-- Code and Linty artwork are now GPL-3.0-or-later. GitHub private vulnerability reporting is the chosen route; enable it on the actual repository before publication. Publish a factual review status, not a “security certified” claim. Decide whether an independent review is a release requirement; another AI review is useful, but is not a human audit.
+## Remaining limits
 
-## Deployment follow-up — 2026-10-20
+- There is no authentication, built-in TLS, multi-user isolation, or protection from a trusted LAN client intentionally editing data or filling the disk. Use one editing device at a time.
+- Databases, browser storage, and backups are not encrypted by the app. They rely on device security and operating-system permissions. Full backups can contain private measurements, wear history, and photos.
+- Image header validation is not a full decoder or malware scanner. Worker timeouts and thread limits do not impose an operating-system memory limit on Pillow or ONNX Runtime. Disk quotas, total wardrobe growth, and hostile-client resource exhaustion are not comprehensively sandboxed.
+- Normal ingestion and public photo exports re-encode images; restored assets and direct API uploads may retain metadata. Background removal is not anonymization.
+- Schema validation covers common fields and unsafe shapes, not a complete formal schema for every profile, trip, or outfit setting. More fuzzing and independent review would provide additional evidence.
+- Model weights and optional dependencies are downloaded at setup. Fonts are requested from Google Fonts; the app is not described as making zero external requests. See [THIRD-PARTY.md](THIRD-PARTY.md).
+- Windows/macOS installation, final physical-mobile workflows, and broad assistive-technology testing are not established by the automated suite. See [TESTING.md](TESTING.md) for the remaining release checks.
 
-The statements above describe the 2026-10-19 review, before the public repository and static demo exporter existed. The exporter now requires an explicit collection and photo review, copies allowlisted style fields, re-encodes approved photos without source metadata, and emits a static page with no writable server. Its synthetic-data tests pass. A 12-piece synthetic export loaded with photos on SiteGround. This does not certify hosting headers, browser isolation, or a future export of Stephanie’s own collection. Review that collection’s names, tags, photographs, privacy, and publication rights before building or uploading it. The clean committed tree and current verification limits are recorded in [TESTING.md](TESTING.md).
-
-## Optional photo environment follow-up — 2026-10-20
-
-Pillow 13 fixed advisories that remained in Pillow 12.3. Rembg 2.0.85 requires Pillow below 13, so the optional worker now calls the same U²-Net model through ONNX Runtime directly. Both optional photo environments require Pillow 13 or newer. The installer reuses a verified existing model where available, and new model downloads are checked against a pinned SHA-256 before use. Existing optional installations need to run setup again. The original-photo and preview boundaries are unchanged. See [TESTING.md](TESTING.md) for current verification.
+Code and Linty artwork are GPL-3.0-or-later; third-party components retain their own terms. GitHub private vulnerability reporting is enabled. Report security issues privately using [SECURITY.md](../SECURITY.md).
 
 ## References
 

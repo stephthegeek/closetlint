@@ -2,7 +2,7 @@
 
 Closet Lint uses a Python HTTP service with SQLite storage and a plain HTML, CSS, and JavaScript frontend. Python 3.10 or newer is required. Running the app needs no frontend build or additional Python packages; optional photo tools have separate dependencies.
 
-For startup commands, the fictional demo, and phone access, see [INSTALL.md](INSTALL.md).
+For startup commands, the sample collection, and phone access, see [INSTALL.md](INSTALL.md).
 
 ## Data folder
 

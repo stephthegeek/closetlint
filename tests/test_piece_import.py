@@ -134,10 +134,11 @@ class PieceImportTests(unittest.TestCase):
         self.assertTrue(rows[0]['record']['noPhoto'])
 
     def test_metadata_allowlist_unknown_tags_and_sizes(self):
-        _, _, rows = self.prepare([{**self.piece, 'address': 'must not be stored', 'photoId': 'x', 'colors': ['black', 'imaginary'], 'date': '2026-10-15', 'imageSources': [{'url': 'https://example.com/alternate.jpg', 'kind': 'detail'}]}])
+        _, _, rows = self.prepare([{**self.piece, 'address': 'must not be stored', 'photoId': 'x', 'colors': ['black', 'clear', 'imaginary'], 'looks': ['geeky', 'utility'], 'pattern': ['animal', 'botanical'], 'date': '2026-10-15', 'imageSources': [{'url': 'https://example.com/alternate.jpg', 'kind': 'detail'}]}])
         record = rows[0]['record']
         self.assertNotIn('address', record);self.assertNotEqual(record['photoId'], 'x')
-        self.assertEqual(record['colors'], ['black']);self.assertEqual(record['date'], '2026-10-15')
+        self.assertEqual(record['colors'], ['black', 'clear']);self.assertEqual(record['date'], '2026-10-15')
+        self.assertEqual(record['looks'], ['geeky', 'utility']);self.assertEqual(record['pattern'], ['animal', 'botanical'])
         self.assertTrue(rows[0]['warnings'])
         self.assertEqual(record['imageSources'][0]['kind'], 'detail')
         for patch in [{'price': True}, {'price': '1e9'}, {'price': '1.234'}, {'price': 2, 'currency': 'CAD'}, {'url': 'file:///tmp/x'}, {'category': 'Unknown'}, {'subcategory': 'Imaginary'}, {'layerNeed': 'maybe'}, {'date': '2026-99-99'}]:

@@ -33,3 +33,7 @@ Accepted discard removes unsaved edits; it does not delete previously saved item
 A bookmark opens the wardrobe served at that app address. It does not upload anything, grant sharing permissions, or copy data to another installation. URLs and history contain navigation state, not photos, measurements, or working-board contents.
 
 For a phone on your trusted network, use the laptop's working LAN address, rather than `localhost`: on the phone, `localhost` means the phone itself. The route after `#` stays the same. If the laptop's LAN address changes, update the bookmark's host address.
+
+## Opening another tab
+
+Main navigation, piece photos and titles, saved outfit previews and titles, collection browse links, and saved-trip links support Ctrl-click, Command-click, middle-click, and the browser’s Open link in new tab menu. Ordinary clicks keep the existing unsaved-edit checks. A new tab opens the saved destination; it does not copy unsaved edits from the old tab.

@@ -1,6 +1,6 @@
 # Security
 
-Closet Lint 0.1 is being prepared. This is currently a single-user application for local use, with optional access on a trusted LAN. It has no user accounts at this time. The served page receives its own request token; that token protects against cross-site requests, not other people who can reach the app.
+Closet Lint is a single-user application for use on your computer, with optional access over a home network you trust. It has no user accounts at this time. The served page receives its own request token; that token protects against cross-site requests, not other people who can reach the app.
 
 ## Deployment limits
 
@@ -15,12 +15,12 @@ Normal photo uploads are rasterized by the browser; the assistant importer re-en
 
 ## Reporting
 
-Please use **GitHub private vulnerability reporting**, rather than a public issue, for security problems. In this repository, open **Security and quality → Advisories → Report a vulnerability** and submit a private report. See [GitHub’s reporting instructions](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-privately).
+Please use [**GitHub private vulnerability reporting**](https://github.com/stephthegeek/closetlint/security/advisories/new), rather than a public issue, for security problems. In this repository, open **Security and quality → Advisories → Report a vulnerability** and submit a private report. See [GitHub’s reporting instructions](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-privately).
 
 Include the affected version, installation mode, expected and actual behavior, and minimal reproduction steps using synthetic data. Do not attach your full wardrobe, measurements, account credentials, order emails, or private photographs. If the reporting button is unavailable, ask the maintainer to enable private reporting without posting vulnerability details. Ordinary, non-sensitive bugs can use public issues.
 
 ## Review status
 
-A code-first review and adversarial synthetic tests were completed on 2026-10-19, with fixes and limitations recorded in [the review report](docs/SECURITY-REVIEW.md). This was AI-assisted, not an independent human audit or a guarantee of security. A separate static demo was exercised on SiteGround on 2026-10-20; that check did not include a penetration test or independent security-header audit. See [the testing notes](docs/TESTING.md) for current verification limits.
+The 0.1 candidate has passed automated source and security checks, dependency advisory checks, full-history secret scanning, and a local installation and backup/restore rehearsal. The code review was AI-assisted; there has not been an independent human audit, penetration test, or independent hosting-header audit. See [the review report](docs/SECURITY-REVIEW.md) and [testing notes](docs/TESTING.md) for scope and limits.
 
 Use current dependency updates, keep backups, and read release notes before upgrading. There is no promised security response SLA or long-term support policy yet.

@@ -39,7 +39,7 @@ def remove_background(folder, image_bytes):
         except (OSError, subprocess.TimeoutExpired):
             raise ValueError('Local background removal could not finish. Your original is unchanged.') from None
         if result.returncode or not target.is_file():
-            raise ValueError('Local background removal failed. Your original is unchanged; check the optional installation.')
+            raise ValueError('Background removal could not finish in this server session. Your original is unchanged. Restart the local server, then try again.')
         if target.stat().st_size > 32 * 1024 * 1024:
             raise ValueError('The cutout is too large. Your original is unchanged.')
         data = target.read_bytes()

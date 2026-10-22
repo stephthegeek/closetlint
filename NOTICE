@@ -1,5 +1,5 @@
 Closet Lint
-Copyright (C) 2026 Stephanie (stephthegeek) and Closet Lint contributors
+Copyright (C) 2026 StephTheGeek and Closet Lint contributors
 
 SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -13,7 +13,7 @@ merchantability or fitness for a particular purpose.
 
 The license applies to copyright and related rights held by contributors;
 it does not create rights in otherwise unprotected AI-generated material.
-See AI_USE.md for the project's AI-use disclosure.
+See AI-USE-AND-SECURITY.md for the project's AI-use disclosure.
 
 Third-party components retain their own licenses. See docs/THIRD-PARTY.md.
 User wardrobe data and imported photographs are not covered by this

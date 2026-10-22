@@ -12,7 +12,7 @@ Choose what you want help with: rediscovering owned clothes, outfit ideas, shopp
 4. Review/edit names, categories, ownership, sizes, source, USD prices, and product links. Uncheck unwanted rows. Possible name-and-size duplicates start unchecked.
 5. Add checked pieces with their attached/available photos, then refine tags on their cards.
 
-Imports can include a public HTTPS `photoUrl`, a named `photoFile` to attach during review, or up to twelve `images` entries with `{url, kind}`. Available kinds are isolated, model, scene, flatlay, display, detail, and unclassified. The first saved image is the main view. Downloads can fail because of retailer/CORS restrictions; attaching an image file is the fallback. Photos are capped at a 1600px longest edge without upscaling. Pieces without a saved photo get a placeholder; new pieces are marked Unreviewed. Tags must match existing vocabulary; unknown tags are dropped. The review shows retained tags; edit them afterward on the piece page.
+Imports can include a public HTTPS `photoUrl`, a named `photoFile` to attach during review, or several `images` entries with `{url, kind}`. Available kinds are isolated, model, scene, flatlay, display, detail, and unclassified. The first saved image is the main view. Downloads can fail because of retailer/CORS restrictions; attaching an image file is the fallback. Photos are capped at a 1600px longest edge without upscaling. Pieces without a saved photo get a placeholder; new pieces are marked Unreviewed. Tags must match existing vocabulary; unknown tags are dropped. The review shows retained tags; edit them afterward on the piece page.
 
 ## Format
 

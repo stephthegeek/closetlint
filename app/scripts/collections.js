@@ -51,7 +51,7 @@ function collectionContext(count){
   $('view-closet').classList.toggle('collections-overview',!!state.collectionManager);
   if(state.collectionManager){
     var head=el('div',{class:'collection-actions'},el('h2',{text:'Collections'}),el('button',{class:'btn',type:'button',text:'＋ New collection',onclick:function(){editCollection(null,[])}}),el('button',{class:'btn',type:'button',text:'Back to pieces',onclick:function(){state.collectionManager=false;renderGrid()}}));top.appendChild(head);
-    var list=el('div',{class:'collection-list'}),map=byId();collectionList().forEach(function(c){var row=el('article',{class:'collection-summary'}),thumbs=el('div',{class:'collection-thumbs'});c.ids.slice(0,4).forEach(function(id){if(map[id])thumbs.appendChild(el('img',{src:map[id].photo,alt:'',loading:'lazy'}))});row.append(thumbs,el('h3',{text:c.name}),el('p',{text:c.description}),el('button',{class:'btn',type:'button',text:'Browse '+c.ids.length+' pieces',onclick:function(){collectionBrowse(c)}}));list.appendChild(row)});top.appendChild(list);return;
+    var list=el('div',{class:'collection-list'}),map=byId();collectionList().forEach(function(c){var row=el('article',{class:'collection-summary'}),thumbs=el('div',{class:'collection-thumbs'});c.ids.slice(0,4).forEach(function(id){if(map[id])thumbs.appendChild(el('img',{src:map[id].photo,alt:'',loading:'lazy'}))});row.append(thumbs,el('h3',{text:c.name}),el('p',{text:c.description}),routeAnchor({type:'collections',id:c.id},{class:'btn',text:'Browse '+c.ids.length+' pieces'},function(){collectionBrowse(c)}));list.appendChild(row)});top.appendChild(list);return;
   }
   var groups=collectionList().filter(function(c){return state.collectionFilter&&state.collectionFilter[c.id]});if(!groups.length)return;
   var merged={name:groups.map(function(c){return c.name}).join(' + '),ids:collectionIds(groups.flatMap(function(c){return c.ids}))};
@@ -64,7 +64,7 @@ function editCollection(c,initial){
   function cancel(){if(saving)return;if(window.ClosetLintRoutes)window.ClosetLintRoutes.closeTrackedDialog(d);else if(signature()===baseline||window.confirm('Discard the unsaved changes to this collection?'))d.close()}
   d.textContent='';d.oncancel=function(e){e.preventDefault();cancel()};
   box.appendChild(el('header',{class:'collection-head collection-editor-head'},el('h2',{text:c?'Edit collection':'New collection'}),el('button',{class:'btn',type:'button',text:'Close','aria-label':'Close collection editor',onclick:cancel})));
-  var name=el('input',{type:'text',maxlength:'100',value:draft.name,'aria-label':'Collection name',placeholder:'Like “Stephanie’s faves”'}),description=el('textarea',{rows:'3',maxlength:'1000','aria-label':'Collection description'});description.value=draft.description;
+  var name=el('input',{type:'text',maxlength:'100',value:draft.name,'aria-label':'Collection name',placeholder:'Like “StephTheGeek’s faves”'}),description=el('textarea',{rows:'3',maxlength:'1000','aria-label':'Collection description'});description.value=draft.description;
   body.append(setupLabel('Name',name),setupLabel('Description (optional)',description));
   var search=el('input',{type:'search','aria-label':'Find pieces for collection',placeholder:'Find pieces by title, tag or store…'}),only=el('input',{type:'checkbox','aria-label':'Show selected pieces only'}),count=el('p',{class:'fine',role:'status'}),grid=el('div',{class:'collection-pieces'}),limit=80;
   body.append(search,el('label',{class:'collection-check'},only,'Show selected pieces only'),count,grid);

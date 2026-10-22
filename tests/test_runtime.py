@@ -189,6 +189,15 @@ class RuntimeTests(unittest.TestCase):
         status, _ = self.call('GET', '/api/state')
         self.assertEqual(status, 403)
 
+    def test_cross_site_top_level_visit_opens_app_but_not_api_or_photos(self):
+        navigation = {'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'navigate',
+                      'Sec-Fetch-Dest': 'document'}
+        self.assertEqual(self.call('GET', '/', headers=navigation)[0], 200)
+        self.assertEqual(self.call('GET', '/api/state', headers={**navigation, 'X-ClosetLint-Token': 'test-token'})[0], 403)
+        self.assertEqual(self.call('GET', '/_blob/' + PHOTO, headers=navigation)[0], 403)
+        self.assertEqual(self.call('GET', '/', headers={**navigation, 'Origin': 'https://other.example'})[0], 403)
+        self.assertEqual(self.call('GET', '/', headers={**navigation, 'Sec-Fetch-Dest': 'image'})[0], 403)
+
     def test_lan_no_login_keeps_origin_and_api_token_checks(self):
         self.call('GET', '/')
         self.server.host = '10.0.0.20'
