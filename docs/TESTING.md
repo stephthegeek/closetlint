@@ -61,11 +61,11 @@ The served HTML contains embedded copies of several maintained source files. Aft
 
 The existing tests check relevant synchronization and source invariants.
 
-## 0.1 candidate verification
+## 0.1 verification
 
 The release branch excludes Sky. The development build and dev site retain it; checks of those builds do not establish that Sky is part of 0.1.
 
-Completed on the candidate:
+Completed for 0.1:
 
 - GitHub Actions passed the full JavaScript suite, 53 Python tests, dependency advisory checks, public-source checks, and full-history Gitleaks scanning. Actions are pinned to commit revisions.
 - A separate Python 3.10 CI job passed core runtime tests and sample initialization, startup preparation, and backup export without optional packages. The full suite also runs on Python 3.12.
@@ -75,8 +75,8 @@ Completed on the candidate:
 - A read-only performance pass used an existing 1,100-piece wardrobe at 390 × 844 in desktop Chrome. Search, category filtering, scrolling, and board-tray search responded without a visible stall. Browse mounted 60 cards plus its loading sentinel rather than the whole wardrobe. This was a bounded observation, not a hardware benchmark or physical-phone test; long board-tray and Lab lists remain future optimization work.
 - The optional photo worker uses direct U²-Net/ONNX inference and Pillow 13 or newer. A synthetic setup rehearsal and inference check passed previously, and the mask matched the former implementation without changing RGB pixels. The latest dependency advisory checks passed; a fresh optional-tool installation was not repeated during the final recovery pass.
 
-The passing source/security and minimum-Python jobs are recorded in [this CI run](https://github.com/stephthegeek/closetlint/actions/runs/39668276536). Changes after that commit need their relevant checks.
+The source/security and minimum-Python jobs passed again after the final layout changes: [CI run](https://github.com/stephthegeek/closetlint/actions/runs/39696412455). Final packaging and release metadata receive the same CI checks before merging.
 
-Still open before tagging: StephTheGeek’s final physical-mobile workflow pass and resolution of any blockers it finds. Windows and macOS installation, broad assistive-technology coverage, and an independent human security audit have not been completed. State these limits in release notes rather than implying every platform or workflow has been certified.
+StephTheGeek completed the physical-mobile review and approved the 0.1 release on 21 October 2026. A Pixel Fold tester reported improved behavior after the wider touch-layout changes. Those touch breakpoints and keyboard handling also have synthetic regression coverage; a resized desktop browser alone does not emulate a physical foldable. Windows and macOS installation, broad assistive-technology coverage, and an independent human security audit remain unverified.
 
 See [the security review](SECURITY-REVIEW.md) for security boundaries and residual risks.

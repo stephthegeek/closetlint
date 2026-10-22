@@ -1,62 +1,71 @@
-# Closet Lint
+# Closet Lint 0.1
 
-A wardrobe goblin who lives in your closet and knows where everything is.
+**A wardrobe goblin who lives in your closet and knows where everything is.**
 
-Browse everything you own (or are scheming to own), drag pieces around an outfit board until something clicks, and rate the outfits it dreams up for you: love it, meh, absolutely not. It learns your taste from those ratings, ranks your wishlist by how much it would actually earn its keep in your closet, and helps you plan trips and packing lists.
+The first release of Closet Lint, a personal wardrobe app for shopping your closet like a store where you already own everything. It runs locally and opens in your browser. No account, no subscription, no sync, no telemetry: your wardrobe and photos stay with you.
 
-**0.1 release candidate.** Final mobile testing is in progress.
+> **Early release, under active development.** Expect some rough edges. Future updates may require extra steps, so keep a current backup before updating.
 
-## How to run Closet Lint on your computer
+## What's included
 
-You need Python 3.10 or newer and a web browser. No account or AI subscription is needed.
+- Your wardrobe and wishlist, with photos, tags, filters, and collections.
+- An outfit board, saved outfits, wear tracking, and a calendar.
+- Outfit suggestions based on your ratings.
+- Wishlist ranking based on your closet.
+- Trip planning and packing lists.
+- Storage tracking with bin labels and pull lists.
+- Bring Your Own Assistant imports: your own AI assistant can turn product links, order emails, screenshots, or photos into an import batch. The assistant does the reading; Closet Lint never needs access to your email or browser. AI is entirely optional, and you can add everything by hand, too.
+- Optional local photo background removal, with originals kept and results reviewed before saving.
+- Full backup and restore of your wardrobe data and photos.
+- Three themes, plus light and dark modes.
 
-1. Download and unzip the Closet Lint source folder.
-2. Open a terminal in that folder and run:
+*Linty is reading the stars, and your clothes make up the constellations. Your Sky is coming soon.*
+
+## Get started
+
+You'll need Python 3.10 or newer (check with `python3 --version`, or `py -3 --version` on Windows) and a web browser.
+
+1. [Download the latest release](https://github.com/stephthegeek/closetlint/releases/latest/download/closet-lint.zip) and unzip it.
+2. Open a terminal in its folder and run the command for your computer:
+
+   **Linux or macOS**
 
    ```bash
    python3 runtime/server.py --data ../closet-lint-data
    ```
 
-   On Windows, use `py -3` instead of `python3`.
-3. Open **http://127.0.0.1:6684/** in your browser and follow the setup prompts.
+   **Windows**
 
-That’s it. Time to give Linty something to rummage through.
+   ```powershell
+   py -3 runtime\server.py --data ..\closet-lint-data
+   ```
 
-Keep the terminal open while using the app. To stop, press **Ctrl+C**; run the same command to start again. Your saved wardrobe stays in the separate `closet-lint-data` folder.
+   This keeps your wardrobe in a `closet-lint-data` folder next to the app folder, so it stays separate from the app files.
+3. Open http://127.0.0.1:6684/ in your browser and follow the setup prompts.
 
-For help with installation, trying the sample collection, or opening the app on your phone over home Wi-Fi, see [the installation guide](docs/INSTALL.md).
+Keep the terminal open while you use the app; closing it stops the server.
 
-## Optional features
+The [installation guide](https://closetlint.com/#docs) explains how to open the app from other devices on your home network, such as your phone or another computer, and how to load 12 sample pieces if you'd like to try things out first.
 
-### Using your own AI assistant
+Time to give Linty something to rummage through.
 
-You can give your AI assistant product links, order emails, screenshots, or photos and ask it to prepare pieces for your wardrobe or wishlist. With access to your computer, it can also add the pieces and photos directly to Closet Lint. You choose which tools and information it can use; Closet Lint doesn’t connect to your inbox itself.
+## A few things to know
 
-Suggested prompts are in **Menu → Utilities → Import pieces**. See [AI assistant imports](docs/ASSISTANT-IMPORT.md) for setup and examples.
+- **Keep your installation private.** The app has no login at this time, so anyone who can reach it can view and edit your wardrobe. Using it on your own computer or home network is fine; just don't make it reachable from the internet, for example by forwarding its port on your router. On a shared network, like an office or a house with roommates, other people there may be able to reach it too. The public demos work differently: visitor changes stay in their own browser.
+- **Photo background removal is optional and needs additional setup.** Fine details can get lost, and it won't remove a person wearing the garment. You choose which results to keep.
+- **Suggestions aren't guarantees.** Outfit combinations, fit labels, and packing lists still need your judgment.
+- **Back up before updating.** Download a full backup with photos from the app, and keep your wardrobe data folder separate from the app folder.
 
-### Photos
+## Testing and security
 
-Each piece can have several photos, and you choose which one appears in your closet. You can also install a local background-removal tool. It keeps the original and lets you review the result before saving. No paid AI service is needed. See [photo options and setup](docs/PHOTOS.md).
+Installation and recovery have been checked on Linux. Windows and macOS installation are unverified so far; if you try either, an issue saying how it went is welcome.
 
-## Documentation
+Automated tests and security checks have passed, but there has not been an independent human security audit. Details are in the [testing and security documentation](https://closetlint.com/#docs).
 
-- [Installation, phone access, and troubleshooting](docs/INSTALL.md)
-- [Updating and moving your wardrobe](docs/UPDATING.md)
+## Feedback
 
-## AI Use & Security
+Found a bug? [Open an issue](https://github.com/stephthegeek/closetlint/issues). For security problems, please use [private vulnerability reporting](https://github.com/stephthegeek/closetlint/security/advisories/new) instead of a public issue.
 
-[![Proudly Vibe Coded - Aurora Pulse](https://vibecoded.fyi/badges/terminal/main/proudly-vibe-coded-aurora-pulse.svg)](https://vibecoded.fyi/)
+## Credits and license
 
-Claude and Codex generated substantial portions of the code, tests, and documentation, with StephTheGeek directing the product, design, and hands-on testing. Here we describe how it was built, what was checked, and what remains unverified.
-
-Automated tests cover imports, backup and restore, navigation, and unsafe inputs. Dependency checks, secret scanning, and an AI-assisted security review have also been run. There has not been an independent human security audit. See [AI use and security review](AI-USE-AND-SECURITY.md) and [security information and private reporting](SECURITY.md).
-
-## License
-
-The code, documentation, and Linty artwork are **GPL-3.0-or-later**. See [LICENSE](LICENSE) and [NOTICE](NOTICE). Third-party components retain their own licenses; your wardrobe data and photos are not automatically relicensed.
-
-## Development
-
-The frontend is in `app/`, the Python server is in `runtime/`, and command-line helpers are in `tools/`. No frontend build is needed to run the app. Developers can run `npm test` with Node/npm and Python installed.
-
-See [developer checks](docs/TESTING.md), [runtime details](docs/LOCAL-RUNTIME.md), and [dependencies and assets](docs/THIRD-PARTY.md).
+Created by stephthegeek, with substantial AI assistance. Code, documentation, and Linty artwork are GPL-3.0-or-later. Third-party components retain their own licenses; see [NOTICE](NOTICE). Your wardrobe data and photos remain yours.

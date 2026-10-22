@@ -6325,7 +6325,7 @@ function showNotice(){
   else if(photoState.loaded<photoState.total)msgs.push('Loading photos ('+photoState.loaded+' of '+photoState.total+' files)...');
   if(state.pub){
     if(PUB.site==='demo')msgs.push(el('span',null,'12 sample pieces included with ',el('a',{href:'https://www.closetlint.com/',text:'Closet Lint'}),'.'));
-    else if(PUB.site==='dev')msgs.push(el('span',null,'StephTheGeek\u2019s wardrobe playground, with over 1,000 pieces, running the latest ',el('a',{href:'https://www.closetlint.com/',text:'Closet Lint'}),' code.'));
+    else if(PUB.site==='dev')msgs.push(el('span',null,'stephthegeek\'s wardrobe playground, running the latest ',el('a',{href:'https://www.closetlint.com/',text:'Closet Lint'}),' code.'));
     else msgs.push('You are looking at a public copy of a closet.');
     msgs.push('Changes stay only in your browser. Reset them from the menu.');
   }else if(window.ClosetLintRuntime&&window.ClosetLintRuntime.error)msgs.push(window.ClosetLintRuntime.error);
