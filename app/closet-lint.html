@@ -5954,7 +5954,7 @@ var ClosetLintOracle=(function(){
       if(options.wear)row.wearDates=dates(p.wears);
       return row;
     })};
-    if(options.outfits)out.outfits=matchingOutfits(config.outfits,pieces).map(function(o){var row={id:o.id,title:text(o.name),pieceIds:o.pieces.map(function(p){return p.id})};if(options.notes)row.notes=fields(o,['notes','note']);if(options.wear)row.wearDates=dates(o.wears);return row});
+    if(options.outfits)out.outfits=matchingOutfits(config.outfits,pieces).map(function(o){var row={id:o.id,title:text(o.name),pieceIds:o.pieces.map(function(p){return p.id})};if(options.notes)row.notes=fields(o,['notes','note']);if(options.wear)row.wearDates=Array.from(new Set(dates((o.wears||[]).concat((o.wearLog||[]).map(function(entry){return entry.d})))));return row});
     return out;
   }
   function counts(pieces){return {owned:pieces.filter(function(p){return !p.wish}).length,wishlist:pieces.filter(function(p){return !!p.wish}).length}}
