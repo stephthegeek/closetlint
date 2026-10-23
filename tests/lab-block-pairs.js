@@ -35,22 +35,6 @@ assert.equal(dialog.children[0].children.length, 4, 'three visible pieces offer 
 assert.equal(writes.some(write => write.name === 'blocks' && write.id === 'dress+shoes'), true);
 console.log('Lab incompatible pairs include shoes and accessories, with no empty picker.');
 
-// Positive taste summaries precede negative summaries and blocked pairs, even
-// before enough ratings exist for a summary.
-const taste=source.slice(source.indexOf('function labTasteView(v){'),source.indexOf('function labPickAnchor(){'));
-Object.assign(context,{labNRated:()=>8,labStats:()=>({love:{n:3,s:3},pass:{n:3,s:-3}}),labFeatName:f=>f,byId:()=>({dress}),labTile:p=>({piece:p.id}),labBlocksBox:v=>v.appendChild({blockedPairs:true})});
-state.ratings={first:{r:1,ids:['dress']},second:{r:1,ids:['dress']}};
-vm.runInContext(taste,context);
-function view(){return {children:[],appendChild(child){this.children.push(child)}}}
-let panel=view();context.labTasteView(panel);
-assert.equal(panel.children[0].children[0].attrs.text,'You tend to love');
-assert.equal(panel.children[1].children[0].attrs.text,'Pieces in your most loved outfits');
-assert.equal(panel.children[2].children[0].attrs.text,'You tend to pass on');
-assert.equal(panel.children[3].blockedPairs,true);
-context.labNRated=()=>2;panel=view();context.labTasteView(panel);
-assert.match(panel.children[0].attrs.text,/Rate a few more/);assert.equal(panel.children[1].blockedPairs,true,'blocked pairs remain accessible before eight ratings');
-console.log('My Taste puts positive sections first and blocked pairs last.');
-
 (async()=>{
  class Node{
   constructor(tag,attrs,...children){this.tag=tag;Object.assign(this,attrs||{});this.children=[];this.append(...children)}

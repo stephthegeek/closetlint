@@ -30,6 +30,8 @@ Included work:
 
 - [Closet Oracle](https://trello.com/c/N3OuiMux): read-only analysis handoff, scoped context, optional details/photos, local-assistant and chat routes, and clipboard/download recovery. Added at the owner’s request before final testing. See [ORACLE.md](ORACLE.md).
 
+- [My taste](https://trello.com/c/qoe2TGTM): distinct-outfit counts, current-tag refresh, clear Loved/Liked/Passed evidence, and paged examples behind the patterns. Added at the owner’s request before final testing.
+
 Sky, the daily fortune, occasion prototypes, assistant-plugin publication, accounts/sync, affiliate work, and marketing work are outside this release. Only blockers affecting safety or a core workflow enter the scope during final testing. Other ideas remain in the backlog.
 
 ## Release countdown
