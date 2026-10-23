@@ -21,7 +21,7 @@ Feature scope frozen on 23 October 2026 after the focused taste-statistics and s
 
 Purpose: make Closet Lint easier to install, populate, keep updated, and discuss with an assistant.
 
-Release checklist: [REL-04 on Trello](https://trello.com/c/J2yJP6aM).
+Release checklist: [REL-04 on Trello](https://trello.com/c/J2yJP6aM). Publication copy: [0.2 release notes](RELEASE-NOTES.md). Check evidence and platform limits: [TESTING.md](TESTING.md#02-verification).
 
 Included work:
 
@@ -29,12 +29,12 @@ Included work:
 - [Friendly setup and shared photo tools](https://trello.com/c/BLQMMBPU): read-only readiness guidance, isolated optional dependencies, and reuse of existing photo environments.
 - [Tidy photos improvements](https://trello.com/c/WRWxzgtR): batch scroll reset, Save and close, category scopes, remembered original choices, and new-photo eligibility.
 - [View settings and agreed refinements](https://trello.com/c/CVSD0H2j): display reset, storage wording, photo canvas, sidebar controls, single-choice Stretch, preserved bulk selection, toast timing, bounded Lab lists, and agreed icon labels.
-
 - [Closet Oracle](https://trello.com/c/N3OuiMux): read-only analysis handoff, scoped context, optional details/photos, local-assistant and chat routes, and clipboard/download recovery. Added at the owner’s request before final testing. See [ORACLE.md](ORACLE.md).
-
 - [My taste](https://trello.com/c/qoe2TGTM): distinct-outfit counts, current-tag refresh, clear Loved/Liked/Passed evidence, and paged examples behind the patterns. Added at the owner’s request before final testing.
 
 Sky, the daily fortune, occasion prototypes, assistant-plugin publication, accounts/sync, affiliate work, and marketing work are outside this release. Only blockers affecting safety or a core workflow enter the scope during final testing. Other ideas remain in the backlog.
+
+The release notes are prepared for publication. Until mobile review and publication approval are complete, keep the README candidate notice and prerelease package version. At final packaging, set the version to `0.2.0`, replace the candidate notice with “**New in 0.2:** easier imports, the Closet Oracle, clearer taste insights, and improved photo cleanup,” link the release notes, and build the exact final ZIP. Do not label an earlier candidate as the published release or reuse its hash after changing files.
 
 ## Release countdown
 

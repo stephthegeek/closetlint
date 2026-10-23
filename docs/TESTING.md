@@ -56,10 +56,27 @@ The served HTML contains embedded copies of several maintained source files. Aft
 
 - `app/styles/themes.css`: `python3 tools/sync_theme_styles.py`
 - `app/scripts/setup.js`: `python3 tools/sync_setup.py`
+- Oracle, taste, and shared photo-read modules: `python3 tools/sync_oracle.py`, `python3 tools/sync_taste.py`, and `python3 tools/sync_photo_fetch.py`.
 - Collections and navigation modules: use the corresponding `tools/sync_*.py` helper.
 - Import categories and tag vocabulary: `node tools/sync_import_vocab.js`
 
 The existing tests check relevant synchronization and source invariants.
+
+## 0.2 verification
+
+Feature scope was frozen on 23 October 2026. The tested release candidate excludes Sky and the daily fortune. Owner final mobile and cross-theme acceptance is still in progress; the release has not been published.
+
+Completed against code commit `44b93fe` and the extracted `0.2.0-rc.1` package:
+
+- Full JavaScript checks and all 62 synthetic Python tests passed. Exact-commit [GitHub CI](https://github.com/stephthegeek/closetlint/actions/runs/40036678557) passed source/security, dependency audits, full-history Gitleaks, and minimum-Python checks.
+- Both import routes ran against a separate synthetic local installation. The direct route used a real CLI preview, save, unchanged-batch retry, duplicate skip, wishlist promotion, and browser refresh. The file route exercised pasted text, actual JSON-file input, match review, preserved photos/tags on promotion, explicit missing/failed-photo recovery, and no-new-items completion.
+- Automated real-handler tests covered partial saves, retained uploaded views, retry without duplicate records, stalled response headers/bodies, Oracle close/abort, invalid files, and stale reads. Stalls were simulated in tests, not induced in the live browser.
+- The extracted package started a listening server with `python3 -S`, without optional packages. The read-only setup check explained unavailable photo tools, and an existing shared photo environment was detected and used by the importer without installing packages.
+- A synthetic wardrobe created with published 0.1 opened in the extracted candidate with its catalog, collections, board, and photos unchanged. This checks the 0.1-to-0.2 update, not general future downgrade compatibility.
+- Live HTTP checks covered complete backup export, preview/cancel without replacement, required confirmation, restore, a recovery database retaining a replaced record, and fresh restore with matching photo hashes. Chrome exported a verified complete synthetic backup and completed preview and confirmed restore.
+- All candidate manifest hashes matched. Embedded wardrobe data was empty, and no personal wardrobe photos, databases, private configuration, Sky modules, or daily-fortune modules were included.
+
+These checks were performed on Linux. They do not certify Windows/macOS installation, physical-phone performance, every theme/device combination, or assistive-technology coverage. Final wording, metadata, and artifact changes require their own source/package checks before publication.
 
 ## 0.1 verification
 

@@ -12,7 +12,7 @@ The dated Markdown context contains stable piece IDs, titles, categories, curren
 
 Saved outfits, exact wear dates, sizes, purchase details, and notes are separate opt-ins. Outfits are included only if all of their pieces are in scope. Measurements, working boards, account information, credentials, and unrelated records are not included. Compact copied text intentionally excludes all optional sections and photos.
 
-Photos are optional real image-file downloads, limited to the main photos of 12 pieces. Filenames include the corresponding piece IDs. The user attaches them in the assistant chat. Download requests do not prove that the browser saved every file, that the files were attached, or that an assistant received them. The interface reports failures and offers retry or text-only sharing.
+Photos are optional real image-file downloads, limited to the main photos of 12 pieces. Filenames include the corresponding piece IDs. The user attaches them in the assistant chat. Download requests do not prove that the browser saved every file, that the files were attached, or that an assistant received them. The interface reports failures and offers retry or text-only sharing. Each photo read has a 30-second deadline covering the response and image body. Close remains available during photo preparation; closing stops the current read and prevents later downloads from being requested. It cannot undo a download already requested.
 
 ## Assistant routes
 

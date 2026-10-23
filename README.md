@@ -4,21 +4,21 @@
 
 Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. It runs locally and opens in your browser. No account, no subscription, no sync, no telemetry: your wardrobe and photos stay with you.
 
-> **0.2 development candidate.** This branch prepares the next release. The latest published release remains 0.1.0. Keep a full backup before updating.
+> **0.2 release candidate, under final review.** Keep a full backup before updating. See [what changed in 0.2](docs/RELEASE-NOTES.md).
 
 ## What's included
 
 - Your wardrobe and wishlist, with photos, tags, filters, and collections.
 - An outfit board, saved outfits, wear tracking, and a calendar.
-- Outfit suggestions based on your ratings.
+- Outfit suggestions based on your ratings, with My taste patterns and the actual outfits behind them.
 - Wishlist ranking based on your closet.
 - Trip planning and packing lists.
 - Storage tracking with bin labels and pull lists.
 - Bring Your Own Assistant imports: your own AI assistant can turn product links, order emails, screenshots, or photos into an import batch. The assistant does the reading; Closet Lint never needs access to your email or browser. AI is entirely optional, and you can add everything by hand, too.
+- 🔮 Ask the Oracle: prepare a wardrobe summary and question for your own AI assistant, with optional details and photos. The conversation stays in your assistant.
 - Optional local photo background removal, with originals kept and results reviewed before saving.
 - Full backup and restore of your wardrobe data and photos.
 - Three themes, plus light and dark modes.
-
 
 ## Get started
 
@@ -51,9 +51,9 @@ Time to give Linty something to rummage through.
 ## A few things to know
 
 - **Keep your installation private.** The app has no login at this time, so anyone who can reach it can view and edit your wardrobe. Using it on your own computer or home network is fine; just don't make it reachable from the internet, for example by forwarding its port on your router. On a shared network, like an office or a house with roommates, other people there may be able to reach it too. The public demos work differently: visitor changes stay in their own browser.
-- **Photo background removal is optional and needs additional setup.** Fine details can get lost, and it won't remove a person wearing the garment. You choose which results to keep.
+- **Photo tools are optional and have their own setup.** Run `python3 tools/check_setup.py --data ../closet-lint-data` for readiness checks and next steps (on Windows, use `py -3`). Background removal needs additional setup. Fine details can get lost, and it won't remove a person wearing the garment. You choose which results to keep.
 - **Suggestions aren't guarantees.** Outfit combinations, fit labels, and packing lists still need your judgment.
-- **Back up before updating.** Download a full backup with photos from the app, and keep your wardrobe data folder separate from the app folder.
+- **Back up before updating.** Choose **Menu → Utilities → Export backup**, and keep your wardrobe data folder separate from the app folder.
 
 ## Testing and security
 
@@ -73,4 +73,4 @@ Created by stephthegeek, with substantial AI assistance. Code, documentation, an
 
 ## Development and releases
 
-See the [testing guide](docs/TESTING.md), [update instructions](docs/UPDATING.md), and [release workflow and 0.2 scope](docs/RELEASING.md).
+Read the [0.2 release notes](docs/RELEASE-NOTES.md). See the [testing guide](docs/TESTING.md), [update instructions](docs/UPDATING.md), and [release workflow and 0.2 scope](docs/RELEASING.md).

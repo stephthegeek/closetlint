@@ -58,7 +58,7 @@ Anyone who can reach that address can view and edit the wardrobe. Use a home net
 
 ## Backups
 
-Choose **Menu → Utilities → Full backup (data + photos)** and keep a copy somewhere separate. To restore it, choose **Restore a full backup**. Restoring replaces the destination wardrobe, so check the preview first.
+Choose **Menu → Utilities → Export backup** and keep a copy somewhere separate. To restore it, choose **Restore full backup**. Restoring replaces the destination wardrobe, so check the preview first.
 
 See [updating and moving your wardrobe](UPDATING.md) before replacing the app files or changing computers.
 
