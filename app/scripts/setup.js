@@ -450,8 +450,8 @@ async function setupSaveImages(row){
   for(var i=0;i<(row.piece.images||[]).length;i++){
     var image=row.piece.images[i],url=setupPhotoURL(image.url),cached=row.imageUploads[url];
     if(!cached){
-      try{var response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer'});if(!response.ok||!/^image\//i.test(response.headers.get('content-type')||''))throw Error();var blob=await response.blob();if(blob.size>10*1024*1024)throw Error();var pic=await readImage(blob),up=await state.assets.upload(pic.blob);cached={photoId:up.id,ar:pic.ar};row.imageUploads[url]=cached;}
-      catch(e){row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('An alternate photo could not be saved. Attach a photo, remove that view, or choose Add without a photo.');}
+      try{var blob=await photoFetchBlob(url,{credentials:'omit',referrerPolicy:'no-referrer'},{maxBytes:10*1024*1024});if(!/^image\//i.test(blob.type||''))throw Error();var pic=await readImage(blob),up=await state.assets.upload(pic.blob);cached={photoId:up.id,ar:pic.ar};row.imageUploads[url]=cached;}
+      catch(e){if(e.code==='PHOTO_TIMEOUT')throw Error('Photo download timed out. Retry remaining pieces to try again.');row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('An alternate photo could not be saved. Attach a photo, remove that view, or choose Add without a photo.');}
     }
     photos.push({photoId:cached.photoId,ar:cached.ar,kind:image.kind,sourceUrl:url});
   }
@@ -474,8 +474,8 @@ async function setupSaveRow(id,record,row){
   if(images.length){record.photos=await setupSaveImages(row);if(!row.photo&&!row.photoUpload){var primary=record.photos[0];row.photoUpload={photoId:primary.photoId,ar:primary.ar};}}
   if((row.photo||row.piece.photoUrl)&&!row.photoUpload){
     if(!row.photo){var url=setupPhotoURL(row.piece.photoUrl);
-      try{var response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer'});if(!response.ok||!/^image\//i.test(response.headers.get('content-type')||''))throw Error();var blob=await response.blob();if(blob.size>10*1024*1024)throw Error();row.photo=await readImage(blob);}
-      catch(e){row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('Photo could not be downloaded. Attach a photo, choose Add without a photo, or skip this piece.');}
+      try{var blob=await photoFetchBlob(url,{credentials:'omit',referrerPolicy:'no-referrer'},{maxBytes:10*1024*1024});if(!/^image\//i.test(blob.type||''))throw Error();row.photo=await readImage(blob);}
+      catch(e){if(e.code==='PHOTO_TIMEOUT')throw Error('Photo download timed out. Retry remaining pieces to try again.');row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('Photo could not be downloaded. Attach a photo, choose Add without a photo, or skip this piece.');}
     }
     var up=await state.assets.upload(row.photo.blob);row.photoUpload={photoId:up.id,ar:row.photo.ar};
   }

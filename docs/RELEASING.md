@@ -17,6 +17,8 @@ Publish a new version for changes to a release. Keep published tags and ZIP cont
 
 ## Current 0.2 scope
 
+Feature scope frozen on 23 October 2026 after the focused taste-statistics and stalled-photo recovery fixes. Only safety or core-workflow blockers enter during verification.
+
 Purpose: make Closet Lint easier to install, populate, keep updated, and discuss with an assistant.
 
 Release checklist: [REL-04 on Trello](https://trello.com/c/J2yJP6aM).

@@ -107,8 +107,8 @@ function labTasteEvidenceButton(feature,count){
   var button=el('button',{class:'btn',type:'button',text:'See '+count+' rated outfits',onclick:function(){labTasteExamples(feature,button)}});
   return button;
 }
-function labTasteView(v){
-  var map=byId(),entries=labRatingEntries(map),stats=labStats(entries),n=entries.length;
+function labTasteView(v,entries){
+  var map=byId();entries=entries||labRatingEntries(map);var stats=labStats(entries),n=entries.length;
   v.appendChild(el('p',{class:'taste-intro fine',text:'Patterns from '+n+' rated outfits, using your pieces’ current tags. Each outfit counts once per pattern. Accessories appear in the examples but do not drive these patterns.'}));
   if(n<8){v.appendChild(el('p',{class:'labempty',text:'Rate a few more outfits to start spotting patterns. Aim for at least 8; so far: '+n+'.'}));labBlocksBox(v);return}
   function patterns(title,positive){

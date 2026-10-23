@@ -73,4 +73,15 @@ all(favorites,n=>n.tag==='select')[0].onchange({target:{value:'5'}});assert(all(
 state.ratings={};for(let i=0;i<2;i++)state.ratings['remaining'+i]={ids:['top','b'+i],r:1,t:i};
 const grid=el('section');c.labTastePagedGrid(grid,['p:top'],'taste-pieces','tastePiecesPage','Favorite pieces',()=>el('article'));
 assert.equal(state.lab.tastePiecesPage,0,'shrinking lists clamp remembered pages');
+// A single wishlist analysis shares current evidence and stats across all candidates.
+const buy={LAB_GOOD:.5,LAB_NEUTRAL:{},SEASONS:[],colLabel:x=>x,labRole:p=>p.role,labRoleName:x=>x,labSim:()=>0,labPair:()=>1};
+const buyPool={top:[{role:'top'}],bottom:Array.from({length:12},()=>({role:'bottom'})),one:[],layer:[]};
+let entryBuilds=0,statBuilds=0,scores=0;const evidence=Array(10).fill({}),sharedStats={};
+buy.labPool=()=>buyPool;buy.labRatingEntries=()=>{entryBuilds++;return evidence};buy.labStats=entries=>{assert.equal(entries,evidence);statBuilds++;return sharedStats};buy.labTaste=(outfit,stats)=>{assert.equal(stats,sharedStats);scores++;return .4};
+vm.createContext(buy);vm.runInContext(source.slice(source.indexOf('function buyAnalyze('),source.indexOf('function buyShow(')),buy);
+assert(Math.abs(buy.buyAnalyze({role:'top'}).taste-.4)<1e-12);assert.equal(entryBuilds,1);assert.equal(statBuilds,1);assert.equal(scores,8);
+buy.buyAnalyze({role:'top'});assert.equal(entryBuilds,2,'a later analysis uses fresh evidence');assert.equal(statBuilds,2);
+// A render can pass one evidence snapshot to the count, view, and generator.
+const entries=c.labRatingEntries(),originalEntries=c.labRatingEntries;c.labRatingEntries=()=>{throw Error('redundant evidence scan')};
+c.labCountText(entries);c.labTasteView(el('main'),entries);c.labGenerate({},null,null,{},entries);c.labRatingEntries=originalEntries;
 console.log('My taste: distinct counts, live refresh, positive evidence, fixed pattern/piece/outfit pages, page jumps/clamping, Fantasy safety, and unchanged board/wardrobe pass.');

@@ -5987,6 +5987,30 @@ function initMobileUI(){
 }
 /* ---------- end mobile filter sheet ---------- */
 
+/* BEGIN PHOTO FETCH (source: app/scripts/photo-fetch.js) */
+/* A deadline covers both response headers and the photo body, even if a fetch
+   implementation does not reject promptly after abort. No storage writes here. */
+var PHOTO_FETCH_TIMEOUT_MS=30000;
+async function photoFetchBlob(url,options,limits){
+  options=options||{};limits=limits||{};
+  var controller=new AbortController(),external=limits.signal,timer,stop;
+  var stopped=new Promise(function(resolve,reject){stop=reject});
+  function abort(error){controller.abort();stop(error)}
+  function cancelled(){var error=new Error('Photo download cancelled.');error.name='AbortError';abort(error)}
+  if(external){if(external.aborted)cancelled();else external.addEventListener('abort',cancelled,{once:true})}
+  timer=setTimeout(function(){var error=new Error('Photo download timed out. Please try again.');error.code='PHOTO_TIMEOUT';abort(error)},limits.timeoutMs||PHOTO_FETCH_TIMEOUT_MS);
+  async function read(){
+    if(controller.signal.aborted)throw new Error('Photo download cancelled.');
+    var response=await fetch(url,Object.assign({},options,{signal:controller.signal}));
+    if(!response.ok)throw new Error('Photo could not be downloaded.');
+    var blob=await response.blob();
+    if(limits.maxBytes&&blob.size>limits.maxBytes)throw new Error('Photo is too large.');
+    return blob;
+  }
+  try{return await Promise.race([stopped,read()])}
+  finally{clearTimeout(timer);if(external)external.removeEventListener('abort',cancelled)}
+}
+/* END PHOTO FETCH */
 /* BEGIN CLOSET ORACLE (source: app/scripts/oracle.js) */
 /* Closet Oracle: read-only context preparation, independent of any AI provider. */
 var ClosetLintOracle=(function(){
@@ -6053,10 +6077,10 @@ function openOracle(options){
   var d=el('dialog',{id:'closet-oracle','aria-labelledby':'oracle-title'}),launcher=document.activeElement;
   function fitViewport(){var v=window.visualViewport;if(!v)return;var covered=window.innerHeight-v.height-v.offsetTop;if(covered>120){d.style.height=Math.max(120,v.height-12)+'px';d.style.maxHeight=Math.max(120,v.height-12)+'px';d.style.marginTop=(v.offsetTop+6)+'px';d.style.marginBottom='auto'}else{d.style.height='';d.style.maxHeight='';d.style.marginTop='';d.style.marginBottom=''}}
   if(window.visualViewport){window.visualViewport.addEventListener('resize',fitViewport);window.visualViewport.addEventListener('scroll',fitViewport)}
-  d.addEventListener('cancel',function(e){e.preventDefault();oracleClose()});d.addEventListener('close',function(){if(window.visualViewport){window.visualViewport.removeEventListener('resize',fitViewport);window.visualViewport.removeEventListener('scroll',fitViewport)}oracleSession=null;d.remove();if(launcher&&launcher.isConnected)launcher.focus({preventScroll:true})});
+  d.addEventListener('cancel',function(e){e.preventDefault();oracleClose()});d.addEventListener('close',function(){if(oracleSession&&oracleSession.photoRequest)oracleSession.photoRequest.abort();if(window.visualViewport){window.visualViewport.removeEventListener('resize',fitViewport);window.visualViewport.removeEventListener('scroll',fitViewport)}oracleSession=null;d.remove();if(launcher&&launcher.isConnected)launcher.focus({preventScroll:true})});
   document.body.appendChild(d);drawOracle();d.showModal();fitViewport();$('oracle-title').focus({preventScroll:true});
 }
-function oracleClose(){var d=$('closet-oracle');if(!d)return;if(oracleSession&&oracleSession.busy){oracleMessage('Wait for this download to finish.');return}d.close()}
+function oracleClose(){var d=$('closet-oracle');if(!d)return;if(oracleSession&&oracleSession.busy){if(oracleSession.photoRequest){oracleSession.photoRequest.abort();d.close();return}oracleMessage('Wait for this download to finish.');return}d.close()}
 function oracleMessage(message){if(!oracleSession)return;oracleSession.message=message;var live=$('oracle-live');if(live)live.textContent=message}
 function oracleButton(text,fn,primary){return el('button',{class:'btn'+(primary?' primary':''),type:'button',text:text,onclick:fn})}
 function oracleCheck(id,text,checked,fn,disabled){var input=el('input',{id:id,type:'checkbox',checked:!!checked,disabled:!!disabled,onchange:function(){fn(input.checked)}});return el('label',{class:'oracle-check'},input,el('span',{text:text}))}
@@ -6074,7 +6098,7 @@ function drawOracle(keepFocus){
   var old=d.querySelector('.setup-body'),scroll=old?old.scrollTop:0,active=document.activeElement,focusId=keepFocus&&active&&active.id;
   d.textContent='';var shell=el('div',{class:'setup-shell'}),body=el('div',{class:'setup-body'}),actions=el('footer',{class:'setup-actions'});
   var title=s.step==='ask'?'What would you like help with?':s.step==='guide'?'Which option should I use?':'How will you share your wardrobe?';
-  var close=oracleButton('✕',oracleClose);close.setAttribute('aria-label','Close the Closet Oracle');shell.appendChild(el('header',{class:'setup-head'},el('div',null,el('p',{class:'setup-eyebrow',text:'🔮 CLOSET ORACLE'+(s.step==='guide'?'':' · '+(s.step==='ask'?'1':'2')+' OF 2')}),el('h2',{id:'oracle-title',tabindex:'-1',text:title})),close));
+  var close=oracleButton('✕',oracleClose);close.id='oracle-close';close.setAttribute('aria-label','Close the Closet Oracle');shell.appendChild(el('header',{class:'setup-head'},el('div',null,el('p',{class:'setup-eyebrow',text:'🔮 CLOSET ORACLE'+(s.step==='guide'?'':' · '+(s.step==='ask'?'1':'2')+' OF 2')}),el('h2',{id:'oracle-title',tabindex:'-1',text:title})),close));
   body.appendChild(el('p',{id:'oracle-live',class:'setup-live',role:'status','aria-live':'polite',text:s.message||''}));
   if(s.step==='guide')oracleGuide(body,actions);
   else{
@@ -6118,6 +6142,7 @@ function oracleDownload(filename,blob){
 function oracleBusy(s,busy){
   s.busy=busy;var d=$('closet-oracle');if(!d)return;d.setAttribute('aria-busy',String(busy));
   d.querySelectorAll('button,input,select,textarea').forEach(function(n){if(busy){n.dataset.oracleDisabled=n.disabled?'1':'0';n.disabled=true}else{n.disabled=n.dataset.oracleDisabled==='1';delete n.dataset.oracleDisabled}});
+  var close=$('oracle-close');if(close){if(busy&&s.photoRequest)close.disabled=false;close.title=busy&&s.photoRequest?'Stop preparing photos and close':'Close the Closet Oracle';}
 }
 async function oracleDownloadContext(){
   var s=oracleSession;if(!s||s.busy)return;oracleBusy(s,true);oracleMessage('Preparing your wardrobe summary…');
@@ -6125,8 +6150,8 @@ async function oracleDownloadContext(){
 }
 function oracleDownloadedNote(s){var box=$('oracle-downloaded');if(!box)return;box.hidden=false;box.textContent='';box.append(el('h3',{text:'Next: open your AI chat'}),el('p',{text:'Attach the downloaded wardrobe summary and any photos. Paste your copied question, and send. Your browser usually saves the files in Downloads.'}));if(s.last){var note='Here is a newer Closet Lint context file dated '+s.snapshot.date+'. It replaces my previous snapshot dated '+s.last.date+'. Please re-read it, and tell me if anything you said earlier no longer holds.';box.append(oracleButton('Copy update message for an existing chat',function(){return oracleCopy(note)}))}}
 async function oracleDownloadPhotos(){
-  var s=oracleSession;if(!s||s.busy||!s.photos||!s.photoIds.length)return;oracleBusy(s,true);var saved=0;
-  try{for(var id of s.photoIds){var p=s.photoOptions.find(function(p){return p.id===id});oracleMessage('Preparing photo '+(saved+1)+' of '+s.photoIds.length+'…');var response=await fetch(p.src,{credentials:'same-origin'});if(!response.ok)throw Error('Could not read the photo for '+p.title+'.');var blob=await response.blob();if(!/^image\/(png|jpeg|webp|gif)$/i.test(blob.type)||blob.size>20*1024*1024)throw Error('The photo for '+p.title+' is unavailable or too large.');var ext={'image/png':'.png','image/jpeg':'.jpg','image/webp':'.webp','image/gif':'.gif'}[blob.type.toLowerCase()];await oracleDownload('closet-piece-'+String(p.index+1).padStart(2,'0')+'-'+id.replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80)+ext,blob);saved++}s.shared=true;oracleMessage(saved+' photo download'+(saved===1?'':'s')+' requested. Check your browser’s downloads, then attach the image files with your wardrobe summary.');oracleDownloadedNote(s)}catch(e){if(oracleSession===s)oracleMessage(saved+' photo downloads requested; '+(e.message||'the next photo could not be downloaded.')+' You can retry or use text only.')}finally{if(oracleSession===s)oracleBusy(s,false)}
+  var s=oracleSession;if(!s||s.busy||!s.photos||!s.photoIds.length)return;s.photoRequest=new AbortController();var signal=s.photoRequest.signal;oracleBusy(s,true);var saved=0;
+  try{for(var id of s.photoIds){if(signal.aborted||oracleSession!==s)return;var p=s.photoOptions.find(function(p){return p.id===id});oracleMessage('Preparing photo '+(saved+1)+' of '+s.photoIds.length+'…');var blob=await photoFetchBlob(p.src,{credentials:'same-origin'},{signal:signal,maxBytes:20*1024*1024});if(signal.aborted||oracleSession!==s)return;if(!/^image\/(png|jpeg|webp|gif)$/i.test(blob.type)||blob.size>20*1024*1024)throw Error('The photo for '+p.title+' is unavailable or too large.');var ext={'image/png':'.png','image/jpeg':'.jpg','image/webp':'.webp','image/gif':'.gif'}[blob.type.toLowerCase()];await oracleDownload('closet-piece-'+String(p.index+1).padStart(2,'0')+'-'+id.replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80)+ext,blob);saved++}s.shared=true;oracleMessage(saved+' photo download'+(saved===1?'':'s')+' requested. Check your browser’s downloads, then attach the image files with your wardrobe summary.');oracleDownloadedNote(s)}catch(e){if(oracleSession===s)oracleMessage(saved+' photo downloads requested; '+(e.message||'the next photo could not be downloaded.')+' You can retry or use text only.')}finally{s.photoRequest=null;if(oracleSession===s)oracleBusy(s,false)}
 }
 function oracleHandoff(body,actions){
   var s=oracleSession,snap=s.snapshot,local=setupStorage().direct,route=el('fieldset',{class:'oracle-fieldset oracle-routes'},el('legend',{text:'How do you use your AI assistant?'}));if(!local)s.route='chat';
@@ -6614,8 +6639,8 @@ async function setupSaveImages(row){
   for(var i=0;i<(row.piece.images||[]).length;i++){
     var image=row.piece.images[i],url=setupPhotoURL(image.url),cached=row.imageUploads[url];
     if(!cached){
-      try{var response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer'});if(!response.ok||!/^image\//i.test(response.headers.get('content-type')||''))throw Error();var blob=await response.blob();if(blob.size>10*1024*1024)throw Error();var pic=await readImage(blob),up=await state.assets.upload(pic.blob);cached={photoId:up.id,ar:pic.ar};row.imageUploads[url]=cached;}
-      catch(e){row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('An alternate photo could not be saved. Attach a photo, remove that view, or choose Add without a photo.');}
+      try{var blob=await photoFetchBlob(url,{credentials:'omit',referrerPolicy:'no-referrer'},{maxBytes:10*1024*1024});if(!/^image\//i.test(blob.type||''))throw Error();var pic=await readImage(blob),up=await state.assets.upload(pic.blob);cached={photoId:up.id,ar:pic.ar};row.imageUploads[url]=cached;}
+      catch(e){if(e.code==='PHOTO_TIMEOUT')throw Error('Photo download timed out. Retry remaining pieces to try again.');row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('An alternate photo could not be saved. Attach a photo, remove that view, or choose Add without a photo.');}
     }
     photos.push({photoId:cached.photoId,ar:cached.ar,kind:image.kind,sourceUrl:url});
   }
@@ -6638,8 +6663,8 @@ async function setupSaveRow(id,record,row){
   if(images.length){record.photos=await setupSaveImages(row);if(!row.photo&&!row.photoUpload){var primary=record.photos[0];row.photoUpload={photoId:primary.photoId,ar:primary.ar};}}
   if((row.photo||row.piece.photoUrl)&&!row.photoUpload){
     if(!row.photo){var url=setupPhotoURL(row.piece.photoUrl);
-      try{var response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer'});if(!response.ok||!/^image\//i.test(response.headers.get('content-type')||''))throw Error();var blob=await response.blob();if(blob.size>10*1024*1024)throw Error();row.photo=await readImage(blob);}
-      catch(e){row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('Photo could not be downloaded. Attach a photo, choose Add without a photo, or skip this piece.');}
+      try{var blob=await photoFetchBlob(url,{credentials:'omit',referrerPolicy:'no-referrer'},{maxBytes:10*1024*1024});if(!/^image\//i.test(blob.type||''))throw Error();row.photo=await readImage(blob);}
+      catch(e){if(e.code==='PHOTO_TIMEOUT')throw Error('Photo download timed out. Retry remaining pieces to try again.');row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('Photo could not be downloaded. Attach a photo, choose Add without a photo, or skip this piece.');}
     }
     var up=await state.assets.upload(row.photo.blob);row.photoUpload={photoId:up.id,ar:row.photo.ar};
   }
@@ -7677,8 +7702,8 @@ function labTaste(o,stats){
   return n?sum/n:0;
 }
 function labNRated(){return labRatingEntries().length}
-function labGenerate(pool,anchors,anchorId,seen){
-  var best=[],i,stats=labStats();
+function labGenerate(pool,anchors,anchorId,seen,entries){
+  var best=[],i,stats=labStats(entries);
   for(i=0;i<80;i++){
     var o=labDraw(pool,anchorId,anchors);if(!o)continue;
     o.sig=labSig(o);if(seen[o.sig]||(state.ratings&&state.ratings[o.sig]))continue;
@@ -8183,21 +8208,21 @@ function labRefresh(){
   if(state.tab==='lab'&&state.lab&&state.lab.mode==='rate'&&state.lab.cur){var c=$('labcount');if(c)c.textContent=labCountText();return}
   labRender();
 }
-function labCountText(){
-  var entries=labRatingEntries(),n=entries.length,l=entries.filter(function(e){return e.record.r===1}).length;
+function labCountText(entries){
+  entries=entries||labRatingEntries();var n=entries.length,l=entries.filter(function(e){return e.record.r===1}).length;
   return n?(n+' rated, '+l+' loved'):'Nothing rated yet';
 }
 function labRender(){return memoRun(labRenderInner,this,arguments)}
 function labRenderInner(){
   var v=$('view-lab');v.textContent='';v.classList.remove('has-ratings');
   if(state.tab==='buy'){buyRender(v);return}
-  labInit();var L=state.lab;
-  v.appendChild(el('div',{class:'labhead'},el('h2',{text:'🧑‍🔬 Outfit Lab'}),el('span',{class:'fine',id:'labcount',text:labCountText()}),el('button',{class:'btn',type:'button',style:'margin-left:auto',title:'See saved outfits',text:'Outfits',onclick:function(){setTab('saved')}})));
+  labInit();var L=state.lab,ratingEntries=labRatingEntries();
+  v.appendChild(el('div',{class:'labhead'},el('h2',{text:'🧑‍🔬 Outfit Lab'}),el('span',{class:'fine',id:'labcount',text:labCountText(ratingEntries)}),el('button',{class:'btn',type:'button',style:'margin-left:auto',title:'See saved outfits',text:'Outfits',onclick:function(){setTab('saved')}})));
   var modes=el('div',{class:'chips labmodes'});
   [['rate','🧪 Rate outfits'],['fav','❤️ Favorites'],['taste','🧑‍🎨 My taste']].forEach(function(m){modes.appendChild(chip(m[1],L.mode===m[0],function(){L.mode=m[0];labRender()}))});
   v.appendChild(modes);
   if(L.mode==='fav')return labFavs(v);
-  if(L.mode==='taste')return labTasteView(v);
+  if(L.mode==='taste')return labTasteView(v,ratingEntries);
   var ctl=el('div',{class:'chips labctl'});
   var seasonRow=el('div',{class:'lab-control-group',role:'group','aria-label':'Seasons'},el('span',{class:'fine',text:'Seasons'}));ctl.appendChild(seasonRow);
   SEASONS.forEach(function(s){var sc=chip(sLab(s),!!L.seasons[s],function(){L.seasons[s]=!L.seasons[s];L.cur=null;labRender()});sc.title=cap(s);sc.setAttribute('aria-label',cap(s));seasonRow.appendChild(sc)});
@@ -8223,7 +8248,7 @@ function labRenderInner(){
   v.appendChild(adjust);
   var pool=labPool({seasons:L.seasons,fits:L.fits,photo:true,fresh:L.fresh}),anchors=byId();
   if(L.fresh&&!labPoolOK(pool)){pool=labPool({seasons:L.seasons,fits:L.fits,photo:true});v.appendChild(el('p',{class:'fine',text:'Not enough pieces you haven\u2019t worn this month with these filters, so worn ones are included.'}))}
-  if(!L.cur)L.cur=labGenerate(pool,anchors,L.anchor,L.seen);
+  if(!L.cur)L.cur=labGenerate(pool,anchors,L.anchor,L.seen,ratingEntries);
   var o=L.cur;
   if(!o){v.appendChild(el('p',{class:'labempty',text:allItems().length?'No complete outfits matched. Try more seasons, adjust Fits me, or check that pieces needing layers have something suitable underneath or over them.':state.capsDone?'Add some clothing with photos to start experimenting.':'Your closet is still loading.'}));return}
   v.appendChild(el('div',{class:'labtitlerow'},el('h3',{class:'labtitle',text:ltTitle(o,L.tstyle)}),el('button',{class:'btn small',type:'button',title:'Try another title','aria-label':'Try another title',text:'\uD83C\uDFB2',onclick:function(){o.tn=(o.tn||0)+1;labRender()}})));
@@ -8451,8 +8476,8 @@ function labTasteEvidenceButton(feature,count){
   var button=el('button',{class:'btn',type:'button',text:'See '+count+' rated outfits',onclick:function(){labTasteExamples(feature,button)}});
   return button;
 }
-function labTasteView(v){
-  var map=byId(),entries=labRatingEntries(map),stats=labStats(entries),n=entries.length;
+function labTasteView(v,entries){
+  var map=byId();entries=entries||labRatingEntries(map);var stats=labStats(entries),n=entries.length;
   v.appendChild(el('p',{class:'taste-intro fine',text:'Patterns from '+n+' rated outfits, using your pieces’ current tags. Each outfit counts once per pattern. Accessories appear in the examples but do not drive these patterns.'}));
   if(n<8){v.appendChild(el('p',{class:'labempty',text:'Rate a few more outfits to start spotting patterns. Aim for at least 8; so far: '+n+'.'}));labBlocksBox(v);return}
   function patterns(title,positive){
@@ -9904,8 +9929,9 @@ function buyAnalyze(c){
   res.gaps=res.gaps.slice(0,3);
   /* orphan risk, taste, verdict */
   res.orphan=res.share<.2?'hard':res.share<.35?'selective':'easy';
-  if(labNRated()>=10&&good.length){
-    var map=byId(),ts=good.slice(0,8).map(function(x){var o={};var p=x.p,r=labRole(p);if(role==='top'){o.top=c;o.bottom=p}else if(role==='bottom'){o.top=p;o.bottom=c}else if(role==='one'){o.one=c;o.layer=p}else{o.layer=c;if(r==='one')o.one=p;else if(r==='top'){o.top=p;o.bottom=pool.bottom[0]||p}else{o.bottom=p;o.top=pool.top[0]||p}}return labTaste(o)});
+  var tasteEntries=good.length?labRatingEntries():[];
+  if(tasteEntries.length>=10){
+    var tasteStats=labStats(tasteEntries),ts=good.slice(0,8).map(function(x){var o={};var p=x.p,r=labRole(p);if(role==='top'){o.top=c;o.bottom=p}else if(role==='bottom'){o.top=p;o.bottom=c}else if(role==='one'){o.one=c;o.layer=p}else{o.layer=c;if(r==='one')o.one=p;else if(r==='top'){o.top=p;o.bottom=pool.bottom[0]||p}else{o.bottom=p;o.top=pool.top[0]||p}}return labTaste(o,tasteStats)});
     res.taste=ts.reduce(function(a,b){return a+b},0)/ts.length;
   }
   var cov=role==='layer'?res.pct:res.share;var score=Math.min(3,pts)+(role==='layer'?(cov>=.35?2:cov>=.2?1:0):(cov>=.5?2:cov>=.3?1:0))-(res.dups.length&&res.dups[0].s>=.8?2:res.dups.length?1:0)-(res.orphan==='hard'?2:res.orphan==='selective'?1:0);
