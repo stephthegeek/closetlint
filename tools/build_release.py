@@ -9,7 +9,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ['INSTALL.md','ASSISTANT-IMPORT.md','PHOTOS.md','LOCAL-RUNTIME.md',
-        'ONBOARDING.md','NAVIGATION.md','THEMES.md','TESTING.md','UPDATING.md','THIRD-PARTY.md','SECURITY-REVIEW.md','RELEASING.md']
+        'ORACLE.md','ONBOARDING.md','NAVIGATION.md','THEMES.md','TESTING.md','UPDATING.md','THIRD-PARTY.md','SECURITY-REVIEW.md','RELEASING.md']
 ART = ['linty-logo-original.png','linty-side-peek-sock.png','linty-favicon-face-1024.png','README.md']
 DEMO = ['01-black-tee.jpg','02-burgundy-top.jpg','03-black-trousers.jpg',
         '04-blue-jeans.jpg','05-beige-skirt.jpg','06-black-dress.jpg',

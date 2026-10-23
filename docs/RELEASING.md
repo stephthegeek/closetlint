@@ -5,7 +5,7 @@ A release is a tested, fixed version of Closet Lint that people can download and
 ## Branches and sites
 
 - `main` contains reviewed, releasable code. Use focused branches for feature work and a release branch for a fixed group of changes.
-- `codex/release-0.2` starts from the published 0.1 main and carries the agreed general improvements. Sky and the daily oracle remain on development branches.
+- `codex/release-0.2` starts from the published 0.1 main and carries the agreed general improvements. Sky and the daily fortune remain on development branches.
 - The public sample demo should follow a published release. The dev playground can show experiments ahead of it; its wardrobe snapshot and app-code deployment are separate choices.
 - Keep wardrobe data outside app checkouts. Switching or updating app source does not transfer a wardrobe between installations, browsers, or sites.
 
@@ -17,7 +17,7 @@ Publish a new version for changes to a release. Keep published tags and ZIP cont
 
 ## Current 0.2 scope
 
-Purpose: make Closet Lint easier to install, populate, and keep updated.
+Purpose: make Closet Lint easier to install, populate, keep updated, and discuss with an assistant.
 
 Release checklist: [REL-04 on Trello](https://trello.com/c/J2yJP6aM).
 
@@ -28,7 +28,9 @@ Included work:
 - [Tidy photos improvements](https://trello.com/c/WRWxzgtR): batch scroll reset, Save and close, category scopes, remembered original choices, and new-photo eligibility.
 - [View settings and agreed refinements](https://trello.com/c/CVSD0H2j): display reset, storage wording, photo canvas, sidebar controls, single-choice Stretch, preserved bulk selection, toast timing, bounded Lab lists, and agreed icon labels.
 
-Sky, the daily oracle, occasion prototypes, assistant-plugin publication, accounts/sync, affiliate work, and marketing work are outside this release. Only blockers affecting safety or a core workflow enter the scope during final testing. Other ideas remain in the backlog.
+- [Closet Oracle](https://trello.com/c/N3OuiMux): read-only analysis handoff, scoped context, optional details/photos, local-assistant and chat routes, and clipboard/download recovery. Added at the owner’s request before final testing. See [ORACLE.md](ORACLE.md).
+
+Sky, the daily fortune, occasion prototypes, assistant-plugin publication, accounts/sync, affiliate work, and marketing work are outside this release. Only blockers affecting safety or a core workflow enter the scope during final testing. Other ideas remain in the backlog.
 
 ## Release countdown
 
