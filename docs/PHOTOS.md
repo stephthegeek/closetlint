@@ -18,7 +18,7 @@ Open a piece and expand **Photo options** to add another photo or make the selec
 
 **Thumbnail framing** lets you show the whole photo or fill the frame with a crop. Model photos normally fill the frame; isolated pieces stay fully visible. Tap the large photo to enlarge it.
 
-Each piece can have up to 10 photos, including background-removed versions. Saved images are limited to 1600 pixels on their longest edge, so keep your camera originals separately if you need full resolution.
+Each piece can have up to 12 photos, including background-removed versions. Saved images are limited to 1600 pixels on their longest edge, so keep your camera originals separately if you need full resolution.
 
 ## Optional: remove backgrounds
 
@@ -26,27 +26,27 @@ Background removal is optional and runs on the computer hosting Closet Lint. It 
 
 Choose **Remove background** and check the result. **Use cutout as main photo** saves it as the main photo; **Discard** keeps the original as it was. The original remains available either way.
 
-For several pieces, open **Menu → Utilities → Tidy photos**. Choose a collection or another group, then review up to 12 pairs at a time. Each piece starts with **Original** selected. Click a **Cutout** to save it as the main photo, then continue. Photos left on **Original** will not be suggested in Tidy photos again. Originals remain available, and you can retry background removal from an individual piece page. Failed removals can still be retried later.
+For several pieces, open **Menu → Utilities → Tidy photos**. Choose a collection or another group, then review up to 12 pairs at a time. Each piece starts with **Original** selected. Click a **Cutout** to choose it as the main photo, then save and continue, or choose **Save and close** to finish this batch and exit. Each new batch opens at the top. Photos left on **Original** will not be suggested in Tidy photos again. Originals remain available, and you can retry background removal from an individual piece page. Failed removals can still be retried later.
 
 ### Set up background removal
 
-You or your local AI assistant can install the background-removal tool once. From the app folder, use Python 3.11–3.13 and your existing wardrobe data folder:
+You or your local AI assistant can set up photo tools once. Imports and background removal share their own Python environment, separate from your system packages. From the app folder, use Python 3.11–3.13 and your existing wardrobe data folder:
 
 ```bash
-python3.12 tools/setup_background_removal.py --data ../closet-lint-data
+python3.12 tools/setup_photos.py --data ../closet-lint-data --background
 ```
 
 On Windows, use `py -3.12` instead of `python3.12`. Adjust the version if you installed 3.11 or 3.13.
 
 Setup needs an internet connection and downloads a model and supporting software. Allow extra disk space and memory. Afterward, processing stays on your computer, with no paid AI service required. Refresh the app when setup finishes. Your phone can use the same tool through the running app.
 
-Repeat setup after moving to another computer. If removal stops working after an app update, rerun setup; it can reuse a verified existing model.
+Already set up background removal? Your existing environment still works, and photo imports can use it automatically. Rerunning setup reuses a compatible environment and a verified existing model. Repeat setup after moving to another computer.
 
 ## If something looks wrong
 
 - **Part of the piece disappeared:** discard the result. Lace, fine jewelry, and sheer or dark fabric can be difficult; keeping the original is fine.
 - **The model is still there:** background removal keeps the photographed subject, including anyone wearing the piece.
 - **Your closet still shows the old photo:** select the new view and choose **Make main photo**.
-- **Removal is unavailable or fails:** check setup finished, refresh, and try one photo. If necessary, restart the server. Regular photo uploads work without this tool.
+- **Removal is unavailable or fails:** run `python3 tools/check_setup.py --data ../closet-lint-data` (on Windows, use `py -3`). It checks the photo environment and model and prints the setup command if needed. Regular photo uploads work without this tool.
 
 Full backups include all saved photo versions. For help adding photos through your assistant, see [AI assistant imports](ASSISTANT-IMPORT.md).

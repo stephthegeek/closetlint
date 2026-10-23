@@ -1,10 +1,10 @@
-# Closet Lint 0.1
+# Closet Lint
 
 **A wardrobe goblin who lives in your closet and knows where everything is.**
 
-The first release of Closet Lint, a personal wardrobe app for shopping your closet like a store where you already own everything. It runs locally and opens in your browser. No account, no subscription, no sync, no telemetry: your wardrobe and photos stay with you.
+Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. It runs locally and opens in your browser. No account, no subscription, no sync, no telemetry: your wardrobe and photos stay with you.
 
-> **Early release, under active development.** Expect some rough edges. Future updates may require extra steps, so keep a current backup before updating.
+> **0.2 development candidate.** This branch prepares the next release. The latest published release remains 0.1.0. Keep a full backup before updating.
 
 ## What's included
 
@@ -19,13 +19,12 @@ The first release of Closet Lint, a personal wardrobe app for shopping your clos
 - Full backup and restore of your wardrobe data and photos.
 - Three themes, plus light and dark modes.
 
-*Linty is reading the stars, and your clothes make up the constellations. Your Sky is coming soon.*
 
 ## Get started
 
 You'll need Python 3.10 or newer (check with `python3 --version`, or `py -3 --version` on Windows) and a web browser.
 
-1. [Download the latest release](https://github.com/stephthegeek/closetlint/releases/latest/download/closet-lint.zip) and unzip it.
+1. Download and unzip the release package.
 2. Open a terminal in its folder and run the command for your computer:
 
    **Linux or macOS**
@@ -69,3 +68,7 @@ Found a bug? [Open an issue](https://github.com/stephthegeek/closetlint/issues).
 ## Credits and license
 
 Created by stephthegeek, with substantial AI assistance. Code, documentation, and Linty artwork are GPL-3.0-or-later. Third-party components retain their own licenses; see [NOTICE](NOTICE). Your wardrobe data and photos remain yours.
+
+## Development and releases
+
+See the [testing guide](docs/TESTING.md), [update instructions](docs/UPDATING.md), and [release workflow and 0.2 scope](docs/RELEASING.md).

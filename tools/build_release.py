@@ -9,7 +9,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ['INSTALL.md','ASSISTANT-IMPORT.md','PHOTOS.md','LOCAL-RUNTIME.md',
-        'ONBOARDING.md','NAVIGATION.md','THEMES.md','TESTING.md','UPDATING.md','THIRD-PARTY.md','SECURITY-REVIEW.md']
+        'ONBOARDING.md','NAVIGATION.md','THEMES.md','TESTING.md','UPDATING.md','THIRD-PARTY.md','SECURITY-REVIEW.md','RELEASING.md']
 ART = ['linty-logo-original.png','linty-side-peek-sock.png','linty-favicon-face-1024.png','README.md']
 DEMO = ['01-black-tee.jpg','02-burgundy-top.jpg','03-black-trousers.jpg',
         '04-blue-jeans.jpg','05-beige-skirt.jpg','06-black-dress.jpg',
@@ -72,7 +72,7 @@ def main():
     lock=json.loads(files['package-lock.json']);lock['version']=args.version;lock['packages']['']['version']=args.version
     files['package-lock.json']=(json.dumps(lock,indent=2)+'\n').encode()
     if args.candidate:
-        files['AUDIT-CANDIDATE.txt']=b'UNPUBLISHED AUDIT PACKAGE. Not a public 0.1 release. Final platform checks and UI verification remain open. No personal wardrobe or curated collection is included.\n'
+        files['AUDIT-CANDIDATE.txt']=('UNPUBLISHED CANDIDATE '+args.version+'. Final platform checks and UI verification remain open. No personal wardrobe or curated collection is included.\n').encode()
     manifest={name:hashlib.sha256(data).hexdigest() for name,data in sorted(files.items())}
     files['SOURCE-MANIFEST.json']=(json.dumps(manifest,indent=2)+'\n').encode()
     args.out.parent.mkdir(parents=True,exist_ok=True)

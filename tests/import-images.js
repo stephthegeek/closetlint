@@ -13,11 +13,13 @@ function fn(n){const a=script.indexOf('function '+n+'('),start=script.slice(Math
  assert.equal(ctx.setupImageList([{url:'https://x.example/a',kind:'model'},{url:'https://x.example/a',kind:'isolated'}]).length,1);
  const before=uploads;
  await assert.rejects(()=>ctx.setupSaveRow('too-many',{},{
-   piece:{images:Array.from({length:11},(_,i)=>({url:'https://img.example.com/'+i+'.jpg',kind:'model'}))}
- }),/at most 10/);
+   piece:{images:Array.from({length:13},(_,i)=>({url:'https://img.example.com/'+i+'.jpg',kind:'model'}))}
+ }),/at most 12/);
  await assert.rejects(()=>ctx.setupSaveRow('primary-counts',{},{
-   photo:{blob:{}},piece:{images:Array.from({length:10},(_,i)=>({url:'https://img.example.com/'+i+'.jpg',kind:'model'}))}
- }),/at most 10/);
+   photo:{blob:{}},piece:{images:Array.from({length:12},(_,i)=>({url:'https://img.example.com/'+i+'.jpg',kind:'model'}))}
+ }),/at most 12/);
  assert.equal(uploads,before,'over-limit batches stop before uploading images');
- console.log('Import images: gallery metadata, primary selection, duplicate URLs, retries, and ten-photo intake limit pass.');
+ await ctx.setupSaveRow('twelve',{}, {piece:{images:Array.from({length:12},(_,i)=>({url:'https://img.example.com/view'+i+'.jpg',kind:'isolated'}))}});
+ assert.equal(records.at(-1).photos.length,12,'all twelve views are saved, not silently truncated');
+ console.log('Import images: gallery metadata, primary selection, duplicate URLs, retries, and twelve-photo intake limit pass.');
 })().catch(e=>{console.error(e);process.exit(1)});

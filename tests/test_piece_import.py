@@ -44,17 +44,17 @@ class PieceImportTests(unittest.TestCase):
         path.write_text(json.dumps({'format': 'closet-lint-import/v1', 'batchId': batch, 'pieces': pieces if pieces is not None else [self.piece]}))
         return prepare_batch(path, **kwargs)
 
-    def test_ten_photo_limit_includes_primary_photo_file(self):
+    def test_twelve_photo_limit_includes_primary_photo_file(self):
         images = []
-        for i in range(10):
+        for i in range(12):
             name = f'view-{i}.png'
             self.image(name, (24 + i, 32))
             images.append({'file': name, 'kind': 'isolated'})
         prepared = self.prepare([{**self.piece, 'images': images}])
-        self.assertEqual(len(prepared[2][0]['record']['photos']), 10)
-        with self.assertRaisesRegex(ValueError, 'at most 10'):
+        self.assertEqual(len(prepared[2][0]['record']['photos']), 12)
+        with self.assertRaisesRegex(ValueError, 'at most 12'):
             self.prepare([{**self.piece, 'images': images + [images[0]]}])
-        with self.assertRaisesRegex(ValueError, 'at most 10'):
+        with self.assertRaisesRegex(ValueError, 'at most 12'):
             self.prepare([{**self.piece, 'images': images, 'photoFile': 'model.jpg'}])
 
     def test_preview_apply_gallery_and_retry(self):

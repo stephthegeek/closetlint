@@ -39,7 +39,7 @@ The destination filename must be new. See [UPDATING.md](UPDATING.md) for moving 
 
 The supported [assistant importer](ASSISTANT-IMPORT.md) adds validated pieces and local photos without replacing the wardrobe. The app itself does not read email or scrape retailers.
 
-[Local background removal](PHOTOS.md) runs in a separate environment on the server computer. A phone uses that same server tool. Models and dependencies are installed separately; originals and accepted results remain in the wardrobe backup.
+Assistant photo imports and [local background removal](PHOTOS.md) share an optional environment on the server computer, configured by `tools/setup_photos.py`. The import CLI automatically delegates to that environment. `tools/check_setup.py` probes the configured interpreter and packages without installing software or changing wardrobe records. Existing `background-removal.json` configurations remain supported; shared setup uses `photo-tools.json` and reuses a compatible existing environment. A phone uses the same server tool. Models and dependencies are installed separately; originals and accepted results remain in the wardrobe backup. Environment configuration and installed packages are machine-specific and are recreated after moving computers.
 
 ## Operational limits
 

@@ -8,7 +8,7 @@ The server uses the Python standard library, including SQLite. The client is pla
 
 ## Optional tools
 
-- Assistant photo import uses Pillow, installed separately through `runtime/requirements-import.txt`.
+- Assistant photo import uses Pillow, installed in the shared optional environment by `tools/setup_photos.py`, using `runtime/requirements-import.txt`.
 - Local background removal installs ONNX Runtime, NumPy, Pillow, and their dependencies into a separate environment. Setup downloads and verifies the U²-Net model. Neither the environment nor model weights are included in the source archive. Package and model terms should be reviewed separately before any future redistribution.
 
 ## Fonts and network requests

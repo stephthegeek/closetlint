@@ -1,10 +1,10 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8'),script=fs.readFileSync(__dirname+'/../app/scripts/setup.js','utf8');
 assert.equal(source.split('/* BEGIN SETUP (source: app/scripts/setup.js) */\n')[1].split('\n/* END SETUP */')[0],script,'embedded setup is synchronized');
-const ctx={URL,Set,META:['Tops','Bottoms','Jewelry'],SUBS:{Tops:['Tees'],Bottoms:['Pants'],Jewelry:['Rings']},COLORS:{black:'#000'},SEASONS:['fall'],STYLES:['casual'],LOOKS:['gothic'],deriveKind:(m)=>m==='Jewelry'?'ring':'clothing',validateSize:(k,v)=>k==='ring'&&v==='99'?{ok:false,msg:'Bad ring size'}:{ok:true,v},todayStr:()=> '2026-10-18',$:()=>({addEventListener(){}})};
+const ctx={window:{},URL,Set,TextEncoder,META:['Tops','Bottoms','Jewelry'],SUBS:{Tops:['Tees'],Bottoms:['Pants'],Jewelry:['Rings']},COLORS:{black:'#000'},SEASONS:['fall'],STYLES:['casual'],LOOKS:['gothic'],deriveKind:(m)=>m==='Jewelry'?'ring':'clothing',validateSize:(k,v)=>k==='ring'&&v==='99'?{ok:false,msg:'Bad ring size'}:{ok:true,v},todayStr:()=> '2026-10-18',$:()=>({addEventListener(){}})};
 vm.createContext(ctx);vm.runInContext(script,ctx);
 function batch(pieces){return JSON.stringify({format:'closet-lint-import/v1',pieces})}
-const item={name:'Black tee',category:'Tops',subcategory:'Tees',status:'owned',size:'M',retailer:'Example',price:12.50,colors:['black','imagined'],address:'private',orderId:'private',photoId:'private',url:'https://example.com/tee'};
+const item={name:'Black tee',category:'Tops',subcategory:'Tees',status:'owned',size:'M',retailer:'Example',price:12.50,colors:['black','imagined'],address:'private',orderId:'private',photoId:'private',photoUrl:'https://images.example.com/tee.jpg',url:'https://example.com/tee'};
 assert.equal(ctx.setupShouldOpen({custom:true,profile:true},0,null,false,true),true);
 for(const args of [[{},0,null,false,true],[{custom:true,profile:true},1,null,false,true],[{custom:true,profile:true},0,{started:true},false,true],[{custom:true,profile:true},0,null,true,true],[{custom:true,profile:true},0,null,false,false]])assert.equal(ctx.setupShouldOpen(...args),false);
 assert.throws(()=>ctx.setupParse('oops',[]),/readable JSON/);
@@ -37,12 +37,14 @@ assert.equal(ctx.setupParse('```json\n'+batch([item])+'\n```',[]).length,1);
 // Photo uploads are reused after a failed record write; wishlist reconciliation patches ownership only.
 (async()=>{
  let uploads=0,writes=0,fail=true,patch;
- ctx.allItems=()=>[{id:'wish-1',wish:true,name:'Existing',photoId:'keep',colors:['black']}];
+ ctx.allItems=()=>[{id:'wish-1',wish:true,name:'Existing',size:'M',price:12.5,url:'https://example.com/tee',date:'2026-10-18',photoId:'keep',colors:['black']}];
  ctx.patchEdit=async(it,value)=>{patch=value;return true};ctx.layerDefaults=x=>x;
  ctx.state={assets:{upload:async()=>{uploads++;return {id:'synthetic-photo'}}},db:{collection:()=>({doc:()=>({set:async record=>{writes++;if(fail)throw Error('Disk full');assert.equal(record.photoId,'synthetic-photo');assert.equal(record.noPhoto,false)}})})}};
  const row={action:'add',piece:{photoUrl:''},photo:{blob:{synthetic:true},ar:0.8}};
  await assert.rejects(()=>ctx.setupSaveRow('test',{name:'Synthetic'},row),/Disk full/);
  fail=false;await ctx.setupSaveRow('test',{name:'Synthetic'},row);assert.equal(uploads,1);assert.equal(writes,2);
- await ctx.setupSaveRow('unused',{wish:false},{action:'owned',match:{id:'wish-1'}});assert.deepEqual(Object.keys(patch),['wish']);assert.equal(patch.wish,false);assert.equal(uploads,1);
+ await ctx.setupSaveRow('unused',{wish:false},{action:'owned',match:{id:'wish-1'},piece:{...rows[0].piece}});assert.deepEqual(Object.keys(patch),['wish']);assert.equal(patch.wish,false);assert.equal(uploads,1);
  console.log('Import photos: cached upload retry and ownership-only wishlist patch pass.');
 })().catch(e=>{console.error(e);process.exit(1)});
+
+assert.equal(source.split('/* BEGIN SETUP STYLES (source: app/styles/setup.css) */\n')[1].split('\n/* END SETUP STYLES */')[0],fs.readFileSync(__dirname+'/../app/styles/setup.css','utf8'),'embedded import styles are synchronized');

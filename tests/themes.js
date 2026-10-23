@@ -39,3 +39,38 @@ assert.equal(ctx.cleanDisplayPrefs({sizeReferenceName:'   '}).sizeReferenceName,
 ctx.applyDisplayPrefs({menuEmoji:false,sizeReferenceName:'My usual UK size'});assert.equal(node('root').attrs['data-menu-emoji'],'off');assert.equal(node('size-reference-name').value,'My usual UK size');
 node('menu-emoji').value='off';node('size-reference-name').value='Temu/Shein size';ctx.storeDisplayPrefs();assert.equal(writes.at(-1)[1].menuEmoji,false);assert.equal(writes.at(-1)[1].sizeReferenceName,'Temu/Shein size');
 console.log('Launch identity stays fixed; fit-reference labels migrate, trim and persist independently of size choices.');
+
+// Reset only the display preference record; keep fit labels and unrelated browser data.
+const browserData=new Map([
+  ['closetlint.board.v1','synthetic-board'],
+  ['closetlint.pub_overlay.v1','synthetic-wardrobe-changes'],
+  ['closetlint.units','in'],
+  ['closetlint.filtersCollapsed','1'],
+  ['unrelated-setting','keep']
+]);
+const unrelatedBefore=[...browserData];
+ctx.localStorage={getItem:key=>browserData.get(key)||null,setItem:(key,value)=>browserData.set(key,value)};
+ctx.applyDisplayPrefs({theme:'dark',skin:'editorial',density:3,photo:'light',menuEmoji:false,emoji:'grayscale',edge:'outline',icons:'other',sizeReferenceName:'My usual UK size'});
+ctx.storeDisplayPrefs();
+ctx.resetDisplayPrefs();
+const resetPrefs=ctx.readDisplayPrefs();
+assert.equal(JSON.stringify(resetPrefs),JSON.stringify(ctx.cleanDisplayPrefs({sizeReferenceName:'My usual UK size'})));
+assert.deepEqual([...browserData].filter(([key])=>key!=='closetlint.display.v1'),unrelatedBefore);
+assert.equal(node('size-reference-name').value,'My usual UK size');
+assert.equal(node('root').attrs['data-theme'],undefined,'reset returns to system appearance');
+assert.equal(node('thumbsize-label').textContent,'Medium');
+assert.match(node('display-prefs-status').textContent,/reset/);
+ctx.applyDisplayPrefs(ctx.readDisplayPrefs());
+assert.equal(node('site-theme').value,'workshop','defaults survive reloading');
+// Storage refusal still applies defaults for the visit, with honest feedback.
+ctx.applyDisplayPrefs({theme:'dark',sizeReferenceName:'My usual UK size'});
+ctx.storeDisplayPrefs();
+const storedBeforeFailure=browserData.get('closetlint.display.v1'),resetNotices=[];
+ctx.localStorage.setItem=()=>{throw Error('storage denied')};
+ctx.toast=message=>resetNotices.push(message);
+ctx.resetDisplayPrefs();
+assert.equal(node('root').attrs['data-theme'],undefined);
+assert.equal(browserData.get('closetlint.display.v1'),storedBeforeFailure);
+assert.match(node('display-prefs-status').textContent,/for this visit/);
+assert.equal(resetNotices.length,1);
+console.log('Display reset: defaults, preserved fit reference and unrelated data, reload, and storage-failure feedback passed.');

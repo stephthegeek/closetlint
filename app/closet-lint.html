@@ -968,13 +968,6 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 :root[data-skin=workshop] .xmenu :is(button,a):hover{background:var(--utility);color:var(--utility-ink)}
 @media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){:root[data-skin=workshop] :is(.filters,.form) .chip{min-height:40px}}
 
-/* First-run setup and guided DIY imports. */
-#setup-wizard{width:min(780px,calc(100vw - 28px));max-height:calc(100dvh - 28px);padding:0;overflow:auto;background:var(--bg);color:var(--ink)}
-.setup-shell{padding:28px 30px 20px}.setup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:20px}.setup-head h2{font:500 32px/1.15 var(--display);margin:0}.setup-head>.btn{min-width:42px;min-height:42px;flex:none}.setup-eyebrow{font:12px/1.4 'IBM Plex Mono',monospace;letter-spacing:.1em;color:var(--ink2);margin:0 0 12px}.setup-body>p:first-child{margin-top:0}.setup-body p{line-height:1.55}.setup-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:22px 0}.setup-option{padding:18px;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0}.setup-option strong{font-size:16px;font-weight:600}.setup-option>span:not(.setup-option-icon){font-size:14px;color:var(--ink2);line-height:1.5}.setup-option-icon{font-size:25px;line-height:1.2}.setup-option:hover{border-color:var(--sel);background:var(--card)}.setup-option[aria-pressed=true]{border-color:var(--sel);background:var(--selbg)}.setup-option[aria-pressed=true] strong{color:var(--sel)}.setup-option:focus-visible{outline:2px dashed var(--sel);outline-offset:3px}.setup-routes{display:grid;gap:12px;margin:22px 0}.setup-note{padding:16px 18px;border-left:3px solid var(--sel);background:var(--panel);margin:22px 0}.setup-note p{margin:6px 0 0;font-size:14px;color:var(--ink2)}.setup-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}.setup-actions .btn{min-height:44px}.setup-actions .primary:only-child{margin-left:auto}.setup-guide{padding-left:24px;margin-block:22px}.setup-guide li{margin:12px 0;padding-left:4px}.setup-prompt{margin:18px 0}.setup-prompt summary{cursor:pointer}.setup-field{display:grid;gap:6px;margin:12px 0;font-size:14px;color:var(--ink2);min-width:0}.setup-field :is(input,select),.setup-code{width:100%;min-width:0;background:var(--card);border:1px solid var(--line);padding:10px;color:var(--ink);box-sizing:border-box}.setup-code{resize:vertical;font:13px/1.5 'IBM Plex Mono',monospace;margin-top:8px;min-height:120px}.setup-field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}.setup-review-row{border:1px solid var(--line);padding:12px 16px 16px;margin:18px 0;min-width:0;background:var(--panel)}.setup-review-row legend{padding:0 6px;font:13px 'IBM Plex Mono',monospace;color:var(--ink2)}.setup-review-name{display:flex;align-items:center;gap:12px}.setup-review-name>input[type=text]{flex:1;min-width:0;padding:10px;background:var(--card);color:var(--ink);border:1px solid var(--line)}.setup-review-name>input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:var(--sel)}.setup-review-row summary{cursor:pointer;font-size:14px;padding-block:6px}.setup-message,.setup-warning{background:var(--selbg);color:var(--ink);padding:12px 14px;border-left:3px solid var(--sel);font-size:14px}.setup-review-count{font:14px 'IBM Plex Mono',monospace}.setup-body>.chips{gap:8px;flex-wrap:wrap}.setup-body input[type=file]{max-width:100%;margin-top:12px;font-size:14px}.setup-review-row:disabled{opacity:.6}.setup-head h2:focus{outline:none}
-:root[data-skin=workshop] .setup-option strong{font-family:var(--mono);font-size:15px}:root[data-skin=workshop] .setup-option[aria-pressed=true]{box-shadow:3px 3px 0 var(--control-shadow)}
-@media(max-width:600px){#setup-wizard{width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}.setup-shell{padding:20px 16px 18px}.setup-head{gap:12px}.setup-head h2{font-size:28px}.setup-options{gap:10px}.setup-option{padding:14px}.setup-option strong{font-size:15px}.setup-option>span:not(.setup-option-icon){font-size:14px}.setup-field-grid{grid-template-columns:1fr}.setup-code{font-size:16px}.setup-actions>.btn{flex:1}.setup-body .chip{min-height:44px}}
-@media(max-width:380px){.setup-options{grid-template-columns:1fr}}
-
 /* Cross-theme polish; photographic pixels are never tinted. */
 .setup-route-title{display:flex;align-items:center;gap:12px}
 .menu-emoji{display:inline-block;flex:0 0 1.6em;text-align:center;line-height:1.4;filter:var(--emoji-color)}
@@ -1046,7 +1039,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .labview.has-ratings{padding-bottom:180px!important}
 @media (min-width:1101px), (min-width:821px) and (hover:hover), (min-width:821px) and (pointer:fine), (min-width:821px) and (pointer:none){
  :root[data-skin] .closet{grid-template-columns:320px minmax(0,1fr)}
- :root[data-skin].filters-collapsed .closet{grid-template-columns:minmax(0,1fr)}
+ :root[data-skin].filters-collapsed .closet{grid-template-columns:32px minmax(0,1fr)}
  .filters-collapsed #view-closet>#filters{display:none}
 }
 @media(min-width:1450px){:root[data-skin] .closet{grid-template-columns:344px minmax(0,1fr)}}
@@ -1065,7 +1058,19 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 :root[data-skin] #fantbtn[aria-checked=true]{border-color:var(--lavender,#c7acee);background:var(--selbg);color:var(--ink);box-shadow:0 0 12px #c7acee22}
 .switch-track{width:34px;height:20px;background:var(--line);border-radius:12px;position:relative;flex:none}.switch-track:after{content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;background:var(--bg);border-radius:50%;transition:transform 140ms}
 [aria-checked=true] .switch-track{background:var(--lavender,#c7acee)}[aria-checked=true] .switch-track:after{transform:translateX(14px);background:#302239}
-#addbtn{gap:8px}.closet>.main{position:relative}.sidebar-toggle{position:absolute;left:-18px;top:5px;z-index:5;padding:5px!important;min-width:28px;min-height:32px;background:var(--panel)}.filters-collapsed .sidebar-toggle{left:0}.filters-collapsed .main>.tabs{padding-left:36px}
+#addbtn{gap:8px}.closet>.main{position:relative}
+:root[data-skin] :is(.sidebar-toggle,.sidebar-collapse){position:static;transform:none;display:inline-flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box;width:24px;min-width:24px;min-height:0;padding:5px 3px;border:1px solid var(--line);background:transparent;color:var(--ink2);font:500 18px/1 var(--mono);box-shadow:none}
+:root[data-skin] .sidebar-collapse{align-self:stretch;height:auto}
+.sidebar-rail{display:none}
+#filters .sheethead{align-items:stretch}
+#filters .sheethead>b{align-self:center}
+:root[data-skin] .sidebar-toggle{display:none}
+:root[data-skin].filters-collapsed .sidebar-toggle{display:inline-flex;height:34px;margin:0}
+:root[data-skin] :is(.sidebar-toggle,.sidebar-collapse):hover{background:var(--hover,var(--card));color:var(--ink);border-color:var(--ink2)}
+@media (min-width:1101px), (min-width:821px) and (hover:hover), (min-width:821px) and (pointer:fine), (min-width:821px) and (pointer:none){
+ :root[data-skin].filters-collapsed .sidebar-rail{display:flex;justify-content:center;position:sticky;top:calc(var(--hdr,64px) + env(safe-area-inset-top,0px));min-height:calc(100dvh - var(--hdr,64px));padding:18px 3px;box-sizing:border-box;background:var(--panel);border-right:1px solid var(--line);align-items:flex-start}
+}
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){:root[data-skin] :is(.sidebar-toggle,.sidebar-collapse){display:none}}
 #appmenu :is(button,a),#appmenu .xpar>button:first-child{display:grid;grid-template-columns:24px minmax(0,1fr) 12px;gap:8px;align-items:center;padding:10px 30px;text-align:left}
 #appmenu .menu-emoji{grid-column:1;grid-row:1;width:24px;text-align:center}#appmenu .menu-label{grid-column:2;grid-row:1}#appmenu .xarr{grid-column:3;grid-row:1;width:12px;margin:0;text-align:center}
 #appmenu .xfly button{padding-inline:12px}#appmenu :is(button,a)[aria-current=page]{background:var(--selbg)}
@@ -1314,7 +1319,7 @@ details{background:var(--disclosure-body)}details>summary{background:var(--discl
 .piece-photo-panel>.photo-swatches-wrap{margin:8px 12px 0;min-width:0}.piece-photo-panel>.photo-swatches-wrap:empty{display:none}.piece-photo-panel>.photo-swatches-wrap .photo-swatches{padding:4px 0;margin:0}.photo-links{align-items:center;gap:8px;padding:8px 12px}.photo-links .findrow{padding:0}.photo-replace-tools{margin-top:12px}
 /* Keep tab geometry identical when a pointer enters or leaves. */
 :root[data-skin=workshop] .main>.tabs .tab,:root[data-skin=workshop] .main>.tabs .tab:hover,:root[data-skin=workshop] .main>.tabs .tab[aria-selected=true]{border-width:1px 1px 0;border-style:solid;box-sizing:border-box;transform:none}
-.tidy-photos{width:min(1180px,calc(100vw - 24px));max-height:92dvh;overflow:auto;padding:24px;background:var(--bg);color:var(--ink);border:1px solid var(--line)}.tidy-head{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.tidy-head h2{margin:0}.tidy-scope{display:grid;gap:8px;max-width:460px;margin:20px 0}.tidy-instructions{margin:14px 0 18px;max-width:860px;line-height:1.5}.tidy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.tidy-tile{min-width:0;border:1px solid var(--line);background:var(--panel);padding:12px}.tidy-piece-title{margin:0;font-size:14px;line-height:1.4;min-height:42px;font-weight:600}.tidy-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.tidy-choice{display:flex;flex-direction:column;align-items:stretch;min-width:0;padding:5px;border:2px solid var(--line);background:var(--card);color:var(--ink);text-align:left;cursor:pointer;font:inherit}.tidy-choice.selected{border-color:var(--sel);background:var(--selbg);box-shadow:0 0 0 2px var(--sel)}.tidy-choice:disabled{cursor:default}.tidy-choice:focus-visible{outline:2px solid var(--sel);outline-offset:3px}.tidy-choice img{width:100%;height:180px;object-fit:contain;display:block}.tidy-choice span{font-size:13px;line-height:1.3;padding:8px 3px 3px;font-weight:600}.tidy-placeholder{display:grid;place-items:center;text-align:center;padding:10px;font-size:13px;min-height:180px}.tidy-tile .fine{font-size:13px;margin:8px 0 0}.tidy-bottom{display:flex;justify-content:flex-end;margin-top:22px;padding-bottom:env(safe-area-inset-bottom)}
+.tidy-photos{width:min(1180px,calc(100vw - 24px));max-height:92dvh;overflow:auto;padding:24px;background:var(--bg);color:var(--ink);border:1px solid var(--line)}.tidy-head{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.tidy-head h2{margin:0}.tidy-scope{display:grid;gap:8px;max-width:460px;margin:20px 0}.tidy-instructions{margin:14px 0 18px;max-width:860px;line-height:1.5}.tidy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.tidy-tile{min-width:0;border:1px solid var(--line);background:var(--panel);padding:12px}.tidy-piece-title{margin:0;font-size:14px;line-height:1.4;min-height:42px;font-weight:600}.tidy-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.tidy-choice{display:flex;flex-direction:column;align-items:stretch;min-width:0;padding:5px;border:2px solid var(--line);background:var(--card);color:var(--ink);text-align:left;cursor:pointer;font:inherit}.tidy-choice.selected{border-color:var(--sel);background:var(--selbg);box-shadow:0 0 0 2px var(--sel)}.tidy-choice:disabled{cursor:default}.tidy-choice:focus-visible{outline:2px solid var(--sel);outline-offset:3px}.tidy-choice img{width:100%;height:180px;object-fit:contain;display:block}.tidy-choice span{font-size:13px;line-height:1.3;padding:8px 3px 3px;font-weight:600}.tidy-placeholder{display:grid;place-items:center;text-align:center;padding:10px;font-size:13px;min-height:180px}.tidy-tile .fine{font-size:13px;margin:8px 0 0}.tidy-bottom{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:22px;padding-bottom:env(safe-area-inset-bottom)}
 :root[data-skin] .tidy-scope select{box-sizing:border-box;width:100%;min-height:48px;padding:10px 14px;background:var(--card);color:var(--ink);border:1px solid var(--line);font:16px/1.3 var(--body)}
 :root[data-skin] .tidy-scope select option{background:var(--card);color:var(--ink)}
 .tidy-batch-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
@@ -1322,7 +1327,7 @@ details{background:var(--disclosure-body)}details>summary{background:var(--discl
 
 /* Launch cleanup: collection browsing has its own overview, not a piece toolbar. */
 #view-closet.collections-overview{grid-template-columns:minmax(0,1fr)}
-#view-closet.collections-overview :is(.filters,.sidebar-toggle,.main>.tabs,.main>.bar,.setrow,#noresults,#clearbar,#jump-top){display:none!important}
+#view-closet.collections-overview :is(.filters,.sidebar-rail,.sidebar-toggle,.main>.tabs,.main>.bar,.setrow,#noresults,#clearbar,#jump-top){display:none!important}
 #view-closet.collections-overview #collection-context{margin-top:0}
 /* A fixed editor frame keeps actions reachable while the membership grid scrolls. */
 #collections-dialog:has(.collection-editor){padding:0;overflow:hidden;width:min(960px,calc(100vw - 24px));max-height:calc(100dvh - 24px)}
@@ -1375,9 +1380,9 @@ details{background:var(--disclosure-body)}details>summary{background:var(--discl
 #view-trip .trip-plan-name{box-sizing:border-box;flex:1 1 220px;width:100%;min-width:0;max-width:100%;min-height:44px;font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
 
 /* Keep the temporary emoji controls together without crowding everyday options. */
-#displayprefs .theme-prefs{margin:0 0 20px;padding:14px;border:1px solid var(--line);min-width:0}
-#displayprefs .theme-prefs legend{padding-inline:6px;font-weight:600}
-#displayprefs .theme-prefs label:first-of-type{margin-top:0}
+#displayprefs .prefs-section{margin:0 0 20px;padding:14px;border:1px solid var(--line);min-width:0}
+#displayprefs .prefs-section legend{padding-inline:6px;font-weight:600}
+#displayprefs .prefs-section label:first-of-type{margin-top:0}
 #displayprefs .emoji-tweaks{margin-top:18px;border:1px solid var(--line)}
 #displayprefs .emoji-tweaks>summary{padding:10px;cursor:pointer}
 #displayprefs .emoji-tweaks-body{padding:12px}
@@ -1458,7 +1463,56 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
  :root[data-skin] #grid .card .xbtn{font-size:18px}
 }
 
+/* Personal display preferences, separate from wardrobe reset actions. */
+#displayprefs .prefs-storage{margin:0 0 20px}
+#displayprefs .prefs-check{display:flex;align-items:center;gap:10px;min-height:44px}
+#displayprefs .prefs-check input{flex-shrink:0;margin:0}
+#displayprefs .prefs-reset{border-top:1px solid var(--line);padding-top:18px}
+#displayprefs .prefs-reset .btn{max-width:100%;white-space:normal}
+#displayprefs .prefs-status{margin-bottom:0}
+#displayprefs .prefs-status:empty{display:none}
+
+#displayprefs #reset-display-help{margin:12px 0 0}
+
 /* END LIVE THEMES */
+
+/* BEGIN SETUP STYLES (source: app/styles/setup.css) */
+/* Setup and import share the app's colors, fonts, controls, and focus treatment. */
+#setup-wizard{width:min(1120px,calc(100vw - 32px));height:min(900px,calc(100dvh - 32px));max-height:calc(100dvh - 32px);padding:0;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.setup-shell{display:flex;flex-direction:column;height:100%;min-height:0;box-sizing:border-box}
+.setup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:24px 28px 18px;border-bottom:1px solid var(--line);flex:none}
+.setup-head h2{font:500 28px/1.2 var(--display);margin:0;overflow-wrap:anywhere}.setup-head h2:focus{outline:none}.setup-head>.btn{flex:none}
+.setup-eyebrow{font:12px/1.4 var(--mono,'IBM Plex Mono',monospace);letter-spacing:.07em;color:var(--ink2);margin:0 0 8px}
+.setup-body{padding:20px 28px;overflow:auto;overscroll-behavior:contain;min-height:0;flex:1;scroll-padding-block:16px}
+.setup-body p{line-height:1.5;overflow-wrap:anywhere}.setup-body>p:first-child{margin-top:0}.setup-body h3{font:600 18px/1.3 var(--body);margin:0 0 8px}.setup-body details>summary{cursor:pointer;padding-block:10px}
+.setup-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0}.setup-routes{display:grid;gap:12px;margin:20px 0}
+.setup-option{padding:18px;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0}
+button.setup-option{cursor:pointer}button.setup-option:hover{border-color:var(--sel)}.setup-option strong{font-weight:600}.setup-option p{margin:0}.setup-option>.btn{margin:0}.setup-option>span:not(.setup-option-icon){color:var(--ink2);line-height:1.5}.setup-route-title{display:flex;align-items:center;gap:12px}
+.setup-note,.setup-request-preview,.setup-status{padding:14px 16px;border:1px solid var(--line);background:var(--panel);margin:12px 0 18px}.setup-note p:last-child{margin-bottom:0}.setup-note h3+p{margin-top:6px}
+.setup-status{display:flex;gap:8px 24px;justify-content:space-between;flex-wrap:wrap;font-size:13px;color:var(--ink2)}.setup-request-preview{border-left:3px solid var(--sel)}
+.setup-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin:0;padding:16px 28px max(16px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg);flex:none}.setup-actions .btn{margin:0}.setup-footer-hint{flex:1 1 100%;display:flex;gap:12px;align-items:center}.setup-footer-hint p{margin:0;flex:1}.setup-footer-hint p:empty{display:none}
+.setup-guide{padding-left:24px;margin-block:20px}.setup-guide li{margin:12px 0;padding-left:4px}.setup-prompt{margin:16px 0}
+.setup-field{display:grid;gap:6px;margin:8px 0;font-size:13px;color:var(--ink2);min-width:0}.setup-field :is(input,select,textarea),.setup-code,.setup-review-name>input{width:100%;min-width:0;max-width:100%;background:var(--card);border:1px solid var(--line);padding:9px 10px;color:var(--ink);font:inherit;box-sizing:border-box;min-height:38px}
+.setup-field select{color-scheme:inherit}.setup-field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 14px}.setup-field textarea{resize:vertical}.setup-code{resize:vertical;font:13px/1.5 var(--mono,'IBM Plex Mono',monospace);margin:8px 0;min-height:120px}
+.setup-source{display:flex;gap:8px;flex-wrap:wrap;padding:12px 0;border:0;min-width:0;margin:12px 0}.setup-source legend{font-weight:600;margin-bottom:6px}.setup-source .chip{margin:0;white-space:normal}.setup-inline{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.setup-inline :is(.btn,.chip){margin:0}
+.setup-live{font-size:14px;color:var(--ink2)}.setup-live:empty{display:none}.setup-warning{background:var(--selbg);color:var(--ink);padding:12px 14px;border-left:3px solid var(--sel);font-size:14px}.setup-review-count{font-weight:600;font-size:15px}
+.setup-drop{border:1px dashed var(--line);padding:18px;background:var(--panel)}.setup-drop input[type=file]{max-width:100%}
+.setup-review-list{display:grid;gap:10px;margin-top:16px}.setup-review-row{border:1px solid var(--line);padding:12px;min-width:0;background:var(--panel);scroll-margin-block:16px}.setup-review-main{display:grid;grid-template-columns:24px 64px minmax(120px,1.1fr) minmax(170px,1fr) minmax(100px,.7fr) auto;align-items:center;gap:12px}.setup-include input[type=checkbox]{width:20px;height:20px;min-height:0;margin:0;accent-color:var(--sel)}
+.setup-thumb{width:64px;height:80px;background:var(--photo);display:grid;place-items:center;overflow:hidden}.setup-thumb img{width:100%;height:100%;object-fit:contain}.setup-no-photo{display:grid;place-items:center;background:var(--card);border:1px solid var(--line);width:64px;min-height:80px;text-align:center;font-size:12px;padding:4px;box-sizing:border-box}.setup-photo-large img{max-width:100%;max-height:200px;object-fit:contain}
+.setup-review-name{display:grid;gap:6px;min-width:0}.setup-review-name input{font-size:14px}.setup-review-category{display:grid;gap:2px}.setup-review-category .setup-field{margin:0;grid-template-columns:74px minmax(0,1fr);align-items:center}.setup-review-category .setup-field span{font-size:12px}.setup-review-category select{min-height:34px;padding:5px 6px;font-size:13px}.setup-row-status{font-size:13px;overflow-wrap:anywhere}.setup-saved{background:var(--bg)}
+.setup-review-row>.btn{margin:12px 0 0}.setup-row-details,.setup-compare,.setup-photo-recovery{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.setup-photo-recovery{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.setup-photo-recovery>p{flex:1 1 100%;margin:0 0 4px}.setup-photo-recovery .btn{margin:0}.setup-attach{display:grid;gap:6px;font-size:13px;min-width:0;max-width:100%;color:var(--ink2)}.setup-attach input{max-width:100%;font:inherit}.setup-photo-preview{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin-top:12px}.setup-image-option{display:grid;gap:6px;max-width:160px;font-size:13px}.setup-image-option img{width:100%;height:120px;object-fit:contain;background:var(--photo)}.setup-image-option .btn{white-space:normal;font-size:12px;margin:0}.setup-listing-details{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 var(--body)}
+.setup-compare-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.setup-compare-pair>div{padding:12px;background:var(--card);border:1px solid var(--line);min-width:0}.setup-compare-pair strong{font-size:13px}.setup-compare-pair p{margin-bottom:0}.setup-existing-photo{width:64px;height:80px;object-fit:contain;display:block;margin-top:8px;background:var(--photo)}
+.setup-result-row{display:grid;gap:4px;border-bottom:1px solid var(--line);padding:12px 0;font-size:14px}.setup-result-row span{color:var(--ink2)}
+#setup-wizard [hidden]{display:none!important}
+#setup-wizard :is(button,input,select,textarea,summary):focus-visible{outline:2px solid var(--sel);outline-offset:3px}
+#setup-wizard .btn[aria-pressed=true]{border-color:var(--sel);background:var(--selbg);color:var(--ink)}
+@media(max-width:900px){.setup-review-list{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.setup-review-main{grid-template-columns:24px 64px minmax(0,1fr);gap:10px}.setup-review-name{grid-column:3}.setup-review-category{grid-column:2/-1}.setup-row-status{grid-column:2/-1}.setup-review-main>.btn{grid-column:2/-1;justify-self:start}.setup-compare-pair{grid-template-columns:1fr}}
+@media(max-width:600px){#setup-wizard{width:calc(100vw - 12px);height:calc(100dvh - 12px);max-height:calc(100dvh - 12px);margin:6px}.setup-head{padding:18px 16px 14px;gap:12px}.setup-head h2{font-size:24px}.setup-body{padding:16px}.setup-actions{padding:12px 16px max(12px,env(safe-area-inset-bottom));gap:8px}.setup-actions>.btn{flex:1 1 auto;white-space:normal}.setup-options,.setup-field-grid,.setup-review-list{grid-template-columns:minmax(0,1fr)}.setup-option{padding:16px}.setup-request-preview{display:none}.setup-source .chip{min-height:44px}.setup-field :is(input,select,textarea),.setup-code,.setup-review-name>input{font-size:16px;min-height:44px}.setup-review-category select{font-size:16px;min-height:44px}.setup-review-category .setup-field{grid-template-columns:84px minmax(0,1fr)}.setup-actions .btn,.setup-body .btn{min-height:44px}.setup-footer-hint{align-items:flex-start}.setup-compare-pair{grid-template-columns:1fr}.setup-review-row{padding:12px}.setup-status{font-size:12px}}
+
+.setup-include{display:grid;place-items:center;min-height:38px;cursor:pointer}.setup-attach .btn{margin:0}
+@media(max-width:900px){.setup-review-main{grid-template-columns:44px 64px minmax(0,1fr)}.setup-include{width:44px;height:44px;min-height:44px}}
+
+/* END SETUP STYLES */
 </style>
 </head>
 <body>
@@ -1468,26 +1522,38 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 <nav class="primary-nav" aria-label="Main navigation"><a href="#/closet" id="go-closet" aria-label="Closet"><span class="nav-emoji" aria-hidden="true">👚</span><span>Closet</span></a><a href="#/board" id="go-board" aria-label="Working board"><span class="nav-emoji" aria-hidden="true">🪞</span><span>Board</span><small class="board-count" aria-hidden="true" hidden></small></a><a href="#/outfits" id="go-saved" aria-label="Outfits"><span class="nav-emoji" aria-hidden="true">👗</span><span>Outfits</span></a><a href="#/lab" id="go-lab" aria-label="Outfit Lab"><span class="nav-emoji" aria-hidden="true">🧑‍🔬</span><span>Lab</span></a><a href="#/trips" id="go-trip" aria-label="Trips"><span class="nav-emoji" aria-hidden="true">🧳</span><span>Trips</span></a></nav>
   <span class="spacer"></span>
   <button id="fantbtn" class="fantasy-switch" type="button" role="switch" aria-checked="false" aria-label="Fantasy mode" title="Closet rules, temporarily suspended. Include wishlist and stored pieces."><span class="button-emoji" aria-hidden="true">🪄</span><span>Fantasy mode</span><span class="switch-track" aria-hidden="true"></span></button>
-  <button class="btn" id="viewprefs" type="button" aria-haspopup="dialog" aria-label="Theme and view options">✦ Theme / View</button>
   <button class="btn primary" id="addbtn" aria-label="Add piece" title="Add piece"><span class="emo">➕</span><span class="lbl"> Add piece</span></button>
   <button class="btn" id="menubtn" type="button" aria-haspopup="menu" aria-label="Menu" title="Menu">☰</button>
 </header>
 <dialog id="displayprefs" aria-labelledby="displayprefs-title">
-  <form method="dialog"><div class="prefs-heading"><h2 id="displayprefs-title">Make yourself comfortable</h2><button class="btn" aria-label="Close view options">Close</button></div>
-    <fieldset class="theme-prefs"><legend>Theme and emojis</legend>
+  <form method="dialog"><div class="prefs-heading"><h2 id="displayprefs-title">View settings</h2><button class="btn" aria-label="Close view options">Close</button></div>
+    <p class="fine prefs-storage">Changes save automatically in this browser for this site address. Other browsers, devices, and Closet Lint addresses have their own settings.</p>
+    <fieldset class="prefs-section"><legend>Appearance</legend>
     <label for="site-theme">Site theme</label><select id="site-theme"><option value="workshop">Soft Hardware</option><option value="fieldnotes">Field Notes</option><option value="editorial">Night Bloom</option></select>
     <label for="appearance">Appearance</label><select id="appearance"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select>
+    </fieldset>
+    <fieldset class="prefs-section"><legend>Photos</legend>
+    <label for="photo-finish">Photo background</label><select id="photo-finish"><option value="original">Theme default</option><option value="light">Off-white</option></select>
+    <p class="fine">Adds a consistent off-white canvas behind transparent photos.</p>
+    <label for="thumbsize">Thumbnail size · <output id="thumbsize-label" for="thumbsize">Medium</output></label><input id="thumbsize" type="range" min="1" max="3" step="1" value="2"><div class="prefs-range"><span>More pieces</span><span>More detail</span></div>
+    </fieldset>
+    <fieldset class="prefs-section"><legend>Icons</legend>
     <label for="icon-pack">Emoji pack</label><select id="icon-pack"><option value="femme">Femme</option><option value="masc">Masc</option><option value="other">Other / symbols</option></select>
     <label for="menu-emoji">Menu and toolbar labels</label><select id="menu-emoji"><option value="on">Emojis + text (compact icons on small screens)</option><option value="off">Text only</option></select>
     <details class="emoji-tweaks"><summary>Emoji tweaks [remove for launch]</summary><div class="emoji-tweaks-body">
     <label for="emoji-treatment">Emoji finish</label><select id="emoji-treatment"><option value="default">Theme default</option><option value="native">Native color</option><option value="grayscale">Grayscale</option><option value="moss">Moss tint</option><option value="lilac">Lilac tint</option><option value="inverted">Inverted</option><option value="mono">Monochrome font</option></select>
     <label for="emoji-edge">Emoji edge</label><select id="emoji-edge"><option value="auto">Auto · pale icons on light backgrounds</option><option value="outline">Thin outline</option><option value="glow">Soft glow</option><option value="none">None</option></select>
-    </div></details></fieldset>
+    </div></details>
+    </fieldset>
+    <fieldset class="prefs-section"><legend>Size labels</legend>
     <label for="size-reference-name">Fits like reference</label><input type="text" id="size-reference-name" maxlength="50" placeholder="US standard adult" title="Your own reference label. This does not convert sizes.">
-    <label for="photo-finish">Photo background</label><select id="photo-finish"><option value="original">Theme default</option><option value="light">Soft light</option></select>
-    <p class="fine">Changes the space behind photos, not the photos themselves.</p>
-    <label for="thumbsize">Thumbnail size · <output id="thumbsize-label" for="thumbsize">Medium</output></label><input id="thumbsize" type="range" min="1" max="3" step="1" value="2"><div class="prefs-range"><span>More pieces</span><span>More detail</span></div>
-    <p class="fine">These preferences stay in this browser.</p>
+    <p class="fine">Your custom label for the “Fits like” field. Does not convert sizes.</p>
+    </fieldset>
+    <div class="prefs-reset">
+      <button class="btn" type="button" id="reset-display-prefs" aria-describedby="reset-display-help">Reset display preferences</button>
+      <p class="fine" id="reset-display-help">Restore the visual defaults. Your size reference, pieces, photos, outfits, and wear history stay unchanged.</p>
+      <p class="fine prefs-status" id="display-prefs-status" role="status" aria-live="polite"></p>
+    </div>
   </form>
 </dialog>
 <p class="notice hide" id="notice"></p>
@@ -1495,8 +1561,8 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 <dialog id="filter-dialog" class="filter-dialog" aria-label="Filter pieces"></dialog>
 <main id="view-closet" class="closet">
   <aside class="filters" id="filters" aria-label="Filters"></aside>
+  <div class="sidebar-rail"><button class="btn small sidebar-toggle" id="sidebar-toggle" type="button" aria-expanded="true" aria-controls="filters" title="Hide filters" aria-label="Hide filters">‹</button></div>
   <section class="main">
-    <button class="btn small sidebar-toggle" id="sidebar-toggle" type="button" aria-expanded="true" aria-controls="filters" title="Collapse or expand filters">◧<span class="sr"> Filters</span></button>
   <nav class="tabs" role="tablist" aria-label="Closet categories">
     <button class="tab" role="tab" id="tab-all" aria-selected="false">All</button>
     <button class="tab" role="tab" id="tab-clothing" aria-selected="true"><span class="emo">👚</span><span class="lbl"> Clothing</span></button>
@@ -1835,8 +1901,8 @@ function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 function setHas(o){for(var k in o)if(o[k])return true;return false}
 function keys(o){var r=[];for(var k in o)if(o[k])r.push(k);return r}
 var toastTimer=null;
-function toastAct(msg,label,fn){var t=$('toast');t.textContent=msg+' ';t.appendChild(el('button',{type:'button',class:'toastbtn',text:label,onclick:function(){t.classList.add('hide');fn()}}));t.classList.remove('hide');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.add('hide')},8000)}
-function toast(msg){var t=$('toast');t.textContent=msg;t.classList.remove('hide');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.add('hide')},3200)}
+function toastAct(msg,label,fn,duration){var t=$('toast');t.textContent=msg+' ';t.appendChild(el('button',{type:'button',class:'toastbtn',text:label,onclick:function(){t.classList.add('hide');fn()}}));t.classList.remove('hide');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.add('hide')},duration||8000)}
+function toast(msg){var t=$('toast');t.textContent=msg;t.classList.remove('hide');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.add('hide')},/could not|failed|unavailable|invalid|error/i.test(msg)?6000:Math.min(5000,Math.max(2200,msg.length*35)))}
 function useCap(name){
   if(window.ClosetLintRuntime)return window.ClosetLintRuntime.use(name).catch(function(){return null});
   try{if(window.claude&&window.claude.use)return Promise.resolve(window.claude.use(name)).catch(function(){return null})}catch(e){}
@@ -2284,7 +2350,7 @@ function renderFiltersCore(){
   var fitems=setHas(state.metas)?items.filter(function(x){return catKeys(x).some(function(ck){return state.metas[ck[0]]})}):items;
   if(setHas(state.subs))fitems=fitems.filter(function(x){return catKeys(x).some(function(ck){return state.subs[ck[0]+'|'+ck[1]]})});
   f.textContent='';
-  f.appendChild(el('div',{class:'sheethead'},el('b',{text:'Filters'}),el('button',{class:'btn small',type:'button',id:'filter-clear',text:'Clear',onclick:clearFilters}),el('button',{class:'btn small',type:'button',id:'expandall',text:'Expand all',onclick:toggleAllGroups}),el('button',{class:'btn small primary',type:'button',id:'filter-done',text:'Done',onclick:closeFilterSheet})));
+  f.appendChild(el('div',{class:'sheethead'},el('b',{text:'Filters'}),el('button',{class:'btn small',type:'button',id:'filter-clear',text:'Clear',onclick:clearFilters}),el('button',{class:'btn small',type:'button',id:'expandall',text:'Expand all',onclick:toggleAllGroups}),el('button',{class:'btn small sidebar-collapse',type:'button',id:'filter-collapse','aria-label':'Hide filters','aria-expanded':'true','aria-controls':'filters',title:'Hide filters',text:'«',onclick:function(){$('sidebar-toggle').click()}}),el('button',{class:'btn small primary',type:'button',id:'filter-done',text:'Done',onclick:closeFilterSheet})));
   if(state.showStored)f.appendChild(whereGroup());
   var nGuess=items.filter(function(x){return x.guess}).length;
   var nNoPh=items.filter(function(x){return (x.photo||'').indexOf('data:image/svg')===0||x.photo===BLANK}).length;
@@ -2759,28 +2825,29 @@ function renderGridInner(){
 /* ---------- select + bulk edit ---------- */
 function renderSelBar(){
   var bar=$('selbar');
-  if(!state.selectMode||state.tab==='outfits'||state.tab==='saved'){bar.classList.add('hide');return}
-  var ids=keys(state.picked),n=ids.length,shown=filtered().length;
+  if(!state.selectMode||!isClosetTab(state.tab)||state.collectionManager){bar.classList.add('hide');return}
+  var map=byId();keys(state.picked).forEach(function(id){if(!map[id]||map[id].removed)delete state.picked[id]});
+  var ids=keys(state.picked),n=ids.length,visible=filtered(),shown=visible.length,shownIds=new Set(visible.map(function(it){return it.id})),outside=ids.filter(function(id){return !shownIds.has(id)}).length;
   bar.textContent='';
-  bar.appendChild(el('span',{class:'selcount',text:n+' selected'}));
+  bar.appendChild(el('span',{class:'selcount',text:n+' selected'+(outside?' ('+outside+' not shown)':'')}));
   bar.appendChild(el('button',{class:'btn small',type:'button',text:'Save as collection',disabled:!n,onclick:function(){editCollection(null,ids)}}));
   bar.appendChild(el('button',{class:'btn small',type:'button',text:'Add to collection',disabled:!n,onclick:function(){openCollections(function(c){collectionSave(c.id,Object.assign({},c,{ids:c.ids.concat(ids)})).then(function(){showCollection(c.id)}).catch(function(e){toast(e.message)})})}}));
   bar.appendChild(el('button',{class:'btn small',type:'button',text:'Select all shown ('+shown+')',onclick:function(){filtered().forEach(function(x){state.picked[x.id]=true});renderGrid()}}));
-  bar.appendChild(el('button',{class:'btn small',type:'button',text:'Clear',disabled:n?false:'disabled',onclick:function(){state.picked={};renderGrid()}}));
+  bar.appendChild(el('button',{class:'btn small',type:'button',text:'Deselect all',disabled:!n,onclick:function(){state.picked={};renderGrid()}}));
   bar.appendChild(el('button',{class:'btn small',type:'button',text:'\u270F\uFE0F Edit\u2026',title:'Change size, type or tags on all selected pieces at once',disabled:n?false:'disabled',onclick:openBulk}));
   var mp=byId(),allWM=n>0&&ids.every(function(id){return mp[id]&&mp[id].wearMore});
-  bar.appendChild(el('button',{class:'btn small',type:'button',text:allWM?'Clear wear more':'\uD83D\uDE80 Wear more',disabled:n?false:'disabled',onclick:function(){var v=!allWM;applyBulk(ids,function(){return {wearMore:v}},(v?'Marked ':'Cleared ')+n+' pieces').then(function(){state.picked={};renderGrid()})}}));
-  bar.appendChild(el('button',{class:'btn small',type:'button',text:state.showHidden?'Unhide':'Hide',disabled:n?false:'disabled',onclick:function(){var v=!state.showHidden;applyBulk(ids,function(){return {hidden:v,gone:false}},(v?'Hidden ':'Unhidden ')+n+' pieces').then(function(){state.picked={};renderGrid()})}}));
-  bar.appendChild(el('button',{class:'btn small',type:'button',text:state.showStored?'\uD83D\uDDC4\uFE0F Bring back':'\uD83D\uDDC4\uFE0F To storage',disabled:n?false:'disabled',onclick:function(){if(state.showStored)applyBulk(ids,function(){return {stored:false}},'Back in your closet').then(function(){state.picked={};renderGrid()});else openStoreDialog(ids,'')}}));
+  bar.appendChild(el('button',{class:'btn small',type:'button',text:allWM?'Clear wear more':'\uD83D\uDE80 Wear more',disabled:n?false:'disabled',onclick:function(){var v=!allWM;applyBulk(ids,function(){return {wearMore:v}},(v?'Marked ':'Cleared ')+n+' pieces').then(function(){renderGrid()})}}));
+  bar.appendChild(el('button',{class:'btn small',type:'button',text:state.showHidden?'🙉 Unhide':'🙈 Hide',disabled:n?false:'disabled',onclick:function(){var v=!state.showHidden;applyBulk(ids,function(){return {hidden:v,gone:false}},(v?'Hidden ':'Unhidden ')+n+' pieces').then(function(){renderGrid()})}}));
+  bar.appendChild(el('button',{class:'btn small',type:'button',text:state.showStored?'\uD83D\uDDC4\uFE0F Bring back':'\uD83D\uDDC4\uFE0F To storage',disabled:n?false:'disabled',onclick:function(){if(state.showStored)applyBulk(ids,function(){return {stored:false}},'Back in your closet').then(function(){renderGrid()});else openStoreDialog(ids,'')}}));
   var allDn=n>0&&ids.every(function(id){return mp[id]&&mp[id].donate});
-  bar.appendChild(el('button',{class:'btn small',type:'button',text:allDn?'Keep (unflag)':'\uD83D\uDCE6 Donate?',disabled:n?false:'disabled',onclick:function(){var v=!allDn;applyBulk(ids,function(){return {donate:v}},(v?'Flagged ':'Unflagged ')+n+(n===1?' piece':' pieces')).then(function(){state.picked={};renderGrid()})}}));
+  bar.appendChild(el('button',{class:'btn small',type:'button',text:allDn?'Keep (unflag)':'\uD83D\uDCE6 Donate?',disabled:n?false:'disabled',onclick:function(){var v=!allDn;applyBulk(ids,function(){return {donate:v}},(v?'Flagged ':'Unflagged ')+n+(n===1?' piece':' pieces')).then(function(){renderGrid()})}}));
   bar.appendChild(el('button',{class:'btn small danger',type:'button',text:'Remove',disabled:n?false:'disabled',onclick:function(){
     var nOut=ids.reduce(function(a,id){return a+(outfitsUsing(id).length?1:0)},0);
     askConfirm('Remove '+n+' piece'+(n===1?'':'s')+'?'+(nOut?' '+nOut+' of them '+(nOut===1?'is':'are')+' in saved outfits and will keep showing there.':'')+' Photos and details stay on file in Deleted pieces. They will not come back, even when new purchases are imported.','Remove '+n,function(){
-      applyBulk(ids,function(){return {removed:true,removedAt:Date.now()}},'Removed '+n+' pieces').then(function(){state.picked={};renderGrid()});
+      applyBulk(ids,function(){return {removed:true,removedAt:Date.now()}},'Removed '+n+' pieces').then(function(){renderGrid()});
     });
   }}));
-  bar.appendChild(el('button',{class:'btn small',type:'button',text:'Done',onclick:function(){state.selectMode=false;state.picked={};renderGrid()}}));
+  bar.appendChild(el('button',{class:'btn small',type:'button',text:'Done selecting',onclick:function(){state.selectMode=false;state.picked={};renderGrid()}}));
   bar.classList.remove('hide');
 }
 function applyBulk(ids,patchFn,doneMsg){
@@ -2794,7 +2861,7 @@ function applyBulk(ids,patchFn,doneMsg){
     return state.db.collection('edits').doc(it.id).set(Object.assign({},state.edits[it.id]||{},p)).catch(function(){fail++}).then(worker);
   }
   var ws=[];for(var k=0;k<6;k++)ws.push(worker());
-  return Promise.all(ws).then(function(){toast(fail?('Updated '+(list.length-fail)+' pieces, '+fail+' failed'):doneMsg)});
+  return Promise.all(ws).then(function(){toast(fail?('Updated '+(list.length-fail)+' pieces, '+fail+' failed'):doneMsg);return {updated:list.length-fail,failed:fail}});
 }
 function openBulk(){
   var ids=keys(state.picked);if(!ids.length)return;
@@ -2855,7 +2922,7 @@ function openBulk(){
       return Object.keys(p).length?p:null;
     }
     apply.disabled=true;
-    applyBulk(ids,patchFor,'Updated '+n+' pieces').then(function(){closeDlg();state.picked={};renderGrid()});
+    return applyBulk(ids,patchFor,'Updated '+n+' pieces').then(function(result){apply.disabled=false;if(!result||result.failed)return;closeDlg();renderGrid()});
   }});
   var form=el('div',{class:'form',style:'grid-column:1/-1;max-width:none'},
     el('h2',{text:'Edit '+n+' piece'+(n===1?'':'s')}),
@@ -3150,10 +3217,10 @@ function tagField(dim,store,prefix){
     if(!sel.length)sum.appendChild(el('span',{class:'tf-none',text:prefix?'Pick tags to add':'Not set'}));
     else sel.forEach(function(v){sum.appendChild(el('span',{class:'tf-chip',text:v}))});
   }
-  var vocab=dim.vocab.slice();Object.keys(store).forEach(function(v){if(vocab.indexOf(v)<0)vocab.push(v)});
+  var buttons=[],single=dim.key==='stretch',vocab=dim.vocab.slice();Object.keys(store).forEach(function(v){if(vocab.indexOf(v)<0)vocab.push(v)});
   vocab.forEach(function(v){
-    var b=chip(cap(v),!!store[v],function(){store[v]=!store[v];b.setAttribute('aria-pressed',store[v]?'true':'false');paint()});
-    box.appendChild(b);
+    var b=chip(cap(v),!!store[v],function(){var next=!store[v];if(single)Object.keys(store).forEach(function(k){delete store[k]});store[v]=next;buttons.forEach(function(entry){entry.button.setAttribute('aria-pressed',store[entry.value]?'true':'false')});paint()});
+    buttons.push({value:v,button:b});box.appendChild(b);
   });
   det.appendChild(sum);det.appendChild(box);paint();
   return det;
@@ -3208,8 +3275,7 @@ function itemForm(it){
   var lheel=el('label',null,'Heel height (inches)',heel);
   var nodes={},singleSel={};
   DIMS.forEach(function(dim){
-    if(dim.key==='stretch')nodes.stretch=group('Stretch',dim.vocab,d.stretch,false,true);
-    else if(dim.multi){nodes[dim.key]=tagField(dim,d[dim.key])}
+    if(dim.multi){nodes[dim.key]=tagField(dim,d[dim.key])}
     else{
       var s=el('select',{'aria-label':dim.label});singleSel[dim.key]=s;
       nodes[dim.key]=el('label',null,dim.label,s);
@@ -3241,7 +3307,7 @@ function itemForm(it){
   var shoeSockSel=el('select',{'aria-label':'Socks with these shoes'});
   [['','Automatic (by shoe type)'],['none','Never'],['thin','Thin or sheer only'],['any','Any weight']].forEach(function(o){shoeSockSel.appendChild(el('option',{value:o[0],text:o[1],selected:o[0]===(it.socksOk||'')?'selected':false}))});
   var socksRequired=el('input',{type:'checkbox'});socksRequired.checked=!!it.socksRequired;
-  var shoeSockNode=el('div',null,el('label',null,'Socks with these (for the Lab)',shoeSockSel),el('label',null,socksRequired,' Requires socks'));
+  var shoeSockNode=el('div',null,el('label',null,'Socks with these (for the Lab)',shoeSockSel),el('label',{title:'The Lab currently suggests socks for this requirement; hosiery matching is being reviewed.'},socksRequired,' Socks/hosiery required'));
   var nuBox=el('select',{'aria-label':'Layering requirement'});
   [['none','Not required'],['under','Required underneath'],['over','Required over it'],['either','Required — underneath or over is fine']].forEach(function(o){nuBox.appendChild(el('option',{value:o[0],text:o[1],selected:o[0]===layerNeed(it)?'selected':false}))});
   var fnBox=el('input',{type:'checkbox'});fnBox.checked=!!it.functional;
@@ -3335,7 +3401,7 @@ function openBackgroundPreview(it,source,onSaved){
     if(!blob||saving)return;saving=true;d.dataset.navigationBusy='true';keep.disabled=true;cancel.disabled=true;status.textContent='Saving a separate cutout…';
     state.assets.upload(blob).then(function(up){
       var current=byId()[it.id]||it,photos=piecePhotos(current).filter(function(p){return p.photoId}).map(photoRecord);
-      if(photos.length>=10)throw new Error('This piece already has 10 photos.');
+      if(photos.length>=12)throw new Error('This piece already has 12 photos.');
       var p={photoId:up.id,ar:source.ar||it.ar,kind:source.kind==='model'||source.kind==='scene'?source.kind:'isolated',cutout:true,sourcePhotoId:source.photoId,processing:'rembg-u2net-mask'};
       photos.push(p);return savePhotoViews(current,photos,p).then(function(ok){if(!ok)throw new Error('Could not save the cutout.');Object.assign(it,current);return p});
     }).then(function(p){saving=false;d.close();toast('Cutout saved. Original kept, stitch for stitch.');onSaved(p.photoId)}).catch(function(e){saving=false;d.dataset.navigationBusy='false';keep.disabled=false;cancel.disabled=false;status.textContent=e.message||'Could not save the cutout. Your original is unchanged.'});
@@ -3374,11 +3440,11 @@ function piecePhotoPanel(it,onChange,swatches){
     var backgroundAvailable=false,tools=el('div',{class:'photo-view-tools'}),kind=el('select',{class:'sel','aria-label':'Thumbnail framing',title:'Only changes the thumbnail crop; the full photo stays available.'}),main=el('button',{class:'btn small',type:'button',text:'Make main photo'}),remove=el('button',{class:'btn small',type:'button',text:'Remove background'}),note=el('p',{class:'fine',role:'status'});
     [['contain','Show whole photo'],['cover','Fill and crop']].forEach(function(o){kind.appendChild(el('option',{value:o[0],text:o[1]}))});kind.value=photoFraming(photos[0]);
     function refresh(id){var fresh=byId()[it.id]||it;Object.assign(it,fresh);var replaceTools=node.querySelector('.photo-replace-tools'),next=piecePhotoPanel(it,onChange,swatches);if(replaceTools)next.querySelector('.photo-options-body').appendChild(replaceTools);node.replaceWith(next);if(id){var b=next.querySelector('[data-photo-key="'+id+'"]');if(b)b.click()}}
-    var baseChoose=choose;choose=function(i){baseChoose(i);kind.value=photoFraming(photos[i]);main.disabled=photos[i].photoId===it.photoId;remove.disabled=!backgroundAvailable||!photos[i].photoId||!!photos[i].cutout||photos.length>=10};
+    var baseChoose=choose;choose=function(i){baseChoose(i);kind.value=photoFraming(photos[i]);main.disabled=photos[i].photoId===it.photoId;remove.disabled=!backgroundAvailable||!photos[i].photoId||!!photos[i].cutout||photos.length>=12};
     kind.addEventListener('change',function(){var ps=photos.filter(function(p){return p.photoId}).map(photoRecord);if(!photos[selected].photoId)return;ps.forEach(function(p){if(p.photoId===photos[selected].photoId)p.framing=kind.value});savePhotoViews(it,ps,null).then(function(ok){if(ok)refresh(photos[selected].photoId)})});
     main.addEventListener('click',function(){savePhotoViews(it,photos.filter(function(p){return p.photoId}),photos[selected]).then(function(ok){if(ok){toast('Main photo updated');refresh(it.photoId)}})});
     remove.addEventListener('click',function(){openBackgroundPreview(it,Object.assign({},photos[selected]),refresh)});
-    var add=el('input',{type:'file',accept:'image/*',class:'hide','aria-label':'Add another photo'}),addButton=el('button',{class:'btn small',type:'button',text:'Add photo',disabled:photos.length>=10,onclick:function(){add.click()}});
+    var add=el('input',{type:'file',accept:'image/*',class:'hide','aria-label':'Add another photo'}),addButton=el('button',{class:'btn small',type:'button',text:'Add photo',disabled:photos.length>=12,onclick:function(){add.click()}});
     add.addEventListener('change',function(){var file=add.files&&add.files[0];if(!file)return;addButton.disabled=true;readImage(file).then(function(r){return state.assets.upload(r.blob).then(function(up){var ps=photos.filter(function(p){return p.photoId}).map(photoRecord);ps.push({photoId:up.id,ar:r.ar,kind:'unclassified'});return savePhotoViews(it,ps,it.photoId?null:ps[ps.length-1]).then(function(ok){if(ok)refresh(up.id)})})}).catch(function(e){toast(e.message||'Could not add photo')}).finally(function(){addButton.disabled=false})});
     tools.append(el('label',{class:'photo-kind-field'},'Thumbnail framing',kind),main,addButton,remove,add);var options=el('details',{class:'photo-options'},el('summary',{text:'Photo options'}),el('div',{class:'photo-options-body'},tools,note));node.append(options);choose(0);
     window.ClosetLintRuntime.backgroundStatus().then(function(s){backgroundAvailable=!!s.available;choose(selected);if(!s.available){remove.disabled=true;remove.title='Optional local setup required; see docs/PHOTOS.md';note.textContent='Background removal isn’t set up on this computer yet.'}}).catch(function(){remove.disabled=true;note.textContent='Local photo service unavailable.'});
@@ -3391,15 +3457,17 @@ function tidyPhotoCandidates(items,ids,onlyMissing){
   var wanted=ids&&new Set(ids),seen=new Set(),out=[];
   items.forEach(function(it){
     if(it.removed||(wanted&&!wanted.has(it.id)))return;
-    var photos=piecePhotos(it),source=photos.find(function(p){return p.photoId&&!p.cutout});
-    if(!source||photos.filter(function(p){return p.photoId}).length>=10)return;
-    if(it.tidySkippedSourcePhotoId===source.photoId)return;
-    if(onlyMissing&&photos.some(function(p){return p.cutout&&p.sourcePhotoId===source.photoId}))return;
+    var photos=piecePhotos(it),history=it.photos||[],source=photos.filter(function(p){return p.photoId&&!p.cutout}).sort(function(a,b){
+      function order(p){var n=history.findIndex(function(v){return v.photoId===p.photoId});return n<0?history.length:n}
+      return order(b)-order(a);
+    }).find(function(p){return !p.tidySkipped&&it.tidySkippedSourcePhotoId!==p.photoId&&(!onlyMissing||!photos.some(function(v){return v.cutout&&v.sourcePhotoId===p.photoId}))});
+    if(!source||photos.filter(function(p){return p.photoId}).length>=12)return;
     var key=it.id+':'+source.photoId;if(seen.has(key))return;seen.add(key);out.push({itemId:it.id,name:it.name,source:source});
   });return out;
 }
 function tidyPhotoScopeIds(items,value,collections,picked){
   if(value==='selected')return picked;
+  if(value.indexOf('section:')===0)return items.filter(function(it){return sectionOf(it)===value.slice(8)}).map(function(it){return it.id});
   if(value.indexOf('collection:')===0)return (collections.find(function(c){return c.id===value.slice(11)})||{ids:[]}).ids;
   if(value.indexOf('category:')===0)return items.filter(function(it){return it.meta===value.slice(9)}).map(function(it){return it.id});
   if(value.indexOf('type:')===0){var parts=value.slice(5).split('|');return items.filter(function(it){return it.meta===parts[0]&&it.sub===parts[1]}).map(function(it){return it.id})}
@@ -3450,7 +3518,7 @@ function createTidyQueue(candidates,services){
 function openTidyPhotos(){
   var runtime=window.ClosetLintRuntime;
   if(!runtime||!runtime.removeBackground||!state.assets||!state.db){toast('Open your local Closet Lint server to tidy photos.');return}
-  var d=el('dialog',{class:'tidy-photos','aria-label':'Tidy photos'}),q=null,urls=[],closed=false;
+  var d=el('dialog',{class:'tidy-photos','aria-label':'Tidy photos'}),q=null,urls=[],closed=false,paintedPage=null;
   var body=el('div'),status=el('p',{role:'status',class:'fine',text:'Checking local photo tools…'}),close=el('button',{class:'btn',type:'button',text:'Close'});
   function free(){urls.forEach(function(url){URL.revokeObjectURL(url)});urls=[]}
   function finish(){
@@ -3468,18 +3536,21 @@ function openTidyPhotos(){
     if(picked.length)scope.appendChild(el('option',{value:'selected',text:'Selected pieces ('+picked.length+')'}));
     scope.appendChild(el('option',{value:'all',text:'All pieces with photos'}));
     collections.forEach(function(c){scope.appendChild(el('option',{value:'collection:'+c.id,text:c.name}))});
-    var available=tidyPhotoCandidates(items,null,false),eligible=new Set(available.map(function(row){return row.itemId}));
+    var eligible=new Set(items.filter(function(it){return !it.removed&&piecePhotos(it).some(function(p){return p.photoId&&!p.cutout})}).map(function(it){return it.id}));
+    var sections=el('optgroup',{label:'Closet sections'});
+    SECTIONS.forEach(function(section){if(items.some(function(it){return eligible.has(it.id)&&sectionOf(it)===section[0]}))sections.appendChild(el('option',{value:'section:'+section[0],text:'All '+section[1]}))});
+    if(sections.children.length)scope.appendChild(sections);
     var categories=[...new Set(items.filter(function(it){return eligible.has(it.id)}).map(function(it){return it.meta}).filter(Boolean))].sort();
     categories.forEach(function(meta){
-      scope.appendChild(el('option',{value:'category:'+meta,text:'Category: '+meta}));
+      var group=el('optgroup',{label:meta});group.appendChild(el('option',{value:'category:'+meta,text:'All '+meta}));
       var types=[...new Set(items.filter(function(it){return eligible.has(it.id)&&it.meta===meta}).map(function(it){return it.sub}).filter(Boolean))].sort();
-      if(types.length){var group=el('optgroup',{label:meta+' types'});types.forEach(function(sub){group.appendChild(el('option',{value:'type:'+meta+'|'+sub,text:sub}))});scope.appendChild(group)}
+      types.forEach(function(sub){group.appendChild(el('option',{value:'type:'+meta+'|'+sub,text:sub}))});scope.appendChild(group);
     });
     var only=el('input',{type:'checkbox',checked:true}),count=el('p',{class:'fine'}),go=el('button',{class:'btn primary',type:'button',text:'Prepare first 12'}),candidates=[];
     function countIt(){var ids=tidyPhotoScopeIds(items,scope.value,collections,picked);candidates=tidyPhotoCandidates(items,ids,only.checked);count.textContent=candidates.length+' photos ready to tidy. Review up to 12 at a time.';go.disabled=!candidates.length}
     scope.addEventListener('change',countIt);only.addEventListener('change',countIt);
     go.addEventListener('click',function(){free();q=createTidyQueue(candidates,{remove:runtime.removeBackground,save:saveResult,skip:skipResult,change:paint});q.total=candidates.length;q.next()});
-    body.append(el('p',{text:'Clear a little visual clutter. Originals stay put, and nothing is saved until you choose a cutout and continue.'}),el('label',{class:'tidy-scope'},'Choose pieces',scope),el('label',null,only,' Skip photos that already have a background-removed version'),count,go);status.textContent='Local background removal';countIt();
+    body.append(el('p',{text:'Clear a little visual clutter. Originals stay put, and nothing is saved until you save your choices.'}),el('label',{class:'tidy-scope'},'Choose pieces',scope),el('label',null,only,' Skip photos that already have a background-removed version'),count,go);status.textContent='Local background removal';countIt();d.scrollTop=0;
   }
   async function saveResult(row,makeMain){
     var current=byId()[row.itemId];if(!current||current.removed)throw new Error('This piece is no longer available.');
@@ -3487,7 +3558,7 @@ function openTidyPhotos(){
     if(!photos.some(function(p){return p.photoId===row.source.photoId}))throw new Error('The source photo changed. Reopen cleanup to use the current photo.');
     var existing=row.upload&&photos.find(function(p){return p.photoId===row.upload.id});
     if(existing){if(makeMain&&!await savePhotoViews(current,photos,existing))throw new Error('Could not update the main photo.');return}
-    if(photos.length>=10)throw new Error('This piece already has 10 photos.');
+    if(photos.length>=12)throw new Error('This piece already has 12 photos.');
     if(!row.upload)row.upload=await state.assets.upload(row.blob);
     var ar=await new Promise(function(resolve,reject){var im=new Image(),url=URL.createObjectURL(row.blob);im.onload=function(){URL.revokeObjectURL(url);resolve(im.naturalWidth/im.naturalHeight)};im.onerror=function(){URL.revokeObjectURL(url);reject(new Error('Could not read this cutout.'))};im.src=url});
     var p={photoId:row.upload.id,ar:ar,kind:/^(model|scene)$/.test(row.source.kind)?row.source.kind:'isolated',cutout:true,sourcePhotoId:row.source.photoId,processing:'rembg-u2net-mask'};photos.push(p);
@@ -3495,12 +3566,14 @@ function openTidyPhotos(){
   }
   async function skipResult(row){
     var current=byId()[row.itemId];if(!current||current.removed)throw new Error('This piece is no longer available.');
-    if(current.tidySkippedSourcePhotoId===row.source.photoId)return;
-    if(!piecePhotos(current).some(function(p){return p.photoId===row.source.photoId}))throw new Error('The source photo changed. Reopen Tidy photos to review the new photo.');
-    if(!await patchEdit(current,{tidySkippedSourcePhotoId:row.source.photoId},true))throw new Error('Could not remember this choice. Try again.');
+    var photos=piecePhotos(current).filter(function(p){return p.photoId}).map(photoRecord),source=photos.find(function(p){return p.photoId===row.source.photoId});
+    if(!source)throw new Error('The source photo changed. Reopen Tidy photos to review the new photo.');
+    if(source.tidySkipped)return;
+    photos.forEach(function(p){if(p.photoId===current.tidySkippedSourcePhotoId)p.tidySkipped=true});source.tidySkipped=true;
+    if(!await patchEdit(current,{photos:photos,tidySkippedSourcePhotoId:row.source.photoId},true))throw new Error('Could not remember this choice. Try again.');
   }
   function paint(){
-    if(closed)return;body.textContent='';close.disabled=q.saving;d.dataset.navigationBusy=q.saving?'true':'false';
+    if(closed)return;var newPage=paintedPage!==q.page;paintedPage=q.page;body.textContent='';close.disabled=q.saving;d.dataset.navigationBusy=q.saving?'true':'false';
     var completed=q.page.filter(function(r){return !/^(waiting|processing)$/.test(r.status)}).length;
     status.textContent=q.running?'Preparing '+completed+' of '+q.page.length+' photos…':'Photos '+(q.cursor-q.page.length+1)+'–'+q.cursor+' of '+q.total+' · '+q.savedTotal+' cutouts saved so far.';
     body.appendChild(el('p',{class:'tidy-instructions',text:'Choose Cutout to save it as the main photo. Leave Original selected to keep it and stop suggesting this photo in Tidy photos. You can still try background removal from the piece page.'}));
@@ -3517,12 +3590,21 @@ function openTidyPhotos(){
       tile.appendChild(pair);if(note)tile.appendChild(note);grid.appendChild(tile);
     });body.appendChild(grid);
     var n=q.page.filter(function(r){return r.status==='ready'&&r.checked}).length,more=q.cursor<q.total;
-    var next=el('button',{class:'btn primary',type:'button',text:n?'Save '+n+' cutout'+(n===1?'':'s')+(more?' and continue':' and finish'):more?'Keep originals and continue':'Keep originals and finish',disabled:q.running||q.saving,onclick:async function(){
-      if(n){var result=await q.keep();if(closed||!q)return;if(result.failed){status.textContent=result.saved+' saved; '+result.failed+' could not be saved. Check the message on those photos, then retry.';return}}
-      var skipped=await q.skip();if(closed||!q)return;if(skipped.failed){status.textContent=skipped.failed+' original choice'+(skipped.failed===1?'':'s')+' could not be remembered. Check the message on those photos, then retry.';return}
-      var saved=q.savedTotal,keptOriginals=q.skippedTotal;free();if(more)q.next();else{q.cancel();q=null;chooseScope();toast((saved?saved+' cutout'+(saved===1?'':'s')+' saved as main photos. ':'')+(keptOriginals?keptOriginals+' original'+(keptOriginals===1?'':'s')+' kept and no longer suggested here.':saved?'':'No cutouts saved. Your originals are unchanged.'))}
-    }});body.appendChild(el('div',{class:'tidy-bottom'},next));
+    async function saveBatch(andClose){
+      if(q.running||q.saving||closed)return;
+      if(n){var result=await q.keep();if(closed||!q)return;if(result.failed){status.textContent=result.saved+' saved; '+result.failed+' could not be saved. Check the message on those photos, then retry.';d.scrollTop=0;return}}
+      var skipped=await q.skip();if(closed||!q)return;if(skipped.failed){status.textContent=skipped.failed+' original choice'+(skipped.failed===1?'':'s')+' could not be remembered. Check the message on those photos, then retry.';d.scrollTop=0;return}
+      var saved=q.savedTotal,keptOriginals=q.skippedTotal;
+      if(andClose){closed=true;q.cancel();free();d.close()}
+      else{free();q.next()}
+      if(andClose)toast((saved?saved+' cutout'+(saved===1?'':'s')+' saved as main photos. ':'')+(keptOriginals?keptOriginals+' original'+(keptOriginals===1?'':'s')+' kept and no longer suggested here.':saved?'':'No cutouts saved. Your originals are unchanged.'));
+    }
+    var next=more?el('button',{class:'btn',type:'button',text:n?'Save '+n+' cutout'+(n===1?'':'s')+' and continue':'Keep originals and continue',disabled:q.running||q.saving,onclick:function(){return saveBatch(false)}}):null;
+    var saveClose=el('button',{class:'btn primary',type:'button',text:'Save and close',disabled:q.running||q.saving,onclick:function(){return saveBatch(true)}});
+    body.appendChild(el('div',{class:'tidy-bottom'},next,saveClose));
+    if(newPage)d.scrollTop=0;
   }
+
   runtime.backgroundStatus().then(function(s){if(closed)return;if(s.available)chooseScope();else status.textContent='Background removal isn’t set up on this computer yet. See the optional setup in the photo help.'}).catch(function(e){if(!closed)status.textContent=e.message||'The local photo service is unavailable.'});
 }
 
@@ -3531,7 +3613,7 @@ function openEdit(it){
   var f=itemForm(it);
   var bought=[it.source,it.order?'order '+it.order:'',it.qty>1?'quantity '+it.qty:'',/^\d{4}-\d{2}-\d{2}$/.test(it.date||'')&&!it.wish?'purchased '+it.date:''].filter(Boolean).join(' \u00b7 ');
   var secrow=el('div',{class:'secrow piece-actions'},
-    el('button',{class:'btn',type:'button',text:it.hidden?'Unhide':'Hide',onclick:function(){setHidden(it,!it.hidden)}}),
+    el('button',{class:'btn',type:'button',text:it.hidden?'🙉 Unhide':'🙈 Hide',onclick:function(){setHidden(it,!it.hidden)}}),
     el('button',{class:'btn',type:'button',text:it.donate?'Keep (unflag)':'\uD83D\uDCE6 Donate?',title:it.donate?'Take off the donation list':'Flag this piece as a donation candidate',onclick:function(){patchEdit(it,{donate:!it.donate},true).then(function(ok){if(ok){toast(it.donate?'\u2713 Off the donation list':'\u2713 Flagged for donation');closeDlg()}})}}),
     it.stored?null:el('button',{class:'btn',type:'button',text:'\uD83D\uDDC4\uFE0F To storage',title:'Put this piece in storage',onclick:function(){openStoreDialog([it.id],'')}}),
     el('button',{class:'btn danger',type:'button',text:it.customId?'🗑️ Delete piece':"🗑️ I don't own this",onclick:function(){removeForGood(it)}}),
@@ -3673,7 +3755,7 @@ function openSplit(it){
 function photoRow(it,form){
   if(!state.assets||!state.db)return null;
   function upload(fl){
-    if(piecePhotos(it).filter(function(p){return p.photoId}).length>=10){toast('This piece already has 10 photos.');return Promise.resolve(false)}
+    if(piecePhotos(it).filter(function(p){return p.photoId}).length>=12){toast('This piece already has 12 photos.');return Promise.resolve(false)}
     /* take whatever is typed into the form too, so adding a photo never throws away unsaved changes */
     var vals=form?form.read():null,bad=!!form&&!vals;
     if(vals){
@@ -3686,7 +3768,7 @@ function photoRow(it,form){
       return state.assets.upload(r.blob).then(function(up){
         var obj=Object.assign({},state.edits[it.id]||{},vals||{});
         if(vals){delete obj.hidden;obj.guess=false;flashIds([it.id])}
-        var history=piecePhotos(it).filter(function(p){return p.photoId}).map(photoRecord);if(history.length>=10)throw new Error('This piece already has 10 photos.');history.push({photoId:up.id,ar:r.ar,kind:'unclassified'});obj.photos=history;obj.photoId=up.id;obj.ar=Math.round(r.ar*10000)/10000;obj.bg='';obj.noPhoto=false;
+        var history=piecePhotos(it).filter(function(p){return p.photoId}).map(photoRecord);if(history.length>=12)throw new Error('This piece already has 12 photos.');history.push({photoId:up.id,ar:r.ar,kind:'unclassified'});obj.photos=history;obj.photoId=up.id;obj.ar=Math.round(r.ar*10000)/10000;obj.bg='';obj.noPhoto=false;
         return state.db.collection('edits').doc(it.id).set(obj);
       });
     }).then(function(){
@@ -5794,6 +5876,7 @@ function initMobileUI(){
 /* BEGIN SETUP (source: app/scripts/setup.js) */
 /* Setup and small DIY imports. Embedded into the portable HTML by tools/sync_setup.py. */
 var setupSession=null,setupAutoChecked=false,setupLoaded={};
+var SETUP_MAX_PHOTOS=12;
 var SETUP_GOALS=[['rediscover','🧺','Wear more of what I own','Browse your own little shop. Find the things you forgot you loved.'],['outfits','🧑‍🔬','Play with outfit ideas','Try combinations for an event, a mood, or a regular Tuesday.'],['wishlist','✨','Figure out what to buy','Keep your wishlist beside your clothes and see what earns its place.'],['trips','🧳','Pack with less guesswork','Build looks for a trip and turn them into a packing list.']];
 function setupShouldOpen(loaded,hasPieces,profile,isPublic,hasStorage){return !!(loaded.custom&&loaded.profile&&hasStorage&&!isPublic&&!hasPieces&&!(profile&&profile.started));}
 function maybeStartSetup(){
@@ -5834,23 +5917,27 @@ function setupPhotoURL(value){
 }
 function setupImageList(value){
   if(!Array.isArray(value))return [];
-  var seen=new Set();return value.slice(0,12).filter(function(x){return x&&typeof x==='object'&&typeof x.url==='string'}).map(function(x){return {url:setupText(x.url,2000),kind:['isolated','model','scene','flatlay','display','detail','unclassified','recast'].indexOf(x.kind)>=0?x.kind:'unclassified'}}).filter(function(x){if(!x.url||seen.has(x.url))return false;seen.add(x.url);return true});
+  var seen=new Set();return value.filter(function(x){return x&&typeof x==='object'&&typeof x.url==='string'}).map(function(x){return {url:setupText(x.url,2000),kind:['isolated','model','scene','flatlay','display','detail','unclassified','recast'].indexOf(x.kind)>=0?x.kind:'unclassified'}}).filter(function(x){if(!x.url||seen.has(x.url))return false;seen.add(x.url);return true});
 }
 function setupParse(text,existing){
-  if(typeof text!=='string'||text.length>1024*1024)throw Error('Use a small JSON file (under 1 MB). Start with around ten pieces.');
+  if(typeof text!=='string'||new TextEncoder().encode(text).length>1024*1024)throw Error('Use a small JSON file (under 1 MB). Start with around ten pieces.');
   text=text.trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');
-  var data;try{data=JSON.parse(text)}catch(e){throw Error('That is not readable JSON yet. Ask your assistant for just the JSON export, then paste it here.');}
+  var data;try{data=JSON.parse(text)}catch(e){throw Error('That is not readable JSON yet. It may be incomplete. Copy the whole prepared block, or ask your assistant for a downloadable .json file.');}
+  if(data&&(!data.format&&(data.collections||data.documents||data.backup))){throw Error('This is a backup, not a piece import. Use the separate restore tool to restore a whole wardrobe.');}
   if(!data||data.format!=='closet-lint-import/v1'||!Array.isArray(data.pieces))throw Error('Use the Closet Lint format from the prompt: {"format":"closet-lint-import/v1","pieces":[…]}.');
-  if(!data.pieces.length||data.pieces.length>50)throw Error('Import 1–50 pieces at a time. Around ten is a good first batch.');
+  if(!data.pieces.length||data.pieces.length>50)throw Error('Import 1–50 pieces at a time. This file has '+data.pieces.length+' pieces. Nothing was loaded or cut.');
   var seen=(existing||[]).filter(function(it){return !it.removed}).slice();
   return data.pieces.map(function(raw,i){
+    if(raw&&Array.isArray(raw.imageSources)&&raw.imageSources.length>12)throw Error('Piece '+(i+1)+': use at most 12 alternate photo sources.');
+    if(raw&&Array.isArray(raw.images)&&raw.images.length>SETUP_MAX_PHOTOS)throw Error('Piece '+(i+1)+': use at most 12 saved photos. Nothing was cut.');
     if(!raw||typeof raw!=='object'||Array.isArray(raw))throw Error('Piece '+(i+1)+' must be an object with a name, category and status.');
     var p={name:setupText(raw.name,180),meta:META.indexOf(raw.category)>=0?raw.category:'',sub:setupText(raw.subcategory,80),size:setupText(raw.size,60),source:setupText(raw.retailer,120),url:setupText(raw.url,2000),status:['owned','wishlist'].indexOf(raw.status)>=0?raw.status:'',variant:setupText(raw.variant,180),photoUrl:setupText(raw.photoUrl,2000),photoFile:setupText(raw.photoFile,180),price:raw.price===null||raw.price===undefined?'':String(raw.price),colors:[],seasons:[],styles:[],looks:[]};
     if((SUBS[p.meta]||[]).indexOf(p.sub)<0)p.sub='';
-    Object.assign(p,setupTags(raw));p.images=setupImageList(raw.images);p.imageSources=setupImageList(raw.imageSources);p.priceNote=setupText(raw.priceNote,300);p.originalTitle=setupText(raw.originalTitle,600);p.listingDetails=setupText(raw.listingDetails,6000);
+    Object.assign(p,setupTags(raw));p.images=setupImageList(raw.images);p.imageSources=setupImageList(raw.imageSources);p.priceNote=setupText(raw.priceNote,300);p.date=setupText(raw.date,40);p.currency=setupText(raw.currency,8);p.fitsLike=setupText(raw.fitsLike,60);
+    p.localPhotoFiles=(Array.isArray(raw.images)?raw.images:[]).filter(function(x){return x&&typeof x.file==='string'}).map(function(x){return x.file});if(p.photoFile)p.localPhotoFiles.unshift(p.photoFile);p.originalTitle=setupText(raw.originalTitle,600);p.listingDetails=setupText(raw.listingDetails,6000);
     [['labAs',['top','layer','either','under']],['layerNeed',['none','under','over','either']],['weight',['thin','regular','thick']]].forEach(function(pair){if(pair[1].indexOf(raw[pair[0]])>=0)p[pair[0]]=raw[pair[0]]});
     var match=seen.find(function(it){return setupMatches(p,it)}),duplicate=!!match;seen.push(p);
-    return {piece:p,selected:!duplicate,duplicate:duplicate,match:match&&match.id?match:null,action:'add',saved:false,id:null,error:''};
+    return {piece:p,selected:!duplicate,duplicate:duplicate,match:match&&match.id?match:null,action:duplicate?'skip':'add',saved:false,id:null,error:'',attempted:false,compare:false,photoDecision:(p.localPhotoFiles.length||(!p.photoUrl&&!p.images.length))?'needed':'source',photoErrors:{}};
   });
 }
 function setupRecord(p){
@@ -5858,7 +5945,10 @@ function setupRecord(p){
   if(META.indexOf(p.meta)<0)throw Error('Choose a category.');
   if(['owned','wishlist'].indexOf(p.status)<0)throw Error('Choose Owned or Wishlist.');
   var kind=deriveKind(p.meta,p.sub,'clothing'),size=validateSize(kind,p.size);if(!size.ok)throw Error(size.msg);
-  var record={name:p.name.trim(),meta:p.meta,sub:(SUBS[p.meta]||[]).indexOf(p.sub)>=0?p.sub:'',size:size.v,sizeKind:kind,source:p.source.trim()||'DIY import',url:setupURL(p.url),wish:p.status==='wishlist',noPhoto:true,guess:true,ar:1,date:todayStr(),colors:p.colors.slice(),seasons:p.seasons.slice(),styles:p.styles.slice(),looks:p.looks.slice()};
+  var record={name:p.name.trim(),meta:p.meta,sub:(SUBS[p.meta]||[]).indexOf(p.sub)>=0?p.sub:'',size:size.v,sizeKind:kind,source:p.source.trim()||'DIY import',url:setupURL(p.url),wish:p.status==='wishlist',noPhoto:true,guess:true,ar:1,date:p.date||todayStr(),colors:p.colors.slice(),seasons:p.seasons.slice(),styles:p.styles.slice(),looks:p.looks.slice()};
+  if(p.date&&!setupValidDate(p.date))throw Error('Use a valid date in YYYY-MM-DD format, or leave it blank.');
+  if(p.price!==''&&p.currency&&p.currency!=='USD')throw Error('Only confirmed USD prices are supported. Leave this price blank rather than converting it.');
+  if(p.fitsLike)record.fitsLike=p.fitsLike;
   if(p.price!==''){var price=Number(p.price);if(!/^\d+(?:\.\d{1,2})?$/.test(p.price)||!Number.isFinite(price)||price<0)throw Error('Price should be a USD amount like 12.50, or blank.');record.price=price;}
   Object.assign(record,setupTags(p));if(p.variant)record.variant=p.variant;if(p.priceNote)record.priceNote=p.priceNote;if(p.originalTitle)record.title=p.originalTitle;if(p.listingDetails)record.listingDetails=p.listingDetails;if(p.imageSources&&p.imageSources.length)record.imageSources=p.imageSources.map(function(x){return {url:setupPhotoURL(x.url),kind:x.kind}});
   [['labAs',['top','layer','either','under']],['layerNeed',['none','under','over','either']],['weight',['thin','regular','thick']]].forEach(function(pair){if(pair[1].indexOf(p[pair[0]])>=0)record[pair[0]]=p[pair[0]]});
@@ -5866,139 +5956,378 @@ function setupRecord(p){
 }
 async function setupWriteRows(rows,write,batch,progress){
   var selected=rows.filter(function(r){return r.selected&&!r.saved}),prepared=[];
-  selected.forEach(function(r){r.error='';try{if(r.action==='owned'){if(!r.match||!r.match.id||!r.match.wish)throw Error('Choose an existing wishlist match first.');prepared.push([r,{wish:false}])}else{if(r.piece.photoUrl)setupPhotoURL(r.piece.photoUrl);(r.piece.images||[]).forEach(function(x){setupPhotoURL(x.url)});prepared.push([r,setupRecord(r.piece)])}}catch(e){r.error=e.message}});
+  selected.forEach(function(r){r.error='';try{
+    var issue=setupRowIssue(r);if(issue)throw Error(issue);
+    prepared.push([r,r.action==='owned'?(r.promotionPatch&&r.match&&!r.match.wish?{wish:false}:setupPromotion(r.match,r.piece)):setupRecord(r.piece)]);
+  }catch(e){r.error=e.message}});
   if(selected.some(function(r){return r.error}))return {saved:0,failed:0,invalid:true};
   var saved=0,failed=0;
   for(var i=0;i<prepared.length;i++){
     var row=prepared[i][0],record=prepared[i][1];if(!row.id)row.id='imp-'+batch+'-'+rows.indexOf(row);
-    record.importBatch=batch;
-    try{await write(row.id,record,row);row.saved=true;row.selected=false;saved++;}catch(e){row.error=(e&&e.message?e.message+' ':'')+'Retry this piece; successful rows will not be added again.';failed++;}
+    if(row.action!=='owned')record.importBatch=batch;
+    row.attempted=true;
+    try{await write(row.id,record,row);row.saved=true;row.selected=false;saved++;}catch(e){row.error=(e&&e.message?e.message+' ':'')+'Successful pieces stay saved. Retry the remaining pieces while this window is open.';failed++;}
     if(progress)progress(saved,failed,i+1,prepared.length);
+    if(failed)break;
   }
   return {saved:saved,failed:failed,invalid:false};
 }
+function setupValidDate(value){return /^\d{4}-\d{2}-\d{2}$/.test(value)&&!isNaN(Date.parse(value+'T12:00:00Z'))&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value;}
+function setupPromotion(current,piece){
+  if(!current||!current.id||!current.wish||current.removed)throw Error('Choose an existing wishlist match first.');
+  var incoming=setupRecord(piece),patch={wish:false};
+  ['size','price','url','date'].forEach(function(k){if((current[k]===undefined||current[k]===null||current[k]==='')&&incoming[k]!==undefined&&incoming[k]!==''&&(k!=='date'||piece.date))patch[k]=incoming[k]});
+  if(patch.size)patch.sizeKind=incoming.sizeKind;
+  return patch;
+}
+function setupRowIssue(row){
+  if(row.saved||!row.selected)return '';
+  var tagError=Object.values(row.tagErrors||{}).find(Boolean);if(tagError)return tagError;
+  if(row.loadingPhoto)return 'Wait for this photo to finish processing.';
+  try{
+    if(row.action==='owned'){if(row.promotionPatch&&row.match&&!row.match.wish)return '';setupPromotion(row.match,row.piece);return '';}
+    if(row.duplicate&&row.action!=='add')return 'Compare this piece and choose what to do.';
+    setupRecord(row.piece);
+    if(row.photoDecision==='needed')return 'Choose a photo, add without a photo, or skip this piece.';
+    if(Object.keys(row.photoErrors||{}).some(function(k){return row.photoErrors[k]}))return 'A photo is unavailable. Attach one, add without a photo, or remove that view.';
+    if(row.piece.photoUrl)setupPhotoURL(row.piece.photoUrl);
+    (row.piece.images||[]).forEach(function(x){setupPhotoURL(x.url)});
+    var urls=new Set((row.piece.images||[]).map(function(x){return x.url}));
+    if(row.photo||(row.piece.photoUrl&&!urls.has(row.piece.photoUrl)))urls.add('__primary');
+    if(urls.size>SETUP_MAX_PHOTOS)return 'Use at most 12 saved photos per piece.';
+  }catch(e){return e.message;}
+  return '';
+}
+function setupCounts(rows){
+  var c={added:0,owned:0,add:0,promote:0,skipped:0,remaining:0,blocked:0,matches:0,ready:0};
+  rows.forEach(function(r){if(r.duplicate)c.matches++;if(r.saved){c[r.action==='owned'?'owned':'added']++;return}if(!r.selected){c.skipped++;return}c.remaining++;if(setupRowIssue(r))c.blocked++;else c.ready++;c[r.action==='owned'?'promote':'add']++});return c;
+}
+function setupSaveLabel(c){return [c.add?'Add '+c.add+' piece'+(c.add===1?'':'s'):'',c.promote?'mark '+c.promote+' owned':''].filter(Boolean).join(' and ').replace(/^mark/,'Mark')||'Add pieces';}
+function setupStorage(){
+  if(state.pub)return {direct:false,label:'this browser, for this site address',note:'Imported pieces stay in this browser on this site. They do not change the public demo.'};
+  var runtime=typeof window!=='undefined'&&window.ClosetLintLocal;
+  return runtime?{direct:true,label:'the wardrobe used by this installation',note:''}:{direct:false,label:'this browser, for this site address',note:'Pieces will be saved in this browser for this site address.'};
+}
+function setupRemember(s){try{localStorage.setItem('closetlint.import-preferences.v1',JSON.stringify({store:s.store.slice(0,120),route:s.route}))}catch(e){}}
+function setupNewSession(step){
+  var prefs={};try{prefs=JSON.parse(localStorage.getItem('closetlint.import-preferences.v1')||'{}')||{}}catch(e){}
+  var end=todayStr(),start=new Date(end+'T12:00:00Z');start.setUTCDate(start.getUTCDate()-6);
+  return {step:step||'hub',route:setupStorage().direct&&prefs.route==='direct'?'direct':'file',method:'emails',store:setupText(prefs.store,120),from:start.toISOString().slice(0,10),through:end,count:10,links:'',page:'',pageKind:'orders',ownership:'decide',notes:'',text:'',rows:[],busy:false,filter:'all',fileName:'',loaded:false,message:'',loadError:'',copyMessage:'',batch:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)};
+}
+function setupScopeError(s){
+  if(!Number.isInteger(Number(s.count))||Number(s.count)<1||Number(s.count)>50)return 'Choose a batch size from 1 to 50.';
+  if(s.method==='emails'&&(!setupValidDate(s.from)||!setupValidDate(s.through)||s.from>s.through))return 'Choose valid From and Through dates, with From no later than Through.';
+  if(s.method==='links'&&!s.links.trim())return 'Add at least one product link.';
+  if(s.method==='links'){try{s.links.split('\n').filter(function(x){return x.trim()}).forEach(setupURL)}catch(e){return e.message}}
+  if(s.method==='orders'&&s.page){try{setupURL(s.page)}catch(e){return e.message}}
+  return '';
+}
+function setupSummary(s){
+  var source=s.method==='emails'?'Check '+(s.store||'my selected stores')+' order emails from '+s.from+' through '+s.through+' (both dates, all day).':s.method==='orders'?'Read my selected '+(s.pageKind==='wishlist'?'wishlist':'order-history')+' page'+(s.page?' at '+s.page:'')+'.':s.method==='links'?'Work from the product links I selected.':'Work from the photos, screenshots, or list I attach in this conversation.';
+  return source+' Start with about '+s.count+' pieces. '+(s.route==='direct'?'Add verified new pieces to the wardrobe used by this Closet Lint installation, and report anything you cannot finish.':'Prepare an import file for me to review in Closet Lint.');
+}
 function setupPrompt(method){
-  var source={emails:'Help me turn selected clothing order emails into a small wardrobe import. Use only the emails or files I explicitly select. Use your email connector if available; first show me the matching orders and let me choose a batch. Otherwise work from the screenshots or exports I supply.',orders:'Help me turn selected items from my order-history pages or wishlist into a small wardrobe import. I will open the pages for your browser extension, or provide screenshots as a fallback. Work only with the pages and items I select.',files:'Help me turn my clothing photos, screenshots or spreadsheet into a small wardrobe import. Work only with the files and items I select.'}[method];
-  return source+'\n\nStart with about 10 pieces. Confirm whether I still own each piece or whether it is on my wishlist. Exclude cancelled/returned items unless I say I own them. Separate distinct variants; do not turn an order quantity into guessed separate pieces. Never invent a size, price, URL, ownership or feature. Use empty strings or empty arrays for unknown values. Use price only for a clearly known USD item price, without guessing discounts or converting currencies.\n\nReturn JSON only, using this shape:\n'+JSON.stringify({format:'closet-lint-import/v1',pieces:[{name:'Short descriptive piece name',category:'Tops',subcategory:'Tees',status:'owned',size:'',retailer:'',url:'',price:null,colors:[],seasons:[],styles:[],looks:[],pattern:[],material:[],kind:'',variant:'',photoUrl:'',photoFile:'',images:[],imageSources:[],labAs:'',layerNeed:'',weight:''}]},null,2)+'\n\nAllowed categories and subcategories:\n'+JSON.stringify(SUBS)+'\nColors: '+Object.keys(COLORS).join(', ')+'. Seasons: '+SEASONS.join(', ')+'. Occasions (styles): '+STYLES.join(', ')+'. Aesthetics (looks): '+LOOKS.join(', ')+'. Use these exact values only when supported by the source; leave uncertain tags empty.\n\nNo account credentials, names, addresses, payment details, order numbers, email headers or full emails in the export. Optional photoUrl must be a public https product image, never a tracking URL or account/order link. Alternatively photoFile can name a local image I will attach during review. Leave both blank if unavailable. If both isolated and on-model photos are available, images can contain up to 12 objects {url,kind} where kind is isolated, model, scene, flatlay, display, detail or unclassified. Prefer both a full-size model/scene view and a full-size isolated view when available. Do not substitute gallery thumbnails when a larger version exists. Verify downloaded pixel dimensions; preserve aspect ratio and cap the longest edge at 1600px without upscaling. Put the preferred main photo first. imageSources can preserve other gallery URLs for later. Never claim a model size that the listing does not state; generated recast images must be explicitly labeled recast. I will review every row inside Closet Lint before saving.';
+  var s=setupSession||setupNewSession('scope');if(method&&method!==s.method)s=Object.assign({},s,{method:method});
+  var common=setupSummary(s)+'\n\n'+(typeof window!=='undefined'&&window.location&&window.location.origin?'Closet Lint installation address: '+window.location.origin+(window.location.pathname||'/')+'. This address identifies the installation; it is not a wardrobe-folder path.\n\n':'')+(s.method==='links'?s.links+'\n\n':'')+(s.method==='emails'?'Use your email connector if available. The date range is inclusive; translate the end into the following day if your search uses an exclusive upper boundary. Choose the email account in our conversation. ':'')+
+    'Use only sources and tools I authorize. My notes below can restrict tools further (for example, Gmail connector only). If a source or tool is unavailable, report it and ask before substituting another. Do not modify emails, purchases, orders, or store wishlists. Separate actual purchases from ads and recommendations.\n\n'+
+    'These pieces are '+(s.ownership==='decide'?'to be classified as owned or wishlist from evidence; ask me when unclear':s.ownership)+'. Ask about uncertain ownership, sizes, prices, and variants together. Refunds and return notices do not prove that I no longer own a piece: I may keep, repair, or use it. Never remove, hide, stash, or change ownership automatically from a refund. Do not add cancelled purchases as owned without evidence I have them. Keep distinct variants separate; do not infer pieces from order quantity alone. Unknown values stay blank. Use only confirmed USD item prices, with no guessed discounts or conversions.\n\n'+
+    'Check for existing matches where you have wardrobe access; otherwise let Closet Lint review matches when I load the file. Prefer full-size photos of the exact variant, with model and isolated views where useful. A source link is not a saved photo. Keep originals; label AI-generated views recast. Save at most 12 photos per piece. Do not invent appearance, measurements, or listing details. Keep a concise name and the original listing title separately.\n\n'+
+    'Keep addresses, payment details, order numbers, raw email content, and private account/order URLs out of the import. Public product links are appropriate.\n\n';
+  if(s.notes.trim())common+='My additional instructions (including any source-tool restrictions):\n'+s.notes.trim()+'\n\n';
+  if(s.route==='direct')return common+
+    'Verify the existing Closet Lint app folder and actual wardrobe data folder on the computer running this installation. A browser address is not a data-folder path. Read docs/ASSISTANT-IMPORT.md in that app folder, use tools/import_pieces.py --schema for current fields, check the photo setup, and preview before applying. Never edit the database directly. Save clear, authorized additions with the supported importer; ask about unresolved choices. Keep the same batch ID, manifest, files, and options for a retry. Pause if the destination is unclear. If you cannot access this wardrobe, prepare the browser-compatible import file described below instead and say nothing was saved directly.\n\n'+setupFileContract()+
+    '\n\nReport actual committed additions, ownership changes, saved photos, existing matches, non-wardrobe items skipped, order updates only, and unresolved items separately. Do not claim shipping or refund updates were saved in Closet Lint; it does not have order tracking. Tell me when to refresh.';
+  return common+setupFileContract()+'\n\nReturn a downloadable .json file if possible, with a short readable summary outside the file. If files are unavailable, put the valid JSON in one clearly separated block. Supply separate photo files with clear piece labels when remote image links are unavailable. Do not claim the pieces have been added to Closet Lint. Report missing photos, non-wardrobe items skipped, order updates only, and unresolved items separately.';
 }
-function openSetup(){
-  if(!setupSession){var saved=state.profile.onboarding||{};setupSession={step:0,goals:Array.isArray(saved.goals)?saved.goals.slice():[],method:'emails',text:'',rows:[],busy:false,batch:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)};}
-  var d=$('setup-wizard');if(!d.open)d.showModal();drawSetup();
-}
-function openImport(){
-  if(setupSession&&setupSession.busy){openSetup();return}
-  if(!setupSession||setupSession.step===0||setupSession.step===4){var saved=state.profile.onboarding||{};setupSession={step:2,goals:Array.isArray(saved.goals)?saved.goals.slice():[],method:'emails',text:'',rows:[],busy:false,batch:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}}
-  else if(setupSession.step<2)setupSession.step=2;
-  openSetup();
-}
-function setupFinish(route,then){
-  if(needDb())return;
-  var session=setupSession;session.busy=true;drawSetup();
-  state.db.collection('profile').doc('onboarding').set({version:1,started:true,goals:session.goals.slice(),route:route}).then(function(){session.busy=false;$('setup-wizard').close();if(then)then()}).catch(function(e){session.busy=false;session.message='Your starting point could not be saved. Please try again.';drawSetup()});
+function setupFileContract(){
+  return 'For a browser import, use closet-lint-import/v1 with a pieces array. Example:\n'+JSON.stringify({format:'closet-lint-import/v1',pieces:[{name:'Black ribbed tee',category:'Tops',subcategory:'Tees',status:'owned',size:'',retailer:'',url:'',price:null,currency:'USD',date:'',variant:'',originalTitle:'',colors:[],seasons:[],styles:[],looks:[],images:[{url:'https://example.com/photo.jpg',kind:'isolated'}],photoFile:''}]},null,2)+
+    '\nDo not use that example photo URL. Use real public HTTPS image URLs the browser can download, or leave images empty and name a separate attachment in photoFile. Browser imports do not unpack local images[].file paths or ZIP photo bundles. The first view becomes the main photo. Use up to 12 views: isolated, model, scene, flatlay, display, detail, unclassified, or recast. Keep aspect ratios; do not upscale. Use 1–50 pieces and a JSON file under 1 MB.\n\nAllowed categories and subcategories:\n'+JSON.stringify(SUBS)+'\nAllowed field values:\n'+JSON.stringify(setupTagFields().map(function(d){return {field:d.key,values:d.vocab,multiple:d.multi}}))+'\nOptional layering fields: labAs = top/layer/either/under; layerNeed = none/under/over/either; weight = thin/regular/thick. Use supported values only when evidenced.';
 }
 function setupLabel(text,input){return el('label',{class:'setup-field'},el('span',{text:text}),input);}
-function setupSelect(label,values,value,onchange){
-  var s=el('select',{'aria-label':label,onchange:function(){onchange(s.value)}});values.forEach(function(pair){s.appendChild(el('option',{value:pair[0],text:pair[1],selected:pair[0]===value}))});return s;
+function setupSelect(label,values,value,onchange){var s=el('select',{'aria-label':label,onchange:function(){onchange(s.value)}});values.forEach(function(pair){s.appendChild(el('option',{value:pair[0],text:pair[1],selected:pair[0]===value}))});return s;}
+function setupButton(text,click,primary){return el('button',{class:'btn'+(primary?' primary':''),type:'button',text:text,onclick:click,disabled:!!setupSession.busy});}
+function setupInput(s,key,label,type){var n=el('input',{type:type||'text',value:s[key],maxlength:type==='date'?null:'2000','aria-label':label,'data-setup-focus':key,oninput:function(){s[key]=n.value;setupScopePreview()}});return setupLabel(label,n);}
+function setupGo(step){setupSession.confirm=null;setupSession.message='';setupSession.step=step;drawSetup();}
+function setupScopePreview(){var n=$('setup-scope-preview');if(n)n.textContent=setupSummary(setupSession);}
+function setupFinish(route,then){
+  if(needDb())return;var s=setupSession;s.busy=true;drawSetup({keep:true});
+  state.db.collection('profile').doc('onboarding').set(Object.assign({},state.profile.onboarding||{},{version:1,started:true,route:route})).then(function(){s.busy=false;setupCloseNow();if(then)then()}).catch(function(){s.busy=false;s.message='Your starting point could not be saved. Please try again.';drawSetup({keep:true})});
 }
-function drawSetup(){
-  var d=$('setup-wizard'),s=setupSession;d.textContent='';
-  var shell=el('div',{class:'setup-shell'}),body=el('div',{class:'setup-body'}),actions=el('div',{class:'setup-actions'});
-  var title=s.step===0?'What brought you here?':s.step===1?'Let’s fill your closet.':s.step===2?'A little help with the rummaging.':s.step===3?'Check what’s coming in.':'Your first batch is here.';
-  shell.appendChild(el('header',{class:'setup-head'},el('div',null,el('p',{class:'setup-eyebrow',text:'🧙 SETUP WIZARD / '+(s.step<2?'0'+(s.step+1):s.step===5?'YOUR FIRST PIECES':s.step===4?'NEXT UP':'DIY IMPORT')}),el('h2',{id:'setup-title',text:title})),el('button',{class:'btn',type:'button','aria-label':'Close setup',text:'✕',disabled:s.busy,onclick:function(){d.close()}})));
-  if(s.message)body.appendChild(el('p',{class:'setup-message',role:'status',text:s.message}));
-  if(s.step===0){
-    body.appendChild(el('p',{text:'Your clothes already have potential. What would you like a hand with? Pick as many as you like.'}));
-    var goals=el('div',{class:'setup-options'});SETUP_GOALS.forEach(function(g){var on=s.goals.indexOf(g[0])>=0;goals.appendChild(el('button',{class:'setup-option',type:'button','aria-pressed':String(on),'data-setup-goal':g[0],onclick:function(){s.goals=on?s.goals.filter(function(k){return k!==g[0]}):s.goals.concat(g[0]);drawSetup();d.querySelector('[data-setup-goal="'+g[0]+'"]').focus()}},el('span',{class:'setup-option-icon','aria-hidden':'true',text:g[1]}),el('strong',{text:g[2]}),el('span',{text:g[3]})))});body.appendChild(goals);
-    body.appendChild(el('p',{class:'fine',text:'This gives you a starting point. Every feature stays available, and you can change direction whenever you like.'}));
-    actions.append(el('button',{class:'btn',type:'button',text:'Just let me browse',disabled:s.busy,onclick:function(){setupFinish('browse',function(){setTab('all')})}}),el('button',{class:'btn primary',type:'button',text:'Next →',disabled:s.busy,onclick:function(){s.step=1;s.message='';drawSetup()}}));
-  }else if(s.step===1){
-    body.appendChild(el('p',{text:'Start with a handful of favorites. Ten pieces is enough to make this feel like yours; the rest can follow.'}));
-    var routes=el('div',{class:'setup-routes'});
-    routes.appendChild(el('button',{class:'setup-option',type:'button',disabled:s.busy,onclick:function(){s.step=5;s.message='';drawSetup()}},el('strong',{class:'setup-route-title'},el('span',{class:'menu-emoji','aria-hidden':'true',text:'📷'}),el('span',{text:'Add a few pieces myself'})),el('span',{text:'Take a photo, upload one, or paste a product shot. Add the clothes you reach for most.'})));
-    routes.appendChild(el('button',{class:'setup-option',type:'button',disabled:s.busy,onclick:function(){s.step=2;s.message='';drawSetup()}},el('strong',{class:'setup-route-title'},el('span',{class:'menu-emoji','aria-hidden':'true',text:'📬'}),el('span',{text:'Bring in emails, orders or a list'})),el('span',{text:'Use your own AI assistant to prepare a batch, then check it here before adding anything.'})));
-    if(window.ClosetLintRuntime&&window.ClosetLintRuntime.openRestore)routes.appendChild(el('button',{class:'setup-option',type:'button',disabled:s.busy,onclick:function(){d.close();window.ClosetLintRuntime.openRestore()}},el('strong',{class:'setup-route-title'},el('span',{class:'menu-emoji','aria-hidden':'true',text:'📦'}),el('span',{text:'Restore my Closet Lint backup'})),el('span',{text:'Already have a full backup ZIP? Review it in the restore tool. Restoring replaces this closet and keeps a recovery copy.'})));
-    body.appendChild(routes);body.appendChild(el('aside',{class:'setup-note'},el('strong',{text:'A little practice closet'}),el('p',{text:'Linty’s imaginary closet has twelve fictional pieces and simple generated illustrations. The installation guide explains how to try it in a separate sample wardrobe. StephTheGeek’s faves will be a separate collection.'})));
-    actions.appendChild(el('button',{class:'btn',type:'button',text:'← Back',disabled:s.busy,onclick:function(){s.step=0;drawSetup()}}));
-  }else if(s.step===5){
-    title='Start with the good stuff.';shell.querySelector('h2').textContent=title;
-    body.appendChild(el('p',{text:'Pick a few pieces you actually wear: two or three tops, a couple of bottoms, a layer and shoes. A phone photo is plenty. This is your closet, not a product-photography audition.'}));
-    body.appendChild(el('p',{class:'setup-note',text:setupNextTip(s.goals)}));
-    body.appendChild(el('p',{class:'fine',text:'Category and color make the first combinations useful. Sizes, tags and better photos can come later. Use Add piece whenever you want to bring in more.'}));
-    actions.append(el('button',{class:'btn',type:'button',text:'← Back',disabled:s.busy,onclick:function(){s.step=1;drawSetup()}}),el('button',{class:'btn primary',type:'button',text:'Add my first piece',disabled:s.busy,onclick:function(){setupFinish('manual',openAdd)}}));
-  }else if(s.step===2){
-    body.appendChild(el('p',{text:'Your assistant does the digging; you get the final say. There’s no account connection or AI key to set up in Closet Lint for this.'}));
-    var methods=el('div',{class:'chips'});[['emails','Email connector'],['orders','Browser extension'],['files','Screenshots / files']].forEach(function(m){methods.appendChild(el('button',{class:'chip',type:'button','aria-pressed':String(s.method===m[0]),'data-setup-method':m[0],onclick:function(){s.method=m[0];drawSetup();d.querySelector('[data-setup-method="'+m[0]+'"]').focus()},text:m[1]}))});body.appendChild(methods);
-    var guide=s.method==='emails'?['Use the email connector in your own AI assistant to find order emails. Ask it to show the matches first, then choose a small batch. No connector? Selected screenshots or email exports work too.','Copy the prompt below. Ask for about ten pieces you still own, and check sizes and variants against the order.']:s.method==='orders'?['Open the retailer’s order history or wishlist yourself, then use your AI assistant’s browser extension to read the selected items. If you do not use an extension, give it screenshots instead.','Copy the prompt below. Choose owned or wishlist for each item; expired listings can be left without a link.']:['Give your assistant a few clothing photos, order screenshots or a spreadsheet.','Copy the prompt below. Keep unknown details blank instead of guessing.'];
-    var steps=el('ol',{class:'setup-guide'});guide.concat(['Save the resulting JSON file, or copy its JSON text. Bring it back below.']).forEach(function(t){steps.appendChild(el('li',{text:t}))});body.appendChild(steps);
-    var prompt=el('textarea',{'aria-label':'AI import prompt',readonly:true,rows:'7',class:'setup-code'});prompt.value=setupPrompt(s.method);
-    body.appendChild(el('details',{class:'setup-prompt'},el('summary',{text:'Read the prompt'}),prompt));
-    body.appendChild(el('button',{class:'btn',type:'button',text:'Copy prompt for my AI',onclick:function(){copyText(setupPrompt(s.method))}}));
-    body.appendChild(el('p',{class:'fine',text:'Send only the order details you choose to your assistant. Keep addresses, payment details and order numbers out of the export. You can attach photos while reviewing the batch.'}));
-    var input=el('textarea',{'aria-label':'Prepared import JSON',placeholder:'Paste the JSON your assistant prepared…',rows:'6',class:'setup-code',oninput:function(){s.text=input.value}});input.value=s.text;body.appendChild(setupLabel('Bring back your batch',input));
-    var file=el('input',{type:'file',accept:'.json,application/json','aria-label':'Choose prepared JSON file',onchange:function(){var f=file.files[0];if(!f)return;if(f.size>1024*1024){s.message='That file is too large. Use a JSON batch under 1 MB.';drawSetup();return}f.text().then(function(t){s.text=t;s.message='File loaded. Review it below.';drawSetup()}).catch(function(){s.message='Could not read that file. You can paste the JSON instead.';drawSetup()})}});body.appendChild(file);
-    actions.append(el('button',{class:'btn',type:'button',text:'← Back',onclick:function(){s.step=1;s.message='';drawSetup()}}),el('button',{class:'btn primary',type:'button',text:'Review batch →',onclick:function(){try{s.rows=setupParse(s.text,allItems());s.batch=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);s.step=3;s.message='';drawSetup()}catch(e){s.message=e.message;drawSetup()}}}));
-  }else if(s.step===3){
-    body.appendChild(el('p',{text:'Only checked pieces will be processed. Possible matches start unchecked; you choose whether to add another piece or mark a wishlist match as owned.'}));
-    var count=el('p',{class:'setup-review-count',role:'status'}),save=el('button',{class:'btn primary',type:'button',disabled:s.busy,text:'Import selected pieces',onclick:setupSaveImport});
-    function updateCount(){var n=s.rows.filter(function(r){return r.selected&&!r.saved}).length;count.textContent=n+' selected · '+s.rows.filter(function(r){return r.saved}).length+' already added';save.disabled=s.busy||!n||s.rows.some(function(r){return r.loadingPhoto});save.textContent=s.busy?'Saving…':'Import '+n+' selected piece'+(n===1?'':'s');}
-    body.appendChild(count);
-    s.rows.forEach(function(r,i){
-      var p=r.piece,card=el('fieldset',{class:'setup-review-row','data-import-index':String(i),disabled:s.busy||r.saved});card.appendChild(el('legend',{text:r.saved?'✓ Added':'Piece '+(i+1)}));
-      var checked=el('input',{type:'checkbox','aria-label':'Include piece '+(i+1),onchange:function(){r.selected=checked.checked;updateCount()}});checked.checked=r.selected;
-      var name=el('input',{type:'text',value:p.name,maxlength:'180','aria-label':'Name for piece '+(i+1),oninput:function(){p.name=name.value}});
-      card.appendChild(el('div',{class:'setup-review-name'},checked,name));
-      if(r.duplicate)card.appendChild(el('p',{class:'setup-warning',text:'Possible match by product link or name, size and variant. Check it before adding another copy.'}));
-      if(r.match&&r.match.wish&&p.status==='owned'){
-        card.appendChild(setupLabel('What should happen?',setupSelect('Import action for piece '+(i+1),[['add','Add a separate piece'],['owned','Mark existing wishlist piece as owned']],r.action,function(v){r.action=v;r.selected=true;checked.checked=true;updateCount()})));
-        card.appendChild(el('p',{class:'fine',text:'Wishlist match: '+r.match.name+'. Marking it owned keeps its existing photo and tags.'}));
-      }
-      var preview=el('div',{class:'setup-photo-preview'}),photo=el('input',{type:'file',accept:'image/*','aria-label':'Photo for piece '+(i+1),onchange:function(){var f=photo.files[0];if(!f)return;if(f.size>10*1024*1024){r.error='Use an image under 10 MB.';drawSetup();return}r.loadingPhoto=true;save.disabled=true;readImage(f).then(function(pic){r.photo=pic;r.photoUpload=null;r.loadingPhoto=false;r.error='';drawSetup()}).catch(function(e){r.loadingPhoto=false;r.error=e.message;drawSetup()})}});
-      if((r.photo||p.photoUrl)&&!(p.images||[]).some(function(x){return x.url===p.photoUrl}) ){try{var src=r.photo?r.photo.url:setupPhotoURL(p.photoUrl);preview.appendChild(el('img',{src:src,alt:'Photo for '+p.name,referrerpolicy:'no-referrer',loading:'lazy'}))}catch(e){preview.appendChild(el('span',{text:e.message}))}}
-      (p.images||[]).forEach(function(image,index){var tile=el('div',{class:'setup-image-option'},el('img',{src:(function(){try{return setupPhotoURL(image.url)}catch(e){return ''}})(),alt:image.kind+' photo for '+p.name,referrerpolicy:'no-referrer',loading:'lazy'}),el('span',{class:'fine',text:image.kind+(index===0?' · main':'')}),el('button',{class:'btn small',type:'button',text:'Remove this view',onclick:function(){p.images.splice(index,1);if(p.photoUrl===image.url)p.photoUrl='';r.photoUpload=null;drawSetup()}}));preview.appendChild(tile)});
-      if(p.photoFile)preview.appendChild(el('span',{class:'fine',text:'Attach: '+p.photoFile}));
-      if(r.photo||p.photoUrl||(p.images||[]).length)preview.appendChild(el('button',{class:'btn small',type:'button',text:'Remove photo',onclick:function(){r.photo=null;r.photoUpload=null;p.photoUrl='';p.photoFile='';p.images=[];drawSetup()}}));
-      preview.appendChild(photo);card.appendChild(preview);
-      if(r.error)card.appendChild(el('p',{class:'setup-warning',role:'alert',text:r.error}));
-      var sub=setupSelect('Subcategory for piece '+(i+1),[['','Not set']].concat((SUBS[p.meta]||[]).map(function(v){return [v,v]})),p.sub,function(v){p.sub=v});
-      var cat=setupSelect('Category for piece '+(i+1),[['','Choose category']].concat(META.map(function(v){return [v,v]})),p.meta,function(v){p.meta=v;p.sub='';sub.textContent='';[['','Not set']].concat((SUBS[v]||[]).map(function(x){return [x,x]})).forEach(function(x){sub.appendChild(el('option',{value:x[0],text:x[1]}))})});
-      var status=setupSelect('Ownership for piece '+(i+1),[['','Choose status'],['owned','Owned'],['wishlist','Wishlist']],p.status,function(v){p.status=v;if(v!=='owned')r.action='add';drawSetup()});
-      card.appendChild(el('div',{class:'setup-field-grid'},setupLabel('Category',cat),setupLabel('Owned or wishlist?',status)));
-      var fields=el('div',{class:'setup-field-grid'},setupLabel('Subcategory',sub));
-      [['size','Size'],['variant','Variant / color option'],['source','Store / source'],['price','Item price (USD)'],['url','Product link'],['photoUrl','Product-photo URL']].forEach(function(pair){var field=el('input',{type:'text',value:p[pair[0]],'aria-label':pair[1]+' for piece '+(i+1),oninput:function(){p[pair[0]]=field.value}});fields.appendChild(setupLabel(pair[1],field))});
-      var tags=el('details',null,el('summary',{text:'Tags & styling'}));
-      setupTagFields().forEach(function(d){if(d.multi){var input=el('input',{type:'text',value:(p[d.key]||[]).join(', '),'aria-label':d.label+' for piece '+(i+1),onchange:function(){var vals=input.value.split(',').map(function(v){return v.trim()}).filter(Boolean),bad=vals.filter(function(v){return d.vocab.indexOf(v)<0});input.setCustomValidity(bad.length?'Unknown tags: '+bad.join(', '):'');if(bad.length){input.reportValidity();return}p[d.key]=vals.filter(function(v,i,a){return a.indexOf(v)===i})}});tags.appendChild(setupLabel(d.label,input))}
-        else tags.appendChild(setupLabel(d.label,setupSelect(d.label+' for piece '+(i+1),[['','Not set']].concat(d.vocab.map(function(v){return [v,v]})),p[d.key]||'',function(v){p[d.key]=v})))
-      });
-      [['labAs','Wear this…',[['','Infer from tags'],['top','As a main top'],['layer','Over another top'],['either','As a main top or over another top'],['under','Under another piece only']]],['layerNeed','Sheer / needs a styling layer',[['','Infer from tags'],['none','Not required'],['under','Required underneath'],['over','Required over it'],['either','Required — underneath or over']]],['weight','Fabric weight',[['','Infer from tags'],['thin','Thin / lightweight'],['regular','Medium / regular'],['thick','Thick / heavy']]]].forEach(function(row){tags.appendChild(setupLabel(row[1],setupSelect(row[1]+' for piece '+(i+1),row[2],p[row[0]]||'',function(v){p[row[0]]=v}))) });
-      card.appendChild(el('details',null,el('summary',{text:'Size, variant & source'}),fields));if(p.listingDetails)card.appendChild(el('details',null,el('summary',{text:'Original listing attributes'}),el('pre',{class:'setup-listing-details',text:p.listingDetails})));if(p.priceNote)card.appendChild(el('p',{class:'fine',text:p.priceNote}));card.appendChild(tags);body.appendChild(card);
-    });updateCount();
-    body.appendChild(el('p',{class:'fine',text:'New pieces stay Unreviewed. Attached photos are saved with them; pieces without photos get a placeholder. Wishlist matches keep their existing details.'}));
-    actions.append(el('button',{class:'btn',type:'button',disabled:s.busy,text:s.rows.some(function(r){return r.saved})?'Done for now':'← Back',onclick:function(){s.message='';s.step=s.rows.some(function(r){return r.saved})?4:2;drawSetup()}}),save);
-  }else if(s.step===4){
-    var added=s.rows.filter(function(r){return r.saved}).length;
-    body.appendChild(el('p',{text:added+' piece'+(added===1?' is':'s are')+' saved. Open a card to check the details and make it yours.'}));
-    body.appendChild(el('p',{class:'setup-note',text:setupNextTip(s.goals)}));
-    body.appendChild(el('p',{class:'fine',text:'Your next batch is waiting under ☰ → Utilities → Import pieces. Outfit suggestions and packing do not require an AI subscription.'}));
-    actions.appendChild(el('button',{class:'btn primary',type:'button',text:'See my pieces →',disabled:s.busy,onclick:function(){setupFinish('diy',function(){s.step=1;s.rows=[];s.text='';setTab('all');state.review=true;state.photo='';state.wishOnly=false;setFantasy(true);renderFilters();renderGrid()})}}));
+function openSetup(){
+  if(!setupSession)setupSession=setupNewSession('start');
+  var d=$('setup-wizard');if(!d.open){setupSession.launcher=document.activeElement;d.showModal()}drawSetup();
+}
+function openImport(){if(!setupSession)setupSession=setupNewSession('hub');else if(setupSession.step==='start')setupSession.step='hub';openSetup();}
+function setupCloseNow(){
+  var s=setupSession,d=$('setup-wizard'),launcher=s&&s.launcher;
+  if(window.ClosetLintRoutes&&window.ClosetLintRoutes.cleanDialog)window.ClosetLintRoutes.cleanDialog(d);
+  d.close();setupSession=null;if(launcher&&launcher.isConnected)launcher.focus();
+}
+function setupHasDraft(s){return !!(s&&(s.loaded||(s.text||'').trim()));}
+function setupRequestClose(){
+  var s=setupSession;if(!s||s.busy)return;
+  var c=setupCounts(s.rows);
+  if(s.step!=='done'&&setupHasDraft(s)){s.confirm={kind:'close',partial:!!(c.added+c.owned)};drawSetup({keep:true});return;}
+  if(s.step==='start'||s.firstUse){setupFinish(s.step==='start'?'browse':'assistant');return}setupCloseNow();
+}
+function setupConfirm(body,actions){
+  var s=setupSession,c=setupCounts(s.rows),partial=s.confirm.partial;
+  if(s.confirm.kind==='refresh'){body.append(el('h3',{text:'You have unsaved edits'}),el('p',{text:'Refreshing reloads your closet from storage. Unsaved edits will be discarded.'}));var keep=setupButton('Keep editing',function(){s.confirm=null;drawSetup({keep:true})});keep.id='setup-keep-reviewing';actions.append(keep,setupButton('Discard edit and refresh',function(){return setupReload(true)}));return;}
+  body.appendChild(el('h3',{text:partial?'Close with '+c.remaining+' changes unsaved?':'Discard this review?'}));
+  body.appendChild(el('p',{text:partial?(c.added+c.owned)+' saved changes stay in your closet. To finish the rest later, load the file again; saved pieces will be checked as possible matches.':(s.rows.length||(s.preview||[]).length?'You loaded '+(s.rows.length||(s.preview||[]).length)+' pieces. ':'Your prepared text is still here. ')+'Nothing has been saved. Closing discards this review, but does not change your import file.'}));
+  var keep=setupButton('Keep reviewing',function(){s.confirm=null;drawSetup({keep:true})});keep.id='setup-keep-reviewing';actions.append(keep,setupButton(partial?'Close anyway':'Discard draft',setupCloseNow));
+}
+function drawSetup(options){
+  options=options||{};var d=$('setup-wizard'),s=setupSession;if(!s)return;
+  var oldBody=d.querySelector('.setup-body'),scroll=oldBody?oldBody.scrollTop:0,active=document.activeElement,key=active&&active.getAttribute('data-setup-focus'),selection=active&&typeof active.selectionStart==='number'?[active.selectionStart,active.selectionEnd]:null;
+  var opened=[];if(options.keep)d.querySelectorAll('details[open][data-setup-detail]').forEach(function(n){opened.push(n.dataset.setupDetail)});
+  var titles={start:'Let’s add your first pieces',hub:'Import pieces',scope:'What are you bringing in?',handoff:s.route==='direct'?'Ask your assistant to add these pieces':'Ask your assistant for an import file',load:'Bring in your prepared batch',review:'Review your pieces',saving:'Review your pieces',recovery:'Some pieces are saved',done:'Your pieces are saved'};
+  if(s.step==='done'){var c=setupCounts(s.rows);titles.done=c.remaining?'Some pieces are saved':c.added+c.owned?'Your pieces are saved':'Nothing new to add';}
+  d.textContent='';var shell=el('div',{class:'setup-shell'}),body=el('div',{class:'setup-body'}),actions=el('footer',{class:'setup-actions'});
+  shell.appendChild(el('header',{class:'setup-head'},el('div',null,el('p',{class:'setup-eyebrow',text:s.step==='start'?'GET STARTED':'IMPORT PIECES'}),el('h2',{id:'setup-title',text:titles[s.step]})),el('button',{class:'btn',type:'button','aria-label':'Close import',text:'✕',disabled:s.busy,onclick:setupRequestClose})));
+  if(setupStorage().note)body.appendChild(el('p',{class:'setup-note',text:setupStorage().note}));
+  if(!['start','hub'].includes(s.step)){
+    var counts=setupCounts(s.rows);body.appendChild(el('div',{class:'setup-status'},el('span',{text:(s.step==='done'?'Saved to: ':'Saves to: ')+setupStorage().label}),el('span',{id:'setup-saved-count',text:s.route==='direct'?'Saved from this screen: nothing':'Saved so far: '+(counts.added+counts.owned?counts.added+' added · '+counts.owned+' marked owned':'nothing')})));
   }
-  if(s.busy){shell.setAttribute('aria-busy','true');body.appendChild(el('p',{role:'status',text:'Saving to your closet…'}));}
-  shell.append(body,actions);d.appendChild(shell);
-  var heading=shell.querySelector('h2');heading.tabIndex=-1;heading.focus();
+  var status=el('p',{id:'setup-live',class:'setup-live',role:'status','aria-live':'polite',text:s.message||''});body.appendChild(status);
+  if(s.confirm)setupConfirm(body,actions);
+  else if(s.step==='start')setupDrawStart(body,actions);
+  else if(s.step==='hub')setupDrawHub(body,actions);
+  else if(s.step==='scope')setupDrawScope(body,actions);
+  else if(s.step==='handoff')setupDrawHandoff(body,actions);
+  else if(s.step==='load')setupDrawLoad(body,actions);
+  else if(s.step==='review')setupDrawReview(body,actions);
+  else if(s.step==='saving'||s.step==='recovery')setupDrawRecovery(body,actions);
+  else if(s.step==='done')setupDrawDone(body,actions);
+  shell.append(body,actions);d.appendChild(shell);setupFitViewport();d.setAttribute('aria-busy',String(s.busy));
+  if(window.ClosetLintRoutes&&window.ClosetLintRoutes.trackDialog)window.ClosetLintRoutes.trackDialog(d,function(){return setupSession&&setupHasDraft(setupSession)&&setupSession.step!=='done'?'loaded-review':''},function(){return !!(setupSession&&setupSession.busy)});
+  // Registration's baseline must precede a loaded draft, so route changes guard it too.
+  if(window.ClosetLintRoutes&&window.ClosetLintRoutes.markImportDirty)window.ClosetLintRoutes.markImportDirty(d,!!(setupHasDraft(s)&&s.step!=='done'));
+  if(options.keep){body.scrollTop=scroll;opened.forEach(function(v){var n=d.querySelector('[data-setup-detail="'+v+'"]');if(n)n.open=true});}
+  var focus=s.confirm?$('setup-keep-reviewing'):options.keep&&key?d.querySelector('[data-setup-focus="'+key+'"]'):null;
+  if(focus){focus.focus({preventScroll:true});if(selection&&focus.setSelectionRange&&focus.type!=='number')try{focus.setSelectionRange(selection[0],selection[1])}catch(e){}}
+  else if(!options.keep){var h=$('setup-title');h.tabIndex=-1;h.focus({preventScroll:true});body.scrollTop=0;}
 }
-function setupNextTip(goals){
-  if(goals.indexOf('wishlist')>=0)return 'Once a few owned pieces are in, add one thing you’re considering buying. Turn on Fantasy mode to see wishlist pieces beside your clothes.';
-  if(goals.indexOf('trips')>=0)return 'Start with pieces you would pack together. Once they have photos and useful tags, the Trip Wizard can build looks around them.';
-  if(goals.indexOf('outfits')>=0)return 'Add a couple of tops and bottoms, or a dress, then open the Outfit Lab. Photos and color tags help the first suggestions feel like your clothes.';
-  return 'Browse what you already own. Favorite the keepers and mark a forgotten piece “Wear more” to bring it back into rotation.';
+function setupDrawStart(body,actions){
+  body.appendChild(el('p',{text:'Start with a few favorites. You can bring in the rest whenever you’re ready.'}));
+  var routes=el('div',{class:'setup-routes'});
+  [['📷','Add a piece myself','Take a photo, upload one, or add the details you know.',function(){setupFinish('manual',openAdd)}],['📬','Get help from my assistant','Use order emails, links, photos, or a list to prepare a small batch.',function(){setupSession.firstUse=true;setupGo('hub')}]].forEach(function(r){routes.appendChild(el('button',{class:'setup-option',type:'button',onclick:r[3]},el('strong',{class:'setup-route-title'},el('span',{class:'menu-emoji','aria-hidden':'true',text:r[0]}),r[1]),el('span',{text:r[2]})))});
+  if(window.ClosetLintRuntime&&window.ClosetLintRuntime.openRestore)routes.appendChild(el('button',{class:'setup-option',type:'button',onclick:function(){setupCloseNow();window.ClosetLintRuntime.openRestore()}},el('strong',{text:'Restore a Closet Lint backup'}),el('span',{text:'Bring back a wardrobe you already saved. The restore tool explains what will be replaced.'})));
+  body.append(routes,el('p',{class:'fine',text:'Import pieces stays in ☰ → Utilities whenever you want it.'}));actions.appendChild(setupButton('Browse first',function(){setupFinish('browse')}));
 }
+function setupDrawHub(body,actions){
+  var s=setupSession,storage=setupStorage();body.appendChild(el('p',{text:'Your assistant can add pieces directly if it can access your wardrobe folder. Otherwise, bring back a file and review it here.'}));
+  var recent=el('section',{class:'setup-note'},el('h3',{text:'Prepare a recent-order check'}),el('p',{text:'Prepares a request for your assistant. It doesn’t search your email.'}));
+  recent.appendChild(el('div',{class:'setup-field-grid'},setupInput(s,'store','Store (or leave blank for Any store)'),setupInput(s,'from','From','date'),setupInput(s,'through','Through','date'),setupLabel('Route',setupSelect('Recent-order route',(storage.direct?[['direct','Assistant adds directly']]:[]).concat([['file','Import file, review here']]),s.route,function(v){s.route=v}))));
+  recent.append(setupButton('Prepare check',function(){s.method='emails';if(setupScopeError(s)){s.message=setupScopeError(s);drawSetup({keep:true});return}setupRemember(s);setupGo('handoff')}),el('p',{class:'fine',text:'Store and route are remembered as a convenience, not a record of completed imports. A little overlap with your last range is fine; review catches possible matches.'}));
+  if(!s.firstUse)body.appendChild(recent);var routes=el('div',{class:'setup-options'});
+  var direct=el('section',{class:'setup-option'},el('p',{class:'setup-eyebrow',text:'YOUR ASSISTANT SAVES DIRECTLY'}),el('h3',{text:'Have my assistant add pieces'}),el('p',{text:'For an assistant that can read files and run the importer on the computer where your wardrobe is stored.'}));
+  if(storage.direct)direct.append(setupButton('Prepare a request',function(){s.route='direct';setupGo('scope')}),el('p',{class:'fine',text:'Needs access to the computer running Closet Lint. A phone chat on its own doesn’t have it.'}));
+  else direct.appendChild(el('p',{class:'fine',text:'Direct file imports cannot reach this browser’s storage. Use an import file to add pieces here. An importer on another computer saves to a different wardrobe.'}));
+  var file=el('section',{class:'setup-option'},el('p',{class:'setup-eyebrow',text:'YOU REVIEW HERE FIRST'}),el('h3',{text:'Bring back an import file'}),el('p',{text:'Ask your assistant to prepare a batch, then load it here, check the pieces, and save them.'}),setupButton('Prepare a request',function(){s.route='file';setupGo('scope')}),setupButton('I already have a file',function(){s.route='file';s.loadBack='hub';setupGo('load')}),el('p',{class:'fine',text:'Works with a chat that can send you a file or text, including on your phone.'}));
+  routes.append(direct,file);body.append(routes,el('details',null,el('summary',{text:'Which should I choose?'}),el('p',{text:'Can your assistant open files and run commands on the computer where Closet Lint runs? Yes: direct. Not sure, or no: file. Email, browser, and local file access are separate capabilities. Closet Lint can’t check your assistant’s access. On a phone, an assistant already working on your host computer may still have access.'})));
+  if(s.firstUse)actions.appendChild(setupButton('← Back',function(){setupGo('start')}));actions.appendChild(setupButton('Close',setupRequestClose));
+}
+function setupDrawScope(body,actions){
+  var s=setupSession;
+  body.appendChild(setupLabel('Route',setupSelect('Import route',(setupStorage().direct?[['direct','Have my assistant add pieces']]:[]).concat([['file','Bring back an import file']]),s.route,function(v){s.route=v;setupScopePreview()})));
+  var methods=el('fieldset',{class:'setup-source'},el('legend',{text:'Your assistant will work from'}));
+  [['emails','Order emails'],['orders','Orders or a wishlist page'],['links','Product links'],['files','Photos, screenshots, or a list']].forEach(function(m){methods.appendChild(el('button',{class:'chip',type:'button','aria-pressed':String(s.method===m[0]),'data-setup-focus':'method-'+m[0],onclick:function(){s.method=m[0];drawSetup({keep:true})},text:m[1]}))});body.appendChild(methods);
+  if(s.method==='emails'){
+    body.appendChild(el('div',{class:'setup-field-grid'},setupInput(s,'store','Store (or leave blank for Any store)'),setupInput(s,'from','From','date'),setupInput(s,'through','Through','date')));
+    var ranges=el('div',{class:'setup-inline'});[7,30].forEach(function(days){ranges.appendChild(setupButton('Past '+days+' days',function(){s.through=todayStr();var start=new Date(s.through+'T12:00:00Z');start.setUTCDate(start.getUTCDate()-days+1);s.from=start.toISOString().slice(0,10);drawSetup({keep:true})}))});
+    body.append(ranges,el('p',{class:'fine',text:'Includes both dates, all day. Your assistant uses its own email connection. Choose the account there.'}));
+  }else if(s.method==='orders')body.append(setupLabel('Page type',setupSelect('Page type',[['orders','Orders'],['wishlist','Wishlist']],s.pageKind,function(v){s.pageKind=v;if(v==='wishlist')s.ownership='wishlist';setupScopePreview()})),setupInput(s,'page','Page link (optional)'),el('p',{class:'fine',text:'Open the page with your assistant, or give it screenshots.'}));
+  else if(s.method==='links'){var links=el('textarea',{rows:'5','aria-label':'Links, one per line','data-setup-focus':'links',oninput:function(){s.links=links.value;setupScopePreview()}});links.value=s.links;body.appendChild(setupLabel('Links, one per line',links));}
+  else body.appendChild(el('p',{text:'Attach your source files in the assistant conversation.'}));
+  if(s.method!=='emails')body.appendChild(setupLabel('These pieces are',setupSelect('Ownership',[['decide','Let me decide'],['owned','Owned'],['wishlist','Wishlist']],s.ownership,function(v){s.ownership=v;setupScopePreview()})));
+  var count=setupInput(s,'count','Start with about this many pieces','number');count.querySelector('input').min='1';count.querySelector('input').max='50';body.append(count,el('p',{class:'fine',text:'Up to 50 pieces per file. Start with about 10.'}));
+  var notes=el('textarea',{rows:'3','aria-label':'Anything else to tell your assistant?','data-setup-focus':'notes',placeholder:'Clothes and accessories only. I sometimes keep refunded items. Gmail connector only.',oninput:function(){s.notes=notes.value}});notes.value=s.notes;
+  body.append(el('details',{'data-setup-detail':'notes'},el('summary',{text:'Anything else to tell your assistant?'}),setupLabel('Additional instructions',notes)),el('aside',{class:'setup-request-preview'},el('strong',{text:'Your request will say…'}),el('p',{id:'setup-scope-preview',text:setupSummary(s)})),el('p',{class:'fine',text:'Nothing is saved on this screen. Next: copy the request for your assistant.'}));
+  actions.append(setupButton('← Back',function(){setupGo('hub')}),setupButton('Prepare request',function(){s.message=setupScopeError(s);if(s.message){drawSetup({keep:true});var bad=$('setup-live');bad.tabIndex=-1;bad.focus();return}setupRemember(s);s.copyMessage='';setupGo('handoff')},true));
+}
+async function setupCopyRequest(){
+  var s=setupSession;
+  try{await navigator.clipboard.writeText(setupPrompt());if(setupSession!==s)return;s.copyMessage='Copied. Paste this into your assistant conversation.';s.copyFailed=false;drawSetup({keep:true});}
+  catch(e){if(setupSession!==s)return;s.copyFailed=true;s.copyMessage='Couldn’t copy automatically. Select the request below, then copy it.';drawSetup({keep:true});var field=$('setup-request');field.closest('details').open=true;field.focus();field.select();}
+}
+function setupDrawHandoff(body,actions){
+  var s=setupSession,direct=s.route==='direct';body.appendChild(el('p',{class:'setup-note',text:setupSummary(s)}));
+  var copy=setupButton('Copy request',setupCopyRequest,true);copy.setAttribute('data-setup-focus','copy-request');body.appendChild(copy);
+  body.appendChild(el('p',{class:'setup-live',role:'status',text:s.copyMessage||''}));
+  var request=el('textarea',{id:'setup-request',class:'setup-code',rows:'8',readonly:true,'aria-label':'Full request for your assistant'});request.value=setupPrompt();
+  body.appendChild(el('details',{class:'setup-prompt',open:!!s.copyFailed,'data-setup-detail':'request'},el('summary',{text:'Read the full request'}),request));
+  if(s.copyFailed)body.appendChild(setupButton('Select request',function(){request.focus();request.select()}));
+  var guide=direct?['Paste the request into your assistant conversation, and provide the selected links or files.','Let it verify the wardrobe folder, check for matches, and preview the import.','When it confirms the save, refresh Closet Lint to see the additions.']:['Paste the request into your assistant conversation, and provide the source material.','Download the prepared import file and any separate photos it provides.','Return here and choose Load import file.'];
+  var list=el('ol',{class:'setup-guide'});guide.forEach(function(x){list.appendChild(el('li',{text:x}))});body.appendChild(list);
+  if(direct)body.appendChild(el('p',{class:'fine',text:'Pause edits in this wardrobe while the assistant saves. Closet Lint can’t see your assistant’s progress.'}));
+  else body.append(el('details',null,el('summary',{text:'What if my assistant can’t make files?'}),el('p',{text:'Copy its prepared text, then choose Paste prepared text instead on the next screen.'})),el('p',{class:'fine',text:'Using another device? Move the downloaded file to this device. Closet Lint doesn’t sync requests or files between devices.'}));
+  actions.append(setupButton('← Back',function(){setupGo('scope')}),setupButton(direct?'Use an import file instead':'Use direct import instead',function(){if(!direct&&!setupStorage().direct){s.message='Direct import is unavailable for this browser’s wardrobe.';drawSetup({keep:true});return}s.route=direct?'file':'direct';setupRemember(s);s.copyMessage='';s.copyFailed=false;setupGo('handoff')}));
+  if(!direct&&!setupStorage().direct)actions.lastChild.remove();
+  actions.appendChild(setupButton(direct?'Refresh closet':'Load import file',function(){if(direct)return setupRefresh();else{s.loadBack='handoff';setupGo('load')}},true));actions.appendChild(setupButton('Done for now',setupRequestClose));
+}
+function setupRefresh(){
+  var dirty=setupHasDraft(setupSession)||!!(window.ClosetLintRoutes&&window.ClosetLintRoutes.hasUnsaved&&window.ClosetLintRoutes.hasUnsaved());
+  if(dirty){setupSession.confirm={kind:'refresh'};drawSetup({keep:true});return;}return setupReload(false);
+}
+async function setupReload(discard){
+  var s=setupSession;s.busy=true;s.message='Refreshing your closet…';drawSetup({keep:true});
+  try{if(window.ClosetLintRuntime&&window.ClosetLintRuntime.flush)await window.ClosetLintRuntime.flush();if(discard&&window.ClosetLintRoutes&&window.ClosetLintRoutes.prepareReload)window.ClosetLintRoutes.prepareReload();window.location.reload();}
+  catch(e){s.busy=false;s.confirm=null;s.message='Could not finish pending saves. Keep this tab open and check the local service before refreshing.';drawSetup({keep:true});}
+}
+function setupCheckText(){
+  var s=setupSession;
+  if(s.reviewText&&s.reviewText!==s.text){s.rows=[];s.reviewText=null;}
+  try{s.preview=setupParse(s.text,allItems());s.loadError='';s.loaded=true;s.message='Format checked · '+s.preview.length+' pieces · Ready to review';}
+  catch(e){s.preview=null;s.loaded=false;s.loadError=e.message;s.message='';}
+}
+async function setupLoadFile(file){
+  if(!file)return;var s=setupSession;var generation=(s.loadGeneration||0)+1;s.loadGeneration=generation;s.fileName=file.name;s.loadError='';s.message='';s.preview=null;
+  if(/\.zip$/i.test(file.name)){s.loaded=false;s.loadError='This is a ZIP, not a piece import file. To restore a whole wardrobe, use the separate Restore backup tool. Choose the .json import file to add pieces.';drawSetup({keep:true});return;}
+  if(file.size>1024*1024){s.loaded=false;s.loadError='Use an import file up to 1 MB. Nothing was loaded or cut.';drawSetup({keep:true});return;}
+  try{var text=await file.text();if(setupSession!==s||s.loadGeneration!==generation)return;s.text=text;setupCheckText();}
+  catch(e){if(setupSession!==s)return;s.loaded=false;s.loadError='Could not read that file. Try it again, or paste the prepared text.';}
+  drawSetup({keep:true});
+}
+function setupDrawLoad(body,actions){
+  var s=setupSession;body.appendChild(el('p',{text:'Choose the .json file your assistant prepared. Up to 50 pieces and 1 MB per file.'}));
+  var picker=el('input',{id:'setup-file',class:'hide',type:'file',accept:'.json,application/json','aria-label':'Choose import file',onchange:function(){setupLoadFile(picker.files[0])}}),drop=el('div',{class:'setup-drop',ondragover:function(e){e.preventDefault()},ondrop:function(e){e.preventDefault();setupLoadFile(e.dataTransfer.files[0])}},setupButton('Choose import file',function(){picker.click()}),picker,el('p',{class:'fine',text:'Or drop a prepared .json file here.'}));body.appendChild(drop);
+  if(s.fileName)body.appendChild(el('p',{text:'From: '+s.fileName}));
+  if(s.loadError)body.appendChild(el('p',{class:'setup-warning',role:'alert',text:s.loadError}));
+  var paste=el('textarea',{class:'setup-code',rows:'6','aria-label':'Prepared import text','data-setup-focus':'paste',oninput:function(){s.loadGeneration=(s.loadGeneration||0)+1;s.text=paste.value;s.fileName='Pasted text';s.loaded=false;s.preview=null;var review=$('setup-review-button');if(review)review.disabled=true;}});paste.value=s.text;
+  body.appendChild(el('details',{open:!!s.text&&!s.fileName,'data-setup-detail':'paste'},el('summary',{text:'Paste prepared text instead'}),paste,setupButton('Check text',function(){setupCheckText();drawSetup({keep:true})})));
+  if(s.preview&&s.preview.some(function(r){return r.piece.localPhotoFiles.length}))body.appendChild(el('p',{class:'setup-warning',text:'This batch refers to photo files that haven’t been attached. Attach the photos during review, or ask your assistant for a browser import file.'}));
+  body.appendChild(el('p',{class:'fine',text:'Reading a file only checks it. Nothing is added until you choose pieces and save on the next screen.'}));
+  var review=setupButton('Review pieces',function(){if(s.reviewText!==s.text){s.rows=setupParse(s.text,allItems());s.reviewText=s.text;s.batch=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);}s.filter='all';s.loaded=true;setupGo('review')},true);review.id='setup-review-button';review.disabled=!s.preview;
+  actions.append(setupButton('← Back',function(){setupGo(s.loadBack||'hub')}),review);
+}
+function setupChooseAction(row,action){row.action=action;row.selected=action!=='skip';row.error='';row.compare=action!=='skip';}
+function setupClearPhotos(row){
+  row.photo=null;row.photoUpload=null;row.imageUploads={};row.piece.photoUrl='';row.piece.photoFile='';row.piece.images=[];row.piece.localPhotoFiles=[];row.photoErrors={};row.photoDecision='none';row.error='';
+}
+function setupUpdateReview(){
+  var s=setupSession;if(!s||s.step!=='review')return;var c=setupCounts(s.rows),save=$('setup-save-button'),first=s.rows.find(function(r){return r.selected&&!r.saved&&setupRowIssue(r)});
+  var summary=$('setup-review-count');if(summary)summary.textContent=c.add+' to add · '+c.promote+' to mark owned · '+c.skipped+' skipped';
+  if(save){save.textContent=setupSaveLabel(c);save.setAttribute('aria-label',setupSaveLabel(c));save.disabled=s.busy||!c.remaining||!!c.blocked;}
+  var hint=$('setup-blocked');if(hint)hint.textContent=first?first.piece.name+': '+setupRowIssue(first)+' You can also unselect it.':'';
+  var jump=$('setup-go-blocked');if(jump)jump.hidden=!first;
+  s.rows.forEach(function(r,i){var stateNode=$('setup-row-state-'+i);if(stateNode)stateNode.textContent=r.saved?'Saved':!r.selected?'Skipped':r.error?'Not saved yet':setupRowIssue(r)||(r.duplicate?'Possible match':'Ready');});
+}
+function setupReviewField(row,index,key,label,type){
+  var n=el(type==='textarea'?'textarea':'input',{type:type==='textarea'?null:type||'text',value:row.piece[key]||'',rows:type==='textarea'?'3':null,'aria-label':label+' for piece '+(index+1),'data-setup-focus':'row-'+index+'-'+key,oninput:function(){row.piece[key]=n.value;row.error='';setupUpdateReview()}});if(type==='textarea')n.value=row.piece[key]||'';return setupLabel(label,n);
+}
+function setupRowPhoto(row,index,large){
+  var p=row.piece,src=row.photo?row.photo.url:p.images&&p.images.length?p.images[0].url:p.photoUrl;
+  if(!src)return el('div',{class:'setup-no-photo',text:'No photo'});
+  var image;try{src=row.photo?src:setupPhotoURL(src);}catch(e){row.photoErrors[src]=true;return el('div',{class:'setup-no-photo',text:'Photo unavailable'});}
+  image=el('img',{src:src,alt:'Photo for '+p.name,loading:'lazy',referrerpolicy:'no-referrer',onerror:function(){if(setupSession&&setupSession.rows[index]===row&&!row.saved){row.photoErrors[src]=true;image.hidden=true;setupUpdateReview();var recovery=$('setup-photo-recovery-'+index);if(recovery)recovery.hidden=false;}}});
+  return el('div',{class:large?'setup-photo-large':'setup-thumb'},image);
+}
+function setupPhotoRecovery(row,index){
+  var issue=row.photoDecision==='needed'||Object.keys(row.photoErrors||{}).some(function(k){return row.photoErrors[k]}),box=el('div',{id:'setup-photo-recovery-'+index,class:'setup-photo-recovery',hidden:!issue});
+  box.appendChild(el('p',{text:row.piece.localPhotoFiles.length?'Photo file not attached: '+row.piece.localPhotoFiles.join(', '):'A photo is missing or unavailable. Choose what to do before saving this piece.'}));
+  box.append(setupAttachPhoto(row,index),setupButton('Add without a photo',function(){setupClearPhotos(row);drawSetup({keep:true})}),setupButton('Skip this piece',function(){setupChooseAction(row,'skip');drawSetup({keep:true})}));return box;
+}
+function setupAttachPhoto(row,index){
+  var input=el('input',{type:'file',class:'hide',accept:'image/*','aria-label':'Attach a photo for piece '+(index+1),'data-setup-focus':'attach-'+index,onchange:async function(){
+    var file=input.files[0];if(!file)return;if(file.size>10*1024*1024){row.error='Use an image under 10 MB.';drawSetup({keep:true});return}
+    var session=setupSession;row.loadingPhoto=true;setupUpdateReview();
+    try{var pic=await readImage(file);if(setupSession!==session)return;setupClearPhotos(row);row.photo=pic;row.photoDecision='attached';}
+    catch(e){row.error='Could not read this photo. '+(e.message||'Try another image.');}
+    finally{row.loadingPhoto=false;if(setupSession===session)drawSetup({keep:true});}
+  }});
+  return el('div',{class:'setup-attach'},setupButton('Attach a photo',function(){input.click()}),input);
+}
+function setupCompare(row,index){
+  var incoming=row.piece,match=row.match,box=el('div',{class:'setup-compare'});
+  box.appendChild(el('div',{class:'setup-compare-pair'},el('div',null,el('strong',{text:'From this file'}),el('p',{text:incoming.name+' · '+[incoming.variant,incoming.size].filter(Boolean).join(' · ')})),el('div',null,el('strong',{text:match?'In your closet'+(match.wish?' · Wishlist':''):'Earlier in this batch'}),match&&match.photo?el('img',{class:'setup-existing-photo',src:match.photo,alt:match.name,loading:'lazy'}):null,el('p',{text:match?match.name+' · '+[match.variant,match.size||'size not recorded'].filter(Boolean).join(' · '):'A piece with the same product or name is already listed in this batch.'}))));
+  box.appendChild(el('p',{text:'Is this the same piece?'}));var choices=el('div',{class:'setup-inline'});
+  [['skip','Skip'],['add','Add as a separate piece']].concat(match&&match.wish&&incoming.status==='owned'?[['owned','Mark existing piece as owned']]:[]).forEach(function(choice){choices.appendChild(el('button',{class:'btn',type:'button','aria-pressed':String(row.action===choice[0]),'data-setup-focus':'choice-'+index+'-'+choice[0],text:choice[1],onclick:function(){setupChooseAction(row,choice[0]);drawSetup({keep:true})}}))});box.appendChild(choices);
+  if(match&&match.wish&&incoming.status==='owned'){
+    var fields=[];try{fields=Object.keys(setupPromotion(match,incoming)).filter(function(k){return k!=='wish'&&k!=='sizeKind'})}catch(e){}
+    box.appendChild(el('p',{class:'fine',text:'Marking owned keeps its photos and tags.'+(fields.length?' Fills in its blank '+fields.join(', ')+'.':'')+' Nothing new is added.'}));
+  }
+  return box;
+}
+function setupDrawRowDetails(row,index){
+  var p=row.piece,box=el('div',{class:'setup-row-details'}),fields=el('div',{class:'setup-field-grid'});
+  [['size','Size'],['variant','Variant / color option'],['source','Store / source'],['price','Item price (USD)'],['url','Product link'],['date','Date'],['fitsLike','Fits like']].forEach(function(pair){fields.appendChild(setupReviewField(row,index,pair[0],pair[1],pair[0]==='date'?'date':'text'))});
+  fields.appendChild(setupReviewField(row,index,'originalTitle','Original listing title','textarea'));box.appendChild(fields);
+  if(p.currency&&p.currency!=='USD')box.appendChild(el('p',{class:'setup-warning',text:'This file specifies '+p.currency+'. Clear the price to leave it unknown; Closet Lint supports confirmed USD prices only.'}));
+  if(p.listingDetails)box.appendChild(el('details',null,el('summary',{text:'Original listing attributes'}),el('pre',{class:'setup-listing-details',text:p.listingDetails})));
+  if(p.priceNote)box.appendChild(el('p',{class:'fine',text:p.priceNote}));
+  var photos=el('div',{class:'setup-photo-preview'});
+  (p.images||[]).forEach(function(view,i){photos.appendChild(el('div',{class:'setup-image-option'},el('img',{src:(function(){try{return setupPhotoURL(view.url)}catch(e){return ''}})(),alt:view.kind+' photo for '+p.name,loading:'lazy',referrerpolicy:'no-referrer',onerror:function(){row.photoErrors[view.url]=true;setupUpdateReview();var recovery=$('setup-photo-recovery-'+index);if(recovery)recovery.hidden=false;}}),el('span',{text:view.kind+(i===0?' · Main, first view':'')}),setupButton('Remove this view',function(){p.images.splice(i,1);delete row.photoErrors[view.url];delete (row.imageUploads||{})[view.url];row.photoUpload=null;if(p.photoUrl===view.url)p.photoUrl='';if(!p.images.length&&!p.photoUrl&&!row.photo)row.photoDecision='needed';drawSetup({keep:true})})))});
+  if(row.photo||p.photoUrl||p.images.length)photos.appendChild(setupButton('Remove photos',function(){setupClearPhotos(row);row.photoDecision='needed';drawSetup({keep:true})}));
+  photos.appendChild(setupAttachPhoto(row,index));box.append(photos,el('p',{class:'fine',text:'The first view becomes the main photo. Remove views you don’t want. Up to 12 photos per piece.'}));
+  var tags=el('details',{'data-setup-detail':'tags-'+index},el('summary',{text:'Tags and styling'}));
+  setupTagFields().forEach(function(d){
+    if(d.multi){var input=el('input',{type:'text',value:(p[d.key]||[]).join(', '),'aria-label':d.label+' for piece '+(index+1),'data-setup-focus':'tags-'+index+'-'+d.key,oninput:function(){var vals=input.value.split(',').map(function(v){return v.trim()}).filter(Boolean),bad=vals.filter(function(v){return d.vocab.indexOf(v)<0});row.tagErrors=row.tagErrors||{};row.tagErrors[d.key]=bad.length?'Unknown '+d.label+' tags: '+bad.join(', '):'';if(!bad.length)p[d.key]=vals.filter(function(v,i,a){return a.indexOf(v)===i});setupUpdateReview()}});tags.appendChild(setupLabel(d.label,input));}
+    else tags.appendChild(setupLabel(d.label,setupSelect(d.label+' for piece '+(index+1),[['','Not set']].concat(d.vocab.map(function(v){return [v,v]})),p[d.key]||'',function(v){p[d.key]=v;setupUpdateReview()})));
+  });
+  [['labAs','Wear this…',[['','Infer from tags'],['top','As a main top'],['layer','Over another top'],['either','As a main top or over another top'],['under','Under another piece only']]],['layerNeed','Needs a styling layer',[['','Infer from tags'],['none','Not required'],['under','Required underneath'],['over','Required over it'],['either','Required underneath or over']]],['weight','Fabric weight',[['','Infer from tags'],['thin','Thin / lightweight'],['regular','Medium / regular'],['thick','Thick / heavy']]]].forEach(function(d){tags.appendChild(setupLabel(d[1],setupSelect(d[1]+' for piece '+(index+1),d[2],p[d[0]]||'',function(v){p[d[0]]=v})))});box.appendChild(tags);return box;
+}
+function setupDrawReview(body,actions){
+  var s=setupSession;body.appendChild(el('p',{text:'Choose what to add. Nothing is saved until you select Add pieces.'}));if(s.fileName)body.appendChild(el('p',{class:'fine',text:'From: '+s.fileName}));
+  var c=setupCounts(s.rows);body.appendChild(el('p',{id:'setup-review-count',class:'setup-review-count',text:c.ready+' ready · '+c.matches+' possible matches · '+c.blocked+' need attention'}));
+  if(c.matches)body.appendChild(el('p',{class:'fine',text:c.matches+' of these '+s.rows.length+' look like pieces already in your closet or this batch. Matches are checked each time; this browser doesn’t keep receipts for these files.'}));
+  var filters=el('div',{class:'setup-inline'});[['all','All '+s.rows.length],['attention','Needs attention'],['matches','Possible matches'],['unsaved','Unsaved']].forEach(function(f){filters.appendChild(el('button',{class:'chip',type:'button','aria-pressed':String(s.filter===f[0]),'data-setup-focus':'filter-'+f[0],text:f[1],onclick:function(){s.filter=f[0];drawSetup({keep:true})}}))});body.appendChild(filters);
+  var list=el('div',{class:'setup-review-list'}),shown=0;
+  s.rows.forEach(function(row,index){
+    if(s.filter==='attention'&&!setupRowIssue(row)&&!row.error||s.filter==='matches'&&!row.duplicate||s.filter==='unsaved'&&(row.saved||!row.selected))return;shown++;
+    var p=row.piece,card=el('section',{class:'setup-review-row'+(row.saved?' setup-saved':''),id:'setup-row-'+index,'aria-label':p.name||'Piece '+(index+1)}),main=el('div',{class:'setup-review-main'});
+    var check=el('input',{type:'checkbox',checked:row.selected,disabled:row.saved,'aria-label':'Include '+(p.name||'piece '+(index+1)),'data-setup-focus':'include-'+index,onchange:function(){
+      if(!check.checked){if(row.duplicate)setupChooseAction(row,'skip');else row.selected=false;}
+      else if(row.duplicate&&row.action==='skip'){row.compare=true;row.selected=false;}
+      else {row.selected=true;row.action='add';}drawSetup({keep:true});
+    }});
+    var name=el('input',{type:'text',value:p.name,maxlength:'180',disabled:row.saved,'aria-label':'Name for piece '+(index+1),'data-setup-focus':'name-'+index,oninput:function(){p.name=name.value;row.error='';setupUpdateReview()}});
+    main.append(el('label',{class:'setup-include'},check),setupRowPhoto(row,index),el('div',{class:'setup-review-name'},name,el('span',{class:'fine',text:[p.variant,p.size].filter(Boolean).join(' · ')||'Size and variant not recorded'})));
+    var category=setupSelect('Category for piece '+(index+1),[['','Choose category']].concat(META.map(function(v){return [v,v]})),p.meta,function(v){p.meta=v;p.sub='';row.error='';drawSetup({keep:true})});category.disabled=row.saved;category.setAttribute('data-setup-focus','category-'+index);
+    var sub=setupSelect('Subcategory for piece '+(index+1),[['','Not set']].concat((SUBS[p.meta]||[]).map(function(v){return [v,v]})),p.sub,function(v){p.sub=v;row.error='';setupUpdateReview()});sub.disabled=row.saved;
+    var owned=setupSelect('Ownership for piece '+(index+1),[['','Choose ownership'],['owned','Owned'],['wishlist','Wishlist']],p.status,function(v){p.status=v;if(v!=='owned'&&row.action==='owned')setupChooseAction(row,'skip');row.error='';drawSetup({keep:true})});owned.disabled=row.saved;owned.setAttribute('data-setup-focus','ownership-'+index);
+    main.append(el('div',{class:'setup-review-category'},setupLabel('Category',category),setupLabel('Subcategory',sub),setupLabel('Ownership',owned)),el('div',{class:'setup-row-status'},el('strong',{id:'setup-row-state-'+index,text:row.saved?'Saved':!row.selected?'Skipped':setupRowIssue(row)||(row.duplicate?'Possible match':'Ready')})));
+    if(!row.saved)main.appendChild(el('button',{class:'btn small',type:'button',text:row.details?'Hide details':'Details','aria-expanded':String(!!row.details),'data-setup-focus':'details-'+index,onclick:function(){row.details=!row.details;drawSetup({keep:true})}}));else main.appendChild(el('span',{text:'Locked'}));card.appendChild(main);
+    if(row.error)card.appendChild(el('p',{class:'setup-warning',role:'alert',text:row.error}));
+    if(row.duplicate&&!row.saved){card.appendChild(el('button',{class:'btn small',type:'button',text:row.compare?'Hide comparison':'Compare','aria-expanded':String(row.compare),'data-setup-focus':'compare-'+index,onclick:function(){row.compare=!row.compare;drawSetup({keep:true})}}));if(row.compare)card.appendChild(setupCompare(row,index));}
+    if(!row.saved&&row.action!=='owned')card.appendChild(setupPhotoRecovery(row,index));
+    if(row.details&&!row.saved)card.appendChild(setupDrawRowDetails(row,index));list.appendChild(card);
+  });if(!shown)list.appendChild(el('p',{text:'No pieces in this view.'}));body.appendChild(list);
+  var hint=el('p',{id:'setup-blocked',class:'fine'}),go=setupButton('Go to it',function(){var i=s.rows.findIndex(function(r){return r.selected&&!r.saved&&setupRowIssue(r)}),row=$('setup-row-'+i);if(!row){s.filter='all';drawSetup({keep:true});row=$('setup-row-'+i)}if(row){row.scrollIntoView({block:'center',behavior:'smooth'});var input=row.querySelector('input,select,button');if(input)input.focus({preventScroll:true})}});go.id='setup-go-blocked';
+  var save=setupButton(setupSaveLabel(c),setupSaveImport,true);save.id='setup-save-button';save.disabled=!c.remaining||!!c.blocked;
+  actions.append(el('div',{class:'setup-footer-hint'},hint,go),setupButton('← Back',function(){s.preview=s.rows;s.loadBack='hub';setupGo('load')}),setupButton('Close',setupRequestClose),save);
+  if(!c.remaining)actions.appendChild(setupButton(c.added+c.owned?'Finish for now':'Finish without adding',function(){setupGo('done')}));
+  // Nodes are not mounted until drawSetup returns, so initialize the hint directly.
+  var blocked=s.rows.find(function(r){return r.selected&&!r.saved&&setupRowIssue(r)});hint.textContent=blocked?blocked.piece.name+': '+setupRowIssue(blocked)+' You can also unselect it.':'';go.hidden=!blocked;
+}
+function setupDrawRecovery(body,actions){
+  var s=setupSession,c=setupCounts(s.rows),saved=c.added+c.owned;
+  body.appendChild(el('p',{text:s.busy?'Finishing the current save.':saved+' changes saved. '+c.remaining+' still need attention. The saved changes stay in your closet whatever you do next.'}));
+  s.rows.forEach(function(r){body.appendChild(el('div',{class:'setup-result-row'},el('strong',{text:r.piece.name}),el('span',{text:r.saved?(r.action==='owned'?'Marked owned · locked':'Added · locked'):!r.selected?'Skipped':r.error?'Not saved yet: '+r.error:r.attempted?'Not saved yet':'Not attempted after the stop.'})))});
+  if(s.busy)return;
+  body.appendChild(el('p',{class:'fine',text:'Retry works while this window is open. After a reload, load the file again and matches will be rechecked.'}));
+  actions.append(setupButton(c.owned?'Finish for now':'Finish with '+c.added+' saved',function(){setupGo('done')}),setupButton('Back to unsaved pieces',function(){s.filter='unsaved';setupGo('review')}),setupButton('Retry remaining pieces',setupSaveImport,true));
+}
+function setupDrawDone(body,actions){
+  var s=setupSession,c=setupCounts(s.rows);body.appendChild(el('p',{class:'setup-review-count',text:c.added+' added · '+c.owned+' marked owned · '+c.skipped+' skipped'+(c.remaining?' · '+c.remaining+' not saved':'')}));
+  s.rows.forEach(function(r){body.appendChild(el('div',{class:'setup-result-row'},el('strong',{text:r.piece.name}),el('span',{text:r.saved?r.action==='owned'?'Moved from Wishlist to Owned. Existing photos and tags kept.':'Added'+(r.photoDecision==='none'?' · No photo yet':''):r.selected?'Not saved':'Skipped'})))});
+  body.appendChild(el('p',{text:'You can refine names, tags, and photos later.'}));
+  var saved=s.rows.filter(function(r){return r.saved});if(saved.length&&saved.every(function(r){return r.action==='add'&&r.piece.status==='wishlist'})){
+    body.appendChild(el('p',{text:'Wishlist pieces show when Fantasy mode is on.'}));
+    if(!state.fantasy)actions.appendChild(setupButton('Turn on Fantasy mode',function(){setFantasy(true);s.message='Fantasy mode is on.';drawSetup({keep:true})}));
+  }
+  if(saved.length){actions.appendChild(setupButton('Review unreviewed pieces',function(){setupCloseNow();setTab('all');resetFilterState();state.review=true;renderFilters();renderGrid();setupFocusCloset()},true));body.appendChild(el('p',{class:'fine',text:'Opens Unreviewed. It can include pieces from earlier imports too.'}));}
+  if(c.remaining)actions.appendChild(setupButton('Back to unsaved pieces',function(){s.filter='unsaved';setupGo('review')}));
+  actions.append(setupButton('Import another batch',function(){var launcher=s.launcher;setupSession=setupNewSession('hub');setupSession.launcher=launcher;drawSetup()}),setupButton('Done',setupCloseNow));
+}
+function setupFocusCloset(){var main=document.querySelector('main')||$('main');if(main){main.tabIndex=-1;main.focus({preventScroll:true})}}
 async function setupSaveImages(row){
   var photos=[];row.imageUploads=row.imageUploads||{};
   for(var i=0;i<(row.piece.images||[]).length;i++){
     var image=row.piece.images[i],url=setupPhotoURL(image.url),cached=row.imageUploads[url];
-    if(!cached){var response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer'});
-      if(!response.ok||!/^image\//i.test(response.headers.get('content-type')||''))throw Error('An alternate photo could not be downloaded. Remove that view or attach a local image.');
-      var blob=await response.blob();if(blob.size>10*1024*1024)throw Error('An alternate photo is over 10 MB.');
-      var pic=await readImage(blob),up=await state.assets.upload(pic.blob);cached={photoId:up.id,ar:pic.ar};row.imageUploads[url]=cached;
+    if(!cached){
+      try{var response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer'});if(!response.ok||!/^image\//i.test(response.headers.get('content-type')||''))throw Error();var blob=await response.blob();if(blob.size>10*1024*1024)throw Error();var pic=await readImage(blob),up=await state.assets.upload(pic.blob);cached={photoId:up.id,ar:pic.ar};row.imageUploads[url]=cached;}
+      catch(e){row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('An alternate photo could not be saved. Attach a photo, remove that view, or choose Add without a photo.');}
     }
     photos.push({photoId:cached.photoId,ar:cached.ar,kind:image.kind,sourceUrl:url});
   }
@@ -6007,16 +6336,22 @@ async function setupSaveImages(row){
 async function setupSaveRow(id,record,row){
   if(row.action==='owned'){
     var current=allItems().find(function(it){return it.id===row.match.id});
-    if(!current||current.removed)throw Error('That wishlist piece is no longer available.');
-    if(!await patchEdit(current,{wish:false},true))throw Error('Could not update the wishlist piece.');
-    return;
+    if(current&&!current.wish&&!current.removed&&row.promotionPatch){
+      // A write may commit before its response is lost. Reapplying the original patch is safe.
+      var retryPatch={wish:false};Object.keys(row.promotionPatch).forEach(function(k){if(k!=='wish'&&k!=='sizeKind'&&(current[k]===undefined||current[k]===null||current[k]===''))retryPatch[k]=row.promotionPatch[k]});if(retryPatch.size)retryPatch.sizeKind=row.promotionPatch.sizeKind;
+      if(!await patchEdit(current,retryPatch,true))throw Error('Could not confirm this ownership change.');return;
+    }
+    var patch=setupPromotion(current,row.piece||{});row.promotionPatch=patch;
+    if(!await patchEdit(current,patch,true))throw Error('Could not update the wishlist piece.');return;
   }
-  if((row.piece.images||[]).length+((row.photo||row.piece.photoUrl)?1:0)>10)throw Error('Use at most 10 photos per piece, including the main photo.');
-  if((row.piece.images||[]).length){record.photos=await setupSaveImages(row);if(!row.photo&&!row.photoUpload){var primary=record.photos[0];row.photoUpload={photoId:primary.photoId,ar:primary.ar};}}
+  var images=row.piece.images||[],unique=new Set(images.map(function(x){return x.url}));
+  if(row.photo||(row.piece.photoUrl&&!unique.has(row.piece.photoUrl)))unique.add('__primary');
+  if(unique.size>12)throw Error('Use at most 12 saved photos per piece, including the main photo.');
+  if(images.length){record.photos=await setupSaveImages(row);if(!row.photo&&!row.photoUpload){var primary=record.photos[0];row.photoUpload={photoId:primary.photoId,ar:primary.ar};}}
   if((row.photo||row.piece.photoUrl)&&!row.photoUpload){
-    if(!row.photo){var response=await fetch(setupPhotoURL(row.piece.photoUrl),{credentials:'omit',referrerPolicy:'no-referrer'});
-      if(!response.ok||!/^image\//i.test(response.headers.get('content-type')||''))throw Error('Photo could not be downloaded. Attach an image file or remove its URL.');
-      var blob=await response.blob();if(blob.size>10*1024*1024)throw Error('Photo is over 10 MB. Attach a smaller image.');row.photo=await readImage(blob);
+    if(!row.photo){var url=setupPhotoURL(row.piece.photoUrl);
+      try{var response=await fetch(url,{credentials:'omit',referrerPolicy:'no-referrer'});if(!response.ok||!/^image\//i.test(response.headers.get('content-type')||''))throw Error();var blob=await response.blob();if(blob.size>10*1024*1024)throw Error();row.photo=await readImage(blob);}
+      catch(e){row.photoErrors=row.photoErrors||{};row.photoErrors[url]=true;throw Error('Photo could not be downloaded. Attach a photo, choose Add without a photo, or skip this piece.');}
     }
     var up=await state.assets.upload(row.photo.blob);row.photoUpload={photoId:up.id,ar:row.photo.ar};
   }
@@ -6024,17 +6359,27 @@ async function setupSaveRow(id,record,row){
   await state.db.collection('custom').doc(id).set(layerDefaults(record));
 }
 async function setupSaveImport(){
-  var s=setupSession;if(s.busy||needDb()||s.rows.some(function(r){return r.loadingPhoto}))return;
-  var invalid=[].find.call(document.querySelectorAll('#setup-wizard input'),function(input){var fieldset=input.closest('[data-import-index]');return (!fieldset||s.rows[+fieldset.dataset.importIndex].selected)&&!input.disabled&&!input.checkValidity()});if(invalid){invalid.reportValidity();return}
-  s.busy=true;s.message='';drawSetup();
-  try{var result=await setupWriteRows(s.rows,setupSaveRow,s.batch);
-    if(result.invalid)s.message='A few selected pieces need attention. Fix the marked fields or uncheck those pieces.';
-    else if(result.failed)s.message=result.saved+' saved; '+result.failed+' need attention. Successful rows are locked. Retry the rest.';
-    else{s.step=4;s.text='';}
-  }catch(e){s.message='Import paused: '+(e.message||e)}
+  var s=setupSession;if(!s||s.busy||needDb())return;
+  var blocked=s.rows.find(function(r){return r.selected&&!r.saved&&setupRowIssue(r)});
+  if(blocked){s.message=blocked.piece.name+': '+setupRowIssue(blocked);s.step='review';s.filter='attention';drawSetup();return;}
+  s.busy=true;s.step='saving';s.message='Saving to your closet…';drawSetup();
+  try{var result=await setupWriteRows(s.rows,setupSaveRow,s.batch,function(saved,failed,index,total){s.message='Saving change '+index+' of '+total+'…';drawSetup({keep:true})});
+    if(result.invalid){s.step='review';s.filter='attention';s.message='Fix the marked pieces, or unselect them. Nothing was saved in this attempt.';}
+    else if(result.failed){s.step='recovery';s.message='Saving stopped. Successful pieces stay saved.';}
+    else{s.step='done';s.text='';s.message='';}
+  }catch(e){s.step='recovery';s.message='Import paused: '+(e.message||e);}
   s.busy=false;drawSetup();
 }
-$('setup-wizard').addEventListener('cancel',function(e){if(setupSession&&setupSession.busy)e.preventDefault()});
+$('setup-wizard').addEventListener('cancel',function(e){e.preventDefault();if(setupSession&&setupSession.confirm){setupSession.confirm=null;drawSetup({keep:true})}else setupRequestClose()});
+$('setup-wizard').addEventListener('close',function(){if(setupSession&&!$('setup-wizard').open){var launcher=setupSession.launcher;setupSession=null;if(launcher&&launcher.isConnected)launcher.focus()}});
+
+function setupFitViewport(){
+  var d=$('setup-wizard'),v=window.visualViewport;if(!d.open||!v)return;
+  var covered=window.innerHeight-v.height-v.offsetTop;
+  if(covered>120){d.style.height=Math.max(120,v.height-12)+'px';d.style.maxHeight=Math.max(120,v.height-12)+'px';d.style.marginTop=(v.offsetTop+6)+'px';d.style.marginBottom='auto';}
+  else{d.style.height='';d.style.maxHeight='';d.style.marginTop='';d.style.marginBottom='';}
+}
+if(window.visualViewport){window.visualViewport.addEventListener('resize',setupFitViewport);window.visualViewport.addEventListener('scroll',setupFitViewport);}
 
 /* END SETUP */
 
@@ -6154,9 +6499,15 @@ function applyDisplayPrefs(prefs){
   $('appearance').value=prefs.theme;$('thumbsize').value=String(prefs.density);$('thumbsize-label').textContent=['Small','Medium','Large'][prefs.density-1];
 }
 function storeDisplayPrefs(){
+  $('display-prefs-status').textContent='';
   var prefs=cleanDisplayPrefs({menuEmoji:$('menu-emoji').value!=='off',sizeReferenceName:$('size-reference-name').value,theme:$('appearance').value,density:Number($('thumbsize').value),skin:$('site-theme').value,icons:$('icon-pack').value,emoji:$('emoji-treatment').value,edge:$('emoji-edge').value,photo:$('photo-finish').value});
   applyDisplayPrefs(prefs);
-  try{localStorage.setItem('closetlint.display.v1',JSON.stringify(prefs))}catch(e){toast('View updated for this visit. Your browser could not save the preference.')}
+  try{localStorage.setItem('closetlint.display.v1',JSON.stringify(prefs));return true}catch(e){toast('View updated for this visit. Your browser could not save the preference.');return false}
+}
+function resetDisplayPrefs(){
+  applyDisplayPrefs({sizeReferenceName:$('size-reference-name').value});
+  var saved=storeDisplayPrefs();
+  $('display-prefs-status').textContent=saved?'Display preferences reset. Your wardrobe and size reference are unchanged.':'Display preferences reset for this visit. Your browser could not save them; your wardrobe and size reference are unchanged.';
 }
 function isClosetTab(tab){return ['all','clothing','accessories','jewelry','offduty'].indexOf(tab)>=0}
 function mainDestination(tab){return isClosetTab(tab)||tab==='wrank'?'closet':tab==='outfits'?(state.editingOutfit?'saved':'board'):tab==='saved'?'saved':tab==='trip'?'trip':'lab'}
@@ -6175,13 +6526,14 @@ function initShell(){
   initJumpTop();
   var sidebar=$('sidebar-toggle');
   try{document.documentElement.classList.toggle('filters-collapsed',localStorage.getItem('closetlint.filtersCollapsed')==='1')}catch(e){}
-  function sidebarLabel(){sidebar.setAttribute('aria-expanded',document.documentElement.classList.contains('filters-collapsed')?'false':'true')};sidebarLabel();
-  sidebar.addEventListener('click',function(){var off=document.documentElement.classList.toggle('filters-collapsed');sidebarLabel();try{localStorage.setItem('closetlint.filtersCollapsed',off?'1':'0')}catch(e){}});
+  function sidebarLabel(){var off=document.documentElement.classList.contains('filters-collapsed');sidebar.setAttribute('aria-expanded',off?'false':'true');sidebar.textContent=off?'»':'«';sidebar.setAttribute('aria-label',off?'Show filters':'Hide filters');sidebar.title=off?'Show filters':'Hide filters'};sidebarLabel();
+  sidebar.addEventListener('click',function(){var off=document.documentElement.classList.toggle('filters-collapsed');sidebarLabel();var target=off?sidebar:$('filter-collapse');if(target)target.focus();try{localStorage.setItem('closetlint.filtersCollapsed',off?'1':'0')}catch(e){}});
   if(typeof initBrandLogo==='function')initBrandLogo();
   if(typeof initWardrobeMounts==='function')initWardrobeMounts();
   applyDisplayPrefs(readDisplayPrefs());
   ['menu-emoji','size-reference-name','appearance','thumbsize','site-theme','icon-pack','emoji-treatment','emoji-edge','photo-finish'].forEach(function(id){$(id).addEventListener(id==='thumbsize'?'input':'change',storeDisplayPrefs)});
-  $('viewprefs').addEventListener('click',function(){$('displayprefs').showModal();$('site-theme').focus()});
+  $('reset-display-prefs').addEventListener('click',function(){resetDisplayPrefs();if(isClosetTab(state.tab))renderGrid()});
+  $('displayprefs').addEventListener('close',function(){$('menubtn').focus()});
   $('displayprefs').addEventListener('click',function(e){if(e.target===$('displayprefs')){var r=this.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)this.close()}});
   [['closet','all'],['board','outfits'],['saved','saved'],['lab','lab'],['trip','trip']].forEach(function(pair){var route={type:({closet:'closet',board:'board',saved:'outfits',lab:'lab',trip:'trips'})[pair[0]]};$('go-'+pair[0]).setAttribute('href',closetRouteHref(route));$('go-'+pair[0]).addEventListener('click',function(e){routeClick(e,function(){closeFilterSheet();if(setTab(pair[1])!==false)window.scrollTo(0,0)})})});
 
@@ -6269,10 +6621,11 @@ function setTab(t){
   state.tab=t;
   $('home').classList.toggle('active',t==='all');
   try{localStorage.setItem('closetlint.tab.v1',t)}catch(e){}
-  if(changed&&t!=='outfits'){resetFilterState();state.picked={};if(chosenCollections)state.collectionFilter=chosenCollections}
+  if(changed&&t!=='outfits'){resetFilterState();if(chosenCollections)state.collectionFilter=chosenCollections}
   if(keepWishlist)state.wishOnly=true;
   syncNavigation();
   var closet=(t!=='outfits'&&t!=='lab'&&t!=='buy'&&t!=='saved'&&t!=='trip'&&t!=='wrank');
+  $('selbar').classList.toggle('hide',!closet||!state.selectMode);
   $('view-closet').classList.toggle('hide',!closet);
   $('view-outfits').classList.toggle('hide',t!=='outfits');
   $('view-saved').classList.toggle('hide',t!=='saved');
@@ -6436,7 +6789,7 @@ function openStoreDialog(ids,prefill){
   var dl=el('datalist',{id:'wherelist'});whereLabels().forEach(function(l){dl.appendChild(el('option',{value:l}))});
   var go=el('button',{class:'btn primary',type:'button',text:'\uD83D\uDDC4\uFE0F Put in storage',onclick:function(){
     var label=inp.value.trim();d.close();
-    applyBulk(ids,function(){return {stored:true,where:label}},'Stored '+ids.length+(ids.length===1?' piece':' pieces')+(label?' in '+label:'')).then(function(){closeDlg();state.picked={};renderGrid()});
+    applyBulk(ids,function(){return {stored:true,where:label}},'Stored '+ids.length+(ids.length===1?' piece':' pieces')+(label?' in '+label:'')).then(function(){closeDlg();renderGrid()});
   }});
   inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();go.click()}});
   d.appendChild(el('div',{class:'dlgwide narrow'},el('h2',{text:ids.length===1?'Put this piece in storage':'Put '+ids.length+' pieces in storage'}),
@@ -6541,19 +6894,20 @@ function openMeasurements(){
     el('div',{class:'actions',style:'margin-top:10px'},save),
     el('h3',{text:'History',style:'margin:14px 0 4px'}),hist,
     el('h3',{text:'Sizes I wear',style:'margin:14px 0 2px'}),
-    el('p',{class:'fine',text:'Pick the labels that fit you, with tops and bottoms separate since they often differ. Set your preferred fit reference in Theme / View. The \uD83D\uDCD0 Fits me filter (in the Size filter) then hides pieces in other sizes. One-pieces fit if they match your top or your bottom size. Pieces with no size, rings and one-size items always stay.'}),
+    el('p',{class:'fine',text:'Pick the labels that fit you, with tops and bottoms separate since they often differ. Set your preferred fit reference in View settings in the menu. The \uD83D\uDCD0 Fits me filter (in the Size filter) then hides pieces in other sizes. One-pieces fit if they match your top or your bottom size. Pieces with no size, rings and one-size items always stay.'}),
     chipRow('tops','Tops, dresses and outerwear'),chipRow('bottoms','Bottoms'),chipRow('shoe','Shoes'),chipRow('bra','Bras'),
     el('div',{class:'actions',style:'margin-top:14px'},el('button',{class:'btn',type:'button',text:'Done',onclick:closeDlg}))));
   addClose(d);if(!d.open)d.showModal();
 }
 function menuLabel(label){var split=label.indexOf(' '),icon=label.slice(0,split);return split>0&&/[^\x00-\x7F]/.test(icon)?[el('span',{class:'menu-emoji','aria-hidden':'true',text:icon}),el('span',{class:'menu-label',text:label.slice(split+1)})]:[el('span',{class:'menu-label',text:label})];}
+function openDisplayPrefs(){$('displayprefs').showModal();$('site-theme').focus()}
 function closeAppMenu(){$('appmenu').classList.add('hide')}
 $('menubtn').addEventListener('click',function(e){
   e.stopPropagation();var m=$('appmenu');
   if(!m.classList.contains('hide')){closeAppMenu();return}
   m.textContent='';
-  [['📚 Collections',function(){openCollections()},{type:'collections'}],['🏆 Wishlist',function(){setTab('wrank')},{type:'wishlist-ranking'}],['🧳 Trips',function(){setTab('trip')},{type:'trips'}],['\uD83D\uDCD0 Sizes & fit',openMeasurements]].forEach(function(it){
-    var attrs={role:'menuitem','aria-current':it[0]==='🧳 Trips'&&state.tab==='trip'?'page':null};var action=function(){closeAppMenu();it[1]()};m.appendChild(it[2]?routeAnchor(it[2],attrs,action,menuLabel(it[0])):el('button',Object.assign({type:'button',onclick:action},attrs),menuLabel(it[0])));
+  [['📚 Collections',function(){openCollections()},{type:'collections'}],['🏆 Wishlist',function(){setTab('wrank')},{type:'wishlist-ranking'}],['🧳 Trips',function(){setTab('trip')},{type:'trips'}],['\uD83D\uDCD0 Sizes & fit',openMeasurements],['✦ View settings',openDisplayPrefs]].forEach(function(it){
+    var attrs={role:'menuitem','aria-haspopup':it[1]===openDisplayPrefs?'dialog':null,'aria-current':it[0]==='🧳 Trips'&&state.tab==='trip'?'page':null};var action=function(){closeAppMenu();it[1]()};m.appendChild(it[2]?routeAnchor(it[2],attrs,action,menuLabel(it[0])):el('button',Object.assign({type:'button',onclick:action},attrs),menuLabel(it[0])));
   });
   function flyout(label,rows){
     var wrap=el('div',{class:'xpar'}),fly=el('div',{class:'xfly',role:'group'});
@@ -7648,31 +8002,52 @@ function labBlock(o){
   d.appendChild(box);addClose(d);if(!d.open)d.showModal();
 }
 function labBlocksBox(v){
-  var ks=Object.keys(state.blocks||{});if(!ks.length)return;
-  var map=byId(),b=el('div',{class:'tastebox'},el('h3',{text:"Pairs that don't work"}));
-  ks.forEach(function(k){
-    var r=state.blocks[k],A=map[r.a],B=map[r.b];if(!A||!B)return;
-    b.appendChild(el('div',{class:'tasterow'},el('span',{text:A.name+' + '+B.name}),el('button',{class:'btn',type:'button',text:'Allow again',onclick:function(){state.db&&state.db.collection('blocks').doc(k).delete().then(function(){delete state.blocks[k];labRender()})}})));
-  });
-  v.appendChild(b);
+  var map=byId(),list=Object.keys(state.blocks||{}).filter(function(k){var r=state.blocks[k];return map[r.a]&&map[r.b]});if(!list.length)return;
+  var L=state.lab||(state.lab={}),limit=Math.max(20,Number(L.blockLimit)||20),box=el('div',{class:'tastebox'});v.appendChild(box);
+  function draw(focusIndex){
+    var scroll=window.scrollY||0;box.textContent='';
+    var heading=el('h3',{text:"Pairs that don't work",tabindex:'-1'}),buttons=[];
+    box.appendChild(heading);box.appendChild(el('p',{class:'fine',role:'status',text:list.length?'Showing '+Math.min(limit,list.length)+' of '+list.length+' pairs':'No blocked pairs.'}));
+    list.slice(0,limit).forEach(function(k,index){
+      var r=state.blocks[k],A=map[r.a],B=map[r.b];
+      var allow=el('button',{class:'btn',type:'button',text:'Allow again',onclick:function(){
+        if(!state.db)return;allow.disabled=true;
+        return state.db.collection('blocks').doc(k).delete().then(function(){delete state.blocks[k];list=list.filter(function(id){return id!==k});draw(index)}).catch(function(){allow.disabled=false;toast('Could not allow this pair. Try again.')});
+      }});buttons.push(allow);
+      box.appendChild(el('div',{class:'tasterow'},el('span',{text:A.name+' + '+B.name}),allow));
+    });
+    if(limit<list.length)box.appendChild(el('button',{class:'btn lab-list-more',type:'button',text:'Show '+Math.min(20,list.length-limit)+' more',onclick:function(){limit+=20;L.blockLimit=limit;draw(Math.min(limit-20,list.length-1))}}));
+    if(focusIndex!==undefined){var target=buttons[Math.min(focusIndex,buttons.length-1)]||heading;if(target.focus)target.focus({preventScroll:true});if(window.scrollTo)window.scrollTo(0,scroll)}
+  }
+  draw();
 }
 function labFavs(v){
-  var R=state.ratings||{},map=byId(),list=Object.keys(R).filter(function(k){return R[k].r===1}).sort(function(a,b){return (R[b].t||0)-(R[a].t||0)});
-  if(!list.length){v.appendChild(el('p',{class:'labempty',text:'No treasures in this pile yet. Love an outfit and Linty will keep it here.'}));return}
-  list.forEach(function(k){
-    var o=labOutfitFromIds(R[k].ids||[],map);if(!o)return;o.sig=k;labAccRestore(o,R[k],map);
-    if(!state.fantasy&&labParts(o).some(function(p){return p.wish||p.stored}))return;
-    var row=el('div',{class:'favrow'}),g=el('div',{class:'outfit small'});
-    row.appendChild(el('h3',{class:'labtitle small',text:ltTitle(o,(state.lab&&state.lab.tstyle)||'Surprise me')}));
-    labParts(o).concat(labAccParts(o)).forEach(function(p){g.appendChild(labTile(p))});
-    row.appendChild(g);
-    row.appendChild(el('div',{class:'labmore'},
-      el('button',{class:'btn accbtn',type:'button',text:'🧑‍🔬 Open in Lab',title:'Open this outfit back in the Lab to add accessories or swap a piece',onclick:function(){var L=state.lab;try{o.base=labBase(o);o.taste=labTaste(o)}catch(e){}L.mode='rate';L.cur=o;labRender();try{window.scrollTo(0,0)}catch(e){}}}),
-      el('button',{class:'btn',type:'button',text:'Save to Outfit',title:'Saves this outfit to All outfits. The board you are working on is left alone.',onclick:function(){labSaveOutfit(o)}}),
-      el('button',{class:'btn',type:'button',text:'Remove rating',onclick:function(){state.db&&state.db.collection('ratings').doc(k).delete().then(function(){delete state.ratings[k];labRender()})}})));
-    v.appendChild(row);
-  });
+  var R=state.ratings||{},map=byId(),L=state.lab||(state.lab={}),limit=Math.max(20,Number(L.favLimit)||20);
+  var rated=Object.keys(R).filter(function(k){return R[k].r===1}).sort(function(a,b){return (R[b].t||0)-(R[a].t||0)});
+  var list=rated.map(function(k){var o=labOutfitFromIds(R[k].ids||[],map);if(!o)return null;o.sig=k;labAccRestore(o,R[k],map);return !state.fantasy&&labParts(o).some(function(p){return p.wish||p.stored})?null:{key:k,outfit:o}}).filter(Boolean);
+  var box=el('div',{class:'lab-favorites'});v.appendChild(box);
+  function draw(focusIndex){
+    var scroll=window.scrollY||0;box.textContent='';var buttons=[];
+    if(!list.length){box.appendChild(el('p',{class:'labempty',text:rated.length?'No loved outfits match this view. Turn on Fantasy mode to include wishlist and stored pieces.':'No treasures in this pile yet. Love an outfit and Linty will keep it here.'}));return}
+    box.appendChild(el('p',{class:'fine',role:'status',text:'Showing '+Math.min(limit,list.length)+' of '+list.length+' loved outfits'}));
+    list.slice(0,limit).forEach(function(entry,index){
+      var k=entry.key,o=entry.outfit,row=el('div',{class:'favrow'}),g=el('div',{class:'outfit small'});
+      row.appendChild(el('h3',{class:'labtitle small',text:ltTitle(o,L.tstyle||'Surprise me')}));
+      labParts(o).concat(labAccParts(o)).forEach(function(p){g.appendChild(labTile(p))});row.appendChild(g);
+      var remove=el('button',{class:'btn',type:'button',text:'Remove rating',onclick:function(){
+        if(!state.db)return;remove.disabled=true;
+        return state.db.collection('ratings').doc(k).delete().then(function(){delete state.ratings[k];rated=rated.filter(function(id){return id!==k});list=list.filter(function(e){return e.key!==k});draw(index)}).catch(function(){remove.disabled=false;toast('Could not remove this rating. Try again.')});
+      }});buttons.push(remove);
+      row.appendChild(el('div',{class:'labmore'},
+        el('button',{class:'btn accbtn',type:'button',text:'🧑‍🔬 Open in Lab',title:'Open this outfit back in the Lab to add accessories or swap a piece',onclick:function(){try{o.base=labBase(o);o.taste=labTaste(o)}catch(e){}L.mode='rate';L.cur=o;labRender();try{window.scrollTo(0,0)}catch(e){}}}),
+        el('button',{class:'btn',type:'button',text:'Save to Outfit',title:'Saves this outfit to All outfits. The board you are working on is left alone.',onclick:function(){labSaveOutfit(o)}}),remove));box.appendChild(row);
+    });
+    if(limit<list.length)box.appendChild(el('button',{class:'btn lab-list-more',type:'button',text:'Show '+Math.min(20,list.length-limit)+' more',onclick:function(){limit+=20;L.favLimit=limit;draw(Math.min(limit-20,list.length-1))}}));
+    if(focusIndex!==undefined){var target=buttons[Math.min(focusIndex,buttons.length-1)];if(target&&target.focus)target.focus({preventScroll:true});if(window.scrollTo)window.scrollTo(0,scroll)}
+  }
+  draw();
 }
+
 function labFeatName(f){
   var p=f.split(':'),k=p[0],x=p.slice(1).join(':');
   if(k==='c')return colLabel(x)+' pieces';
@@ -7750,7 +8125,7 @@ function labDoSave(o,pieces,nm){
   var doc={name:nm,pieces:pieces,updatedAt:Date.now(),from:'lab'};
   var rr=state.ratings&&state.ratings[o.sig||labSig(o)];if(rr&&typeof rr.r==='number')doc.rating=rr.r;
   return state.db.collection('outfits').doc(id).set(doc).then(function(){
-    state.outfits[id]=doc;o.savedId=id;toastAct('\u2713 Saved to your outfits as "'+doc.name+'".','🎉 Plan it for a day',function(){planOutfitDialog(id)});labRender();
+    state.outfits[id]=doc;o.savedId=id;toastAct('\u2713 Saved to your outfits as "'+doc.name+'".','🎉 Plan it for a day',function(){planOutfitDialog(id)},5000);labRender();
   }).catch(function(e){toast('Could not save: '+(e&&e.message||e))});
 }
 function labToBoard(o){
@@ -8775,7 +9150,7 @@ var WR_TOPN=10;
 function wrSortAll(items){return items.slice().sort(function(a,b){return wrScore(b)-wrScore(a)||String(b.date||'').localeCompare(String(a.date||''))||String(a.name||'').localeCompare(String(b.name||''))})}
 function wrTopIds(){var o={};wrSortAll(wrItems()).slice(0,WR_TOPN).forEach(function(x){o[x.id]=1});return o}
 function wrSecOf(it,top,B){return top[it.id]?'top':wrScore(it)>=B?'want':'some'}
-var WR_SECS=[['top','⭐ Top ten'],['want','Want'],['some','Someday']];
+var WR_SECS=[['top','⭐ Top ten'],['want','💫 Want'],['some','🌙 Someday']];
 function wrJump(k){
   var n=document.querySelector('#view-wrank [data-secnav="'+k+'"]');
   if(n)n.scrollIntoView({behavior:'smooth',block:'start'});
@@ -8793,8 +9168,8 @@ function wrList(v,items){
   function divider(key,label,s){return el('div',{class:'wrrow wrdiv','data-s':String(s),'data-div':key,'data-secnav':key==='a'?'want':'some'},key==='a'?el('span'):wrGrip(),el('span',{class:'wrdivl',text:label}),el('span',{class:'wrdivline'}))}
   sorted.forEach(function(it){
     var s=wrScore(it);
-    if(!placedA&&!TOP[it.id]){list.appendChild(divider('a','▾ Want · below the top ten',s));placedA=true}
-    if(!placedB&&!TOP[it.id]&&s<B){list.appendChild(divider('b','▾ Someday',B));placedB=true}
+    if(!placedA&&!TOP[it.id]){list.appendChild(divider('a','💫 Want · below the top ten',s));placedA=true}
+    if(!placedB&&!TOP[it.id]&&s<B){list.appendChild(divider('b','🌙 Someday',B));placedB=true}
     rank++;
     try{list.appendChild(wrRow(it,rank))}
     catch(e){
@@ -8802,8 +9177,8 @@ function wrList(v,items){
       list.appendChild(el('div',{class:'wrrow','data-s':String(s),'data-id':it.id},wrGrip(),el('span',{class:'wrnum',text:String(rank)}),el('span'),el('div',{class:'wrbody'},el('b',{class:'wrname',text:String(it.name||it.id)}),el('span',{class:'fine',text:'(details could not be drawn)'}))));
     }
   });
-  if(!placedA)list.appendChild(divider('a','▾ Want · below the top ten',B));
-  if(!placedB)list.appendChild(divider('b','▾ Someday',B));
+  if(!placedA)list.appendChild(divider('a','💫 Want · below the top ten',B));
+  if(!placedB)list.appendChild(divider('b','🌙 Someday',B));
   v.appendChild(list);
 }
 function wrRow(it,rank){
@@ -9340,7 +9715,7 @@ function installClosetRoutes(){
   document.addEventListener('input',captureSoon);document.addEventListener('change',captureSoon);window.addEventListener('scroll',captureSoon,{passive:true});
   window.addEventListener('popstate',function(e){if(started)history.pop(e)});window.addEventListener('hashchange',function(){if(started&&!applying&&window.location.hash!==closetRouteHash(history.current().route))history.pop({state:window.history.state})});
   window.addEventListener('beforeunload',function(e){if(dirtyForm()||extraForms.some(function(f){return f.dialog.open&&(f.read()!==f.base||f.busy&&f.busy())})){e.preventDefault();e.returnValue=''}});
-  window.ClosetLintRoutes={ready:function(){if(started||!state.capsDone)return;if(state.db&&!state.pub&&!['edits','custom','outfits','profile','trips'].every(function(k){return setupLoaded[k]}))return;started=true;var requested=window.location.hash;history.start(requested?parseClosetRoute(requested):routeFromState())},cleanForm:function(){formBase=signature()},trackDialog:function(d,read,busy){extraForms=extraForms.filter(function(f){return f.dialog!==d&&f.dialog.open});extraForms.push({dialog:d,read:read,busy:busy,base:read()})},cleanDialog:function(d){extraForms=extraForms.filter(function(f){return f.dialog!==d})},closeTrackedDialog:function(d){var f=extraForms.find(function(x){return x.dialog===d});if(f&&f.busy&&f.busy()){toast('Wait for this save to finish before closing.');return false}if(f&&f.read()!==f.base&&!window.confirm('Discard the unsaved changes to this collection?'))return false;extraForms=extraForms.filter(function(x){return x.dialog!==d});d.close();return true},capture:captureSoon};
+  window.ClosetLintRoutes={ready:function(){if(started||!state.capsDone)return;if(state.db&&!state.pub&&!['edits','custom','outfits','profile','trips'].every(function(k){return setupLoaded[k]}))return;started=true;var requested=window.location.hash;history.start(requested?parseClosetRoute(requested):routeFromState())},cleanForm:function(){formBase=signature()},trackDialog:function(d,read,busy){extraForms=extraForms.filter(function(f){return f.dialog!==d&&f.dialog.open});extraForms.push({dialog:d,read:read,busy:busy,base:read()})},prepareReload:function(){formTrack=null;extraForms=[];},markImportDirty:function(d,dirty){var f=extraForms.find(function(x){return x.dialog===d});if(f&&dirty)f.base='';},hasUnsaved:function(){return dirtyForm()||extraForms.some(function(f){return f.dialog.open&&f.dialog.id!=='setup-wizard'&&(f.read()!==f.base||f.busy&&f.busy())})||!!(state.editingOutfit&&outfitEditorDirty())||!!(state.tab==='trip'&&state.trip&&tripHasUnsaved(state.trip));},cleanDialog:function(d){extraForms=extraForms.filter(function(f){return f.dialog!==d})},closeTrackedDialog:function(d){var f=extraForms.find(function(x){return x.dialog===d});if(f&&f.busy&&f.busy()){toast('Wait for this save to finish before closing.');return false}if(f&&f.read()!==f.base&&!window.confirm('Discard the unsaved changes to this collection?'))return false;extraForms=extraForms.filter(function(x){return x.dialog!==d});d.close();return true},capture:captureSoon};
 }
 
 /* END NAVIGATION */

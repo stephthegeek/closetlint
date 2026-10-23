@@ -62,6 +62,16 @@ Choose **Menu → Utilities → Full backup (data + photos)** and keep a copy so
 
 See [updating and moving your wardrobe](UPDATING.md) before replacing the app files or changing computers.
 
+## Check your setup
+
+If you're unsure what's installed, run this from the app folder:
+
+```bash
+python3 tools/check_setup.py --data ../closet-lint-data
+```
+
+On Windows, use `py -3` instead of `python3`. The check shows whether the app and optional photo tools are ready, with commands for the next step. It doesn't install anything or change your wardrobe. Missing optional photo tools don't prevent normal use.
+
 ## Troubleshooting
 
 - **Python not found:** install Python, reopen the terminal, and try again.
