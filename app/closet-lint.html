@@ -1477,6 +1477,22 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 /* Keep category icons legible in the two proportional-type themes. */
 :root:is([data-skin=fieldnotes],[data-skin=editorial]) .main>.tabs .emo{font-size:20px;vertical-align:middle}
 
+/* Visible photo work, with batch progress available while reviewing earlier rows. */
+.photo-work{box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:180px;padding:16px;text-align:center;color:var(--ink2);font:14px/1.5 var(--body)}
+.photo-spinner{box-sizing:border-box;display:block;width:26px;height:26px;flex:none;border:3px solid var(--line);border-top-color:var(--sel);border-radius:50%;animation:photo-work-spin 1s linear infinite}
+.photo-work-waiting .photo-spinner{animation:none;border-style:dotted;border-color:var(--ink2);opacity:.55}
+.background-compare .photo-work,.background-compare .photo-work-error{box-sizing:border-box;height:320px;margin:0}
+.photo-work-error{display:grid;place-items:center;padding:20px;text-align:center;line-height:1.5}
+.tidy-sticky{position:sticky;top:-24px;z-index:2;margin:-24px -24px 0;padding:20px 24px 12px;background:var(--bg);border-bottom:1px solid var(--line)}
+.tidy-sticky [role=status]{margin:10px 0 0;line-height:1.5;overflow-wrap:anywhere}
+.tidy-progress{display:block;box-sizing:border-box;width:100%;height:8px;margin:12px 0 0;accent-color:var(--sel)}
+.tidy-preparation{margin:8px 0 0;line-height:1.5}
+.tidy-progress[hidden],.tidy-preparation[hidden]{display:none}
+@keyframes photo-work-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.photo-spinner{animation:none}}
+@media(max-width:600px){.background-compare .photo-work,.background-compare .photo-work-error{height:220px}}
+@media(max-width:540px){.tidy-sticky{top:-16px;margin:-16px -16px 0;padding:16px 16px 12px}.tidy-pair .photo-work{min-height:210px}}
+
 /* END LIVE THEMES */
 
 /* BEGIN SETUP STYLES (source: app/styles/setup.css) */
@@ -3389,12 +3405,16 @@ function savePhotoViews(it,photos,main){
   if(main){patch.photoId=main.photoId;patch.ar=main.ar||it.ar;patch.noPhoto=false;patch.bg=''}
   return patchEdit(it,patch,true).then(function(ok){if(ok)Object.assign(it,patch);return ok});
 }
+function photoWorkIndicator(message,waiting){
+  return el('div',{class:'photo-work'+(waiting?' photo-work-waiting':'')},el('span',{class:'photo-spinner','aria-hidden':'true'}),el('span',{text:message}));
+}
 function openBackgroundPreview(it,source,onSaved){
   var runtime=window.ClosetLintRuntime;
   if(!runtime||!runtime.removeBackground||!source.photoId)return;
   var d=el('dialog',{class:'background-preview','aria-label':'Review background removal'}),url=null,blob=null,saving=false;
   var status=el('p',{role:'status',text:'Linty is finding the edges. Your original stays put.'});
   var compare=el('div',{class:'background-compare'},el('figure',null,el('img',{src:source.src,alt:'Original photo'}),el('figcaption',{text:'Original'})));
+  var resultStage=el('figure',{class:'cutout-stage','aria-busy':'true'},photoWorkIndicator('Finding the edges…'),el('figcaption',{text:'Preparing your cutout · original stays unchanged'}));compare.appendChild(resultStage);
   var keep=el('button',{class:'btn primary',type:'button',text:'Use cutout as main photo',disabled:true});
   function close(){if(!saving)d.close()}
   var cancel=el('button',{class:'btn',type:'button',text:'Discard',onclick:close});
@@ -3414,9 +3434,9 @@ function openBackgroundPreview(it,source,onSaved){
     if(!d.isConnected)return;blob=result;url=URL.createObjectURL(blob);
     var image=el('img',{src:url,alt:'Background removed; review edges and details'});
     image.addEventListener('load',function(){source=Object.assign({},source,{ar:image.naturalWidth/image.naturalHeight})});
-    compare.appendChild(el('figure',{class:'cutout-stage'},image,el('figcaption',{text:'Cutout · check straps, lace, and fine details'})));
+    resultStage.textContent='';resultStage.setAttribute('aria-busy','false');resultStage.append(image,el('figcaption',{text:'Cutout · check straps, lace, and fine details'}));
     status.textContent='Check the edges. Use this cutout as your main photo, or keep the original. Both stay available.';keep.disabled=false;
-  }).catch(function(e){if(d.isConnected)status.textContent=e.message||'Could not remove the background. Your original is unchanged.'});
+  }).catch(function(e){if(!d.isConnected)return;resultStage.textContent='';resultStage.setAttribute('aria-busy','false');resultStage.appendChild(el('p',{class:'photo-work-error',text:'No cutout was created. Your original is unchanged. Close this review and try again when you’re ready.'}));status.textContent=e.message||'Could not remove the background. Your original is unchanged.'});
 }
 
 function piecePhotos(it){
@@ -3480,7 +3500,7 @@ function createTidyQueue(candidates,services){
   var q={cursor:0,page:[],running:false,saving:false,cancelled:false,pageSize:12,savedTotal:0,skippedTotal:0};
   q.cancel=function(){q.cancelled=true};
   q.selectReady=function(){
-    if(q.running||q.saving||q.cancelled)return;
+    if(q.saving||q.cancelled)return;
     q.page.forEach(function(row){if(row.status==='ready'){row.checked=true;row.error=''}});
     services.change();
   };
@@ -3533,7 +3553,8 @@ function openTidyPhotos(){
   d.addEventListener('close',function(){closed=true;if(q)q.cancel();free();d.remove()});
   function unload(e){if(q&&(q.running||q.saving||q.page.some(function(r){return r.status==='ready'&&r.checked}))){e.preventDefault();e.returnValue=''}}
   window.addEventListener('beforeunload',unload);d.addEventListener('close',function(){window.removeEventListener('beforeunload',unload)});
-  d.append(el('header',{class:'tidy-head'},el('h2',{text:'Tidy photos'}),close),status,body);document.body.appendChild(d);d.showModal();
+  var progress=el('progress',{class:'tidy-progress',max:12,value:0,hidden:true,'aria-label':'Photos prepared in this batch'}),preparation=el('p',{class:'fine tidy-preparation',hidden:true});
+  d.append(el('div',{class:'tidy-sticky'},el('header',{class:'tidy-head'},el('h2',{text:'Tidy photos'}),close),status,progress,preparation),body);document.body.appendChild(d);d.showModal();
   function chooseScope(){
     body.textContent='';var scope=el('select',{'aria-label':'Which pieces?'}),collections=collectionList(),items=allItems(),picked=Object.keys(state.picked||{}).filter(function(id){return state.picked[id]});
     if(picked.length)scope.appendChild(el('option',{value:'selected',text:'Selected pieces ('+picked.length+')'}));
@@ -3578,17 +3599,19 @@ function openTidyPhotos(){
   function paint(){
     if(closed)return;var newPage=paintedPage!==q.page;paintedPage=q.page;body.textContent='';close.disabled=q.saving;d.dataset.navigationBusy=q.saving?'true':'false';
     var completed=q.page.filter(function(r){return !/^(waiting|processing)$/.test(r.status)}).length;
-    status.textContent=q.running?'Preparing '+completed+' of '+q.page.length+' photos…':'Photos '+(q.cursor-q.page.length+1)+'–'+q.cursor+' of '+q.total+' · '+q.savedTotal+' cutouts saved so far.';
+    var processing=q.page.find(function(r){return r.status==='processing'});
+    status.textContent=q.running?'Preparing '+completed+' of '+q.page.length+' photos'+(processing?' · '+processing.name:'')+'…':'Photos '+(q.cursor-q.page.length+1)+'–'+q.cursor+' of '+q.total+' · '+q.savedTotal+' cutouts saved so far.';
+    progress.hidden=!q.running;progress.max=q.page.length;progress.value=completed;preparation.hidden=!q.running;preparation.textContent='You can choose any ready cutout now. Save your choices when this batch finishes.';
     body.appendChild(el('p',{class:'tidy-instructions',text:'Choose Cutout to save it as the main photo. Leave Original selected to keep it and stop suggesting this photo in Tidy photos. You can still try background removal from the piece page.'}));
     var ready=q.page.filter(function(r){return r.status==='ready'}),unselected=ready.filter(function(r){return !r.checked});
-    body.appendChild(el('div',{class:'tidy-batch-actions'},el('button',{class:'btn',type:'button',text:'Use all ready cutouts'+(ready.length?' ('+ready.length+')':''),disabled:q.running||q.saving||!unselected.length,onclick:function(){q.selectReady()}})));
+    body.appendChild(el('div',{class:'tidy-batch-actions'},el('button',{class:'btn',type:'button',text:'Use all ready cutouts'+(ready.length?' ('+ready.length+')':''),disabled:q.saving||!unselected.length,onclick:function(){q.selectReady()}})));
     var grid=el('div',{class:'tidy-grid'});q.page.forEach(function(row){
-      var locked=q.running||q.saving||row.status==='kept'||row.status==='skipped'||row.status==='error',tile=el('article',{class:'tidy-tile'},el('h3',{class:'tidy-piece-title',text:row.name})),pair=el('div',{class:'tidy-pair'});
+      var locked=q.saving||row.status!=='ready',tile=el('article',{class:'tidy-tile'},el('h3',{class:'tidy-piece-title',text:row.name})),pair=el('div',{class:'tidy-pair'});
       pair.appendChild(el('button',{class:'tidy-choice'+(!row.checked?' selected':''),type:'button','aria-pressed':String(!row.checked),disabled:locked,'aria-label':'Keep original as main photo for '+row.name,onclick:function(){row.checked=false;row.error='';paint()}},el('img',{src:row.source.src,alt:'',loading:'lazy'}),el('span',{text:'Original · keep as main'})));
       if(row.blob||row.url){
         if(!row.url){row.url=URL.createObjectURL(row.blob);urls.push(row.url)}
         pair.appendChild(el('button',{class:'tidy-choice tidy-result'+(row.checked?' selected':''),type:'button','aria-pressed':String(!!row.checked),disabled:locked,'aria-label':'Save cutout as main photo for '+row.name,onclick:function(){row.checked=true;row.error='';paint()}},el('img',{src:row.url,alt:'',loading:'lazy'}),el('span',{text:'Cutout · use as main'})));
-      }else pair.appendChild(el('div',{class:'tidy-placeholder',text:row.status==='waiting'?'Waiting…':row.status==='processing'?'Finding the edges…':row.error||'Saved'}));
+      }else pair.appendChild(row.status==='waiting'||row.status==='processing'?photoWorkIndicator(row.status==='waiting'?'Waiting for earlier photos…':'Finding the edges…',row.status==='waiting'):el('div',{class:'tidy-placeholder',text:row.error||'Saved'}));
       var note=row.status==='kept'?el('p',{class:'fine',text:'✓ Cutout saved as main photo'}):row.status==='skipped'?el('p',{class:'fine',text:'Original kept · no longer suggested here'}):row.status==='saving'?el('p',{class:'fine',text:'Saving…'}):row.status==='ready'&&row.error?el('p',{class:'fine',text:row.error}):null;
       tile.appendChild(pair);if(note)tile.appendChild(note);grid.appendChild(tile);
     });body.appendChild(grid);
@@ -6115,7 +6138,7 @@ function setupDrawStart(body,actions){
   body.appendChild(el('p',{text:'Start with a few favorites. You can bring in the rest whenever you’re ready.'}));
   var routes=el('div',{class:'setup-routes'});
   [['📷','Add a piece myself','Take a photo, upload one, or add the details you know.',function(){setupFinish('manual',openAdd)}],['📬','Get help from my assistant','Use order emails, links, photos, or a list to prepare a small batch.',function(){setupSession.firstUse=true;setupGo('hub')}]].forEach(function(r){routes.appendChild(el('button',{class:'setup-option',type:'button',onclick:r[3]},el('strong',{class:'setup-route-title'},el('span',{class:'menu-emoji','aria-hidden':'true',text:r[0]}),r[1]),el('span',{text:r[2]})))});
-  if(window.ClosetLintRuntime&&window.ClosetLintRuntime.openRestore)routes.appendChild(el('button',{class:'setup-option',type:'button',onclick:function(){setupCloseNow();window.ClosetLintRuntime.openRestore()}},el('strong',{text:'Restore a Closet Lint backup'}),el('span',{text:'Bring back a wardrobe you already saved. The restore tool explains what will be replaced.'})));
+  if(window.ClosetLintRuntime&&window.ClosetLintRuntime.openRestore)routes.appendChild(el('button',{class:'setup-option',type:'button',onclick:function(){setupCloseNow();window.ClosetLintRuntime.openRestore()}},el('strong',{text:'📥 Restore full backup'}),el('span',{text:'Bring back a wardrobe you already saved. The restore tool explains what will be replaced.'})));
   body.append(routes,el('p',{class:'fine',text:'Import pieces stays in ☰ → Utilities whenever you want it.'}));actions.appendChild(setupButton('Browse first',function(){setupFinish('browse')}));
 }
 function setupDrawHub(body,actions){
@@ -6124,11 +6147,11 @@ function setupDrawHub(body,actions){
   recent.appendChild(el('div',{class:'setup-field-grid'},setupInput(s,'store','Store (or leave blank for Any store)'),setupInput(s,'from','From','date'),setupInput(s,'through','Through','date'),setupLabel('Route',setupSelect('Recent-order route',(storage.direct?[['direct','Assistant adds directly']]:[]).concat([['file','Import file, review here']]),s.route,function(v){s.route=v}))));
   recent.append(setupButton('Prepare check',function(){s.method='emails';if(setupScopeError(s)){s.message=setupScopeError(s);drawSetup({keep:true});return}setupRemember(s);setupGo('handoff')}),el('p',{class:'fine',text:'Store and route are remembered as a convenience, not a record of completed imports. A little overlap with your last range is fine; review catches possible matches.'}));
   if(!s.firstUse)body.appendChild(recent);var routes=el('div',{class:'setup-options'});
-  var direct=el('section',{class:'setup-option'},el('p',{class:'setup-eyebrow',text:'YOUR ASSISTANT SAVES DIRECTLY'}),el('h3',{text:'Have my assistant add pieces'}),el('p',{text:'For an assistant that can read files and run the importer on the computer where your wardrobe is stored.'}));
+  var direct=el('section',{class:'setup-option'},el('p',{class:'setup-eyebrow',text:'YOUR ASSISTANT SAVES DIRECTLY'}),el('h3',{text:'Have my assistant add pieces'}),el('p',{text:'For a local assistant such as Codex or Claude Code, with permission to open your wardrobe folder and run the importer on the computer running Closet Lint.'}));
   if(storage.direct)direct.append(setupButton('Prepare a request',function(){s.route='direct';setupGo('scope')}),el('p',{class:'fine',text:'Needs access to the computer running Closet Lint. A phone chat on its own doesn’t have it.'}));
   else direct.appendChild(el('p',{class:'fine',text:'Direct file imports cannot reach this browser’s storage. Use an import file to add pieces here. An importer on another computer saves to a different wardrobe.'}));
-  var file=el('section',{class:'setup-option'},el('p',{class:'setup-eyebrow',text:'YOU REVIEW HERE FIRST'}),el('h3',{text:'Bring back an import file'}),el('p',{text:'Ask your assistant to prepare a batch, then load it here, check the pieces, and save them.'}),setupButton('Prepare a request',function(){s.route='file';setupGo('scope')}),setupButton('I already have a file',function(){s.route='file';s.loadBack='hub';setupGo('load')}),el('p',{class:'fine',text:'Works with a chat that can send you a file or text, including on your phone.'}));
-  routes.append(direct,file);body.append(routes,el('details',null,el('summary',{text:'Which should I choose?'}),el('p',{text:'Can your assistant open files and run commands on the computer where Closet Lint runs? Yes: direct. Not sure, or no: file. Email, browser, and local file access are separate capabilities. Closet Lint can’t check your assistant’s access. On a phone, an assistant already working on your host computer may still have access.'})));
+  var file=el('section',{class:'setup-option'},el('p',{class:'setup-eyebrow',text:'YOU REVIEW HERE FIRST'}),el('h3',{text:'Bring back an import file'}),el('p',{text:'Ask your assistant to prepare a batch, then load it here, check the pieces, and save them.'}),setupButton('Prepare a request',function(){s.route='file';setupGo('scope')}),setupButton('I already have a file',function(){s.route='file';s.loadBack='hub';setupGo('load')}),el('p',{class:'fine',text:'Use a ChatGPT or Claude chat that can return JSON text or a file, including on your phone. Copying text works even if file downloads aren’t available.'}));
+  routes.append(direct,file);body.append(routes,el('details',null,el('summary',{text:'Which should I choose?'}),el('p',{text:'For direct imports, use Codex in a local workspace or Claude Code on the computer running Closet Lint, and grant access to the wardrobe folder. A paid chat subscription, an uploaded file, or an email connection does not by itself grant access to that folder. For an ordinary ChatGPT or Claude conversation, choose an import file or pasted JSON instead. Closet Lint can’t check the assistant’s permissions. A phone can control a local assistant through its own remote-access feature, if one is already set up.'})));
   if(s.firstUse)actions.appendChild(setupButton('← Back',function(){setupGo('start')}));actions.appendChild(setupButton('Close',setupRequestClose));
 }
 function setupDrawScope(body,actions){
@@ -6920,8 +6943,8 @@ $('menubtn').addEventListener('click',function(e){
   }
   flyout('\uD83E\uDDFA Stashed',[['\uD83D\uDE48 Hidden ('+hiddenItems().length+')',openHiddenView],['\uD83D\uDDC4\uFE0F In storage ('+storedItems().length+')',openStoredView],['\uD83D\uDCE6 Donate? ('+donateItems().length+')',openDonateView],['\uD83D\uDDD1\uFE0F Deleted ('+archItems().length+')',openDeleted]]);
   if(!state.pub){
-    var backups=[['🧹 Tidy photos',openTidyPhotos],['📥 Import pieces',openImport],['🧙 Setup wizard',openSetup],['\uD83D\uDCE6 Full backup (data + photos)',doFullBackup]];
-    if(window.ClosetLintRuntime)backups.push(['Restore a full backup',function(){window.ClosetLintRuntime.openRestore()}]);
+    var backups=[['🧹 Tidy photos',openTidyPhotos],['📥 Import pieces',openImport],['🧙 Setup wizard',openSetup],['\uD83D\uDCE6 Full backup',doFullBackup]];
+    if(window.ClosetLintRuntime)backups.push(['📥 Restore full backup',function(){window.ClosetLintRuntime.openRestore()}]);
     else backups.push(['Data only (partial export)',doBackup]);
     flyout('🧰 Utilities',backups);
   }

@@ -693,3 +693,19 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 
 /* Keep category icons legible in the two proportional-type themes. */
 :root:is([data-skin=fieldnotes],[data-skin=editorial]) .main>.tabs .emo{font-size:20px;vertical-align:middle}
+
+/* Visible photo work, with batch progress available while reviewing earlier rows. */
+.photo-work{box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:180px;padding:16px;text-align:center;color:var(--ink2);font:14px/1.5 var(--body)}
+.photo-spinner{box-sizing:border-box;display:block;width:26px;height:26px;flex:none;border:3px solid var(--line);border-top-color:var(--sel);border-radius:50%;animation:photo-work-spin 1s linear infinite}
+.photo-work-waiting .photo-spinner{animation:none;border-style:dotted;border-color:var(--ink2);opacity:.55}
+.background-compare .photo-work,.background-compare .photo-work-error{box-sizing:border-box;height:320px;margin:0}
+.photo-work-error{display:grid;place-items:center;padding:20px;text-align:center;line-height:1.5}
+.tidy-sticky{position:sticky;top:-24px;z-index:2;margin:-24px -24px 0;padding:20px 24px 12px;background:var(--bg);border-bottom:1px solid var(--line)}
+.tidy-sticky [role=status]{margin:10px 0 0;line-height:1.5;overflow-wrap:anywhere}
+.tidy-progress{display:block;box-sizing:border-box;width:100%;height:8px;margin:12px 0 0;accent-color:var(--sel)}
+.tidy-preparation{margin:8px 0 0;line-height:1.5}
+.tidy-progress[hidden],.tidy-preparation[hidden]{display:none}
+@keyframes photo-work-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.photo-spinner{animation:none}}
+@media(max-width:600px){.background-compare .photo-work,.background-compare .photo-work-error{height:220px}}
+@media(max-width:540px){.tidy-sticky{top:-16px;margin:-16px -16px 0;padding:16px 16px 12px}.tidy-pair .photo-work{min-height:210px}}

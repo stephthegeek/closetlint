@@ -71,7 +71,7 @@ async function checkDialogFlow(){
   savePhotoViews:async(item,photos,main)=>{if(failSave)return false;saved++;item.photos=photos;item.photoId=main.photoId;return true},
   patchEdit:async(item,patch)=>{if(failSkip)return false;skipped++;Object.assign(item,patch);return true},
   document:{body:{appendChild(d){dialog=d}}},window:{addEventListener(){},removeEventListener(){},confirm(){confirms++;return true},ClosetLintRuntime:{backgroundStatus:async()=>({available:true}),removeBackground:async id=>{processed.push(id);prepared++;return {size:10}}}}};
- vm.createContext(ctx);vm.runInContext(src.slice(src.indexOf('function tidyPhotoCandidates('),src.indexOf('\nfunction openEdit(',src.indexOf('function openTidyPhotos('))),ctx);
+ vm.createContext(ctx);vm.runInContext(src.slice(src.indexOf('function photoWorkIndicator('),src.indexOf('function openBackgroundPreview(')),ctx);vm.runInContext(src.slice(src.indexOf('function tidyPhotoCandidates('),src.indexOf('\nfunction openEdit(',src.indexOf('function openTidyPhotos('))),ctx);
  const button=text=>find(dialog,n=>n.tag==='button'&&n.text===text);
  const begin=async()=>{ctx.openTidyPhotos();await tick();assert(find(dialog,n=>n.tag==='option'&&n.value==='category:Tops'&&n.text==='All Tops'),'whole-category option is selectable');assert(find(dialog,n=>n.tag==='option'&&n.value==='section:clothing'),'broad closet section is selectable');assert(find(dialog,n=>n.tag==='option'&&n.value==='type:Tops|Tees'),'narrower type remains available');dialog.scrollTop=700;click(button('Prepare first 12'));await tick();assert.equal(dialog.scrollTop,0,'first review starts at the top')};
  await begin();assert.equal(prepared,12);dialog.scrollTop=700;
@@ -94,5 +94,18 @@ async function checkDialogFlow(){
  await click(button('Save and close'));assert.equal(pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped,true);assert.equal(pieces[1].photos.find(p=>p.photoId==='new-gallery-photo').tidySkipped,true,'both rejected originals retain separate review history');
  assert.equal(ctx.tidyPhotoCandidates(pieces,null,true).length,0,'saving the new photo choice does not resurrect legacy or current rejected photos');
  ctx.openTidyPhotos();await tick();assert(find(dialog,n=>n.tag==='option'&&n.value==='category:Tops'),'whole category remains discoverable when all photos were reviewed');assert.equal(button('Prepare first 12').disabled,true,'reviewed-only scope reports no eligible photos');click(button('Close'));
+ // Ready choices must stay usable while later photos are still processing.
+ const gates=[];ctx.window.ClosetLintRuntime.removeBackground=()=>new Promise(resolve=>gates.push(resolve));
+ for(let i=0;i<2;i++)pieces.push({id:'slow'+i,name:'Slow '+i,meta:'Tops',sub:'Tees',photoId:'slow-original'+i,photos:[{photoId:'slow-original'+i,src:'/_blob/slow-original'+i}]});
+ await begin();assert(find(dialog,n=>n.class==='tidy-sticky'),'batch progress stays in the sticky header');
+ assert(find(dialog,n=>n.class==='photo-work photo-work-waiting'),'queued result has a visible waiting indicator');
+ assert.equal(button('Save and close').disabled,true);const savedBefore=saved;
+ gates.shift()({size:10});await tick();
+ const firstCutout=find(dialog,n=>n['aria-label']==='Save cutout as main photo for Slow 0');assert.equal(firstCutout.disabled,false,'finished photo is selectable while another processes');click(firstCutout);
+ assert.equal(find(dialog,n=>n['aria-label']==='Keep original as main photo for Slow 1').disabled,true,'unfinished photo stays locked');
+ assert.equal(button('Save and close').disabled,true,'saving still waits for the batch');assert.equal(saved,savedBefore,'selection never saves automatically');
+ const progress=find(dialog,n=>n.tag==='progress');assert.equal(progress.value,1);assert.equal(progress.max,2);assert.equal(progress.hidden,false);
+ gates.shift()({size:10});await tick();assert.equal(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Slow 0')['aria-pressed'],'true','selection survives later photo completion');
+ assert.equal(find(dialog,n=>n.tag==='progress').hidden,true);assert.equal(button('Save and close').disabled,false);await click(button('Save and close'));assert.equal(saved,savedBefore+1);assert.equal(pieces.at(-1).tidySkippedSourcePhotoId,'slow-original1');
  console.log('Tidy dialog: batch scroll reset, stable selection scroll, save-and-close, retry safety, and untouched later photos pass.');
 }
