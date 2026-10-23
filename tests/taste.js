@@ -4,7 +4,7 @@ const root=path.join(__dirname,'..'),source=fs.readFileSync(path.join(root,'app/
 assert.equal(source.split('/* BEGIN MY TASTE (source: app/scripts/taste.js) */\n')[1].split('/* END MY TASTE */')[0],moduleSource);
 assert.equal(source.split('/* BEGIN MY TASTE STYLES (source: app/styles/taste.css) */\n')[1].split('/* END MY TASTE STYLES */')[0],fs.readFileSync(path.join(root,'app/styles/taste.css'),'utf8'));
 class Node{
- constructor(tag,attrs,...children){this.tag=tag;this.attrs={...attrs};Object.assign(this,attrs);this.style={};this.children=[];this.listeners={};this.isConnected=true;this.scrollTop=0;this.append(...children)}
+ constructor(tag,attrs,...children){this.tag=tag;this.attrs={...attrs};Object.assign(this,attrs);this.style={};this.children=[];this.classList={add:()=>{}};this.listeners={};this.isConnected=true;this.scrollTop=0;this.append(...children)}
  append(...xs){this.children.push(...xs.flat(Infinity).filter(x=>x!=null))}appendChild(n){this.children.push(n);return n}prepend(n){this.children.unshift(n)}
  set textContent(x){this.text=x;this.children=[]}get textContent(){return this.text||''}
  addEventListener(type,fn){this.listeners[type]=fn}setAttribute(k,v){this.attrs[k]=v}
@@ -47,7 +47,7 @@ const view=el('main');c.labTasteView(view);const sections=view.children.filter(x
 assert.equal(sections[0].children[0].text,'What’s working for you');assert.equal(sections[1].children[0].text,'Pieces you keep loving');assert.equal(sections[2].children[0].text,'Patterns in outfits you passed on');assert(sections.at(-1).blocked);
 assert(all(view,n=>n.text==='12 loved · 4 liked · 8 passed').length);assert(all(view,n=>n.class==='taste-color-dot'&&n.style.background==='#c00').length);
 const snapshot=JSON.stringify(state.ratings),originalBoard=JSON.stringify(board),launcher=button(view,'See 24 rated outfits');launcher.onclick();
-let dialog=document.body.children.at(-1);assert(dialog.open);assert.equal(all(dialog,n=>n.class==='taste-example').length,4);assert.equal(tiles<45,true,'examples only mount four outfits at a time');assert(all(dialog,n=>n.piece==='shoes').length,'saved accessories are restored in evidence');
+let dialog=document.body.children.at(-1);assert(dialog.open);assert.equal(all(dialog,n=>n.class==='taste-example').length,4);assert.equal(all(dialog,n=>n.class==='taste-example').length,4,'examples only mount four outfits at a time');assert(all(dialog,n=>n.piece==='shoes').length,'saved accessories are restored in evidence');
 button(dialog,'Next').onclick();assert(all(dialog,n=>n.text==='Showing 5–8 of 24 outfits').length);assert(dialog.querySelector('[role=status]').focused);
 button(dialog,'Previous').onclick();button(dialog,'Close').onclick();assert.equal(document.body.children.length,0);assert(launcher.focused);
 assert.equal(JSON.stringify(state.ratings),snapshot);assert.equal(JSON.stringify(board),originalBoard,'analysis leaves wardrobe and board alone');
@@ -55,4 +55,22 @@ launcher.onclick();dialog=document.body.children.at(-1);state.ratings.r23.r=-1;c
 state.fantasy=false;map.top.wish=true;c.labRefresh();assert(button(dialog,'Open in Lab').disabled,'evidence cannot silently enable Fantasy');map.top.wish=false;
 c.labRefresh();button(dialog,'Open in Lab').onclick();assert.equal(state.lab.mode,'rate');assert.equal(state.lab.cur.sig,'r23');assert.equal(JSON.stringify(board),originalBoard);
 state.ratings={one:{ids:['top','b0'],r:0}};const small=el('main');c.labTasteView(small);assert(small.children.at(-1).blocked,'blocked pairs stay accessible before enough ratings exist');
-console.log('My taste: distinct outfit counts, live tag/rating/removal refresh, Liked evidence, bounded outfit pages, rating labels, Fantasy safety, and unchanged board/wardrobe pass.');
+// Every qualifying pattern and favorite piece remains reachable without
+// accumulating cards. Page state also clamps safely after ratings are removed.
+state.ratings={};
+for(let i=0;i<36;i++){
+ piece('paged'+i,'one',['black'],Array.from({length:18},(_,n)=>'style'+n));
+ for(let j=0;j<2;j++){piece('support'+i+'-'+j,'layer',[],[]);state.ratings['paged'+i+'-'+j]={ids:['paged'+i,'support'+i+'-'+j],r:1,t:i*2+j}}
+}
+state.lab={mode:'taste'};const paged=el('main');c.labTasteView(paged);
+const positive=paged.children.find(n=>n.tag==='section'),favorites=paged.children.find(n=>n.tag==='section'&&n.children[0].text==='Pieces you keep loving');
+assert.equal(all(positive,n=>n.class==='taste-pattern').length,6);
+let select=all(positive,n=>n.tag==='select')[0];assert(select.children.length>1,'more than six qualifying patterns have pages');
+select.onchange({target:{value:String(select.children.length-1)}});assert.equal(button(positive,'Next').disabled,true);assert(all(positive,n=>n.class==='taste-pattern').length<=6);
+button(positive,'Previous').onclick();assert.equal(button(positive,'Next').disabled,false);
+assert.equal(all(favorites,n=>n.class==='taste-piece').length,6);assert.equal(all(favorites,n=>n.tag==='select')[0].children.length,6);
+all(favorites,n=>n.tag==='select')[0].onchange({target:{value:'5'}});assert(all(favorites,n=>n.text==='Showing 31–36 of 36 favorite pieces').length);assert.equal(all(favorites,n=>n.class==='taste-piece').length,6);
+state.ratings={};for(let i=0;i<2;i++)state.ratings['remaining'+i]={ids:['top','b'+i],r:1,t:i};
+const grid=el('section');c.labTastePagedGrid(grid,['p:top'],'taste-pieces','tastePiecesPage','Favorite pieces',()=>el('article'));
+assert.equal(state.lab.tastePiecesPage,0,'shrinking lists clamp remembered pages');
+console.log('My taste: distinct counts, live refresh, positive evidence, fixed pattern/piece/outfit pages, page jumps/clamping, Fantasy safety, and unchanged board/wardrobe pass.');

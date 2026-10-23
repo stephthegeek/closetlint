@@ -8,6 +8,31 @@ function labFeatName(f){
   if(k==='kind')return x==='one'?'Dresses and jumpsuits':'Top and bottom outfits';
   return '';
 }
+/* Fixed pages keep both long lists and their photo rendering bounded. */
+function labPageInfo(page,total,size){
+  var pages=Math.max(1,Math.ceil(total/size));page=Math.min(Math.max(0,Math.floor(Number(page)||0)),pages-1);
+  return {page:page,pages:pages,start:page*size,end:Math.min((page+1)*size,total)};
+}
+function labPageRange(info,total){return 'Showing '+(total?info.start+1:0)+'–'+info.end+' of '+total}
+function labPager(host,info,label,change){
+  if(info.pages<=1)return;
+  var select=el('select',{'aria-label':label+' page',onchange:function(e){change(Number(e.target.value))}});
+  for(var i=0;i<info.pages;i++)select.appendChild(el('option',{value:String(i),selected:i===info.page?'selected':false,text:'Page '+(i+1)+' of '+info.pages}));
+  host.appendChild(el('nav',{class:'lab-pagination','aria-label':label+' pages'},
+    el('button',{class:'btn',type:'button',text:'Previous',disabled:info.page===0,onclick:function(){change(info.page-1)}}),select,
+    el('button',{class:'btn',type:'button',text:'Next',disabled:info.page===info.pages-1,onclick:function(){change(info.page+1)}})));
+}
+function labTastePagedGrid(section,features,gridClass,key,label,render){
+  var L=state.lab||(state.lab={}),body=el('div');section.classList.add('lab-page-section');section.appendChild(body);
+  function draw(navigate){
+    var info=labPageInfo(L[key],features.length,6);L[key]=info.page;body.textContent='';
+    var count=el('p',{class:'fine',role:'status',tabindex:'-1',text:labPageRange(info,features.length)+' '+label.toLowerCase()}),grid=el('div',{class:gridClass});body.appendChild(count);
+    features.slice(info.start,info.end).forEach(function(f){grid.appendChild(render(f))});body.appendChild(grid);
+    labPager(body,info,label,function(page){L[key]=page;draw(true)});
+    if(navigate){count.focus({preventScroll:true});if(section.scrollIntoView)section.scrollIntoView({block:'start'})}
+  }
+  draw();
+}
 /* Rebuild from current pieces and ratings. One combination counts once, even
    when older imports contain duplicate rating records or repeated piece IDs. */
 function labRatingEntries(map){
@@ -35,7 +60,7 @@ function labTastePatterns(stats,positive){
   }).sort(function(a,b){
     var x=stats[a],y=stats[b],xp=positive?x.loved+x.liked:x.passed,yp=positive?y.loved+y.liked:y.passed;
     return yp/y.n-xp/x.n||y.n-x.n||a.localeCompare(b);
-  }).slice(0,6);
+  });
 }
 var _labTasteEvidenceRefresh=null;
 function labTasteExamples(feature,launcher){
@@ -69,9 +94,7 @@ function labTasteExamples(feature,launcher){
     var status=entries.length?'Showing '+(page*4+1)+'–'+Math.min((page+1)*4,entries.length)+' of '+entries.length+' outfits':'0 outfits';
     var count=el('p',{class:'fine',role:'status',tabindex:'-1',text:status});d.appendChild(count);
     function change(delta){page+=delta;draw();d.scrollTop=0;var status=d.querySelector('[role=status]');if(status)status.focus({preventScroll:true})}
-    if(entries.length>4)d.appendChild(el('nav',{class:'taste-pagination','aria-label':'Rated outfit pages'},
-      el('button',{class:'btn',type:'button',text:'Previous',disabled:page===0,onclick:function(){change(-1)}}),
-      el('button',{class:'btn',type:'button',text:'Next',disabled:(page+1)*4>=entries.length,onclick:function(){change(1)}})));
+    labPager(d,labPageInfo(page,entries.length,4),'Rated outfits',function(next){change(next-page)});
   }
   function refresh(){
     if(!d.open)return;var scroll=d.scrollTop,focused=d.contains(document.activeElement);
@@ -89,10 +112,10 @@ function labTasteView(v){
   v.appendChild(el('p',{class:'taste-intro fine',text:'Patterns from '+n+' rated outfits, using your pieces’ current tags. Each outfit counts once per pattern. Accessories appear in the examples but do not drive these patterns.'}));
   if(n<8){v.appendChild(el('p',{class:'labempty',text:'Rate a few more outfits to start spotting patterns. Aim for at least 8; so far: '+n+'.'}));labBlocksBox(v);return}
   function patterns(title,positive){
-    var section=el('section',{class:'tastebox taste-section'},el('h3',{text:title})),grid=el('div',{class:'taste-patterns'}),features=labTastePatterns(stats,positive);
+    var section=el('section',{class:'tastebox taste-section'},el('h3',{text:title})),features=labTastePatterns(stats,positive);
     if(!positive)section.appendChild(el('p',{class:'fine',text:'A pass is about the whole combination. These patterns do not mean you dislike every piece, color, or style in it.'}));
     if(!features.length)section.appendChild(el('p',{class:'fine',text:'No clear pattern yet. Keep rating a mix of outfits.'}));
-    features.forEach(function(f){
+    if(features.length)labTastePagedGrid(section,features,'taste-patterns',positive?'tastePositivePage':'tastePassedPage',positive?'Positive patterns':'Passed patterns',function(f){
       var x=stats[f],card=el('article',{class:'taste-pattern'},el('h4',{text:labFeatName(f)}));
       if(f.indexOf('c:')===0||f.indexOf('cp:')===0){
         var swatches=el('div',{class:'taste-swatches'});
@@ -100,16 +123,16 @@ function labTasteView(v){
       }
       card.appendChild(el('p',{class:'taste-counts',text:labRatingSummary(x)}));
       if(x.n<6)card.appendChild(el('p',{class:'fine',text:'Early pattern · '+x.n+' outfits'}));
-      card.appendChild(labTasteEvidenceButton(f,x.n));grid.appendChild(card);
+      card.appendChild(labTasteEvidenceButton(f,x.n));return card;
     });
-    section.appendChild(grid);v.appendChild(section);
+    v.appendChild(section);
   }
   patterns('What’s working for you',true);
-  var pieces=Object.keys(stats).filter(function(f){return f.indexOf('p:')===0&&stats[f].loved>=2}).sort(function(a,b){return stats[b].loved-stats[a].loved||stats[b].n-stats[a].n||a.localeCompare(b)}).slice(0,6);
+  var pieces=Object.keys(stats).filter(function(f){return f.indexOf('p:')===0&&stats[f].loved>=2}).sort(function(a,b){return stats[b].loved-stats[a].loved||stats[b].n-stats[a].n||a.localeCompare(b)});
   if(pieces.length){
-    var section=el('section',{class:'tastebox taste-section'},el('h3',{text:'Pieces you keep loving'})),grid=el('div',{class:'taste-pieces'});
-    pieces.forEach(function(f){var p=map[f.slice(2)],x=stats[f],card=el('article',{class:'taste-piece'},labTile(p,catLabel(p)),el('p',{class:'taste-counts',text:labRatingSummary(x)}),labTasteEvidenceButton(f,x.n));grid.appendChild(card)});
-    section.appendChild(grid);v.appendChild(section);
+    var section=el('section',{class:'tastebox taste-section'},el('h3',{text:'Pieces you keep loving'}));
+    labTastePagedGrid(section,pieces,'taste-pieces','tastePiecesPage','Favorite pieces',function(f){var p=map[f.slice(2)],x=stats[f],card=el('article',{class:'taste-piece'},labTile(p,catLabel(p)),el('p',{class:'taste-counts',text:labRatingSummary(x)}),labTasteEvidenceButton(f,x.n));return card});
+    v.appendChild(section);
   }
   patterns('Patterns in outfits you passed on',false);labBlocksBox(v);
 }

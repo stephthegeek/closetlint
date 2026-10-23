@@ -67,6 +67,8 @@ Found a bug? [Open an issue](https://github.com/stephthegeek/closetlint/issues).
 
 ## Credits and license
 
+[![Proudly Vibe Coded - Aurora Pulse](https://vibecoded.fyi/badges/terminal/main/proudly-vibe-coded-aurora-pulse.svg)](https://vibecoded.fyi/)
+
 Created by stephthegeek, with substantial AI assistance. Code, documentation, and Linty artwork are GPL-3.0-or-later. Third-party components retain their own licenses; see [NOTICE](NOTICE). Your wardrobe data and photos remain yours.
 
 ## Development and releases
