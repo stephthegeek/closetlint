@@ -1502,6 +1502,17 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
  :root[data-skin] .top :is(#fantbtn,#addbtn):not(:disabled):hover{filter:brightness(1.06);border-color:var(--ink2)}
 }
 
+/* Saved-outfit tools use compact controls rather than category-editor styling. */
+.of-toolbar{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 14px;margin:16px 0}
+:root[data-skin] .of-toolbar .of-search{flex:0 1 26rem;width:min(26rem,100%);min-width:0;min-height:44px;box-sizing:border-box;margin:0;font-size:16px}
+.of-controls{display:flex;flex:1 1 32rem;align-items:center;flex-wrap:wrap;gap:10px 14px;min-width:0}
+.of-quickfilters{margin:0;gap:6px;align-items:center}
+.of-sortbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-left:auto}
+.of-result-count{white-space:nowrap}
+:root[data-skin] #view-saved :is(.of-quickfilters .chip,.of-sortbar .btn,.of-sort){box-sizing:border-box;min-height:44px;margin:0;padding:8px 10px;font-size:14px;line-height:1.4}
+:root[data-skin] #view-saved .of-sort{display:inline-block;width:auto;max-width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-family:var(--body);font-weight:400;text-transform:none;letter-spacing:normal}
+@media(max-width:600px){.of-controls{flex-basis:100%}.of-sortbar{margin-left:0}:root[data-skin] #view-saved .of-sort{font-size:16px}}
+
 /* END LIVE THEMES */
 
 /* BEGIN SETUP STYLES (source: app/styles/setup.css) */
@@ -5848,6 +5859,7 @@ function ofDraw(){
   if(state.ofView==='history'){histDraw();return}
   var S=ofState(),map=byIdA(),all=Object.keys(state.outfits).map(function(k){return Object.assign({id:k},state.outfits[k])});
   body.textContent='';
+  var controls=$('of-controls')||body;if(controls!==body)controls.textContent='';
   if(!all.length){body.appendChild(el('p',{class:'fine',text:state.db?'Nothing saved yet. Build a board and choose Save outfit.':'Saving is not available in this view.'}));return}
   var infos={};all.forEach(function(o){infos[o.id]=ofInfo(o,map)});
   /* options present across outfits */
@@ -5856,15 +5868,16 @@ function ofDraw(){
   function rerender(){ofDraw()}
   var nAct=(S.fav?1:0)+(S.loved?1:0)+(S.untagged?1:0)+(S.fitsMe?1:0)+(S.has?1:0)+['colors','seasons','styles','looks','sizes'].reduce(function(n,k){return n+Object.keys(S[k]).filter(function(x){return S[k][x]}).length},0);
   var nFav=all.filter(function(o){return o.fav}).length;
-  var top=el('div',{class:'chips',style:'margin:10px 0 6px'});
+  var top=el('div',{class:'chips of-quickfilters'});
   top.appendChild(chip((S.fav?'♥':'♡')+' Favorites'+(nFav?' '+nFav:''),S.fav,function(){S.fav=!S.fav;rerender()}));
   if(Object.keys(state.ratings||{}).length)top.appendChild(chip('😍 Loved in Lab',S.loved,function(){S.loved=!S.loved;rerender()}));
   if(wearAny())top.appendChild(chip('\uD83D\uDCD0 Fits me',S.fitsMe,function(){S.fitsMe=!S.fitsMe;rerender()}));
   top.appendChild(chip('Needs tags',S.untagged,function(){S.untagged=!S.untagged;rerender()}));
-  top.appendChild(chip('Filters'+(nAct?' ('+nAct+')':'')+(S.open?' ▴':' ▾'),S.open,function(){S.open=!S.open;rerender()}));
-  body.appendChild(top);
+  var more=chip((S.open?'Hide filters':'More filters')+(nAct?' ('+nAct+')':''),S.open,function(){S.open=!S.open;rerender();var toggle=$('of-filter-toggle');if(toggle)toggle.focus({preventScroll:true})});
+  more.id='of-filter-toggle';more.setAttribute('aria-expanded',String(!!S.open));more.setAttribute('aria-controls','of-filter-options');top.appendChild(more);
+  controls.appendChild(top);
   if(S.open){
-    var panel=el('div',{class:'ofpanel'});
+    var panel=el('div',{id:'of-filter-options',class:'ofpanel'});
     function group(label,vocab,store,swatch,labelOf){
       if(!vocab.length)return;
       var row=el('div',{class:'chips'});
@@ -5889,14 +5902,14 @@ function ofDraw(){
     rating:function(a,b){var x=infos[a.id].rating,y=infos[b.id].rating;return (y===null?-9:y)-(x===null?-9:x)||(b.updatedAt||0)-(a.updatedAt||0)}
   };
   res.sort(sorters[S.sort]||sorters['new']);
-  var bar=el('div',{style:'display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0'});
-  var ss=el('select',{class:'capsel','aria-label':'Sort outfits',onchange:function(e){S.sort=e.target.value;rerender()}});
+  var bar=el('div',{class:'of-sortbar'});
+  var ss=el('select',{class:'of-sort','aria-label':'Sort outfits',onchange:function(e){S.sort=e.target.value;rerender()}});
   OF_SORTS.forEach(function(s){ss.appendChild(el('option',{value:s[0],text:s[1],selected:S.sort===s[0]?'selected':false}))});
-  bar.appendChild(el('span',{class:'fine',text:res.length===all.length?all.length+(all.length===1?' outfit':' outfits'):res.length+' of '+all.length+' outfits'}));
+  bar.appendChild(el('span',{class:'fine of-result-count',role:'status',text:res.length===all.length?all.length+(all.length===1?' outfit':' outfits'):res.length+' of '+all.length+' outfits'}));
   bar.appendChild(ss);
   if(S.sort==='season')bar.appendChild(el('span',{class:'fine',text:'(now: '+curSeason()+')'}));
   if(nAct||S.q)bar.appendChild(el('button',{class:'btn small',type:'button',text:'Clear filters',onclick:function(){var s=S.sort,op=S.open;state.of=null;var N=ofState();N.sort=s;N.open=op;var qb=$('ofq');if(qb)qb.value='';rerender()}}));
-  body.appendChild(bar);
+  controls.appendChild(bar);
   var g=el('div',{class:'ogrid'});
   res.forEach(function(o){g.appendChild(ofCard(o,infos[o.id],map))});
   if(!res.length)body.appendChild(el('p',{class:'fine',text:'No outfits match these filters.'}));
@@ -5906,13 +5919,13 @@ function openOutfits(){setTab('saved')}
 function renderSaved(){
   var v=$('view-saved');v.textContent='';
   var S=ofState();
-  v.appendChild(el('div',{class:'labhead'},el('h2',{text:'Your outfits'}),el('button',{class:'btn',type:'button',text:'Open outfit board',onclick:function(){setTab('outfits')}}),el('button',{class:'btn',type:'button',style:'margin-left:auto',title:'Open the Outfit Lab',text:'🧑‍🔬 Lab',onclick:function(){setTab('lab')}})));
+  v.appendChild(el('div',{class:'labhead'},el('h2',{text:'Your outfits'})));
   var hist=state.ofView==='history';
   v.appendChild(el('div',{class:'chips labmodes'},chip('\uD83D\uDC57 Outfits',!hist,function(){setTab('saved')}),chip('\uD83D\uDCC5 Calendar',hist,function(){openCalendar()})));
   if(!hist){
     var oflist=el('datalist',{id:'oflist'}),seenN={},nm0=byId();
     Object.keys(state.outfits||{}).forEach(function(k){var o=state.outfits[k];if(o.name&&!seenN[o.name.toLowerCase()]){seenN[o.name.toLowerCase()]=1;oflist.appendChild(el('option',{value:o.name}))}(o.pieces||[]).forEach(function(p){var it=nm0[p.id];if(it&&it.name&&!seenN[it.name.toLowerCase()]){seenN[it.name.toLowerCase()]=1;oflist.appendChild(el('option',{value:it.name}))}})});
-    v.appendChild(el('input',{id:'ofq',class:'search',type:'search',list:'oflist',autocomplete:'off',placeholder:'Search outfit names and pieces','aria-label':'Search saved outfits',value:S.q,oninput:function(e){ofState().q=e.target.value;ofDraw()}}));
+    v.appendChild(el('div',{class:'of-toolbar'},el('input',{id:'ofq',class:'search of-search',type:'search',list:'oflist',autocomplete:'off',placeholder:'Search outfit names and pieces','aria-label':'Search saved outfits',value:S.q,oninput:function(e){ofState().q=e.target.value;ofDraw()}}),el('div',{id:'of-controls',class:'of-controls'})));
     v.appendChild(oflist);
   }
   v.appendChild(el('div',{id:'ofbody'}));
