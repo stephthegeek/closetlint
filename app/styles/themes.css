@@ -659,7 +659,7 @@ summary{cursor:pointer}
 :root[data-skin=workshop]{--photo-light:#f0f1e8}
 :root[data-skin=fieldnotes]{--photo-light:#f8f2e8}
 :root[data-skin=editorial]{--photo-light:#f7eff3}
-:root[data-photo=light] :is(.ph,.oph,.piece-photo-thumb img){background-color:var(--photo-light)!important}
+:root[data-photo=light] :is(.ph[data-photo-kind=transparent],.oph[data-photo-kind=transparent],.piece-photo-thumb img){background-color:var(--photo-light)!important}
 
 .photo-options-body .fine{margin:8px 0 0;font-size:13px}
 .photo-options-body .fine:empty{display:none}
@@ -709,3 +709,7 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 @media(prefers-reduced-motion:reduce){.photo-spinner{animation:none}}
 @media(max-width:600px){.background-compare .photo-work,.background-compare .photo-work-error{height:220px}}
 @media(max-width:540px){.tidy-sticky{top:-16px;margin:-16px -16px 0;padding:16px 16px 12px}.tidy-pair .photo-work{min-height:210px}}
+
+/* Shared save count keeps both review actions concise. */
+.tidy-bottom{align-items:center}.tidy-save-count{font-size:14px;line-height:1.5;color:var(--ink2);margin-inline-end:4px}
+@media(max-width:540px){.tidy-save-count{flex:1 0 100%;text-align:right;margin:0}.tidy-bottom{align-items:stretch}.tidy-bottom .btn{flex:1 1 130px;min-width:0;white-space:normal;justify-content:center}}

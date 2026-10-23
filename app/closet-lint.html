@@ -1442,7 +1442,7 @@ summary{cursor:pointer}
 :root[data-skin=workshop]{--photo-light:#f0f1e8}
 :root[data-skin=fieldnotes]{--photo-light:#f8f2e8}
 :root[data-skin=editorial]{--photo-light:#f7eff3}
-:root[data-photo=light] :is(.ph,.oph,.piece-photo-thumb img){background-color:var(--photo-light)!important}
+:root[data-photo=light] :is(.ph[data-photo-kind=transparent],.oph[data-photo-kind=transparent],.piece-photo-thumb img){background-color:var(--photo-light)!important}
 
 .photo-options-body .fine{margin:8px 0 0;font-size:13px}
 .photo-options-body .fine:empty{display:none}
@@ -1492,6 +1492,10 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 @media(prefers-reduced-motion:reduce){.photo-spinner{animation:none}}
 @media(max-width:600px){.background-compare .photo-work,.background-compare .photo-work-error{height:220px}}
 @media(max-width:540px){.tidy-sticky{top:-16px;margin:-16px -16px 0;padding:16px 16px 12px}.tidy-pair .photo-work{min-height:210px}}
+
+/* Shared save count keeps both review actions concise. */
+.tidy-bottom{align-items:center}.tidy-save-count{font-size:14px;line-height:1.5;color:var(--ink2);margin-inline-end:4px}
+@media(max-width:540px){.tidy-save-count{flex:1 0 100%;text-align:right;margin:0}.tidy-bottom{align-items:stretch}.tidy-bottom .btn{flex:1 1 130px;min-width:0;white-space:normal;justify-content:center}}
 
 /* END LIVE THEMES */
 
@@ -3652,9 +3656,10 @@ function openTidyPhotos(){
       else{free();q.next()}
       if(andClose)toast((saved?saved+' cutout'+(saved===1?'':'s')+' saved as main photos. ':'')+(keptOriginals?keptOriginals+' original'+(keptOriginals===1?'':'s')+' kept and no longer suggested here.':saved?'':'No cutouts saved. Your originals are unchanged.'));
     }
-    var next=more?el('button',{class:'btn',type:'button',text:n?'Save '+n+' cutout'+(n===1?'':'s')+' and continue':'Keep originals and continue',disabled:q.running||q.saving,onclick:function(){return saveBatch(false)}}):null;
-    var saveClose=el('button',{class:'btn primary',type:'button',text:'Save and close',disabled:q.running||q.saving,onclick:function(){return saveBatch(true)}});
-    body.appendChild(el('div',{class:'tidy-bottom'},next,saveClose));
+    var count=el('span',{id:'tidy-save-count',class:'tidy-save-count',role:'status',text:n+' cutout'+(n===1?'':'s')+' to save'});
+    var next=more?el('button',{class:'btn primary',type:'button',text:'Save and continue','aria-describedby':'tidy-save-count',disabled:q.running||q.saving,onclick:function(){return saveBatch(false)}}):null;
+    var saveClose=el('button',{class:'btn'+(more?'':' primary'),type:'button',text:'Save and close','aria-describedby':'tidy-save-count',disabled:q.running||q.saving,onclick:function(){return saveBatch(true)}});
+    body.appendChild(el('div',{class:'tidy-bottom'},count,saveClose,next));
     if(newPage)d.scrollTop=0;
   }
 
@@ -7144,7 +7149,7 @@ $('menubtn').addEventListener('click',function(e){
   }
   flyout('\uD83E\uDDFA Stashed',[['\uD83D\uDE48 Hidden ('+hiddenItems().length+')',openHiddenView],['\uD83D\uDDC4\uFE0F In storage ('+storedItems().length+')',openStoredView],['\uD83D\uDCE6 Donate? ('+donateItems().length+')',openDonateView],['\uD83D\uDDD1\uFE0F Deleted ('+archItems().length+')',openDeleted]]);
   if(!state.pub){
-    var backups=[['🧹 Tidy photos',openTidyPhotos],['📥 Import pieces',openImport],['🧙 Setup wizard',openSetup],['📥 Full backup',doFullBackup]];
+    var backups=[['🧹 Tidy photos',openTidyPhotos],['📥 Import pieces',openImport],['🧙 Setup wizard',openSetup],['📥 Export backup',doFullBackup]];
     if(window.ClosetLintRuntime)backups.push(['📥 Restore full backup',function(){window.ClosetLintRuntime.openRestore()}]);
     else backups.push(['Data only (partial export)',doBackup]);
     flyout('🧰 Utilities',backups);

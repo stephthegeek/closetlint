@@ -77,6 +77,7 @@ async function checkDialogFlow(){
  await begin();assert.equal(prepared,12);dialog.scrollTop=700;
  click(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Test 0'));
  assert.equal(dialog.scrollTop,700,'selecting a photo preserves review position');
+ const footer=find(dialog,n=>n.class==='tidy-bottom');assert.equal(footer.children.filter(n=>n.tag==='button').map(n=>n.text).join('|'),'Save and close|Save and continue','close precedes continue in keyboard and visual order');assert.equal(find(dialog,n=>n.id==='tidy-save-count').text,'1 cutout to save','shared count describes both actions');
  failSave=true;await click(button('Save and close'));
  assert.equal(dialog.open,true,'save failure keeps the review open');assert.equal(saved,0);assert.equal(skipped,0,'failed saves do not discard the remaining review');assert.equal(dialog.scrollTop,0,'save failure exposes its status message');
  failSave=false;failSkip=true;await click(button('Save and close'));assert.equal(saved,1);assert.equal(dialog.open,true,'failure remembering original choices also keeps review open');
@@ -85,8 +86,8 @@ async function checkDialogFlow(){
  assert.equal(pieces[0].photos[0].photoId,'original0','original photo is retained');assert.equal(pieces[12].tidySkippedSourcePhotoId,undefined,'unreviewed photos remain eligible');
  // A separate run advances through the untouched photos, resetting only on batch changes.
  await begin();assert.equal(prepared,24);dialog.scrollTop=900;
- await click(button('Keep originals and continue'));await tick();assert.equal(prepared,25);assert.equal(dialog.scrollTop,0,'next batch opens at the top');
- assert.equal(button('Keep originals and continue'),undefined,'last batch offers only save and close');await click(button('Save and close'));assert.equal(dialog.open,false);
+ click(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Test 12'));await click(button('Save and continue'));await tick();assert.equal(saved,2,'continue saves selected cutouts just like close');assert.equal(prepared,25);assert.equal(dialog.scrollTop,0,'next batch opens at the top');
+ assert.equal(button('Save and continue'),undefined,'last batch offers only save and close');assert.equal(find(dialog,n=>n.id==='tidy-save-count').text,'0 cutouts to save');await click(button('Save and close'));assert.equal(dialog.open,false);
  assert.equal(pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped,true,'an original choice is remembered on its photo');
  delete pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped; // Legacy record: only the piece-level skip ID exists.
  pieces[1].photos.push({photoId:'new-gallery-photo',kind:'unclassified'});
