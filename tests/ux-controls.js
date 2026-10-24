@@ -51,3 +51,32 @@ console.log('Recent-wear weighting and Trips landing/explicit start passed.');
  c.toast('Saved');assert.equal(timers.at(-1),2200);c.toast('Could not save this outfit');assert.equal(timers.at(-1),6000);c.toastAct('Hidden','Undo',()=>{});assert.equal(timers.at(-1),8000);c.toastAct('Saved','Plan it for a day',()=>{},5000);assert.equal(timers.at(-1),5000);
  console.log('Tweaks: retained bulk selection, offscreen counts, retries, explicit deselection, single Stretch chips, and readable toast timing pass.');
 })().catch(e=>{console.error(e);process.exit(1)});
+
+{
+ const dialog={children:[],open:false,appendChild(n){this.children.push(n)},showModal(){this.open=true}};
+ function el(tag,attrs,...children){return {tag,...attrs,children:children.flat().filter(Boolean),appendChild(n){this.children.push(n)}}}
+ const pieces=[
+  {meta:'Jewelry',sub:'Earrings',sizeKind:'gauge',size:'16g'},
+  {meta:'Jewelry',sub:'Earrings',size:'18g'},
+  {meta:'Jewelry',sub:'Earrings',sizeKind:'clothing',size:'20g'},
+  {meta:'Underwear',sub:'Bras',sizeKind:'clothing',size:'38G'},
+  {meta:'Underwear',sub:'Bras',size:'95C'},
+  {meta:'Tops',size:'XL'}, {meta:'Footwear',size:'9.5'}
+ ];
+ const c={state:{measurements:{},profile:{}},needDb:()=>false,$:()=>dialog,unitsMetric:()=>false,todayStr:()=> '2026-10-24',CLOTHING_ORDER:['XL'],allItems:()=>pieces,el,chip:(text)=>el('button',{text}),closeDlg(){},addClose(){}};
+ vm.createContext(c);vm.runInContext(['normSize','effSize','deriveKind','openMeasurements'].map(fn).join('\n'),c);c.openMeasurements();
+ const groups=dialog.children[0].children;
+ function labels(title){const group=groups.find(n=>n.children?.[0]?.text===title);return group.children[1].children.map(n=>n.text)}
+ assert.deepEqual(labels('Bras'),['38G','95C'],'real G-cup bras remain; explicit, inferred, and stale earring size kinds cannot add gauges');
+ assert.deepEqual(labels('Tops, dresses, and outerwear'),['XL']);assert.deepEqual(labels('Shoes'),['9.5']);
+ console.log('Sizes & fit: earring gauges excluded from Bras and clothing, G-cup bras retained, and footwear inferred correctly.');
+}
+
+{
+ const groups=[0,1].map(()=>{const classes=new Set();const button={setAttribute(k,v){this[k]=v}};return {button,classList:{contains:k=>classes.has(k),remove:k=>classes.delete(k),toggle(k){if(classes.has(k)){classes.delete(k);return false}classes.add(k);return true}},querySelector:()=>button}});
+ const c={$:()=>({querySelectorAll:()=>groups.filter(g=>g.classList.contains('open'))})};vm.createContext(c);vm.runInContext(fn('toggleAppSubmenu').split("$('menubtn').addEventListener")[0],c);
+ c.toggleAppSubmenu(groups[0],groups[0].button);assert.equal(groups[0].button['aria-expanded'],'true');
+ c.toggleAppSubmenu(groups[1],groups[1].button);assert.equal(groups[0].classList.contains('open'),false);assert.equal(groups[0].button['aria-expanded'],'false');assert.equal(groups[1].button['aria-expanded'],'true');
+ c.toggleAppSubmenu(groups[1],groups[1].button);assert.equal(groups[1].button['aria-expanded'],'false');assert.equal(groups[1].classList.contains('open'),false,'the open submenu can still be collapsed');
+ console.log('Hamburger submenus: opening one closes its sibling and updates expanded state; toggling closed still works.');
+}

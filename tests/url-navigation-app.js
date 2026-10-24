@@ -8,10 +8,10 @@ function fixture(hash=''){
  const hist=win.history={pushState(state,x,url){stack.splice(pos+1);stack.push({state,url});pos++;location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},replaceState(state,x,url){stack[pos]={state,url};location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},go(delta){pos+=delta;assert(pos>=0&&pos<stack.length);location.hash=stack[pos].url.includes('#')?stack[pos].url.slice(stack[pos].url.indexOf('#')):'';this.state=stack[pos].state;(listeners.popstate||[]).forEach(f=>f({state:this.state}));(listeners.hashchange||[]).forEach(f=>f({}))},back(){this.go(-1)},forward(){this.go(1)}};
  const scratch={id:null,name:'My working pile',pieces:[{id:'a',x:1,y:2,w:30,z:1}]},saved={id:'o1',name:'Dinner',pieces:[{id:'b',x:5,y:6,w:40,z:1}]};
  const state={tab:'all',capsDone:false,db:{},pub:false,board:scratch,outfits:{o1:saved},trips:{t1:{name:'Weekend',settings:{dest:'Home'},plan:{}}},q:'',collectionFilter:{},of:{},fantasy:false};
- const ctx={window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
+ const ctx={window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},renderOracle(){ctx.oracleSession=ctx.oracleSession||{question:''}},oracleLeave(){},oracleSession:null,labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
  openEdit(it){const d=node('dlg');d.fields=[{name:'name',type:'text',value:it.id,getAttribute(){return ''},closest(){return null}}];d.showModal()},openAdd(){const d=node('dlg');d.fields=[];d.images=[];d.showModal()},openOutfitDetails(){node('dlg').showModal()}};
  vm.createContext(ctx);
- vm.runInContext(['setTab','persistBoard','ofOpen','outfitEditorDirty','leaveOutfitEditor','tripNew','tripSettings','tripHasUnsaved','tripLeave','tripOpen','closeDlg','collectionBrowse','openCalendar'].map(fn).join('\n')+'\nfunction openCollections(){setTab("all");state.collectionManager=true;renderGrid()}\n'+routes,ctx);
+ vm.runInContext(['setTab','persistBoard','ofOpen','outfitEditorDirty','leaveOutfitEditor','tripNew','tripSettings','tripHasUnsaved','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar'].map(fn).join('\n')+'\n'+routes,ctx);
  ctx.installClosetRoutes();
  return {ctx,state,scratch,saved,writes,prompts,notices,win,hist,stack,node,setAllow:v=>allow=v,ready(){state.capsDone=true;['edits','custom','outfits','profile','trips'].forEach(k=>ctx.setupLoaded[k]=true);win.ClosetLintRoutes.ready()}};
 }
@@ -82,4 +82,22 @@ console.log('URL app integration: deep links, board isolation, unsaved fields an
  busy=true;f.setAllow(true);assert.equal(f.ctx.setTab('lab'),false,'navigation cannot interrupt an active import');busy=false;
  f.win.ClosetLintRoutes.prepareReload();assert.equal(f.ctx.setTab('lab'),true,'explicit discard permits reloading/navigation');
  console.log('Import navigation: loaded review and active-save guards survive redraws; explicit discard clears them.');
+}
+
+{
+ const f=fixture('#/closet'),{ctx,state,win,hist}=f;f.ready();
+ ctx.openCollections();assert.equal(state.collectionManager,true);assert.equal(win.location.hash,'#/collections');
+ ctx.setTab('all');assert.equal(state.collectionManager,false,'logo/Closet exits Collections even when the underlying tab is already all');assert.equal(win.location.hash,'#/closet');
+ hist.back();assert.equal(state.collectionManager,true,'Back restores Collections');hist.forward();assert.equal(state.collectionManager,false,'Forward restores piece browsing');
+ ctx.openCollections();ctx.setTab('clothing');assert.equal(state.collectionManager,false,'category navigation exits Collections');
+ ctx.openCollections();ctx.setTab('outfits');ctx.setTab('all');assert.equal(state.collectionManager,false,'returning from the board opens pieces');
+ ctx.collectionBrowse({id:'c1'});assert.equal(state.collectionManager,false);assert.equal(state.collectionFilter.c1,true,'Browse collection still filters pieces');
+ console.log('Collections exit through logo/Closet, category, and board navigation; browser history restores the overview.');
+}
+
+{
+ const f=fixture('#/oracle'),{ctx,state,win,hist}=f;f.ready();assert.equal(state.tab,'oracle');assert.equal(ctx.document.title,'Closet Oracle · Closet Lint');assert.equal(f.node('view-closet').classList.contains('hide'),true);assert.equal(f.node('view-oracle').classList.contains('hide'),false);
+ ctx.oracleSession.question='Synthetic question';ctx.setTab('all');assert.equal(win.location.hash,'#/closet');assert.equal(f.node('view-oracle').classList.contains('hide'),true);hist.back();assert.equal(state.tab,'oracle');assert.equal(ctx.oracleSession.question,'Synthetic question');hist.forward();assert.equal(state.tab,'all');
+ ctx.setTab('oracle');ctx.oracleSession.busy=true;ctx.oracleMessage=()=>{};assert.equal(ctx.setTab('lab'),false,'non-cancellable summary download protects navigation');assert.equal(state.tab,'oracle');ctx.oracleSession.busy=false;ctx.setTab('lab');assert.equal(state.tab,'lab');
+ console.log('Oracle page routing: direct link, title, primary views, Back/Forward, retained question, and active-download navigation guard pass.');
 }

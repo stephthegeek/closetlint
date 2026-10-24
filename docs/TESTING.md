@@ -80,6 +80,8 @@ These checks were performed on Linux. They do not certify Windows/macOS installa
 
 ### Post-freeze owner-review fixes
 
+A subsequent Wishlist photo-loading fix is implemented locally after rc.3: ranking images use lazy previews, Head-to-head requests high-priority previews with visible loading/error states, mobile jump labels compact without losing accessible names, and cold-preview waiting is capped at 0.9 seconds before original fallback. The full JavaScript suite and 42 focused Python photo/runtime/security tests passed, including the real encoder. A synthetic two-photo probe served roughly 9 MB originals as roughly 113 KB previews in 239 and 569 ms; this is local-server evidence, not phone or network certification. This change requires a new candidate and fresh final-commit CI; rc.3 does not include it.
+
 The latest local verification includes individual catalog-photo serving, optional WebP previews and alpha preservation, queued request bursts, authenticated city/seasonal-weather lookup and manual recovery, Oracle Trips opt-in and mobile controls, Wishlist Pass and its backup/restore/Undo behavior, selected emoji packs, and the mobile toolbar/color-picker changes. The full JavaScript suite and all 86 Python tests passed on Linux; the optional photo tests used the existing Pillow 13 environment. Public-source boundaries, embedded modules, whitespace, and the JavaScript dependency audit passed. The final mobile branding CSS change subsequently passed the focused theme checks.
 
 The owner confirmed that photo loading improved after restarting the updated backend. Other visual acceptance remains in progress on the owner’s phone. The latest candidate, exact commit, package manifest, and extracted-package results are recorded separately during final packaging; earlier rc.1/rc.2 evidence above does not certify a later artifact. Sky and the daily fortune remain excluded from the release branch. No automatic deletion expiry or trash purge is implemented.
@@ -103,3 +105,25 @@ The source/security and minimum-Python jobs passed again after the final layout 
 StephTheGeek completed the physical-mobile review and approved the 0.1 release on 21 October 2026. A Pixel Fold tester reported improved behavior after the wider touch-layout changes. Those touch breakpoints and keyboard handling also have synthetic regression coverage; a resized desktop browser alone does not emulate a physical foldable. Windows and macOS installation, broad assistive-technology coverage, and an independent human security audit remain unverified.
 
 See [the security review](SECURITY-REVIEW.md) for security boundaries and residual risks.
+
+### Oracle page and final mobile consistency checks
+
+- Open Ask the Oracle from the menu, a collection, and selected pieces. It uses `#/oracle`, with the app header and navigation available. Refreshing the direct URL opens the Oracle.
+- Type a question and choose details; navigate to Closet or Board, then return or use browser Back/Forward. The question and selections remain in memory. Done finishes the handoff and clears the in-memory draft. A full reload does not persist question content; an unfinished question prompts before reload.
+- Complete both assistant routes, copy edited prompt text, download context, and cancel photo preparation by returning to Closet. A non-cancellable context download blocks navigation until it finishes.
+- Verify page scrolling, keyboard access, and action spacing on mobile. Other dialogs retain centered mobile margins.
+- Browse owned, hidden, stashed, donation, wishlist, category, and searched views: the toolbar shows only the matching count, such as `4 pieces` or `1 piece`, with no status prefix or unfiltered total.
+
+### ZIP import and add-menu checks
+
+Automated checks cover stored/deflated ZIPs, relative photo paths, gallery order, missing photos, CRC corruption, duplicate/unsafe/ambiguous names, encryption, image types, compressed/unpacked limits, resource cleanup, no writes before review, and the existing photo save/retry path. `tests/setup-zip.js` uses synthetic PNGs only.
+
+Owner mobile check: choose **+ → Bulk import pieces**, copy a fresh request, ask the assistant for one ZIP, load it, inspect the matched photos, and save a small batch. Try a missing-photo batch to confirm explicit recovery choices. The plus menu must show only Add piece and Bulk import pieces, with no emojis; outside click, Escape, arrow keys, and switching to the hamburger menu should close it appropriately. Utilities should show Setup wizard, Tidy photos, Export backup, and Restore full backup in that order where available. No automatic bulk-photo matching is promised for a loose JSON plus loose image files.
+
+Release checkpoint: all JavaScript unit checks passed after ZIP/menu implementation; all 88 Python tests passed with the existing supported Pillow photo environment. A system-Python run with outdated Pillow failed the photo-dependent tests; use the supported environment for the photo suite. Fresh package, CI, and extracted-package checks are still required after the local mobile changes are committed.
+
+### Continuing thumbnail warmup
+
+New synthetic checks confirm that `/api/assets` queues new photos before a thumbnail request, images added after worker startup are discovered without browsing, queueing does not read or change originals, and restores trigger a new scan. Existing cold-preview bounds, request priority, codec fallback, alpha preservation, and original-byte checks pass. Browse assigns eager/high priority to its first six images and keeps later images lazy. Run thumbnail tests in the supported photo environment.
+
+Owner check requires a server restart for the Python worker changes, followed by a page refresh. Compare a newly visited category and a newly imported/cutout photo on mobile. Fast server samples do not establish phone end-to-end latency: the home-network server's sampled cached previews responded in roughly 1–10 ms, so browser/network timing may still need attention if long blank states persist.

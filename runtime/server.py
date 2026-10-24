@@ -233,7 +233,8 @@ class Handler(BaseHTTPRequestHandler):
                 else:
                     cache = getattr(self.server, 'thumbnails', None)
                     if path.startswith(('/_thumb/', '/_catalog_thumb/')) and cache:
-                        preview = cache.get(('catalog-' if legacy else '') + asset_id, asset)
+                        read_preview = getattr(cache, 'wait_for', cache.get)
+                        preview = read_preview(('catalog-' if legacy else '') + asset_id, asset)
                         if preview is not None:
                             asset = ('image/webp', preview)
                     # Revalidate private browser copies: a restore can replace
@@ -281,7 +282,11 @@ class Handler(BaseHTTPRequestHandler):
                     self.server.store.set_board(decode(self.body(4 * 1024 * 1024)))
                     self.send_data(200, {'ok': True})
                 elif path == '/api/assets' and method == 'POST':
-                    self.send_data(200, {'id': self.server.store.upload(self.body(32 * 1024 * 1024))})
+                    asset_id = self.server.store.upload(self.body(32 * 1024 * 1024))
+                    cache = getattr(self.server, 'thumbnails', None)
+                    if cache and hasattr(cache, 'enqueue'):
+                        cache.enqueue(asset_id)
+                    self.send_data(200, {'id': asset_id})
                 elif path == '/api/photos/remove-background' and method == 'POST':
                     data = decode(self.body(4096))
                     if not isinstance(data, dict):
@@ -332,6 +337,9 @@ class Handler(BaseHTTPRequestHandler):
                             recovery = self.server.store.restore(archive, replace=True)
                         if getattr(self.server, 'catalog', None):
                             self.server.catalog.invalidate()
+                        cache = getattr(self.server, 'thumbnails', None)
+                        if cache and hasattr(cache, 'refresh'):
+                            cache.refresh()
                         self.send_data(200, {'ok': True, 'recoverySaved': bool(recovery)})
                     finally:
                         ticket[0].unlink(missing_ok=True)

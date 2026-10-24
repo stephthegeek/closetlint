@@ -2,11 +2,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const source=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
 class Node{constructor(tag,attrs={},children=[]){this.tag=tag;this.attrs=attrs;this.children=children.filter(Boolean);this.style={};}appendChild(n){this.children.push(n)}setAttribute(k,v){this.attrs[k]=v}}
 const changes=[],lightboxes=[];
-const ctx={encodeURIComponent,Date,window:{},realPhoto:()=>true,openLightbox:x=>lightboxes.push(x),el:(t,a,...c)=>new Node(t,a,c)};
+const ctx={photoThumbnail:src=>'preview:'+src,encodeURIComponent,Date,window:{},realPhoto:()=>true,openLightbox:x=>lightboxes.push(x),el:(t,a,...c)=>new Node(t,a,c)};
 vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('function piecePhotos('),source.indexOf('function openEdit(')),ctx);
 const it={name:'Synthetic coat',photoId:'main',photo:'/_blob/main',ar:.7,photos:[{photoId:'main',kind:'model',ar:.7},{photoId:'alt',kind:'isolated',ar:1},{photoId:'alt',kind:'isolated'}]};
 const original=JSON.stringify(it),panel=ctx.piecePhotoPanel(it,(view,isMain)=>changes.push({view,isMain}));
-const hero=panel.children[0],strip=panel.children[1];assert.equal(strip.children.length,2);
+const hero=panel.children[0],strip=panel.children[1];assert.equal(strip.children.length,2);assert.equal(strip.children[1].children[0].attrs.src,'preview:/_blob/alt','alternate-photo buttons use previews while the hero retains the original');
 strip.children[1].attrs.onclick();assert.equal(hero.children[0].src,'/_blob/alt');assert.equal(strip.children[1].attrs['aria-pressed'],'true');assert.equal(strip.children[0].attrs['aria-pressed'],'false');assert.equal(changes[0].view.photoId,'alt');assert.equal(changes[0].isMain,false);
 hero.attrs.onclick();assert.equal(lightboxes[0].photo,'/_blob/alt');
 strip.children[0].attrs.onclick();assert.equal(changes[1].isMain,true);assert.equal(JSON.stringify(it),original,'view switching never mutates the saved main photo or item');

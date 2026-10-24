@@ -7,13 +7,29 @@ Bring more of your wardrobe into Closet Lint, take your questions to your own AI
 ## What's new
 
 - **A clearer start, and easier repeat imports.** Add pieces by hand, restore a backup, or prepare a request for your own assistant. An assistant with access to your wardrobe folder can use the supported importer; a regular chat can return a file or JSON text for you to review in Closet Lint. Recent-order requests include the stores and dates you choose. Closet Lint does not search your email or control your browser.
-- **🔮 Ask the Oracle.** Choose your whole closet, a collection, or selected pieces, then prepare a wardrobe summary and question for your own AI assistant. Sizes, notes, purchase details, wear dates, and saved outfits are optional. You can also download up to 12 main photos to attach. The Oracle prepares the context; the conversation takes place in your assistant.
+- **Earlier photo preparation.** Local thumbnails warm in the background, newly uploaded photos join the queue immediately, and periodic scans catch photos added by an assistant without a restart. The first six browse thumbnails get priority over offscreen images.
+- **Import matching across your wardrobe.** Renamed pieces and original listing titles can flag owned or wishlist matches. Review the comparison, update an existing piece, or search for one manually. Updates preserve its photos, tags, name, and filled-in details.
+- **One-file bulk imports.** Choose **+ → Bulk import pieces** and load a ZIP containing the assistant’s JSON and photos. Photos match by filename, and missing photos need review before saving. JSON-only import still works. The plus menu also offers Add piece.
+- **🔮 Ask the Oracle.** A dedicated page with normal navigation, browser Back/Forward, and question drafts retained during this visit. Choose your whole closet, a collection, or selected pieces, then prepare a wardrobe summary and question for your own AI assistant. Sizes, notes, purchase details, wear dates, and saved outfits are optional. You can also download up to 12 main photos to attach. The Oracle prepares the context; the conversation takes place in your assistant.
 - **My taste, with the evidence.** Patterns count each distinct outfit once and follow your pieces' current tags and ratings. See Loved, Liked, and Passed counts, then open the actual rated outfits behind a pattern. Patterns, favorite pieces, Favorites, and pairs that don't work now have pages, so longer lists stay manageable.
 - **More comfortable photo cleanup.** Tidy photos supports whole categories and subcategories, shows which photos are waiting or processing, and lets you choose ready results while later photos prepare. Each batch starts at the top. Save and continue or Save and close, with one clear count of the cutouts you are keeping. Originals remain available. Keeping an original skips it in future bulk runs; uploading a new photo makes the piece eligible again.
 - **View settings in one place.** Find theme, thumbnail, icon, and photo-canvas choices in the menu. Reset display preferences without resetting your wardrobe or custom Fits like label. The storage guidance explains what belongs to this browser and what is saved in the local wardrobe.
 - **Friendlier optional photo setup.** A read-only setup check explains what is ready and what needs attention. Photo imports and background removal can share an isolated Python environment, including a compatible environment you already set up. Missing photo tools do not prevent normal app use.
 
 ## Fixes and refinements
+
+- ZIP imports reject overlapping entries and inconsistent local headers/descriptors. Closing or replacing an import cancels loading; a total timeout bounds stalled reads.
+
+- The remaining compact previews—Lab and taste tiles, saved-outfit miniatures, alternate-photo strips, color-strip icons, and import comparisons—also use thumbnails. Editing, zooming, image analysis, downloads, and board exports retain original-resolution photos.
+
+- Collection covers and pickers, board-tray previews, and compact Lab, Trips, and history lists use local WebP thumbnails rather than full-size photos.
+
+- Deleted pieces, bulk piece removals, hiding, storage, and donation flags offer Undo. Deleted outfits and trip plans can also be restored from their toast; failed Undo saves offer Retry.
+
+- Import requests now offer store data exports, optional browser help for email sources, and clear guidance about access, usage allowance, and bounded browsing batches.
+- Import review flags small and very small photos using loaded preview dimensions, including alternate views, without blocking import.
+
+- Wishlist jump controls compact to icons and counts on phones. Ranking photos load lazily through previews, Head-to-head prioritizes its two photos, and loading/failure states replace blank areas. Cold preview requests briefly wait for a ready WebP before falling back to an original.
 
 - The mobile browse toolbar uses two compact rows. Color-picker selection markers stay round when the gradient resizes. Owner-selected emoji packs now apply consistently to scientists, setup wizards, trip fairies, and contextual controls.
 
@@ -23,7 +39,7 @@ Bring more of your wardrobe into Closet Lint, take your questions to your own AI
 
 - Local browsing requests individual photos from older catalogs instead of downloading every legacy photo bundle. Optional WebP previews preserve transparency, while original images and backup contents stay unchanged. Normal request bursts queue safely, and the legacy fallback loader limits concurrent downloads and retries temporary failures.
 - Import review makes possible matches, wishlist-to-owned changes, missing photos, and actual saves explicit. Ownership changes keep existing photos and tags. A failed batch stops safely, and retry keeps completed saves and uploaded photos within the open review session.
-- Stalled import and Oracle photo downloads time out after 30 seconds. Oracle can close during photo preparation, and failed downloads offer a way to retry or continue without photos.
+- Stalled import and Oracle photo downloads time out after 30 seconds. You can leave the Oracle during photo preparation, and failed downloads offer a way to retry or continue without photos.
 - Taste analysis reuses one fresh statistics pass when comparing candidate outfits, while still reflecting later tag and rating edits.
 - Refined sidebar controls, photo canvases, saved-outfit filters, button sizing, and menu labels. Stretch uses single-choice chips, bulk selection survives navigation, and Accessorize preserves suggested shoes.
 

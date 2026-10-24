@@ -54,3 +54,7 @@ Use the existing idea/backlog, Todo, and Doing lists, plus Ready for review and 
 Implemented software stays in Ready for review until its review and containing release are complete. Move shipped work to Done and record the released version. Keep completed historical evidence, but lead card descriptions with current status. The small-tweaks card holds small remaining ideas; it should not become the only record of a substantial feature or silently expand a release.
 
 Update cards when implementation, review, or publication changes state. Use target versions in titles or labels, and link the relevant PR. Review the next release scope at a release boundary instead of treating every new idea as a requirement for the version already being tested.
+
+## Additional 0.2 release gate
+
+The new browser ZIP importer requires a fresh, explicitly recorded security review before release. Follow the pending scope in [SECURITY-REVIEW.md](SECURITY-REVIEW.md), resolve blocking findings, and connect the review to the exact final commit and release package. Earlier 0.1 security evidence and passing functional tests do not close this gate.

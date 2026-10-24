@@ -1,0 +1,31 @@
+// Conservative duplicate review covers the whole wardrobe, not just the current browse scope.
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const script=fs.readFileSync(__dirname+'/../app/scripts/setup.js','utf8');
+const c={URL,Set,TextEncoder,window:{},META:['Tops','Bottoms','One-pieces','Footwear'],SUBS:{Tops:['Tees'],Bottoms:['Skirts'], 'One-pieces':['Overalls'],Footwear:['Shoes']},COLORS:{gray:'#aaa',pink:'#faa',blue:'#00f'},SEASONS:[],STYLES:[],LOOKS:[],deriveKind:()=> 'clothing',validateSize:(k,v)=>({ok:true,v}),todayStr:()=> '2026-10-24',$:()=>({addEventListener(){}})};
+vm.createContext(c);vm.runInContext(script,c);
+const piece=(extra={})=>({name:'Grey overalls',variant:'Grey / Label size: XL',category:'One-pieces',subcategory:'Overalls',status:'owned',size:'XL',colors:['gray'],...extra});
+const batch=p=>JSON.stringify({format:'closet-lint-import/v1',pieces:[p]});
+const owned={id:'owned',name:'Grey corduroy overalls',variant:'Grey',meta:'One-pieces',sub:'Overalls',wish:false,size:'XL',colors:['gray'],photoId:'keep-photo',looks:['keep-tag'],price:'',url:'',date:'2026-01-01'};
+const parsed=c.setupParse(batch(piece()),[owned])[0];assert.equal(parsed.duplicate,true);assert.equal(parsed.selected,false);assert.equal(parsed.match.id,'owned');assert.equal(parsed.compare,true,'possible duplicates expose their decision immediately');
+const exact=c.setupParse(batch(piece({name:owned.name})),[owned])[0];assert.equal(exact.selected,true);assert.equal(exact.action,'owned','one exact match defaults to updating');
+const ambiguous=c.setupParse(batch(piece({name:owned.name})),[owned,{...owned,id:'another'}])[0];assert.equal(ambiguous.selected,false);assert.equal(ambiguous.action,'skip','multiple matches require a choice');
+const incomingWish=c.setupParse(batch(piece({name:owned.name,status:'wishlist'})),[owned])[0];assert.equal(incomingWish.selected,false,'wishlist imports do not silently change ownership');
+const conflict=c.setupParse(batch(piece({name:owned.name,url:'https://example.com/product',colors:['blue']})),[{...owned,url:'https://example.com/product'}])[0];assert.equal(conflict.selected,false,'shared URL does not auto-update conflicting colors');
+const lateExact=c.setupParse(batch(piece({name:owned.name})),[])[0];assert.equal(c.setupRefreshMatches([lateExact],[owned]),true);assert.equal(lateExact.action,'owned');assert.equal(lateExact.selected,true,'late strong matches return to review with Update selected');
+const wished={id:'wish',name:'My favourite jumpsuit',title:'Full original product listing title for corduroy overalls',meta:'One-pieces',wish:true,hidden:true,stored:true,size:'XL',colors:['gray']};
+const title=c.setupParse(batch(piece({name:'Short incoming name',originalTitle:wished.title})),[wished])[0];assert.equal(title.match.id,'wish','original listing title can identify a renamed hidden/stashed wishlist piece');
+assert.equal(c.setupMatches(piece({name:'Changed name',url:'https://temu.com/goods.html?goods_id=123'}),{...owned,url:'https://www.temu.com/example-g-123.html'}),true);
+assert.equal(c.setupMatches(piece(),{...owned,size:'M'}),false,'distinct sizes remain separate');assert.equal(c.setupMatches(piece({variant:'Blue'}),{...owned,variant:'Red'}),false,'explicitly distinct variants remain separate');
+assert.equal(c.setupMatches(piece(),{...owned,meta:'Footwear'}),false,'fuzzy names do not cross categories');
+assert.equal(c.setupMatches({name:'Blue skirt',meta:'Bottoms'},{name:'Blue floral skirt',meta:'Bottoms'}),false,'generic color and garment words alone do not identify a duplicate');
+assert.equal(c.setupParse(batch(piece()),[{...owned,removed:true}])[0].duplicate,false,'deleted pieces are not silently restored');
+const both=c.setupParse(batch(piece()),[{...owned,id:'wishlist',wish:true},owned])[0];assert.equal(both.matches.length,2);assert.equal(both.match.id,'owned','equally likely owned match comes before wishlist, with both choices available');
+const late=c.setupParse(batch(piece()),[])[0];assert.equal(c.setupRefreshMatches([late],[owned]),true);assert.equal(late.selected,false,'a newly arrived existing match must be reviewed before any write');late.action='add';late.selected=true;assert.equal(c.setupRefreshMatches([late],[owned]),false,'an explicit separate-piece choice is respected');
+(async()=>{
+ let inserted=0,uploaded=0,patches=[];c.state={assets:{upload:async()=>{uploaded++;throw Error('must keep existing photos')}},db:{collection:()=>({doc:()=>({set:async()=>{inserted++}})})}};c.allItems=()=>[owned];c.patchEdit=async(it,patch)=>{patches.push(patch);Object.assign(it,patch);return true};
+ const update=c.setupParse(batch(piece({price:12.5,url:'https://example.com/new-link',date:'2026-10-24'})),[owned])[0];update.selected=true;update.action='owned';
+ let result=await c.setupWriteRows([update],c.setupSaveRow,'synthetic-update');assert.equal(result.saved,1);assert.equal(inserted,0);assert.equal(uploaded,0);assert.equal(owned.photoId,'keep-photo');assert.equal(owned.name,'Grey corduroy overalls');assert.deepEqual(owned.looks,['keep-tag']);assert.equal(owned.price,12.5);assert.equal(owned.date,'2026-01-01');assert.equal(owned.wish,false);
+ const wish={...owned,id:'wish2',wish:true,price:0};c.allItems=()=>[wish];const promote=c.setupParse(batch(piece({price:25})),[wish])[0];promote.selected=true;promote.action='owned';result=await c.setupWriteRows([promote],c.setupSaveRow,'synthetic-promote');assert.equal(result.saved,1);assert.equal(wish.wish,false);assert.equal(wish.price,0,'zero is populated and must not be overwritten');assert.equal(inserted,0);
+ const gone=c.setupParse(batch(piece()),[owned])[0];gone.selected=true;gone.action='owned';c.allItems=()=>[];result=await c.setupWriteRows([gone],c.setupSaveRow,'synthetic-gone');assert.equal(result.failed,1);assert.equal(inserted,0,'a disappearing match cannot turn an update into a new piece');
+ console.log('Import matching: owned/wishlist/hidden/stashed scopes, renamed and original titles, ranked candidates, variant guards, explicit blank-only updates, ownership promotion, preserved photos/tags, and removed matches pass.');
+})().catch(e=>{console.error(e);process.exit(1)});

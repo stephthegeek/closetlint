@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -66,6 +67,36 @@ class ThumbnailTests(unittest.TestCase):
         self.assertIsNone(cache.get(self.asset_id, ('image/png', PNG)))
         self.assertFalse(cache.path(self.asset_id, PNG).exists(), 'corrupt previews can be rebuilt')
 
+    def test_cold_request_can_receive_a_ready_preview_without_original_download(self):
+        cache = self.cache()
+        cache.running = True
+        def complete():
+            cache.folder.mkdir(parents=True, exist_ok=True)
+            cache.path(self.asset_id, PNG).write_bytes(WEBP)
+            with cache.ready:
+                cache.ready.notify_all()
+        timer = threading.Timer(0.02, complete)
+        timer.start()
+        try:
+            self.assertEqual(cache.wait_for(self.asset_id, ('image/png', PNG)), WEBP)
+            self.assertEqual(self.store.asset(self.asset_id)[1], PNG)
+        finally:
+            timer.join()
+            cache.close()
+
+    def test_cold_wait_is_bounded_and_unhelpful_previews_never_delay_originals(self):
+        cache = self.cache()
+        cache.running = True
+        started = time.monotonic()
+        self.assertIsNone(cache.wait_for(self.asset_id, ('image/png', PNG), timeout=0.03))
+        self.assertLess(time.monotonic() - started, 0.5, 'stalled encoding cannot hold the request indefinitely')
+        cache.folder.mkdir(parents=True, exist_ok=True)
+        cache.path(self.asset_id, PNG).write_bytes(WEBP + b'x' * len(PNG))
+        with patch.object(cache.ready, 'wait', side_effect=AssertionError('should not wait')):
+            self.assertIsNone(cache.wait_for(self.asset_id, ('image/png', PNG)))
+            self.assertIsNone(cache.wait_for(self.asset_id, ('application/json', b'{}')))
+        cache.close()
+
     def test_failed_or_missing_codec_and_timeout_keep_original_available(self):
         for result in (SimpleNamespace(returncode=3), SimpleNamespace(returncode=1)):
             cache = self.cache()
@@ -92,6 +123,38 @@ class ThumbnailTests(unittest.TestCase):
         cache.start()
         self.assertTrue(finished.wait(2), 'background work should start without blocking requests')
         self.assertEqual(seen, [requested])
+
+    def test_uploads_arriving_after_start_are_warmed_without_a_browser_request(self):
+        cache = self.cache()
+        first, later = threading.Event(), threading.Event()
+        prepared = []
+        def prepare(asset_id):
+            prepared.append(asset_id)
+            if asset_id == self.asset_id:
+                first.set()
+            else:
+                later.set()
+        cache.prepare = prepare
+        with patch('thumbnails.SCAN_INTERVAL', 0.03):
+            cache.start()
+            try:
+                self.assertTrue(first.wait(2))
+                new_id = self.store.upload(PNG)
+                self.assertTrue(later.wait(2), 'a CLI/direct upload must warm without get() or a restart')
+                self.assertIn(new_id, prepared)
+            finally:
+                cache.close()
+
+    def test_upload_queue_and_restore_rescan_do_not_read_or_change_originals(self):
+        cache = self.cache()
+        with patch.object(self.store, 'asset', side_effect=AssertionError('enqueue must not load full photos')):
+            cache.enqueue(self.asset_id)
+            cache.enqueue(self.asset_id)
+        self.assertEqual(list(cache.pending), [self.asset_id])
+        self.assertEqual(self.store.asset(self.asset_id)[1], PNG)
+        cache.refresh()
+        self.assertTrue(cache.rescan.is_set())
+        cache.close()
 
     def test_real_worker_bounds_dimensions_preserves_alpha_and_drops_metadata(self):
         try:

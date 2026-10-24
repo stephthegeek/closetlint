@@ -1,3 +1,31 @@
+# Pending security review for 0.2 ZIP imports
+
+**Release blocker: open.** The earlier 0.1 review below does not cover the new browser ZIP importer. Functional tests and the existing archive checks are preliminary evidence, not security sign-off for this feature.
+
+Before releasing 0.2:
+
+- Review the final ZIP parser and the JSON/photo handoff as untrusted input: central and local header consistency, offsets, overlapping entries, malformed/truncated data, CRCs, duplicate names, ambiguous references, unsafe paths, links, encryption, and unsupported archive variants.
+- Exercise compression bombs and false size headers; verify compressed, expanded, entry-count, per-photo, JSON, CPU, and memory bounds, including cancellation and browser responsiveness.
+- Review image signatures versus actual decoding, supported formats, browser isolation, and malformed image behavior. Confirm imported text cannot introduce executable HTML or scripts.
+- Verify ZIP-local URLs are trusted only within their import session, never leak into saved records, and are revoked on success, errors, replacement, cancellation, and stale async reads.
+- Verify no wardrobe writes happen before review, failed/retried saves preserve correct photos and matches, and archive input cannot target existing files or change the full-backup restore flow.
+- Test the final browser implementation, including supported mobile/browser behavior and unavailable decompression fallback. Record findings, fixes, focused adversarial tests, residual limits, and the exact reviewed commit.
+- Tie the completed review to the fresh release candidate and package hash. Later ZIP-related code changes require rechecking the affected areas before publication.
+
+Do not close this gate solely because the normal import suite passes. Record the review's actual scope and reviewer type; do not describe an AI-assisted review as an independent human audit.
+
+## 24 October review checkpoint
+
+AI-assisted source review and adversarial tests identified and fixed missing overlap rejection and missing active cancellation/total elapsed-time bounds in browser ZIP loading. The parser now checks local sizes/CRCs against the directory, validates streaming data descriptors, rejects overlapping local-entry ranges and unsupported file types/flags, bounds expansion, and applies a 30-second elapsed-time budget across awaited reads. Closing the import or replacing its file aborts the active load. Already-created session photo URLs are revoked on cancellation and errors. PNG detection now checks the complete eight-byte signature.
+
+Automated adversarial cases cover stored/Deflate archives, CRC failures, header disagreement, overlapping entries, descriptor success/failure, unsafe and ambiguous names, unsupported types, symlinks, encryption, declared size limits, false expansion sizes, missing native decompression, early/in-progress cancellation, elapsed-time limits, and URL cleanup. Existing import flow tests cover no writes before review, photo save/retry behavior, and exclusion of ephemeral URLs from saved records.
+
+These are bounded browser operations, not an operating-system memory sandbox. The input is limited to 50 MB and declared expansion to 100 MB; buffers, Blob storage, and decoder allocations add overhead. Browser image decoding happens in the browser's own isolation; malformed images must still pass the existing rasterizer before save. This review does not establish a hard memory ceiling or comprehensive browser-engine exploit protection.
+
+**Gate remains open:** final extracted-package browser verification, exact reviewed commit, candidate hash, and final CI/advisory/secret checks must be attached before publication. This checkpoint is not an independent human audit.
+
+---
+
 # Security review for 0.1
 
 This is an AI-assisted code review with automated adversarial tests, not an independent human audit, penetration test, or guarantee of security. The initial review and subsequent fixes cover the candidate prepared for 0.1. Current check results and platform limits are in [TESTING.md](TESTING.md).

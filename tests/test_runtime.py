@@ -245,6 +245,17 @@ class RuntimeTests(unittest.TestCase):
         status, _ = self.call('GET', '/api/state')
         self.assertEqual(status, 403)
 
+    def test_uploaded_photo_is_queued_before_any_thumbnail_request(self):
+        self.call('GET', '/')
+        queued = []
+        self.server.thumbnails = SimpleNamespace(enqueue=queued.append)
+        status, body = self.call('POST', '/api/assets', PNG,
+                                 {'X-ClosetLint-Token': 'test-token'})
+        self.assertEqual(status, 200)
+        asset_id = json.loads(body)['id']
+        self.assertEqual(queued, [asset_id])
+        self.assertEqual(self.store.asset(asset_id)[1], PNG)
+
     def test_thumbnail_http_fallback_preview_and_private_cache_revalidation(self):
         self.load()
         self.call('GET', '/')
