@@ -4,7 +4,7 @@
 
 Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. It runs locally and opens in your browser. No account, no subscription, no sync, no telemetry: your wardrobe and photos stay with you.
 
-> **0.2 release candidate, under final review.** Keep a full backup before updating. See [what changed in 0.2](docs/RELEASE-NOTES.md).
+> **New in 0.2:** easier imports, the Closet Oracle, clearer taste insights, and improved photo cleanup. See the [release notes](docs/RELEASE-NOTES.md). Keep a full backup before updating.
 
 ## What's included
 
@@ -14,7 +14,7 @@ Closet Lint is a personal wardrobe app for shopping your closet like a store whe
 - Wishlist ranking based on your closet.
 - Trip planning and packing lists.
 - Storage tracking with bin labels and pull lists.
-- Bring Your Own Assistant imports: your own AI assistant can turn product links, order emails, screenshots, or photos into an import batch. The assistant does the reading; Closet Lint never needs access to your email or browser. AI is entirely optional, and you can add everything by hand, too.
+- Bring Your Own Assistant imports: your own AI assistant can turn product links, order emails, store exports, screenshots, or photos into an import batch. The assistant does the reading; Closet Lint never needs access to your email or browser. AI is entirely optional, and you can add everything by hand, too.
 - 🔮 Ask the Oracle: prepare a wardrobe summary and question for your own AI assistant, with optional details and photos. The conversation stays in your assistant.
 - Optional local photo background removal, with originals kept and results reviewed before saving.
 - Full backup and restore of your wardrobe data and photos.

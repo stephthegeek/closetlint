@@ -1,28 +1,28 @@
-# Pending security review for 0.2 ZIP imports
+# Security review for 0.2 ZIP imports
 
-**Release blocker: open.** The earlier 0.1 review below does not cover the new browser ZIP importer. Functional tests and the existing archive checks are preliminary evidence, not security sign-off for this feature.
+The additional **AI-assisted implementation review is complete** for code commit `1a637c9216f6ffd709196a5a3e972ea6884a207c`, tree `9a61fe7b8812ea03150bf4b9d7dc2b1b160a7dc0`. No blocking findings remain from the reviewed scope. This is not an independent human audit, penetration test, or guarantee of security. Owner device acceptance and publication approval are separate release gates.
 
-Before releasing 0.2:
+The final 0.2.0 preparation changes wording and package metadata only. Package verification must establish that app, runtime, tool, and test bytes remain identical to the reviewed implementation. The final artifact hash, metadata commit, and CI results are recorded with the release evidence; later implementation changes reopen the affected checks.
 
-- Review the final ZIP parser and the JSON/photo handoff as untrusted input: central and local header consistency, offsets, overlapping entries, malformed/truncated data, CRCs, duplicate names, ambiguous references, unsafe paths, links, encryption, and unsupported archive variants.
-- Exercise compression bombs and false size headers; verify compressed, expanded, entry-count, per-photo, JSON, CPU, and memory bounds, including cancellation and browser responsiveness.
-- Review image signatures versus actual decoding, supported formats, browser isolation, and malformed image behavior. Confirm imported text cannot introduce executable HTML or scripts.
-- Verify ZIP-local URLs are trusted only within their import session, never leak into saved records, and are revoked on success, errors, replacement, cancellation, and stale async reads.
-- Verify no wardrobe writes happen before review, failed/retried saves preserve correct photos and matches, and archive input cannot target existing files or change the full-backup restore flow.
-- Test the final browser implementation, including supported mobile/browser behavior and unavailable decompression fallback. Record findings, fixes, focused adversarial tests, residual limits, and the exact reviewed commit.
-- Tie the completed review to the fresh release candidate and package hash. Later ZIP-related code changes require rechecking the affected areas before publication.
+## Scope and resolved findings
 
-Do not close this gate solely because the normal import suite passes. Record the review's actual scope and reviewer type; do not describe an AI-assisted review as an independent human audit.
+Reviewed the browser ZIP parser and JSON/photo handoff as untrusted input: local and central headers, offsets and ranges, malformed/truncated data, CRCs, duplicate/ambiguous names, unsafe paths, links, encryption, unsupported formats/flags, expansion limits, cancellation, text rendering, temporary Blob URLs, review-before-save, retry integrity, and separation from full-backup restore.
 
-## 24 October review checkpoint
+The review found and fixed missing explicit overlap rejection, missing active cancellation/total elapsed-time bounds, and insufficient local-header/data-descriptor consistency checks. The parser now rejects overlapping local-entry ranges, checks local sizes and CRCs against the directory, validates streaming data descriptors, and applies a 30-second elapsed-time budget across awaited reads. Closing the import or replacing its file aborts loading. Existing session photo URLs are revoked on errors, cancellation, replacement, and close. PNG detection checks the complete eight-byte signature.
 
-AI-assisted source review and adversarial tests identified and fixed missing overlap rejection and missing active cancellation/total elapsed-time bounds in browser ZIP loading. The parser now checks local sizes/CRCs against the directory, validates streaming data descriptors, rejects overlapping local-entry ranges and unsupported file types/flags, bounds expansion, and applies a 30-second elapsed-time budget across awaited reads. Closing the import or replacing its file aborts the active load. Already-created session photo URLs are revoked on cancellation and errors. PNG detection now checks the complete eight-byte signature.
+## Verification
 
-Automated adversarial cases cover stored/Deflate archives, CRC failures, header disagreement, overlapping entries, descriptor success/failure, unsafe and ambiguous names, unsupported types, symlinks, encryption, declared size limits, false expansion sizes, missing native decompression, early/in-progress cancellation, elapsed-time limits, and URL cleanup. Existing import flow tests cover no writes before review, photo save/retry behavior, and exclusion of ephemeral URLs from saved records.
+- Adversarial tests cover stored/Deflate archives, CRC failures, header disagreement, overlapping entries, descriptor success/failure, unsafe and ambiguous names, unsupported image/file types, symlinks, encryption, declared limits, false expansion sizes, missing native decompression, elapsed-time limits, and object-URL cleanup. Additional extracted-parser checks cover cancellation during active inflate, cleanup after late cancellation, 200 malformed buffers, and 801-entry rejection.
+- Full source and extracted JavaScript suites and all 91 Python tests passed on Linux. Core startup also passed with `python -S`, without optional packages.
+- Chrome exercised ZIP load, review, and save with one new wishlist piece and one existing owned update. The existing piece kept its original photo. Native copy/paste worked on the HTTP home-network address.
+- The extracted app exported and restored a synthetic full backup, preserving all collections, the working board, and 13 photo hashes, with a recovery copy. Chrome required the owner to select Keep for the download. Active-load cancellation and timeouts were simulated in automated tests rather than forced through the live UI.
+- [Exact implementation CI](https://github.com/stephthegeek/closetlint/actions/runs/40119855640) and a [second run](https://github.com/stephthegeek/closetlint/actions/runs/40119860160) passed security/source checks, dependency advisories, full-history secret scanning, and minimum-Python checks. The committed rebuild matched the browser-tested rc4 package byte for byte.
 
-These are bounded browser operations, not an operating-system memory sandbox. The input is limited to 50 MB and declared expansion to 100 MB; buffers, Blob storage, and decoder allocations add overhead. Browser image decoding happens in the browser's own isolation; malformed images must still pass the existing rasterizer before save. This review does not establish a hard memory ceiling or comprehensive browser-engine exploit protection.
+## Remaining limits
 
-**Gate remains open:** final extracted-package browser verification, exact reviewed commit, candidate hash, and final CI/advisory/secret checks must be attached before publication. This checkpoint is not an independent human audit.
+Browser operations are bounded but do not form an operating-system memory sandbox. The ZIP input limit is 50 MB, declared expansion is limited to 100 MB, JSON to 1 MB, and each photo to 10 MB. Buffers, Blob storage, and image-decoder allocations add overhead. Image signatures are not full decoder validation; imported photos must pass the existing browser rasterizer before save. This review does not establish a hard memory ceiling or comprehensive browser-engine exploit protection.
+
+Windows/macOS installation, all physical-mobile/browser combinations, and broad assistive-technology coverage remain unverified. Remote image downloads depend on browser and source-site restrictions; bundled ZIP photos avoid that dependency. The local service remains a single-user tool for a trusted computer/home network, with no login. The earlier 0.1 review below records the wider runtime/storage protections and limits that still apply.
 
 ---
 

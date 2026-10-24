@@ -34,7 +34,7 @@ Included work:
 
 Sky, the daily fortune, occasion prototypes, assistant-plugin publication, accounts/sync, affiliate work, and marketing work are outside this release. Only blockers affecting safety or a core workflow enter the scope during final testing. Other ideas remain in the backlog.
 
-The release notes are prepared for publication. Until mobile review and publication approval are complete, keep the README candidate notice and prerelease package version. At final packaging, set the version to `0.2.0`, replace the candidate notice with “**New in 0.2:** easier imports, the Closet Oracle, clearer taste insights, and improved photo cleanup,” link the release notes, and build the exact final ZIP. Do not label an earlier candidate as the published release or reuse its hash after changing files.
+Final 0.2.0 wording and version metadata may be prepared while owner device review finishes. The prepared README says “New in 0.2,” but this is not publication authorization. Build the final `closet-lint.zip` from the reviewed release commit, verify its manifest and hash, and pass exact-head CI. Keep the package unpublished until owner acceptance and explicit publication approval. Do not relabel an earlier candidate ZIP as final or reuse its hash after any file changes.
 
 ## Release countdown
 
@@ -57,4 +57,4 @@ Update cards when implementation, review, or publication changes state. Use targ
 
 ## Additional 0.2 release gate
 
-The new browser ZIP importer requires a fresh, explicitly recorded security review before release. Follow the pending scope in [SECURITY-REVIEW.md](SECURITY-REVIEW.md), resolve blocking findings, and connect the review to the exact final commit and release package. Earlier 0.1 security evidence and passing functional tests do not close this gate.
+The additional AI-assisted ZIP implementation review is recorded in [SECURITY-REVIEW.md](SECURITY-REVIEW.md). Final packaging must preserve the reviewed implementation bytes and bind the final commit, CI results, manifest, and package hash to that evidence. Later implementation changes reopen affected checks. An AI-assisted review is not an independent human audit; owner device acceptance and publication approval remain separate gates.

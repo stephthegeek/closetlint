@@ -8,8 +8,8 @@ Bring more of your wardrobe into Closet Lint, take your questions to your own AI
 
 - **A clearer start, and easier repeat imports.** Add pieces by hand, restore a backup, or prepare a request for your own assistant. An assistant with access to your wardrobe folder can use the supported importer; a regular chat can return a file or JSON text for you to review in Closet Lint. Recent-order requests include the stores and dates you choose. Closet Lint does not search your email or control your browser.
 - **Earlier photo preparation.** Local thumbnails warm in the background, newly uploaded photos join the queue immediately, and periodic scans catch photos added by an assistant without a restart. The first six browse thumbnails get priority over offscreen images.
-- **Import matching across your wardrobe.** Renamed pieces and original listing titles can flag owned or wishlist matches. Review the comparison, update an existing piece, or search for one manually. Updates preserve its photos, tags, name, and filled-in details.
-- **One-file bulk imports.** Choose **+ → Bulk import pieces** and load a ZIP containing the assistant’s JSON and photos. Photos match by filename, and missing photos need review before saving. JSON-only import still works. The plus menu also offers Add piece.
+- **Import matching across your wardrobe.** Renamed pieces and original listing titles can flag owned or wishlist matches. One strong match defaults to updating the existing piece; uncertain or multiple matches need your choice. Review the comparison, choose a different action, or search for a piece manually. Updates preserve its photos, tags, name, and filled-in details.
+- **One-file bulk imports.** Choose **+ → Bulk import pieces** and load a ZIP containing the assistant’s JSON and photos. Photos match by filename, and missing photos need review before saving. JSON-only import still works. The plus menu also offers Add a piece.
 - **🔮 Ask the Oracle.** A dedicated page with normal navigation, browser Back/Forward, and question drafts retained during this visit. Choose your whole closet, a collection, or selected pieces, then prepare a wardrobe summary and question for your own AI assistant. Sizes, notes, purchase details, wear dates, and saved outfits are optional. You can also download up to 12 main photos to attach. The Oracle prepares the context; the conversation takes place in your assistant.
 - **My taste, with the evidence.** Patterns count each distinct outfit once and follow your pieces' current tags and ratings. See Loved, Liked, and Passed counts, then open the actual rated outfits behind a pattern. Patterns, favorite pieces, Favorites, and pairs that don't work now have pages, so longer lists stay manageable.
 - **More comfortable photo cleanup.** Tidy photos supports whole categories and subcategories, shows which photos are waiting or processing, and lets you choose ready results while later photos prepare. Each batch starts at the top. Save and continue or Save and close, with one clear count of the cutouts you are keeping. Originals remain available. Keeping an original skips it in future bulk runs; uploading a new photo makes the piece eligible again.
@@ -18,15 +18,10 @@ Bring more of your wardrobe into Closet Lint, take your questions to your own AI
 
 ## Fixes and refinements
 
-- ZIP imports reject overlapping entries and inconsistent local headers/descriptors. Closing or replacing an import cancels loading; a total timeout bounds stalled reads.
-
-- The remaining compact previews—Lab and taste tiles, saved-outfit miniatures, alternate-photo strips, color-strip icons, and import comparisons—also use thumbnails. Editing, zooming, image analysis, downloads, and board exports retain original-resolution photos.
-
-- Collection covers and pickers, board-tray previews, and compact Lab, Trips, and history lists use local WebP thumbnails rather than full-size photos.
-
+- ZIP imports reject overlapping entries and inconsistent local headers or data descriptors. Closing or replacing an import cancels loading; a total timeout bounds stalled reads.
+- Compact previews across collections, Outfit Lab, My taste, saved outfits, photo strips, and import comparisons use thumbnails. Editing, zooming, image processing, downloads, and board exports keep original-resolution photos.
 - Deleted pieces, bulk piece removals, hiding, storage, and donation flags offer Undo. Deleted outfits and trip plans can also be restored from their toast; failed Undo saves offer Retry.
-
-- Import requests now offer store data exports, optional browser help for email sources, and clear guidance about access, usage allowance, and bounded browsing batches.
+- Import requests offer store data exports, optional browser help for email sources, and guidance about access, usage allowance, and bounded browsing batches.
 - Import review flags small and very small photos using loaded preview dimensions, including alternate views, without blocking import.
 
 - Wishlist jump controls compact to icons and counts on phones. Ranking photos load lazily through previews, Head-to-head prioritizes its two photos, and loading/failure states replace blank areas. Cold preview requests briefly wait for a ready WebP before falling back to an original.

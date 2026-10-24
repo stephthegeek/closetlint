@@ -64,27 +64,21 @@ The existing tests check relevant synchronization and source invariants.
 
 ## 0.2 verification
 
-Feature scope was frozen on 23 October 2026. The tested release candidate excludes Sky and the daily fortune. Owner final mobile and cross-theme acceptance is still in progress; the release has not been published.
+The reviewed implementation is commit `1a637c9216f6ffd709196a5a3e972ea6884a207c`. Sky and the daily fortune are excluded. Final 0.2.0 preparation changes documentation and package metadata only; final source/package checks must verify implementation bytes against this commit. Owner final phone/cross-theme acceptance and publication approval remain open during preparation. A prepared package is not a published release.
 
-Completed against code commit `44b93fe` and the extracted `0.2.0-rc.1` package:
+Completed on Linux:
 
-- Full JavaScript checks and all 62 synthetic Python tests passed. Exact-commit [GitHub CI](https://github.com/stephthegeek/closetlint/actions/runs/40036678557) passed source/security, dependency audits, full-history Gitleaks, and minimum-Python checks.
-- Both import routes ran against a separate synthetic local installation. The direct route used a real CLI preview, save, unchanged-batch retry, duplicate skip, wishlist promotion, and browser refresh. The file route exercised pasted text, actual JSON-file input, match review, preserved photos/tags on promotion, explicit missing/failed-photo recovery, and no-new-items completion.
-- Automated real-handler tests covered partial saves, retained uploaded views, retry without duplicate records, stalled response headers/bodies, Oracle close/abort, invalid files, and stale reads. Stalls were simulated in tests, not induced in the live browser.
-- The extracted package started a listening server with `python3 -S`, without optional packages. The read-only setup check explained unavailable photo tools, and an existing shared photo environment was detected and used by the importer without installing packages.
-- A synthetic wardrobe created with published 0.1 opened in the extracted candidate with its catalog, collections, board, and photos unchanged. This checks the 0.1-to-0.2 update, not general future downgrade compatibility.
-- Live HTTP checks covered complete backup export, preview/cancel without replacement, required confirmation, restore, a recovery database retaining a replaced record, and fresh restore with matching photo hashes. Chrome exported a verified complete synthetic backup and completed preview and confirmed restore.
-- All candidate manifest hashes matched. Embedded wardrobe data was empty, and no personal wardrobe photos, databases, private configuration, Sky modules, or daily-fortune modules were included.
+- Full JavaScript suites and all 91 synthetic Python tests passed against the source and extracted rc4 package. [Exact implementation CI](https://github.com/stephthegeek/closetlint/actions/runs/40119855640) and a [second run](https://github.com/stephthegeek/closetlint/actions/runs/40119860160) passed security/source, dependency-advisory, full-history secret, and minimum-Python checks.
+- The extracted package started a real local server without optional packages; core startup also passed with `python -S`. Optional photo tests used the existing supported photo environment without installing packages.
+- Chrome loaded, reviewed, and saved a real synthetic ZIP: one new wishlist piece, one existing owned update, original existing photo preserved, and no duplicate insertion for that update. Native copy/paste of the complete request passed on the home-network HTTP address.
+- Chrome exported and restored the synthetic full backup after the owner accepted its download. All collections, the working board, and 13 photo hashes matched afterward; a local recovery copy was created.
+- Automated import/Oracle tests cover missing photos, failed and stalled downloads, partial saves, retained uploads, retry without duplicate records, stale file reads, and cancellation. ZIP adversarial checks and their limits are recorded in [the security review](SECURITY-REVIEW.md).
+- All 152 rc4 manifest entries matched. Rebuilding the committed implementation produced the identical rc4 ZIP. Embedded wardrobe data was empty, with no personal photos, databases, private config, models, environments, Sky modules, or daily-fortune modules.
+- Both desktop piece-editor X and Cancel worked in the synthetic browser check. The reported intermittent physical-phone freeze was not reproduced or certified by that check.
 
-These checks were performed on Linux. They do not certify Windows/macOS installation, physical-phone performance, every theme/device combination, or assistive-technology coverage. Final wording, metadata, and artifact changes require their own source/package checks before publication.
+Earlier 0.2 checkpoints exercised actual command-import preview/apply/retry, duplicate skips, wishlist promotion, JSON-file/pasted imports, no-new-items completion, photo failure recovery, and an update of a synthetic wardrobe created with published 0.1. Those are historical checks of those workflows, not claims that every earlier artifact matches the final package.
 
-### Post-freeze owner-review fixes
-
-A subsequent Wishlist photo-loading fix is implemented locally after rc.3: ranking images use lazy previews, Head-to-head requests high-priority previews with visible loading/error states, mobile jump labels compact without losing accessible names, and cold-preview waiting is capped at 0.9 seconds before original fallback. The full JavaScript suite and 42 focused Python photo/runtime/security tests passed, including the real encoder. A synthetic two-photo probe served roughly 9 MB originals as roughly 113 KB previews in 239 and 569 ms; this is local-server evidence, not phone or network certification. This change requires a new candidate and fresh final-commit CI; rc.3 does not include it.
-
-The latest local verification includes individual catalog-photo serving, optional WebP previews and alpha preservation, queued request bursts, authenticated city/seasonal-weather lookup and manual recovery, Oracle Trips opt-in and mobile controls, Wishlist Pass and its backup/restore/Undo behavior, selected emoji packs, and the mobile toolbar/color-picker changes. The full JavaScript suite and all 86 Python tests passed on Linux; the optional photo tests used the existing Pillow 13 environment. Public-source boundaries, embedded modules, whitespace, and the JavaScript dependency audit passed. The final mobile branding CSS change subsequently passed the focused theme checks.
-
-The owner confirmed that photo loading improved after restarting the updated backend. Other visual acceptance remains in progress on the owner’s phone. The latest candidate, exact commit, package manifest, and extracted-package results are recorded separately during final packaging; earlier rc.1/rc.2 evidence above does not certify a later artifact. Sky and the daily fortune remain excluded from the release branch. No automatic deletion expiry or trash purge is implemented.
+Physical-phone performance, every theme/device combination, Windows/macOS installation, and broad assistive-technology coverage are not certified by these tests. Final owner acceptance, exact final-commit CI, and the final package hash are recorded with the release evidence. No automatic deletion expiry or trash purge is implemented.
 
 ## 0.1 verification
 
