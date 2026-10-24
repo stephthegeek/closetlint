@@ -1,6 +1,6 @@
 # Updating, moving, and rolling back
 
-Before updating, save open edits and download **Utilities → Full backup (data + photos)**. Keep that ZIP and your previous app folder until you have checked the update.
+Before updating, save open edits and download **Utilities → Export backup**. Keep that ZIP and your previous app folder until you have checked the update.
 
 1. Stop the server with Ctrl+C.
 2. Extract the new source into a new app folder. Keep your wardrobe data in its existing, separate folder; never replace that folder with source files.
@@ -9,11 +9,15 @@ Before updating, save open edits and download **Utilities → Full backup (data 
 
 Only one server should access a wardrobe at a time. Browser tabs may cache old code; refresh after the server restarts. Display preferences belong to the browser/origin and are not a substitute for a wardrobe backup.
 
+## Updating from 0.1 to 0.2
+
+Keep using your existing wardrobe data folder; an ordinary app update does not require importing your pieces again. A synthetic 0.1 wardrobe was opened with the extracted 0.2 candidate without changes to its catalog, collections, board, or photos. Keep your pre-update backup, and check your own wardrobe after restarting. See the [0.2 release notes](RELEASE-NOTES.md).
+
 ## Rollback limits
 
 There is no tested general cross-version downgrade guarantee yet. Keeping the same data folder while relocating the same build is different from proving that a future database migration is reversible. Until release-specific migration instructions say otherwise, restore your pre-update backup into a separate data folder and run the previous app against that restored copy. Do not overwrite newer work by guessing that an older app can read an updated database.
 
-Restore from **Utilities → Restore a full backup**, review the counts, and explicitly confirm replacement. The local service keeps a recovery snapshot before replacing a nonempty destination, but a separate backup is still necessary.
+Restore from **Utilities → Restore full backup**, review the counts, and explicitly confirm replacement. The local service keeps a recovery snapshot before replacing a nonempty destination, but a separate backup is still necessary.
 
 ## Moving computers
 

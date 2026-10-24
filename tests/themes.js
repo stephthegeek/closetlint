@@ -5,12 +5,12 @@ const shell=source.split('/* ---------- Closet Lint shell behavior ---------- */
 const icons=source.slice(source.indexOf('function applyThemeIcons('),source.indexOf('function initWardrobeMounts('));
 const nodes=new Map();function node(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',attrs:{},setAttribute(k,v){this.attrs[k]=v},removeAttribute(k){delete this.attrs[k]},querySelector(){return node(id+'-icon')}});return nodes.get(id)}
 const writes=[],ctx={$:node,document:{documentElement:node('root'),querySelector:()=>node('owned-icon')},localStorage:{getItem:()=>JSON.stringify({theme:'light',density:3}),setItem:(key,value)=>writes.push([key,JSON.parse(value)])},toast(){throw Error('Unexpected storage failure')}};
-vm.createContext(ctx);vm.runInContext(shell+'\n'+icons,ctx);
+vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../app/scripts/control-icons.js'),'utf8')+'\n'+shell+'\n'+icons,ctx);
 let prefs=ctx.readDisplayPrefs();assert.equal(prefs.theme,'light');assert.equal(prefs.density,3);assert.equal(prefs.skin,'workshop','existing view choices migrate to default Soft Hardware');
 ctx.applyDisplayPrefs({...prefs,skin:'fieldnotes',icons:'other',emoji:'grayscale',edge:'outline'});
-assert.equal(node('root').attrs['data-skin'],'fieldnotes');assert.equal(node('root').attrs['data-theme'],'light');assert.equal(node('root').attrs['data-density'],'3');assert.equal(node('go-lab-icon').textContent,'🧑‍🔬');assert.equal(node('go-closet-icon').textContent,'▦');assert.equal(node('owned-icon').textContent,'▦');
+assert.equal(node('root').attrs['data-skin'],'fieldnotes');assert.equal(node('root').attrs['data-theme'],'light');assert.equal(node('root').attrs['data-density'],'3');assert.equal(node('go-lab-icon').textContent,'🧪');assert.equal(node('go-closet-icon').textContent,'👕');assert.equal(node('owned-icon').textContent,'👕');
 node('site-theme').value='editorial';node('icon-pack').value='masc';node('emoji-treatment').value='lilac';node('emoji-edge').value='glow';node('photo-finish').value='warm';ctx.storeDisplayPrefs();
-assert.equal(writes.length,1);assert.equal(writes[0][0],'closetlint.display.v1');assert.equal(writes[0][1].skin,'editorial');assert.equal(writes[0][1].icons,'masc');assert.equal(writes[0][1].theme,'light');assert.equal(writes[0][1].density,3);assert.equal(node('go-closet-icon').textContent,'🧥');assert.equal(node('go-lab-icon').textContent,'🧑‍🔬');
+assert.equal(writes.length,1);assert.equal(writes[0][0],'closetlint.display.v1');assert.equal(writes[0][1].skin,'editorial');assert.equal(writes[0][1].icons,'masc');assert.equal(writes[0][1].theme,'light');assert.equal(writes[0][1].density,3);assert.equal(node('go-closet-icon').textContent,'👖');assert.equal(node('go-lab-icon').textContent,'👨‍🔬');
 const clean=ctx.cleanDisplayPrefs({skin:'bad',icons:'bad',emoji:'bad',edge:'bad',photo:'bad'});assert.equal(clean.skin,'workshop');assert.equal(clean.icons,'femme');assert.equal(clean.photo,'original');assert.equal(ctx.cleanDisplayPrefs({photo:'warm'}).photo,'original','retired tint never alters garment colors');
 assert.equal(ctx.cleanDisplayPrefs({photo:'light'}).photo,'light','the light photo backdrop remains a view preference');
 ctx.applyDisplayPrefs({photo:'light'});assert.equal(node('root').attrs['data-photo'],'light');
@@ -39,3 +39,38 @@ assert.equal(ctx.cleanDisplayPrefs({sizeReferenceName:'   '}).sizeReferenceName,
 ctx.applyDisplayPrefs({menuEmoji:false,sizeReferenceName:'My usual UK size'});assert.equal(node('root').attrs['data-menu-emoji'],'off');assert.equal(node('size-reference-name').value,'My usual UK size');
 node('menu-emoji').value='off';node('size-reference-name').value='Temu/Shein size';ctx.storeDisplayPrefs();assert.equal(writes.at(-1)[1].menuEmoji,false);assert.equal(writes.at(-1)[1].sizeReferenceName,'Temu/Shein size');
 console.log('Launch identity stays fixed; fit-reference labels migrate, trim and persist independently of size choices.');
+
+// Reset only the display preference record; keep fit labels and unrelated browser data.
+const browserData=new Map([
+  ['closetlint.board.v1','synthetic-board'],
+  ['closetlint.pub_overlay.v1','synthetic-wardrobe-changes'],
+  ['closetlint.units','in'],
+  ['closetlint.filtersCollapsed','1'],
+  ['unrelated-setting','keep']
+]);
+const unrelatedBefore=[...browserData];
+ctx.localStorage={getItem:key=>browserData.get(key)||null,setItem:(key,value)=>browserData.set(key,value)};
+ctx.applyDisplayPrefs({theme:'dark',skin:'editorial',density:3,photo:'light',menuEmoji:false,emoji:'grayscale',edge:'outline',icons:'other',sizeReferenceName:'My usual UK size'});
+ctx.storeDisplayPrefs();
+ctx.resetDisplayPrefs();
+const resetPrefs=ctx.readDisplayPrefs();
+assert.equal(JSON.stringify(resetPrefs),JSON.stringify(ctx.cleanDisplayPrefs({sizeReferenceName:'My usual UK size'})));
+assert.deepEqual([...browserData].filter(([key])=>key!=='closetlint.display.v1'),unrelatedBefore);
+assert.equal(node('size-reference-name').value,'My usual UK size');
+assert.equal(node('root').attrs['data-theme'],undefined,'reset returns to system appearance');
+assert.equal(node('thumbsize-label').textContent,'Medium');
+assert.match(node('display-prefs-status').textContent,/reset/);
+ctx.applyDisplayPrefs(ctx.readDisplayPrefs());
+assert.equal(node('site-theme').value,'workshop','defaults survive reloading');
+// Storage refusal still applies defaults for the visit, with honest feedback.
+ctx.applyDisplayPrefs({theme:'dark',sizeReferenceName:'My usual UK size'});
+ctx.storeDisplayPrefs();
+const storedBeforeFailure=browserData.get('closetlint.display.v1'),resetNotices=[];
+ctx.localStorage.setItem=()=>{throw Error('storage denied')};
+ctx.toast=message=>resetNotices.push(message);
+ctx.resetDisplayPrefs();
+assert.equal(node('root').attrs['data-theme'],undefined);
+assert.equal(browserData.get('closetlint.display.v1'),storedBeforeFailure);
+assert.match(node('display-prefs-status').textContent,/for this visit/);
+assert.equal(resetNotices.length,1);
+console.log('Display reset: defaults, preserved fit reference and unrelated data, reload, and storage-failure feedback passed.');

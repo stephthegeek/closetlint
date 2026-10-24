@@ -255,12 +255,12 @@ def prepare_batch(manifest, *, allow_no_photo=False):
         try:
             item = record(raw, notices)
             images = raw.get('images', [])
-            if not isinstance(images, list) or len(images) > 10:
-                raise ValueError('images must be an array with at most 10 views')
+            if not isinstance(images, list) or len(images) > 12:
+                raise ValueError('images must be an array with at most 12 views')
             if raw.get('photoFile'):
                 images = [{'file': raw['photoFile'], 'kind': 'unclassified', 'sourceUrl': raw.get('photoUrl', '')}] + images
-            if len(images) > 10:
-                raise ValueError('Use at most 10 saved image views in total')
+            if len(images) > 12:
+                raise ValueError('Use at most 12 saved image views in total')
             photos, assets, sizes = [], {}, []
             seen = set()
             for desc in images:

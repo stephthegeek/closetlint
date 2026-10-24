@@ -1,0 +1,36 @@
+/* My taste uses shared theme colors and bounded, responsive evidence grids. */
+.taste-intro{max-width:74ch;margin:14px 0 20px;line-height:1.6}
+.taste-section{padding:18px;margin:16px 0}
+.taste-section>h3{margin:0 0 14px;font-size:18px}
+.taste-section>p{margin:0 0 16px;max-width:74ch;line-height:1.5}
+.taste-patterns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.taste-pattern{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:16px;border:1px solid var(--line);background:var(--panel)}
+.taste-pattern h4{margin:0;font:600 17px/1.4 var(--body);color:var(--ink)}
+.taste-pattern p,.taste-piece p{margin:0;line-height:1.5}
+.taste-pattern>.btn{margin-top:auto}
+.taste-counts{font-size:14px;color:var(--ink2)}
+.taste-swatches{display:flex;flex-wrap:wrap;gap:8px}
+.taste-color{display:inline-flex;align-items:center;gap:6px;font-size:14px}
+.taste-color-dot{display:inline-block;width:18px;height:18px;border:1px solid var(--ink2);border-radius:50%}
+.taste-pieces{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));gap:16px}
+.taste-piece{display:flex;flex-direction:column;gap:10px;min-width:0}
+.taste-piece>.otile{flex:1}
+.taste-piece .otile b{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.taste-piece .oph{aspect-ratio:3/4;height:auto!important}
+.taste-piece .oph img{height:100%;width:100%}
+.taste-piece>.btn{align-self:flex-start}
+.taste-examples{box-sizing:border-box;width:min(920px,calc(100vw - 24px));max-height:calc(100dvh - 32px);padding:22px;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.taste-example-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.taste-example-head h2{margin:0;font-size:22px}
+.taste-example{padding:16px 0;border-bottom:1px solid var(--line)}
+.taste-example h3{margin:0 0 12px;font-size:16px}
+.taste-outfit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:12px}
+.taste-outfit-grid .oph{height:150px}
+.taste-outfit-grid .otile b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.taste-pagination{display:flex;justify-content:flex-end;gap:12px}
+@media(max-width:600px){.taste-section{padding:14px}.taste-pieces{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.taste-examples{padding:16px}.taste-pattern h4{font-size:16px}.taste-example-head{align-items:flex-start}}
+
+.lab-page-section{scroll-margin-top:110px}
+.lab-pagination{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:16px}
+:root[data-skin] .lab-pagination select{width:auto;min-height:44px;max-width:100%;padding:8px 12px;font:14px/1.4 var(--body);color:var(--ink);background:var(--panel);border:1px solid var(--line)}
+.taste-section [role=status]{margin:0 0 12px}
