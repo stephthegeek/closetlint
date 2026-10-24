@@ -24,3 +24,6 @@ assert.equal(ctx.state.trips.saved.name,'A saved trip','discard never deletes st
 ctx.state.trip=fresh();ctx.tripLeave(()=>exits++);assert.equal(ctx.state.trip,null,'untouched draft exits without warning');
 assert.ok(html.includes("if(state.tab==='trip'&&t!=='trip'&&state.trip){tripLeave("));
 console.log('Trip navigation: unchanged exits, edited drafts warn, stay preserves draft, discard preserves saved trips.');
+
+const scrolls=[];ctx.window={scrollTo:p=>scrolls.push(p)};ctx.memoRun=()=>{};ctx.tripRenderInner=()=>{};ctx.tripRenderedDraft=null;ctx.tripRenderedStep=null;vm.runInContext(fn('tripRender'),ctx);
+ctx.state.trip=fresh();ctx.state.trip.step=1;ctx.tripRender();assert.equal(scrolls.length,1);ctx.tripRender();assert.equal(scrolls.length,1,'same-step edits preserve scroll');ctx.state.trip.step=2;ctx.tripRender();assert.equal(scrolls.length,2);assert.equal(scrolls[1].top,0,'step navigation starts at page top');ctx.state.trip=null;ctx.tripRender();assert.equal(scrolls.length,3,'back to trip list starts at top');

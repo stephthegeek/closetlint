@@ -4,7 +4,7 @@ Closet Lint runs on your computer and opens in your web browser. Your wardrobe a
 
 ## Start the app
 
-You’ll need Python 3.10 or newer, a web browser, and the downloaded Closet Lint folder.
+You’ll need Python 3.10 or newer, a web browser, and the downloaded Closet Lint folder. Python isn’t included on every computer. Check with `python3 --version` on Linux or macOS, or `py -3 --version` on Windows. If it isn’t installed, [download Python](https://www.python.org/downloads/). Python 3.13 is suitable for both the app and its optional photo tools.
 
 1. Unzip the download.
 2. Open a terminal in the extracted folder—the one containing `app`, `runtime`, and `tools`.
@@ -13,18 +13,18 @@ You’ll need Python 3.10 or newer, a web browser, and the downloaded Closet Lin
    **Linux or macOS**
 
    ```bash
-   python3 runtime/server.py --data ../closet-lint-data
+   python3 runtime/server.py --data ../closet-lint
    ```
 
    **Windows**
 
    ```powershell
-   py -3 runtime\server.py --data ..\closet-lint-data
+   py -3 runtime\server.py --data ..\closet-lint
    ```
 
 4. Open **http://127.0.0.1:6684/** in your browser. Follow the setup prompts, then add your first piece.
 
-Keep the terminal open while using the app. Press **Ctrl+C** to stop it, and use the same command to start again. Saved pieces and photos stay in `closet-lint-data`, separate from the app folder.
+Keep the terminal open while using the app. Press **Ctrl+C** to stop it, and use the same command to start again. Saved pieces and photos stay in `closet-lint`, separate from the app folder. Keep the extracted app folder’s own name, such as `closet-lint-0.2.0`; the command uses a separate sibling folder for your wardrobe. These example paths are for new installations. Existing wardrobes should keep using their current `--data` path.
 
 Installation has been checked on Linux. The Windows and macOS commands are provided, but installation on those systems has not been tested.
 
@@ -48,7 +48,7 @@ Your computer needs to stay awake, with the app running. Connect your phone to t
 3. Run the following, replacing `10.0.0.20` with that address:
 
    ```bash
-   python3 runtime/server.py --data ../closet-lint-data --lan-ip 10.0.0.20
+   python3 runtime/server.py --data ../closet-lint --lan-ip 10.0.0.20
    ```
 
    On Windows, use `py -3` instead of `python3`.
@@ -67,7 +67,7 @@ See [updating and moving your wardrobe](UPDATING.md) before replacing the app fi
 If you're unsure what's installed, run this from the app folder:
 
 ```bash
-python3 tools/check_setup.py --data ../closet-lint-data
+python3 tools/check_setup.py --data ../closet-lint
 ```
 
 On Windows, use `py -3` instead of `python3`. The check shows whether the app and optional photo tools are ready, with commands for the next step. It doesn't install anything or change your wardrobe. Missing optional photo tools don't prevent normal use.

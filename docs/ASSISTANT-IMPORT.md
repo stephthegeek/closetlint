@@ -57,12 +57,12 @@ Start your wardrobe once using [INSTALL.md](INSTALL.md), so its data folder exis
 For photo imports, set up the shared photo environment once. From the app folder, use Python 3.11–3.13:
 
 ```bash
-python3.12 tools/setup_photos.py --data ../closet-lint-data
+python3.12 tools/setup_photos.py --data ../closet-lint
 ```
 
 On Windows, use `py -3.12` instead of `python3.12`. Adjust the version if you installed 3.11 or 3.13. Add `--background` to also set up local background removal. An existing background-removal environment can already be used for imports, without another installation.
 
-The import command finds the configured environment automatically; you don't need to activate it or install packages into your system Python. Normal app use still needs only Python's standard library. If something fails, run `python3 tools/check_setup.py --data ../closet-lint-data` (on Windows, use `py -3`) for readiness checks and next steps.
+The import command finds the configured environment automatically; you don't need to activate it or install packages into your system Python. Normal app use still needs only Python's standard library. If something fails, run `python3 tools/check_setup.py --data ../closet-lint` (on Windows, use `py -3`) for readiness checks and next steps.
 
 ### Batch format
 
@@ -123,13 +123,13 @@ Item fields include the usual tags plus `variant`, `priceNote`, `originalTitle`,
 From the app source folder:
 
 ```bash
-python3 tools/import_pieces.py --data ../closet-lint-data --file /path/to/my-batch/import.json
+python3 tools/import_pieces.py --data ../closet-lint --file /path/to/my-batch/import.json
 ```
 
 This validates every row and image, reads the existing wardrobe, and prints JSON describing planned additions/skips. It saves nothing. To commit:
 
 ```bash
-python3 tools/import_pieces.py --data ../closet-lint-data --file /path/to/my-batch/import.json --apply
+python3 tools/import_pieces.py --data ../closet-lint --file /path/to/my-batch/import.json --apply
 ```
 
 All pieces, saved image bytes, and the batch receipt commit together in one transaction. A validation or write failure leaves no partial batch. The running app may stay open; pause edits during intake and refresh afterward so its in-memory view sees the additions. No importer UI needs to open.

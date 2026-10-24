@@ -1,22 +1,23 @@
 /* The Oracle reuses the setup sheet, fields, buttons, and theme tokens. */
-#closet-oracle{width:min(940px,calc(100vw - 32px));height:min(820px,calc(100dvh - 32px));max-height:calc(100dvh - 32px);box-sizing:border-box;padding:0;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+#closet-oracle{width:min(940px,calc(100vw - 32px));max-width:calc(100vw - 32px);height:min(820px,calc(100dvh - 32px));max-height:calc(100dvh - 32px);box-sizing:border-box;padding:0;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
 #closet-oracle [hidden]{display:none!important}
 #closet-oracle :is(button,input,select,textarea,summary,a):focus-visible{outline:2px solid var(--sel);outline-offset:3px}
 .oracle-question{padding:16px 18px;margin:20px 0;border:1px solid var(--line);border-left:4px solid var(--sel);background:var(--panel)}
 .oracle-question .setup-field{margin:0;gap:10px;font-size:16px;color:var(--ink)}
 .oracle-question textarea{font:16px/1.5 var(--body);resize:vertical;min-height:120px}.oracle-question .fine{margin-bottom:0}
 .oracle-fieldset{min-width:0;padding:16px;margin:20px 0;border:1px solid var(--line)}.oracle-fieldset legend{font:600 17px/1.4 var(--body);padding-inline:6px}.oracle-fieldset .fine{line-height:1.5}
+.oracle-extras{margin:20px 0}.oracle-extras>summary{font:600 17px/1.5 var(--body);cursor:pointer}.oracle-extras .oracle-fieldset{margin:14px 0 0}
 .oracle-check{display:flex;align-items:flex-start;gap:10px;min-height:40px;padding:7px 0;box-sizing:border-box;cursor:pointer;font:15px/1.5 var(--body);color:var(--ink)}
-.oracle-check input{flex:none;width:18px;height:18px;min-height:0;margin:3px 0 0;accent-color:var(--sel)}.oracle-check:has(input:disabled){opacity:.6;cursor:default}.oracle-choice{border-bottom:1px solid var(--line)}
+#closet-oracle .oracle-check input{box-sizing:border-box;flex:0 0 18px;width:18px;min-width:18px;max-width:18px;height:18px;min-height:18px;max-height:18px;padding:0;margin:3px 0 0;appearance:auto;accent-color:var(--sel)}.oracle-check:has(input:disabled){opacity:.6;cursor:default}.oracle-choice{border-bottom:1px solid var(--line)}
 .oracle-starters{display:grid;gap:8px;margin-bottom:16px}.oracle-starters .btn{text-align:left;white-space:normal;justify-content:flex-start;line-height:1.5}
 #closet-oracle .oracle-starters .btn{font-weight:400}
 .oracle-choice-help{padding-left:28px}.oracle-collection-field{margin:12px 0 18px;padding-left:28px}
-.oracle-routes{display:grid;gap:14px}.oracle-route-choice{border:1px solid var(--line);padding:12px 14px;background:var(--panel)}.oracle-route-choice .oracle-choice{border:0;padding:0;min-height:32px}.oracle-route-choice:has(input:checked){border-color:var(--sel)}
-.oracle-route-help{margin:8px 0 0 28px;line-height:1.6;color:var(--ink2);max-width:65ch;overflow-wrap:anywhere}.oracle-route-actions{margin:4px 0 0}
+.oracle-routes{display:grid;gap:14px}.oracle-route-choice{border:1px solid var(--line);padding:12px 14px;background:var(--panel)}.oracle-route-choice.oracle-choice{min-height:44px;border:1px solid var(--line)}.oracle-route-choice:has(input:checked){border-color:var(--sel)}
+.oracle-route-help{display:block;margin:8px 0 0;line-height:1.6;color:var(--ink2);max-width:65ch;overflow-wrap:anywhere}.oracle-route-actions{margin:4px 0 0}
 #closet-oracle .oracle-route-actions .btn{max-width:100%;white-space:normal;height:auto;line-height:1.5}
 .oracle-share-steps{padding-left:24px;margin:24px 0}.oracle-share-steps>li{padding:6px 0 22px 8px;margin:0 0 18px;border-bottom:1px solid var(--line)}.oracle-share-steps>li::marker{font-weight:600}.oracle-share-steps h3{margin:0 0 10px}.oracle-share-steps p{margin:10px 0 14px;line-height:1.6}.oracle-share-steps .btn{max-width:100%;white-space:normal}.oracle-share-steps details{margin-top:12px}
 .oracle-text-alternative{margin:20px 0 24px}.oracle-text-alternative p{margin-bottom:16px}.oracle-guide-section{padding:16px 0;border-bottom:1px solid var(--line);margin-bottom:12px}.oracle-guide-section p{margin:12px 0;line-height:1.6}
 .oracle-scope-count{font-weight:600}.oracle-inline{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap;margin:16px 0}.oracle-inline .btn{margin:0}
 .oracle-summary p{margin:4px 0 14px}.oracle-summary details{margin-top:12px}.oracle-summary ul{padding-left:22px;line-height:1.6;overflow-wrap:anywhere;max-height:220px;overflow:auto}
 .oracle-photo-options{max-height:240px;overflow:auto;overscroll-behavior:contain;border-block:1px solid var(--line);padding:8px 0;margin:12px 0}
-@media(max-width:600px){#closet-oracle{width:calc(100vw - 12px);height:calc(100dvh - 12px);max-height:calc(100dvh - 12px);margin:6px}.oracle-question{padding:12px}.oracle-check{min-height:44px;font-size:16px}.oracle-fieldset{padding:12px}.oracle-inline>.btn{flex:1 1 auto;white-space:normal}}
+@media(max-width:600px){#closet-oracle{width:calc(100vw - 12px);max-width:calc(100vw - 12px);height:calc(100dvh - 12px);max-height:calc(100dvh - 12px);margin:6px auto}.oracle-question{padding:12px}.oracle-check{min-height:44px;font-size:16px}.oracle-fieldset{padding:12px}.oracle-inline>.btn{flex:1 1 auto;white-space:normal}}

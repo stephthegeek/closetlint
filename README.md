@@ -30,16 +30,16 @@ You'll need Python 3.10 or newer (check with `python3 --version`, or `py -3 --ve
    **Linux or macOS**
 
    ```bash
-   python3 runtime/server.py --data ../closet-lint-data
+   python3 runtime/server.py --data ../closet-lint
    ```
 
    **Windows**
 
    ```powershell
-   py -3 runtime\server.py --data ..\closet-lint-data
+   py -3 runtime\server.py --data ..\closet-lint
    ```
 
-   This keeps your wardrobe in a `closet-lint-data` folder next to the app folder, so it stays separate from the app files.
+   This keeps your wardrobe in a `closet-lint` folder next to the app folder, so it stays separate from the app files. Keep the extracted app folder’s own name. If you already have a wardrobe, continue using its existing `--data` path.
 3. Open http://127.0.0.1:6684/ in your browser and follow the setup prompts.
 
 Keep the terminal open while you use the app; closing it stops the server.
@@ -51,7 +51,7 @@ Time to give Linty something to rummage through.
 ## A few things to know
 
 - **Keep your installation private.** The app has no login at this time, so anyone who can reach it can view and edit your wardrobe. Using it on your own computer or home network is fine; just don't make it reachable from the internet, for example by forwarding its port on your router. On a shared network, like an office or a house with roommates, other people there may be able to reach it too. The public demos work differently: visitor changes stay in their own browser.
-- **Photo tools are optional and have their own setup.** Run `python3 tools/check_setup.py --data ../closet-lint-data` for readiness checks and next steps (on Windows, use `py -3`). Background removal needs additional setup. Fine details can get lost, and it won't remove a person wearing the garment. You choose which results to keep.
+- **Photo tools are optional and have their own setup.** Run `python3 tools/check_setup.py --data ../closet-lint` for readiness checks and next steps (on Windows, use `py -3`). Background removal needs additional setup. Fine details can get lost, and it won't remove a person wearing the garment. You choose which results to keep.
 - **Suggestions aren't guarantees.** Outfit combinations, fit labels, and packing lists still need your judgment.
 - **Back up before updating.** Choose **Menu → Utilities → Export backup**, and keep your wardrobe data folder separate from the app folder.
 

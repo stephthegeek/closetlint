@@ -20,7 +20,7 @@ The service binds to loopback by default. `--lan-ip` enables an explicitly selec
 
 ## Backup and restore
 
-A full backup ZIP includes all document collections, the base catalog and tags, stored photos, and the working board. It excludes browser display preferences and the optional photo-processing environment.
+A full backup ZIP includes all document collections, the base catalog and tags, stored photos, and the working board. It excludes browser display preferences, disposable photo caches, and the optional photo-processing environment.
 
 Restore previews do not change the wardrobe. Applying a full restore validates references, file types, and archive integrity, then replaces the destination inside one database transaction. An existing wardrobe gets a recovery snapshot under `DATA/recovery/` before replacement. These SQLite snapshots are private recovery files, not ZIPs for the restore dialog.
 

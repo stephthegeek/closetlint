@@ -17,7 +17,7 @@ Publish a new version for changes to a release. Keep published tags and ZIP cont
 
 ## Current 0.2 scope
 
-Feature scope frozen on 23 October 2026 after the focused taste-statistics and stalled-photo recovery fixes. Only safety or core-workflow blockers enter during verification.
+Feature scope frozen on 23 October 2026 after the focused taste-statistics and stalled-photo recovery fixes. Only safety or core-workflow blockers enter during verification. The owner subsequently requested the documented photo-loading fixes, Trips/mobile refinements, seasonal weather recovery, Wishlist Pass, and selected icon updates; these must be included in the final exact-commit checks. Wishlist compatibility scoring and deletion/branding customization remain deferred.
 
 Purpose: make Closet Lint easier to install, populate, keep updated, and discuss with an assistant.
 

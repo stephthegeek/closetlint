@@ -15,6 +15,13 @@ Bring more of your wardrobe into Closet Lint, take your questions to your own AI
 
 ## Fixes and refinements
 
+- The mobile browse toolbar uses two compact rows. Color-picker selection markers stay round when the gradient resizes. Owner-selected emoji packs now apply consistently to scientists, setup wizards, trip fairies, and contextual controls.
+
+- Wishlist has a reversible Pass section for pieces set aside for deletion. Pass preserves their scores, excludes them from Top ten and Head-to-head, and offers a confirmed delete action. Photos stay in color.
+
+- Trips now retrieves recent seasonal weather without an assistant connection, keeps dates side by side on mobile, and returns to the top when switching steps. Trip outfit labels and actions use clearer themed styling. The mobile board keeps its name, Save, and title suggestion together; secondary controls are labeled Design tools.
+
+- Local browsing requests individual photos from older catalogs instead of downloading every legacy photo bundle. Optional WebP previews preserve transparency, while original images and backup contents stay unchanged. Normal request bursts queue safely, and the legacy fallback loader limits concurrent downloads and retries temporary failures.
 - Import review makes possible matches, wishlist-to-owned changes, missing photos, and actual saves explicit. Ownership changes keep existing photos and tags. A failed batch stops safely, and retry keeps completed saves and uploaded photos within the open review session.
 - Stalled import and Oracle photo downloads time out after 30 seconds. Oracle can close during photo preparation, and failed downloads offer a way to retry or continue without photos.
 - Taste analysis reuses one fresh statistics pass when comparing candidate outfits, while still reflecting later tag and rating edits.

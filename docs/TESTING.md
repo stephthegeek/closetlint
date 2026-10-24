@@ -78,6 +78,12 @@ Completed against code commit `44b93fe` and the extracted `0.2.0-rc.1` package:
 
 These checks were performed on Linux. They do not certify Windows/macOS installation, physical-phone performance, every theme/device combination, or assistive-technology coverage. Final wording, metadata, and artifact changes require their own source/package checks before publication.
 
+### Post-freeze owner-review fixes
+
+The latest local verification includes individual catalog-photo serving, optional WebP previews and alpha preservation, queued request bursts, authenticated city/seasonal-weather lookup and manual recovery, Oracle Trips opt-in and mobile controls, Wishlist Pass and its backup/restore/Undo behavior, selected emoji packs, and the mobile toolbar/color-picker changes. The full JavaScript suite and all 86 Python tests passed on Linux; the optional photo tests used the existing Pillow 13 environment. Public-source boundaries, embedded modules, whitespace, and the JavaScript dependency audit passed. The final mobile branding CSS change subsequently passed the focused theme checks.
+
+The owner confirmed that photo loading improved after restarting the updated backend. Other visual acceptance remains in progress on the owner’s phone. The latest candidate, exact commit, package manifest, and extracted-package results are recorded separately during final packaging; earlier rc.1/rc.2 evidence above does not certify a later artifact. Sky and the daily fortune remain excluded from the release branch. No automatic deletion expiry or trash purge is implemented.
+
 ## 0.1 verification
 
 The release branch excludes Sky. The development build and dev site retain it; checks of those builds do not establish that Sky is part of 0.1.

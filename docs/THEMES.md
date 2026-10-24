@@ -29,3 +29,5 @@ Theme, appearance, emoji, and thumbnail preferences are saved in this browser. T
 **Reset display preferences** restores visual defaults. It keeps your custom **Fits like reference**, pieces, photos, outfits, and wear history. The Fits like reference is a label; changing it does not convert sizes. Resetting display preferences is separate from restoring or resetting wardrobe data.
 
 For stylesheet maintenance and checks, see [developer testing notes](TESTING.md).
+
+Control emoji choices are defined in `app/scripts/control-icons.js` and embedded with `python3 tools/sync_control_icons.py`. The owner-selected packs use feminine, masculine, or neutral/symbolic scientists, setup wizards, and trip fairies, including dynamically created controls. Literal garment/category data is unchanged. Wishlist section labels use the separately agreed medal-and-stars sequence.

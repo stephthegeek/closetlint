@@ -11,6 +11,18 @@ assert.equal(O.scope([pieces[1],pieces[0],pieces[0]],'all',[],null,true).map(p=>
 const scoped=O.scope(pieces,'all',[],null,true),snap=O.snapshot(scoped,{},config),plain=O.context(snap,[]);
 for(const privateValue of ['PRIVATE-SIZE','PRIVATE-FIT','PRIVATE-STORE','PRIVATE-NOTE','PRIVATE-UNKNOWN','PRIVATE-REMOVED','PRIVATE-PHOTO','PRIVATE-OUTFIT-NOTE','PRIVATE-OUT-OF-SCOPE','2026-10-01','https://private.example','/_blob/private'])assert(!plain.includes(privateValue),'excluded by default: '+privateValue);
 assert.equal(snap.pieces[1].status,'wishlist, not owned');assert.equal(snap.pieces[1].tags,'None listed');assert(plain.includes('\\u0060\\u0060\\u0060'),'data cannot break the Markdown fence');assert(plain.includes('No photos are attached'));
+config.trips={
+ t1:{name:'PRIVATE-TRIP',settings:{dest:'PRIVATE-DESTINATION',start:'2027-02-01',end:'2027-02-05',rain:true,low:50,high:65,note:'PRIVATE-TRIP-NOTE',packedExtras:['p2','unshared'],need:{pro:2,unknown:'PRIVATE-UNKNOWN'}},plan:{outfits:[{ids:['p1','unshared'],shoes:'p2',name:'PRIVATE-OUTFIT-NAME'}],outer:['unshared'],basics:{socks:{ids:['p2']}}}},
+ removed:{name:'PRIVATE-DELETED-TRIP',deleted:true}
+};
+const tripOriginal=JSON.stringify(config.trips);
+assert(!O.context(O.snapshot(scoped,{},config),[]).includes('PRIVATE-TRIP'),'trips are not shared by default');
+const tripSnap=O.snapshot(scoped,{trips:true},config),tripText=O.context(tripSnap,[]);
+assert.equal(tripSnap.trips.length,1);assert.equal(tripSnap.trips[0].settings.dest,'PRIVATE-DESTINATION');assert.equal(tripSnap.trips[0].settings.start,'2027-02-01');assert.equal(tripSnap.trips[0].occasionCounts.pro,2);assert.equal(tripSnap.trips[0].packingPieceIds.join(','),'p1,p2');
+for(const value of ['unshared','PRIVATE-TRIP-NOTE','PRIVATE-UNKNOWN','PRIVATE-OUTFIT-NAME','PRIVATE-DELETED-TRIP'])assert(!tripText.includes(value),'trip sharing respects selected fields and piece scope: '+value);
+assert.equal(O.snapshot(scoped,{trips:true,notes:true},config).trips[0].notes.note,'PRIVATE-TRIP-NOTE');
+assert(!O.compact(tripSnap).includes('PRIVATE-DESTINATION'),'compact copy omits trips');assert(O.local(tripSnap,false).includes('Do not read trip notes'));assert(O.local(tripSnap,false).includes('Limit packing references to the piece IDs above'));
+assert.equal(JSON.stringify(config.trips),tripOriginal,'trip summaries never mutate saved plans');
 config.outfits.a.wearLog=[{d:'2026-09-01',ids:['p1'],added:['p1']},{d:'2026-09-02',ids:['p1'],added:[]}];
 const all=O.snapshot(scoped,{outfits:true,wear:true,sizes:true,purchases:true,notes:true},config);assert.equal(all.pieces[0].sizes.size,'PRIVATE-SIZE');assert.equal(all.pieces[0].purchaseDetails.price,25);assert.equal(all.pieces[0].notes.notes,'PRIVATE-NOTE');assert.equal(all.pieces[0].wearDates[0],'2026-10-01');assert.equal(all.outfits.length,1);assert.equal(all.outfits[0].wearDates.join(','),'2026-09-01,2026-09-02','outfit wearLog dates are included once, only with wear-history consent');assert.equal(O.snapshot(scoped,{outfits:true},config).outfits[0].wearDates,undefined);
 const compact=O.compact(all);for(const v of ['PRIVATE-SIZE','PRIVATE-NOTE','PRIVATE-STORE','PRIVATE-OUTFIT-NOTE','2026-10-01'])assert(!compact.includes(v),'compact copy excludes optional fields');

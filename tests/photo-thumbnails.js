@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8'),line=html.split('\n').find(s=>s.startsWith('function photoThumbnail(')),ctx={window:{}};
+vm.createContext(ctx);vm.runInContext(line,ctx);
+const original='/_blob/'+'a'.repeat(32);
+assert.equal(ctx.photoThumbnail(original),original,'ordinary installs use original photos');
+ctx.window.ClosetLintLocal={thumbnails:true};assert.equal(ctx.photoThumbnail(original),'/_thumb/'+'a'.repeat(32));
+assert.equal(ctx.photoThumbnail('/_catalog/'+'b'.repeat(32)),'/_catalog_thumb/'+'b'.repeat(32),'older bundled photos also use previews');
+for(const src of [original+'.webp',original+'?other=1','https://other.example/'+original,'data:image/png;base64,test',''])assert.equal(ctx.photoThumbnail(src),src,'do not rewrite static demos, remote URLs, or placeholders');
+ctx.window.ClosetLintLocal.thumbnails=false;assert.equal(ctx.photoThumbnail(original),original,'disabled image tools preserve normal browsing');
+console.log('Browse thumbnails: local-only preview URLs, original fallback, and static/remote photos pass.');

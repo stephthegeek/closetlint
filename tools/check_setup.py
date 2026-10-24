@@ -85,7 +85,7 @@ def report(result):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--data', type=Path, default=Path('../closet-lint-data'), help='Your wardrobe data folder')
+    parser.add_argument('--data', type=Path, default=Path('../closet-lint'), help='Your wardrobe data folder')
     parser.add_argument('--json', action='store_true', help='Print details for an assistant or support report')
     args = parser.parse_args(argv)
     result = check(args.data)
