@@ -1,3 +1,5 @@
+/* Earlier summaries were unversioned; 2.0.0 bounds and deduplicates observations. */
+var LAB_TASTE_SUMMARY_VERSION='2.0.0';
 function labFeatName(f){
   var p=f.split(':'),k=p[0],x=p.slice(1).join(':');
   if(k==='c')return colLabel(x)+' pieces';
@@ -53,14 +55,26 @@ function labRatingSummary(stats){
   [['loved','loved'],['liked','liked'],['passed','passed']].forEach(function(pair){if(stats[pair[0]])words.push(stats[pair[0]]+' '+pair[1])});
   return words.join(' · ');
 }
-function labTastePatterns(stats,positive){
-  return Object.keys(stats).filter(function(f){
+function labTastePatterns(stats,positive,entries){
+  var candidates=Object.keys(stats).filter(function(f){
     var x=stats[f],matches=positive?x.loved+x.liked:x.passed;
     return x.n>=3&&f.indexOf('p:')!==0&&labFeatName(f)&&matches/x.n>=2/3;
   }).sort(function(a,b){
     var x=stats[a],y=stats[b],xp=positive?x.loved+x.liked:x.passed,yp=positive?y.loved+y.liked:y.passed;
-    return yp/y.n-xp/x.n||y.n-x.n||a.localeCompare(b);
+    // Add-one smoothing keeps a tiny perfect sample from outranking
+    // a consistently strong pattern supported by many more outfits.
+    return (yp+1)/(y.n+2)-(xp+1)/(x.n+2)||yp-xp||y.loved-x.loved||a.localeCompare(b);
   });
+  var seen=new Set(),selected=[],limit=positive?3:2;
+  candidates.some(function(f){
+    if(entries){
+      var evidence=entries.map(function(entry,index){return entry.features.indexOf(f)>=0?index:null}).filter(function(index){return index!==null}).join(',');
+      if(seen.has(evidence))return false;
+      seen.add(evidence);
+    }
+    selected.push(f);return selected.length>=limit;
+  });
+  return selected;
 }
 var _labTasteEvidenceRefresh=null;
 function labTasteExamples(feature,launcher){
@@ -108,11 +122,12 @@ function labTasteEvidenceButton(feature,count){
   return button;
 }
 function labTasteView(v,entries){
+  v.setAttribute('data-taste-algorithm-version',LAB_TASTE_SUMMARY_VERSION);
   var map=byId();entries=entries||labRatingEntries(map);var stats=labStats(entries),n=entries.length;
-  v.appendChild(el('p',{class:'taste-intro fine',text:'Patterns from '+n+' rated outfits, using your pieces’ current tags. Each outfit counts once per pattern. Accessories appear in the examples but do not drive these patterns.'}));
+  v.appendChild(el('p',{class:'taste-intro fine',text:'A few strongest patterns from '+n+' rated outfits, using your pieces’ current tags. Each outfit counts once per pattern. Accessories appear in the examples but do not drive these patterns.'}));
   if(n<8){v.appendChild(el('p',{class:'labempty',text:'Rate a few more outfits to start spotting patterns. Aim for at least 8; so far: '+n+'.'}));labBlocksBox(v);return}
   function patterns(title,positive){
-    var section=el('section',{class:'tastebox taste-section'},el('h3',{text:title})),features=labTastePatterns(stats,positive);
+    var section=el('section',{class:'tastebox taste-section'},el('h3',{text:title})),features=labTastePatterns(stats,positive,entries);
     if(!positive)section.appendChild(el('p',{class:'fine',text:'A pass is about the whole combination. These patterns do not mean you dislike every piece, color, or style in it.'}));
     if(!features.length)section.appendChild(el('p',{class:'fine',text:'No clear pattern yet. Keep rating a mix of outfits.'}));
     if(features.length)labTastePagedGrid(section,features,'taste-patterns',positive?'tastePositivePage':'tastePassedPage',positive?'Positive patterns':'Passed patterns',function(f){
@@ -128,7 +143,7 @@ function labTasteView(v,entries){
     v.appendChild(section);
   }
   patterns('What’s working for you',true);
-  var pieces=Object.keys(stats).filter(function(f){return f.indexOf('p:')===0&&stats[f].loved>=2}).sort(function(a,b){return stats[b].loved-stats[a].loved||stats[b].n-stats[a].n||a.localeCompare(b)});
+  var pieces=Object.keys(stats).filter(function(f){return f.indexOf('p:')===0&&stats[f].loved>=2}).sort(function(a,b){return stats[b].loved-stats[a].loved||stats[b].n-stats[a].n||a.localeCompare(b)}).slice(0,3);
   if(pieces.length){
     var section=el('section',{class:'tastebox taste-section'},el('h3',{text:'Pieces you keep loving'}));
     labTastePagedGrid(section,pieces,'taste-pieces','tastePiecesPage','Favorite pieces',function(f){var p=map[f.slice(2)],x=stats[f],card=el('article',{class:'taste-piece'},labTile(p,catLabel(p)),el('p',{class:'taste-counts',text:labRatingSummary(x)}),labTasteEvidenceButton(f,x.n));return card});

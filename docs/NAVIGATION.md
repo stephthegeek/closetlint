@@ -24,7 +24,7 @@ Use the actual address shown by the app; the IDs above are placeholders. Renamin
 
 Back and Forward follow app navigation. Returning to a browse view restores its filters and scroll position, including the loaded portion of the infinite list. Those temporary filters are kept in this browser history, rather than encoded in a fresh bookmark.
 
-The Board remembers your current layout and the saved outfit it belongs to. Save outfit creates an outfit; subsequent saves update it. Save a copy creates a separate outfit and switches the board to that copy. New outfit starts an empty draft, with confirmation for unsaved changes and an Undo action. Opening another outfit also asks before replacing an unsaved draft. Navigating between pages keeps the current board; it does not switch to a hidden workspace.
+The Board remembers your current layout and the saved outfit it belongs to. Save outfit creates an outfit; subsequent saves update it. Save a copy creates a separate outfit and switches the board to that copy. New outfit confirms before clearing a populated board, including a clean saved outfit, and offers both a toast Undo and an Undo new outfit button. Opening another outfit also asks before replacing an unsaved draft. Navigating between pages keeps the current board; it does not switch to a hidden workspace.
 
 Board autosave remembers your in-progress changes on this device; it does not update the saved outfit until you choose Save changes. Piece, trip, and collection forms still ask before discarding unsaved changes. Cancel keeps the current view and address. An unsaved trip's `/#/trips/new` address cannot restore an unsaved trip after a fresh load.
 
@@ -37,3 +37,5 @@ For a phone on your trusted network, use the laptop's working LAN address, rathe
 ## Opening another tab
 
 Main navigation, piece photos and titles, saved outfit previews and titles, collection browse links, and saved-trip links support Ctrl-click, Command-click, middle-click, and the browser’s Open link in new tab menu. Ordinary clicks keep the existing unsaved-edit checks. A new tab opens the saved destination; it does not copy unsaved edits from the old tab.
+
+Board tools separate Outfit actions from Design tools. Collage mode switches, collage layout-family changes, and Arrange pieces ask before replacing the current presentation. Undo design restores the last major design change, including style, window replacement, crop/cut resets, and straightening; Undo arrange and Undo remove remain available for those actions. Recovery asks before replacing later design edits and never rewrites the outfit name or saved identity. Piece palette edits are identified as wardrobe-wide color changes and offer Undo.
