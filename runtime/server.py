@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import secrets
+import socket
 import tempfile
 import threading
 import time
@@ -91,6 +92,7 @@ class LocalServer(ThreadingHTTPServer):
 
     def get_request(self):
         connection, address = super().get_request()
+        connection.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         connection.settimeout(30)
         return connection, address
 
@@ -109,14 +111,36 @@ class LocalServer(ThreadingHTTPServer):
 
     def process_request_thread(self, request, client_address):
         try:
-            with self.slots:
-                super().process_request_thread(request, client_address)
+            super().process_request_thread(request, client_address)
         finally:
             self.pending.release()
 
 
 class Handler(BaseHTTPRequestHandler):
     server_version = 'ClosetLintLocal/1'
+    protocol_version = 'HTTP/1.1'
+
+    def parse_request(self):
+        if not super().parse_request():
+            return False
+        # Idle/preconnected sockets must not occupy active request slots.
+        slot = getattr(self.server, 'slots', None)
+        if slot is not None:
+            slot.acquire()
+            self.active_slot = slot
+        return True
+
+    def handle_one_request(self):
+        self.active_slot = None
+        try:
+            super().handle_one_request()
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
+            # Browsers cancel images and reset idle keep-alive sockets during navigation.
+            self.close_connection = True
+        finally:
+            if self.active_slot is not None:
+                self.active_slot.release()
+                self.active_slot = None
 
     def log_message(self, fmt, *args):
         # Do not print URLs, record IDs, bodies or personal data.
@@ -128,6 +152,10 @@ class Handler(BaseHTTPRequestHandler):
         elif isinstance(data, str):
             data = data.encode()
         self.send_response(status)
+        if status >= 400:
+            # Rejected upload bodies may be unread; never parse them as another request.
+            self.close_connection = True
+            self.send_header('Connection', 'close')
         self.send_header('Content-Type', mime)
         if status != 304:
             self.send_header('Content-Length', str(len(data)))

@@ -2,6 +2,8 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import sys
+import socket
+import http.client
 import tempfile
 import threading
 import time
@@ -44,6 +46,69 @@ class ServerBurstTests(unittest.TestCase):
             finally:
                 server.shutdown(); server.server_close(); thread.join(2)
 
+
+    def test_idle_preconnections_do_not_block_real_requests(self):
+        with tempfile.TemporaryDirectory() as folder:
+            server = LocalServer(0, Store(Path(folder) / 'synthetic'))
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            idle = []
+            try:
+                idle = [socket.create_connection(('127.0.0.1', server.server_port), timeout=2) for _ in range(8)]
+                # Let accepted sockets enter their request-line read.
+                deadline = time.monotonic() + 2
+                while server.pending._value > 24 and time.monotonic() < deadline:
+                    time.sleep(0.01)
+                with urlopen('http://127.0.0.1:' + str(server.server_port) + '/runtime.js', timeout=1) as response:
+                    self.assertEqual(response.status, 200)
+                    self.assertIn(b'ClosetLintRuntime', response.read())
+            finally:
+                for connection in idle:
+                    connection.close()
+                server.shutdown(); server.server_close(); thread.join(2)
+
+    def test_http11_reuses_connection_and_errors_close_unread_bodies(self):
+        with tempfile.TemporaryDirectory() as folder:
+            server = LocalServer(0, Store(Path(folder) / 'synthetic'))
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            connection = http.client.HTTPConnection('127.0.0.1', server.server_port, timeout=2)
+            try:
+                connection.request('GET', '/runtime.js')
+                response = connection.getresponse()
+                self.assertEqual(response.version, 11)
+                self.assertEqual(response.status, 200)
+                first = response.read()
+                original_socket = connection.sock
+                self.assertIsNotNone(original_socket)
+                connection.request('GET', '/runtime.js')
+                response = connection.getresponse()
+                self.assertEqual(response.read(), first)
+                self.assertIs(connection.sock, original_socket, 'ordinary image bursts can reuse established connections')
+                connection.request('PUT', '/api/board', body=b'not read', headers={'X-ClosetLint-Token': 'wrong'})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 403)
+                self.assertEqual(response.getheader('Connection'), 'close')
+                response.read()
+                self.assertIsNone(connection.sock, 'an unread rejected body cannot become another request')
+            finally:
+                connection.close()
+                server.shutdown(); server.server_close(); thread.join(2)
+
+    def test_expected_connection_resets_are_quiet_but_real_errors_propagate(self):
+        handler = Handler.__new__(Handler)
+        slot = threading.BoundedSemaphore(1)
+        def disconnect():
+            slot.acquire()
+            handler.active_slot = slot
+            raise ConnectionResetError('Browser cancelled')
+        with patch('http.server.BaseHTTPRequestHandler.handle_one_request', side_effect=disconnect):
+            handler.handle_one_request()
+        self.assertTrue(handler.close_connection)
+        self.assertTrue(slot.acquire(blocking=False), 'disconnect releases its active request slot')
+        with patch('http.server.BaseHTTPRequestHandler.handle_one_request', side_effect=OSError('Storage failed')):
+            with self.assertRaisesRegex(OSError, 'Storage failed'):
+                handler.handle_one_request()
 
 if __name__ == '__main__':
     unittest.main()

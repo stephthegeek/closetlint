@@ -47,5 +47,40 @@ const clone=value=>JSON.parse(JSON.stringify(value));
   await assert.rejects(failingContext.window.ClosetLintRuntime.use('db'),/Offline/);
   assert.match(failingContext.window.ClosetLintRuntime.error,/not being saved/);
   await assert.rejects(failingContext.window.ClosetLintRuntime.fullBackup(),/Offline/);
+  // A temporary autosave failure must recover without leaving flush permanently blocked.
+  function boardFixture(){
+    const state={failures:0,status:0,writes:[],notices:[],timers:new Map(),events:{},serial:0};
+    const toast={classList:{remove(){}},set textContent(value){state.notices.push(value)}};
+    const context={console,window:{ClosetLintLocal:{token:'fixture',board:{pieces:[]}},addEventListener:(name,fn)=>{state.events[name]=fn}},
+      document:{addEventListener(){},getElementById:()=>toast},
+      setTimeout(fn){const id=++state.serial;state.timers.set(id,fn);return id},clearTimeout(id){state.timers.delete(id)},
+      fetch:async(url,options)=>{
+        if(url==='/api/state')return {ok:true,json:async()=>({collections:{custom:{}}})};
+        if(state.failures){state.failures--;if(!state.status)throw new TypeError('Failed to fetch');return {ok:false,status:state.status,json:async()=>({error:'Synthetic save rejection'})}}
+        state.writes.push(JSON.parse(options.body));return {ok:true,json:async()=>({ok:true})};
+      }};
+    vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(__dirname,'../runtime/browser.js'),'utf8'),context);
+    state.runtime=context.window.ClosetLintRuntime;
+    state.tick=async()=>{const pending=[...state.timers.values()];state.timers.clear();pending.forEach(fn=>fn());for(let i=0;i<20;i++)await Promise.resolve()};
+    return state;
+  }
+  let recovery=boardFixture();await recovery.runtime.use('db');recovery.failures=1;
+  recovery.runtime.setBoard({pieces:[{id:'synthetic-a',x:10}]});await recovery.tick();
+  assert.equal(recovery.timers.size,1,'connection failure schedules a retry');
+  let warned=false;recovery.events.beforeunload({preventDefault(){warned=true}});assert.ok(warned);
+  recovery.runtime.setBoard({pieces:[{id:'synthetic-a',x:30}]});await recovery.tick();await recovery.runtime.flush();
+  assert.equal(recovery.writes.at(-1).pieces[0].x,30,'retry saves the newest layout');
+  assert.equal(recovery.notices.at(-1),'Board autosave recovered.');
+  warned=false;recovery.events.beforeunload({preventDefault(){warned=true}});assert.equal(warned,false,'successful retry clears unsaved warning and flush failure');
+  recovery=boardFixture();await recovery.runtime.use('db');recovery.failures=10;recovery.status=503;
+  recovery.runtime.setBoard({pieces:[]});await recovery.tick();await recovery.tick();await recovery.tick();
+  assert.equal(recovery.timers.size,0,'server failures have only two automatic retries');
+  recovery.failures=0;recovery.events.online();await recovery.tick();await recovery.runtime.flush();
+  assert.equal(recovery.notices.at(-1),'Board autosave recovered.','reconnecting retries pending board');
+  recovery=boardFixture();await recovery.runtime.use('db');recovery.failures=1;recovery.status=400;
+  recovery.runtime.setBoard({pieces:[]});await recovery.tick();
+  assert.equal(recovery.timers.size,0,'invalid payloads are not automatically retried');
+  assert.match(recovery.notices.at(-1),/Synthetic save rejection/,'autosave exposes the server reason');
+  await recovery.runtime.flush();
   console.log('Runtime adapter: snapshot isolation, serialized writes, board-before-backup, deletion, optional AI, and failure handling passed.');
 })().catch(error=>{console.error(error);process.exit(1)});

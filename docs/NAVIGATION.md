@@ -8,7 +8,7 @@ Examples, after your usual app address:
 | --- | --- |
 | `/#/closet` | Closet |
 | `/#/pieces/PIECE_ID` | Piece view |
-| `/#/board` | Your working board |
+| `/#/board` | Your current outfit board |
 | `/#/outfits` | Saved outfits |
 | `/#/outfits/OUTFIT_ID` | One saved outfit |
 | `/#/calendar?month=2026-11` | Calendar in a specific month |
@@ -24,9 +24,9 @@ Use the actual address shown by the app; the IDs above are placeholders. Renamin
 
 Back and Forward follow app navigation. Returning to a browse view restores its filters and scroll position, including the loaded portion of the infinite list. Those temporary filters are kept in this browser history, rather than encoded in a fresh bookmark.
 
-A saved outfit opens separately from your working board. Opening a piece from that outfit does not discard its unsaved edits. Leaving an edited outfit, trip, piece form, or collection form asks before discarding changes. Cancel keeps the current view and address. Refreshing or closing a page with unsaved edits uses the browser's standard warning.
+The Board remembers your current layout and the saved outfit it belongs to. Save outfit creates an outfit; subsequent saves update it. Save a copy creates a separate outfit and switches the board to that copy. New outfit starts an empty draft, with confirmation for unsaved changes and an Undo action. Opening another outfit also asks before replacing an unsaved draft. Navigating between pages keeps the current board; it does not switch to a hidden workspace.
 
-Accepted discard removes unsaved edits; it does not delete previously saved items. The working board remains separate and uses its existing automatic persistence. An unsaved trip's `/#/trips/new` address starts a new trip after a fresh load; it cannot restore an unsaved draft.
+Board autosave remembers your in-progress changes on this device; it does not update the saved outfit until you choose Save changes. Piece, trip, and collection forms still ask before discarding unsaved changes. Cancel keeps the current view and address. An unsaved trip's `/#/trips/new` address cannot restore an unsaved trip after a fresh load.
 
 ## These links belong to an installation
 

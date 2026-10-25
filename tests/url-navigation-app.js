@@ -11,7 +11,7 @@ function fixture(hash=''){
  const ctx={window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},renderOracle(){ctx.oracleSession=ctx.oracleSession||{question:''}},oracleLeave(){},oracleSession:null,labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
  openEdit(it){const d=node('dlg');d.fields=[{name:'name',type:'text',value:it.id,getAttribute(){return ''},closest(){return null}}];d.showModal()},openAdd(){const d=node('dlg');d.fields=[];d.images=[];d.showModal()},openOutfitDetails(){node('dlg').showModal()}};
  vm.createContext(ctx);
- vm.runInContext(['setTab','persistBoard','ofOpen','outfitEditorDirty','leaveOutfitEditor','tripNew','tripSettings','tripHasUnsaved','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar'].map(fn).join('\n')+'\n'+routes,ctx);
+ vm.runInContext(['setTab','persistBoard','ofOpen','outfitEditorDirty','boardNeedsProtection','boardHasContent','tripNew','tripSettings','tripHasUnsaved','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar'].map(fn).join('\n')+'\n'+routes,ctx);
  ctx.installClosetRoutes();
  return {ctx,state,scratch,saved,writes,prompts,notices,win,hist,stack,node,setAllow:v=>allow=v,ready(){state.capsDone=true;['edits','custom','outfits','profile','trips'].forEach(k=>ctx.setupLoaded[k]=true);win.ClosetLintRoutes.ready()}};
 }
@@ -19,14 +19,14 @@ function fixture(hash=''){
  const f=fixture('#/outfits/o1'),{ctx,state,scratch,saved,win,hist}=f;
  win.ClosetLintRoutes.ready();assert.equal(state.editingOutfit,undefined,'deep link waits for storage');f.ready();
  assert.equal(ctx.document.title,'Dinner · Closet Lint');
- assert.equal(state.editingOutfit,true);assert.equal(state.scratchBoard,scratch);assert.equal(state.board.id,'o1');assert.notEqual(state.board.pieces[0],saved.pieces[0]);assert.equal(f.writes.length,1);assert.equal(f.writes[0].pieces[0].id,'a');
+ assert.equal(state.editingOutfit,true);assert.equal(state.scratchBoard,null);assert.equal(state.board.id,'o1');assert.notEqual(state.board.pieces[0],saved.pieces[0]);assert.equal(f.writes.length,0);assert.equal(f.prompts.length,1,'a deep link protects an existing draft');f.prompts.length=0;
  state.board.pieces[0].x=99;const edited=state.board;ctx.openEdit({id:'b'});assert.equal(win.location.hash,'#/pieces/b');assert.equal(f.prompts.length,0,'piece can open over unsaved outfit');
  assert.equal(ctx.document.title,'Piece · Closet Lint');
  hist.back();assert.equal(win.location.hash,'#/outfits/o1');assert.equal(state.board,edited);assert.equal(state.board.pieces[0].x,99,'Back closes piece without discarding outfit edits');assert.equal(f.prompts.length,0);
  assert.equal(ctx.document.title,'Dinner · Closet Lint');
  hist.forward();f.node('dlg').fields[0].value='Edited piece';f.setAllow(false);hist.back();assert.equal(win.location.hash,'#/pieces/b');assert.equal(f.node('dlg').open,true);assert.equal(state.board,edited);
- f.setAllow(true);hist.back();assert.equal(state.board,edited);f.setAllow(false);const n=f.stack.length;assert.equal(ctx.setTab('outfits'),false);assert.equal(f.stack.length,n);assert.equal(state.board,edited);
- f.setAllow(true);ctx.setTab('outfits');assert.equal(win.location.hash,'#/board');assert.equal(state.board,scratch);assert.equal(saved.pieces[0].x,5);assert.equal(f.writes.length,1,'routing never persists saved-editor changes as working board');
+ f.setAllow(true);hist.back();assert.equal(state.board,edited);f.setAllow(false);ctx.setTab('all');assert.equal(state.board,edited,'ordinary navigation preserves the current outfit draft');
+ f.setAllow(true);ctx.setTab('outfits');assert.equal(win.location.hash,'#/board');assert.equal(state.board,edited);assert.equal(saved.pieces[0].x,5);ctx.persistBoard();assert.equal(f.writes.at(-1).id,'o1','autosave remembers the linked board without updating the saved outfit');
  ctx.ofOpen(saved,ctx.byIdA());state.board.name='Changed';const current=state.board;ctx.ofOpen(saved,ctx.byIdA());assert.equal(state.board,current,'same-outfit navigation never reloads unsaved editor');
 }
 {
@@ -101,3 +101,5 @@ console.log('URL app integration: deep links, board isolation, unsaved fields an
  ctx.setTab('oracle');ctx.oracleSession.busy=true;ctx.oracleMessage=()=>{};assert.equal(ctx.setTab('lab'),false,'non-cancellable summary download protects navigation');assert.equal(state.tab,'oracle');ctx.oracleSession.busy=false;ctx.setTab('lab');assert.equal(state.tab,'lab');
  console.log('Oracle page routing: direct link, title, primary views, Back/Forward, retained question, and active-download navigation guard pass.');
 }
+
+{const f=fixture('#/outfits/o1');f.setAllow(false);f.ready();assert.equal(f.win.location.hash,'#/board');assert.equal(f.state.board,f.scratch);assert.equal(f.writes.length,0);}

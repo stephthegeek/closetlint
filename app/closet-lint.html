@@ -1712,7 +1712,7 @@ button.setup-option{cursor:pointer}button.setup-option:hover{border-color:var(--
 <header class="top" id="topbar">
   <h1 class="brand"><a href="#" id="home" title="Your closet" aria-label="Closet Lint · Your closet"><svg class="brand-mark" viewBox="290 420 710 600" aria-hidden="true" focusable="false"><image id="linty-logo-image" width="1254" height="1254"/></svg><span class="brand-title">closet lint</span></a></h1>
   <span class="count" id="count"></span>
-<nav class="primary-nav" aria-label="Main navigation"><a href="#/closet" id="go-closet" aria-label="Closet"><span class="nav-emoji" aria-hidden="true">👚</span><span>Closet</span></a><a href="#/board" id="go-board" aria-label="Working board"><span class="nav-emoji" aria-hidden="true">🪞</span><span>Board</span><small class="board-count" aria-hidden="true" hidden></small></a><a href="#/outfits" id="go-saved" aria-label="Outfits"><span class="nav-emoji" aria-hidden="true">👗</span><span>Outfits</span></a><a href="#/lab" id="go-lab" aria-label="Outfit Lab"><span class="nav-emoji" aria-hidden="true">🧑‍🔬</span><span>Lab</span></a><a href="#/trips" id="go-trip" aria-label="Trips"><span class="nav-emoji" aria-hidden="true">🧳</span><span>Trips</span></a></nav>
+<nav class="primary-nav" aria-label="Main navigation"><a href="#/closet" id="go-closet" aria-label="Closet"><span class="nav-emoji" aria-hidden="true">👚</span><span>Closet</span></a><a href="#/board" id="go-board" aria-label="Board"><span class="nav-emoji" aria-hidden="true">🪞</span><span>Board</span><small class="board-count" aria-hidden="true" hidden></small></a><a href="#/outfits" id="go-saved" aria-label="Outfits"><span class="nav-emoji" aria-hidden="true">👗</span><span>Outfits</span></a><a href="#/lab" id="go-lab" aria-label="Outfit Lab"><span class="nav-emoji" aria-hidden="true">🧑‍🔬</span><span>Lab</span></a><a href="#/trips" id="go-trip" aria-label="Trips"><span class="nav-emoji" aria-hidden="true">🧳</span><span>Trips</span></a></nav>
   <span class="spacer"></span>
   <button id="fantbtn" class="fantasy-switch" type="button" role="switch" aria-checked="false" aria-label="Fantasy mode" title="Closet rules, temporarily suspended. Include wishlist and stored pieces."><span class="button-emoji" aria-hidden="true">🪄</span><span>Fantasy mode</span><span class="switch-track" aria-hidden="true"></span></button>
   <button class="btn primary" id="addbtn" aria-label="Add pieces" title="Add pieces" aria-haspopup="menu" aria-expanded="false" aria-controls="addmenu"><span class="emo">➕</span><span class="lbl"> Add piece</span></button>
@@ -1818,7 +1818,7 @@ button.setup-option{cursor:pointer}button.setup-option:hover{border-color:var(--
   <aside class="tray" id="tray" aria-label="Pieces to add"></aside>
   <section class="stage">
     <div class="toolwrap">
-      <p class="board-context" id="board-context">Working board</p>
+      <p class="board-context" id="board-context">Draft · saved automatically</p>
       <div class="board-title-row">
       <input type="text" class="search board-name" id="oname" placeholder="Name this outfit" aria-label="Outfit name">
       <button class="btn primary" id="osave" title="Save outfit" aria-label="Save outfit">💾<span class="bl"> Save</span></button>
@@ -1830,7 +1830,8 @@ button.setup-option{cursor:pointer}button.setup-option:hover{border-color:var(--
       <button class="btn" id="odetail" type="button" title="Season, occasion and aesthetic for this outfit" aria-label="Outfit details">🏷️<span class="bl"> Details</span></button>
       <button class="btn" id="owear" type="button" title="Log a day you wore this outfit (logs every piece too)" aria-label="I wore this outfit">📅<span class="bl"> Wore it</span></button>
       <button class="btn" id="board-collection" type="button" aria-label="Save as collection" title="Save as collection"><span class="emo">📚</span><span class="bl"> Save as collection</span></button>
-      <button class="btn" id="onew" title="Start a new outfit" aria-label="New outfit">＋<span class="bl"> New</span></button>
+      <button class="btn" id="onew" title="Start a new outfit" aria-label="New outfit">＋<span class="bl"> New outfit</span></button>
+      <button class="btn" id="ocopy" hidden title="Save a copy" aria-label="Save a copy">📄<span class="bl"> Save a copy</span></button>
       <button class="btn hide" id="opull" title="Stored pieces in this outfit, grouped by where they are" aria-label="Pull list">🗄️<span class="bl"> Pull list</span></button>
       <button class="btn" id="olab" type="button" style="margin-left:auto" title="Open the Outfit Lab" aria-label="Outfit Lab">🧑‍🔬<span class="bl"> Lab</span></button>
       <button class="btn" id="oall" type="button" title="See all your saved outfits" aria-label="All outfits">👗<span class="bl"> All outfits</span></button>
@@ -3330,7 +3331,6 @@ function plusBtn(it,inline){
   paintPlus(b,it);return b;
 }
 function persistBoard(){
-  if(state.editingOutfit)return;
   var board=Object.assign({id:state.board.id,name:state.board.name,pieces:state.board.pieces},oMetaFrom(state.board));
   if(window.ClosetLintRuntime){if(state.capsDone&&state.db)window.ClosetLintRuntime.setBoard(board);return}
   try{localStorage.setItem('closetlint.board.v1',JSON.stringify(board))}catch(e){}
@@ -3338,7 +3338,7 @@ function persistBoard(){
 function restoreBoard(){
   try{
     var v=window.ClosetLintRuntime?window.ClosetLintRuntime.board:JSON.parse(localStorage.getItem('closetlint.board.v1')||'null');
-    if(v&&Array.isArray(v.pieces)){state.board=Object.assign({id:null,name:v.name||'',pieces:v.pieces.filter(function(p){return p&&p.id})},oMetaFrom(v));$('oname').value=state.board.name}
+    if(v&&Array.isArray(v.pieces)){state.board=Object.assign({id:v.id||null,name:v.name||'',pieces:v.pieces.filter(function(p){return p&&p.id})},oMetaFrom(v));$('oname').value=state.board.name}
   }catch(e){}
 }
 
@@ -4323,7 +4323,6 @@ function renderTrayGrid(){
   });
 }
 function addPiece(it){
-  if(state.editingOutfit&&state.tab!=='outfits'){leaveOutfitEditor(function(){addPiece(it)});return}
   if(state.board.lay){collAdd(it);return}
   var b=state.board,w=Math.min(60,Math.round((DEFAULT_W[it.meta]||24)*1.4)),n=b.pieces.length;
   var hpct=w*boardAR()/(it.ar||1);
@@ -4483,12 +4482,9 @@ function wireBoard(){
     var m=1e9;state.board.pieces.forEach(function(q){if(q.z<m)m=q.z});p.z=m-1;renderBoard();
   });
   $('sremove').addEventListener('click',function(){if(state.sel<0)return;boardDel('p',state.sel)});
-  $('onew').addEventListener('click',function(){
-    function clear(){var old=state.board;freshBoard();renderBoard();toastAct('Fresh board. Fresh nonsense.','Undo',function(){state.board=old;renderBoard()})}
-    if(state.editingOutfit){leaveOutfitEditor(function(){setTab('outfits')});return}
-    if(boardHasContent())askConfirm('Clear the working board? Save it as an outfit first if you want to keep it.','Clear board',clear);else clear();
-  });
-  $('oname').addEventListener('input',function(e){state.board.name=e.target.value;persistBoard()});
+  $('onew').addEventListener('click',function(){startNewOutfit()});
+  $('ocopy').addEventListener('click',function(){saveOutfit(true)});
+  $('oname').addEventListener('input',function(e){state.board.name=e.target.value;persistBoard();paintBoardContext()});
   $('osave').addEventListener('click',saveOutfit);
   $('ofav').addEventListener('click',function(){
     var b=state.board;
@@ -4521,9 +4517,23 @@ function boardSig(o){return JSON.stringify([mapPiecesForDoc(o.pieces||[]),o.text
 function boardHasContent(){var b=state.board;return b.pieces.length>0||(b.texts||[]).length>0}
 /* a board is worth setting aside unless it is empty or exactly what is already saved as an outfit */
 function freshBoard(){state.board={id:null,name:'',pieces:[]};state.sel=-1;state.selT=-1;state.cs=-1;$('oname').value=''}
-function newBoardWith(it,fromAdded){
-  askConfirm('Replace the working board with this piece? Save it as an outfit first to keep it.','Replace board',function(){var old=state.board;freshBoard();addPiece(it);toastAct('New board started.','Undo',function(){state.board=old;renderBoard()})});
+function startNewOutfit(piece){
+  if(state.boardSaving){toast('Wait for the outfit to finish saving.');return}
+  function start(){
+    var old=state.board;
+    freshBoard();state.editingOutfit=false;state.scratchBoard=null;
+    if(piece)addPiece(piece);else renderBoard();
+    var created=state.board,signature=JSON.stringify(created);
+    toastAct('New outfit started. Your saved outfits are unchanged.','Undo',function(){
+      if(state.boardSaving){toast('Wait for the outfit to finish saving.');return}
+      function restore(){state.board=old;state.editingOutfit=!!old.id;$('oname').value=old.name||'';renderBoard();toast(old.id?'Returned to editing "'+(old.name||'Untitled outfit')+'".':'Previous draft restored.')}
+      if((state.board!==created||JSON.stringify(state.board)!==signature)&&boardNeedsProtection())askConfirm('Restore the previous board? Unsaved changes on this board will be discarded. Saved outfits stay unchanged.','Restore previous board',restore);else restore();
+    });
+  }
+  if(boardNeedsProtection())askConfirm('Start a new outfit? '+(state.board.id?'Changes not saved to this outfit will be discarded.':'Your current draft will be cleared.')+' Use Undo immediately to bring it back.','New outfit',start);else start();
 }
+function boardNeedsProtection(){return state.board.id?outfitEditorDirty():boardHasContent()||!!state.board.name}
+function newBoardWith(it,fromAdded){startNewOutfit(it)}
 
 /* ---------- collage mode: framed layouts with windows, instead of freehand placement ---------- */
 var COLL_MAX=12;
@@ -5544,16 +5554,20 @@ function uniqOutfitName(name,exceptId){
   while(low[(base+' ('+n+')').toLowerCase()])n++;
   return base+' ('+n+')';
 }
-function saveOutfit(){
+function saveOutfit(asCopy){
+  asCopy=asCopy===true;
+  if(state.boardSaving)return Promise.resolve(false);
   if(needDb())return Promise.resolve(false);
-  var b=state.board,editing=!!state.editingOutfit;
+  var b=state.board,editing=!asCopy&&!!(b.id&&state.outfits[b.id]);
   if(!b.pieces.length){toast('Add a few pieces first');return Promise.resolve(false)}
   var name0=(b.name||'').trim()||'Untitled outfit';
   var id=(editing&&b.id)||'o'+Date.now().toString(36);
+  if(!editing){var base=id,n=2;while(state.outfits[id])id=base+'-'+n++;}
   var name=uniqOutfitName(name0,id),renamed=name!==name0;
   var doc=Object.assign({name:name,pieces:b.pieces.map(function(p){var o={id:p.id,x:round2(p.x),y:round2(p.y),w:round2(p.w),z:p.z};if(p.rot)o.rot=p.rot;if(p.clip)o.clip=p.clip;if(p.fx)o.fx=1;if(p.fy)o.fy=1;if(p.nf)o.nf=1;if(p.zm)o.zm=round2(p.zm);if(p.px!=null&&p.px!==.5)o.px=round2(p.px);if(p.py!=null&&p.py!==.5)o.py=round2(p.py);if(p.c)o.c=1;return o}),updatedAt:Date.now()},oMetaFrom(b));
-  var old=state.outfits[id];if(old&&old.wearLog)doc.wearLog=old.wearLog;if(old&&old.plans)doc.plans=old.plans;
-  return state.db.collection('outfits').doc(id).set(doc).then(function(){if(editing)b.id=id;else b.id=null;state.lastSavedOutfit=id;b.name=name;if(state.board===b)$('oname').value=name;state.outfits[id]=doc;persistBoard();toast(renamed?'Saved as "'+name+'" (that name was already taken)':'Saved "'+name+'"');return true}).catch(function(e){toast('Could not save: '+(e&&e.message||e));return false});
+  var old=editing&&state.outfits[id];if(old&&old.wearLog)doc.wearLog=old.wearLog;if(old&&old.plans)doc.plans=old.plans;
+  state.boardSaving=true;paintOMeta();
+  return state.db.collection('outfits').doc(id).set(doc).then(function(){b.id=id;state.lastSavedOutfit=id;if((b.name||'').trim()===name0||!(b.name||'').trim())b.name=name;if(state.board===b){state.editingOutfit=true;$('oname').value=b.name}state.outfits[id]=doc;persistBoard();paintBoardContext();toast((asCopy?'Saved a copy as "'+name+'". You’re editing the copy.':editing?'Updated outfit "'+name+'".':'Saved outfit "'+name+'". Further saves update this outfit.')+(renamed?' A unique name was added.':''));return true}).catch(function(e){toast('Could not save outfit: '+(e&&e.message||e));return false}).finally(function(){state.boardSaving=false;paintOMeta()});
 }
 function round2(v){return Math.round(v*100)/100}
 /* San Francisco seasons: warmest Aug–Oct, so summer starts in August and the rest follow */
@@ -5568,9 +5582,11 @@ function oRating(o){
 function ratingEmoji(r){return r===1?'😍':r===0?'😏':r===-1?'🙅':''}
 function ratingWord(r){return r===1?'Loved in the Lab':r===0?'Liked in the Lab':r===-1?'Said no in the Lab':''}
 function paintOMeta(){
-  var saveLabel=state.editingOutfit?'Save outfit changes':'Save as outfit',newLabel=state.editingOutfit?'Back to board':'Clear board';
+  var linked=!!(state.board.id&&state.outfits[state.board.id]),saveLabel=linked?'Save changes':'Save outfit',newLabel='New outfit';
+  ['osave','ocopy','onew'].forEach(function(id){var node=$(id);if(node)node.disabled=!!state.boardSaving});
+  if($('ocopy')){$('ocopy').hidden=!linked;$('ocopy').classList.toggle('hide',!linked);}
   $('osave').innerHTML='<span class="emo">💾</span><span class="bl"> '+saveLabel+'</span>';$('osave').setAttribute('aria-label',saveLabel);$('osave').title=saveLabel;
-  $('onew').innerHTML='<span class="emo">↩</span><span class="bl"> '+newLabel+'</span>';$('onew').setAttribute('aria-label',newLabel);$('onew').title=newLabel;
+  $('onew').innerHTML='<span class="emo">＋</span><span class="bl"> '+newLabel+'</span>';$('onew').setAttribute('aria-label',newLabel);$('onew').title=newLabel;
   var b=state.board,f=$('ofav');if(!f)return;
   f.textContent=b.fav?'♥':'♡';f.setAttribute('aria-pressed',b.fav?'true':'false');f.classList.toggle('on',!!b.fav);
   var n=(b.seasons||[]).length+(b.styles||[]).length+(b.looks||[]).length;
@@ -5786,15 +5802,11 @@ function ofMini(o,map,fit){
   return mini;
 }
 function outfitEditorDirty(){var saved=state.outfits[state.board.id];return !saved||boardSig(state.board)!==boardSig(saved)||(state.board.name||'')!==(saved.name||'')||JSON.stringify(oMetaFrom(state.board))!==JSON.stringify(oMetaFrom(saved))}
-function leaveOutfitEditor(done,discardApproved){
-  function leave(){state.board=state.scratchBoard||{id:null,name:'',pieces:[]};state.scratchBoard=null;state.editingOutfit=false;state.sel=-1;state.selT=-1;state.cs=-1;$('oname').value=state.board.name||'';done()}
-  var saved=state.outfits[state.board.id];
-  if(!discardApproved&&outfitEditorDirty())askConfirm('Leave this outfit? Unsaved edits will be discarded. Your working board is safe.','Discard edits',leave);
-  else leave();
-}
-function ofOpen(o,map){
-  if(state.editingOutfit){leaveOutfitEditor(function(){ofOpen(o,map)});return}
-  persistBoard();state.scratchBoard=state.board;state.editingOutfit=true;
+function ofOpen(o,map,approved){
+  if(state.boardSaving){toast('Wait for the outfit to finish saving.');return}
+  if(state.board.id===o.id){setTab('outfits');return}
+  if(!approved&&boardNeedsProtection()){askConfirm('Open "'+o.name+'" instead? Save your current outfit first to keep its latest changes.','Open outfit',function(){ofOpen(o,map,true)});return}
+  state.scratchBoard=null;state.editingOutfit=true;
   state.board=Object.assign({id:o.id,name:o.name,pieces:(o.pieces||[]).filter(function(p){return map[p.id]}).map(function(p){var q={id:p.id,x:p.x,y:p.y,w:p.w,z:p.z};if(p.rot)q.rot=p.rot;if(p.clip)q.clip=p.clip;if(p.fx)q.fx=1;if(p.fy)q.fy=1;if(p.nf)q.nf=1;if(p.zm)q.zm=p.zm;if(p.px!=null)q.px=p.px;if(p.py!=null)q.py=p.py;if(p.c)q.c=1;return q})},oMetaFrom(o));
   state.sel=-1;state.cs=-1;$('oname').value=o.name;state.openingOutfit=true;setTab('outfits');state.openingOutfit=false;
 }
@@ -7182,7 +7194,7 @@ function resetDisplayPrefs(){
   $('display-prefs-status').textContent=saved?'Display preferences reset. Your wardrobe and size reference are unchanged.':'Display preferences reset for this visit. Your browser could not save them; your wardrobe and size reference are unchanged.';
 }
 function isClosetTab(tab){return ['all','clothing','accessories','jewelry','offduty'].indexOf(tab)>=0}
-function mainDestination(tab){if(tab==='oracle')return 'oracle';return isClosetTab(tab)||tab==='wrank'?'closet':tab==='outfits'?(state.editingOutfit?'saved':'board'):tab==='saved'?'saved':tab==='trip'?'trip':'lab'}
+function mainDestination(tab){if(tab==='oracle')return 'oracle';return isClosetTab(tab)||tab==='wrank'?'closet':tab==='outfits'?'board':tab==='saved'?'saved':tab==='trip'?'trip':'lab'}
 function syncNavigation(){
   var jump=$('jump-top');if(jump)jump.classList.toggle('hide',window.scrollY<600||!isClosetTab(state.tab));
   var current=mainDestination(state.tab);
@@ -7262,12 +7274,12 @@ function paintTab(id,emo,label,count){
   b.title=label;
 }
 function paintBoardContext(){
-  var working=state.editingOutfit?state.scratchBoard:state.board,workingCount=working&&working.pieces?working.pieces.length:0;
+  var working=state.board,workingCount=working&&working.pieces?working.pieces.length:0;
   var boardNav=$('go-board'),badge=boardNav.querySelector('.board-count'),context=$('board-context');
   badge.hidden=!workingCount;badge.textContent=workingCount?String(workingCount):'';
-  boardNav.setAttribute('aria-label','Working board'+(workingCount?' ('+workingCount+' piece'+(workingCount===1?'':'s')+')':''));
+  boardNav.setAttribute('aria-label','Board'+(workingCount?' ('+workingCount+' piece'+(workingCount===1?'':'s')+')':''));
   boardNav.title=boardNav.getAttribute('aria-label');
-  if(context)context.textContent=state.editingOutfit?'Editing saved outfit':'Working board';
+  if(context)context.textContent=state.board.id&&state.outfits[state.board.id]?'Editing: '+(state.board.name||'Untitled outfit')+' · Save changes to update this outfit':'Draft · saved automatically';
 }
 function renderTabs(){return memoRun(renderTabsInner,this,arguments)}
 function renderTabsInner(){
@@ -7289,7 +7301,6 @@ function initialTab(){
 }
 function setTab(t){
   if(state.tab==='oracle'&&t!=='oracle'&&oracleSession&&oracleSession.busy&&!oracleSession.photoRequest){oracleMessage('Wait for this download to finish.');return false}
-  if(state.editingOutfit&&!state.openingOutfit){leaveOutfitEditor(function(){setTab(t)});return}
   if(state.tab==='trip'&&t!=='trip'&&state.trip){tripLeave(function(){setTab(t)});return;}
   if(state.tab==='oracle'&&t!=='oracle')oracleLeave();
   state.collectionManager=false;
@@ -8980,13 +8991,14 @@ function labDoSave(o,pieces,nm){
   }).catch(function(e){toast('Could not save: '+(e&&e.message||e))});
 }
 function labToBoard(o){
+  if(state.boardSaving){toast('Wait for the outfit to finish saving.');return}
   function go(){
     var old=state.board,bt=ltTitle(o,(state.lab&&state.lab.tstyle)||'Surprise me');state.board={id:null,name:bt,pieces:[],from:'lab'};$('oname').value=bt;
     var rr=state.ratings&&state.ratings[o.sig||labSig(o)];if(rr&&typeof rr.r==='number')state.board.rating=rr.r;
     labParts(o).concat(labAccParts(o)).forEach(function(p){addPiece(p)});
-    persistBoard();setTab('outfits');toastAct('Sent to your working board.','Undo',function(){state.board=old;renderBoard()});
+    persistBoard();setTab('outfits');toastAct('Started a new outfit from the Lab.','Undo',function(){state.board=old;renderBoard()});
   }
-  if(boardHasContent())askConfirm('Replace your working board? Save it as an outfit first to keep it.','Replace board',go);else go();
+  if(boardNeedsProtection())askConfirm('Start a new outfit from the Lab? Save your current outfit first to keep its latest changes.','New outfit',go);else go();
 }
 /* ---------- Trip wizard: typical climate, a small capsule of pieces, basics counts, a packing list ---------- */
 var TRIP_BAGS=[['pack','Backpack',22],['carry','Carry-on',36],['check','Checked bag',60],['car','Car, roomy',110]];
@@ -9412,7 +9424,7 @@ function tripLeave(next,discardApproved){
   if(!discardApproved&&tripHasUnsaved(T))askConfirm('Leave this trip? Your unsaved choices will be discarded. Any previously saved trip stays safe. Linty can unpack this draft, but cannot remember it afterward.','Discard & leave',leave);
   else leave();
 }
-window.addEventListener('beforeunload',function(e){if((state.tab==='trip'&&tripHasUnsaved(state.trip))||(state.editingOutfit&&outfitEditorDirty())){e.preventDefault();e.returnValue='';}});
+window.addEventListener('beforeunload',function(e){if((state.tab==='trip'&&tripHasUnsaved(state.trip))){e.preventDefault();e.returnValue='';}});
 function tripSave(){
   var T=state.trip;if(!T||!T.plan||needDb())return;
   var id=T.id||('t'+Date.now().toString(36)),doc={name:(T.name||T.dest||'Trip').trim()||'Trip',settings:tripSettings(T),plan:JSON.parse(JSON.stringify(tripPlanOut(T.plan))),checked:T.checked||{},updatedAt:Date.now()};
@@ -10509,7 +10521,7 @@ function createClosetHistory(env){
     var context=(entries[index]||saved||{}).context||null;
     env.apply(route,null,context);current={index:index,route:route,context:context||env.capture()};entries[index]=copy(current);store(current,true);if(context)env.restoreScroll(context);
   }
-  return {start:function(route){return transition(route,{replace:true,skipGuard:true,force:true})},go:transition,pop:pop,capture:function(){capture(true)},current:function(){return current},previous:function(){return current&&entries[current.index-1]}};
+  return {start:function(route){return transition(route,{replace:true,force:true})},go:transition,pop:pop,capture:function(){capture(true)},current:function(){return current},previous:function(){return current&&entries[current.index-1]}};
 }
 function installClosetRoutes(){
   if(!window.history||!window.history.pushState)return;
@@ -10533,7 +10545,7 @@ function installClosetRoutes(){
   }
   function routeFromState(){
     if(formTrack&&formTrack.id&&$('dlg').open)return {type:'pieces',id:formTrack.id};
-    if(state.editingOutfit&&state.board.id)return {type:'outfits',id:state.board.id};
+    if(state.tab==='outfits'&&state.board.id&&state.outfits[state.board.id])return {type:'outfits',id:state.board.id};
     if(state.tab==='saved'&&state.ofView==='history')return {type:'calendar',month:state.histMonth||null};
     if(state.tab==='trip')return {type:'trips',id:state.trip?(state.trip.id||'new'):null};
     if(isClosetTab(state.tab)){if(state.collectionManager)return {type:'collections',id:null};var ids=Object.keys(state.collectionFilter||{}).filter(function(k){return state.collectionFilter[k]});if(ids.length===1)return {type:'collections',id:ids[0]};return {type:'closet',category:state.tab}}
@@ -10552,7 +10564,7 @@ function installClosetRoutes(){
   }
   function track(id){formTrack={id:id||null};formBase=signature()}
   function dirtyForm(){return !!formTrack&&$('dlg').open&&signature()!==formBase&&(!formTrack.id||!!byId()[formTrack.id])}
-  function sameOutfit(route){return route.type==='outfits'&&route.id&&state.editingOutfit&&state.board.id===route.id}
+  function sameOutfit(route){return route.type==='outfits'&&route.id&&state.tab==='outfits'&&state.board.id===route.id}
   function sameTrip(route){return route.type==='trips'&&state.tab==='trip'&&((route.id==='new'&&state.trip&&!state.trip.id)||(route.id&&state.trip&&state.trip.id===route.id))}
   function guard(route){
     if(state.tab==='oracle'&&route.type!=='oracle'&&typeof oracleSession!=='undefined'&&oracleSession&&oracleSession.busy&&!oracleSession.photoRequest){oracleMessage('Wait for this download to finish.');return false}
@@ -10561,11 +10573,12 @@ function installClosetRoutes(){
     extraForms=extraForms.filter(function(f){return f.dialog.open});
     if(extraForms.some(function(f){return f.busy&&f.busy()})){toast('Wait for this save to finish before leaving.');return false}
     var extraDirty=extraForms.some(function(f){return f.read()!==f.base});
-    var outfit=route.type!=='pieces'&&!sameOutfit(route)&&state.editingOutfit&&outfitEditorDirty(),trip=route.type!=='pieces'&&!sameTrip(route)&&state.tab==='trip'&&tripHasUnsaved(state.trip);
-    return !(dirtyForm()||extraDirty||outfit||trip||tool)||window.confirm('Leave this view? Unsaved edits and unkept photo results will be discarded. Your working board and saved items stay safe.');
+    if(state.boardSaving&&route.type==='outfits'&&route.id&&route.id!==state.board.id){toast('Wait for the outfit to finish saving.');return false}
+    if(route.type==='outfits'&&route.id&&route.id!==state.board.id&&boardNeedsProtection()&&!window.confirm('Open another outfit? Save your current outfit first to keep its latest changes.'))return false;
+    var trip=route.type!=='pieces'&&!sameTrip(route)&&state.tab==='trip'&&tripHasUnsaved(state.trip);
+    return !(dirtyForm()||extraDirty||trip||tool)||window.confirm('Leave this view? Unsaved edits and unkept photo results will be discarded. Your board and saved outfits stay safe.');
   }
   function discardFor(route){
-    if(route.type!=='pieces'&&!sameOutfit(route)&&state.editingOutfit)leaveOutfitEditor(function(){},true);
     if(route.type!=='pieces'&&!sameTrip(route)&&state.tab==='trip'&&state.trip)tripLeave(function(){},true);
     formTrack=null;closing=true;document.querySelectorAll('dialog[open]').forEach(function(d){d.close()});closing=false;
   }
@@ -10578,7 +10591,7 @@ function installClosetRoutes(){
       if(action){action();return}
       if(route.type==='pieces'){
         var tab=state.editingOutfit||state.trip?state.tab:context&&context.tab||state.tab||'all';if(state.tab!==tab)original.setTab(tab);restoreValues(context);if(isClosetTab(tab)){renderFilters();original.renderGrid()}original.openEdit(byId()[route.id]);track(route.id);
-      }else if(route.type==='outfits'&&route.id){if(!sameOutfit(route))original.ofOpen(Object.assign({id:route.id},state.outfits[route.id]),byIdA());else{renderTray();renderBoard()};}
+      }else if(route.type==='outfits'&&route.id){if(!sameOutfit(route))original.ofOpen(Object.assign({id:route.id},state.outfits[route.id]),byIdA(),true);else{renderTray();renderBoard()};}
       else if(route.type==='calendar'){state.ofView='history';state.histMonth=route.month||todayStr().slice(0,7);original.setTab('saved')}
       else if(route.type==='outfits'){state.ofView='outfits';original.setTab('saved')}
       else if(route.type==='collections'&&route.id)original.collectionBrowse(collectionList().find(function(c){return c.id===route.id}));
@@ -10623,7 +10636,7 @@ function installClosetRoutes(){
   document.addEventListener('input',captureSoon);document.addEventListener('change',captureSoon);window.addEventListener('scroll',captureSoon,{passive:true});
   window.addEventListener('popstate',function(e){if(started)history.pop(e)});window.addEventListener('hashchange',function(){if(started&&!applying&&window.location.hash!==closetRouteHash(history.current().route))history.pop({state:window.history.state})});
   window.addEventListener('beforeunload',function(e){if((typeof oracleHasDraft==='function'&&oracleHasDraft())||dirtyForm()||extraForms.some(function(f){return f.dialog.open&&(f.read()!==f.base||f.busy&&f.busy())})){e.preventDefault();e.returnValue=''}});
-  window.ClosetLintRoutes={ready:function(){if(started||!state.capsDone)return;if(state.db&&!state.pub&&!['edits','custom','outfits','profile','trips'].every(function(k){return setupLoaded[k]}))return;started=true;var requested=window.location.hash;history.start(requested?parseClosetRoute(requested):routeFromState())},cleanForm:function(){formBase=signature()},trackDialog:function(d,read,busy){extraForms=extraForms.filter(function(f){return f.dialog!==d&&f.dialog.open});extraForms.push({dialog:d,read:read,busy:busy,base:read()})},prepareReload:function(){formTrack=null;extraForms=[];},markImportDirty:function(d,dirty){var f=extraForms.find(function(x){return x.dialog===d});if(f&&dirty)f.base='';},hasUnsaved:function(){return dirtyForm()||extraForms.some(function(f){return f.dialog.open&&f.dialog.id!=='setup-wizard'&&(f.read()!==f.base||f.busy&&f.busy())})||!!(state.editingOutfit&&outfitEditorDirty())||!!(state.tab==='trip'&&state.trip&&tripHasUnsaved(state.trip));},cleanDialog:function(d){extraForms=extraForms.filter(function(f){return f.dialog!==d})},closeTrackedDialog:function(d){var f=extraForms.find(function(x){return x.dialog===d});if(f&&f.busy&&f.busy()){toast('Wait for this save to finish before closing.');return false}if(f&&f.read()!==f.base&&!window.confirm('Discard the unsaved changes to this collection?'))return false;extraForms=extraForms.filter(function(x){return x.dialog!==d});d.close();return true},capture:captureSoon};
+  window.ClosetLintRoutes={ready:function(){if(started||!state.capsDone)return;if(state.db&&!state.pub&&!['edits','custom','outfits','profile','trips'].every(function(k){return setupLoaded[k]}))return;started=true;var requested=window.location.hash;if(history.start(requested?parseClosetRoute(requested):routeFromState())===false)history.start({type:'board'})},cleanForm:function(){formBase=signature()},trackDialog:function(d,read,busy){extraForms=extraForms.filter(function(f){return f.dialog!==d&&f.dialog.open});extraForms.push({dialog:d,read:read,busy:busy,base:read()})},prepareReload:function(){formTrack=null;extraForms=[];},markImportDirty:function(d,dirty){var f=extraForms.find(function(x){return x.dialog===d});if(f&&dirty)f.base='';},hasUnsaved:function(){return dirtyForm()||extraForms.some(function(f){return f.dialog.open&&f.dialog.id!=='setup-wizard'&&(f.read()!==f.base||f.busy&&f.busy())})||!!(state.tab==='trip'&&state.trip&&tripHasUnsaved(state.trip));},cleanDialog:function(d){extraForms=extraForms.filter(function(f){return f.dialog!==d})},closeTrackedDialog:function(d){var f=extraForms.find(function(x){return x.dialog===d});if(f&&f.busy&&f.busy()){toast('Wait for this save to finish before closing.');return false}if(f&&f.read()!==f.base&&!window.confirm('Discard the unsaved changes to this collection?'))return false;extraForms=extraForms.filter(function(x){return x.dialog!==d});d.close();return true},capture:captureSoon};
 }
 
 /* END NAVIGATION */

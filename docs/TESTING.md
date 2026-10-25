@@ -64,7 +64,9 @@ The existing tests check relevant synchronization and source invariants.
 
 ## 0.2 verification
 
-The reviewed implementation is commit `1a637c9216f6ffd709196a5a3e972ea6884a207c`. Sky and the daily fortune are excluded. Final 0.2.0 preparation changes documentation and package metadata only; final source/package checks must verify implementation bytes against this commit. Owner final phone/cross-theme acceptance and publication approval remain open during preparation. A prepared package is not a published release.
+The ZIP implementation review used commit `1a637c9216f6ffd709196a5a3e972ea6884a207c`. Sky and the daily fortune are excluded from 0.2. Later preparation includes board autosave recovery, consistent Save/New/Copy behavior, navigation, and HTTP connection handling; the final package must include and verify those changes. The current source JavaScript suite, all 94 Python tests, and 18 core tests without site packages pass on Linux. Exact-commit CI and final device acceptance must correspond to the final implementation, rather than relying on the earlier candidate alone. A prepared package is not a published release.
+
+A photo-transfer stall remains unresolved on one physical phone-to-laptop Wi-Fi path. Both earlier and current Python servers and an independent Node server reproduced it with identical synthetic images. Live TCP counters showed packet retries and multi-second backoff while app processing took milliseconds. Smaller packets, disabling laptop Wi-Fi power saving, and bypassing image lazy loading did not eliminate it. These observations do not identify the exact network or system cause, and no photo-stall fix is claimed. The owner deferred that investigation on 24 October 2026.
 
 Completed on Linux:
 

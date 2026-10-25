@@ -32,11 +32,15 @@ Bring more of your wardrobe into Closet Lint, take your questions to your own AI
 
 - Trips now retrieves recent seasonal weather without an assistant connection, keeps dates side by side on mobile, and returns to the top when switching steps. Trip outfit labels and actions use clearer themed styling. The mobile board keeps its name, Save, and title suggestion together; secondary controls are labeled Design tools.
 
+- The local service reuses HTTP connections for photo requests. Idle browser connections no longer occupy active request slots; rejected requests close safely. Expected browser cancellations no longer print server tracebacks, while unrelated errors remain visible.
 - Local browsing requests individual photos from older catalogs instead of downloading every legacy photo bundle. Optional WebP previews preserve transparency, while original images and backup contents stay unchanged. Normal request bursts queue safely, and the legacy fallback loader limits concurrent downloads and retries temporary failures.
 - Import review makes possible matches, wishlist-to-owned changes, missing photos, and actual saves explicit. Ownership changes keep existing photos and tags. A failed batch stops safely, and retry keeps completed saves and uploaded photos within the open review session.
+- Working-board autosave retries temporary connection failures, keeps the latest layout available, and confirms recovery. Save warnings include the service error, and a successfully retried board no longer blocks backup checks.
 - Stalled import and Oracle photo downloads time out after 30 seconds. You can leave the Oracle during photo preparation, and failed downloads offer a way to retry or continue without photos.
 - Taste analysis reuses one fresh statistics pass when comparing candidate outfits, while still reflecting later tag and rating edits.
 - Refined sidebar controls, photo canvases, saved-outfit filters, button sizing, and menu labels. Stretch uses single-choice chips, bulk selection survives navigation, and Accessorize preserves suggested shoes.
+
+- The outfit board keeps its saved outfit identity: Save outfit creates it, Save changes updates it, and Save a copy creates a separate version. New outfit starts a fresh draft with Undo. Navigating away and back keeps the current board, and reloads retain which outfit it belongs to.
 
 ## Updating from 0.1
 

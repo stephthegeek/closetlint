@@ -2,7 +2,7 @@
 
 The additional **AI-assisted implementation review is complete** for code commit `1a637c9216f6ffd709196a5a3e972ea6884a207c`, tree `9a61fe7b8812ea03150bf4b9d7dc2b1b160a7dc0`. No blocking findings remain from the reviewed scope. This is not an independent human audit, penetration test, or guarantee of security. Owner device acceptance and publication approval are separate release gates.
 
-The final 0.2.0 preparation changes wording and package metadata only. Package verification must establish that app, runtime, tool, and test bytes remain identical to the reviewed implementation. The final artifact hash, metadata commit, and CI results are recorded with the release evidence; later implementation changes reopen the affected checks.
+Later 0.2.0 preparation also changes board autosave recovery, saved-outfit identity and navigation, and HTTP connection handling. These are implementation changes, not metadata-only preparation. The ZIP parser, import-review module, importer, and storage implementation remain unchanged from the reviewed commit. The affected board, navigation, runtime, connection, and security checks have been rerun; the full current Linux suite passes 94 Python tests and the JavaScript suite. Temporary photo diagnostics and experimental delivery switches are excluded. Final package hashes and exact-commit CI results are recorded separately with the release evidence.
 
 ## Scope and resolved findings
 
