@@ -2,7 +2,7 @@
 
 **Ask the Oracle** prepares a read-only wardrobe-analysis handoff for the user's own assistant. It does not run an AI conversation, require an API key, import results, or change wardrobe data.
 
-Open it from the hamburger menu, selected-piece actions, or a collection. The two-screen sheet reuses setup/import form styles in all three themes. The question is optional; starters append to it rather than replacing what the user wrote.
+Open it from the hamburger menu, selected-piece actions, or a collection. The dedicated page reuses setup/import form styles in all three themes. The question is optional; starters append to it rather than replacing what the user wrote.
 
 ## Scope and sharing
 

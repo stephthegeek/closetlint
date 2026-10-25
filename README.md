@@ -44,7 +44,7 @@ You'll need Python 3.10 or newer (check with `python3 --version`, or `py -3 --ve
 
 Keep the terminal open while you use the app; closing it stops the server.
 
-The [installation guide](https://closetlint.com/#docs) explains how to open the app from other devices on your home network, such as your phone or another computer, and how to load 12 sample pieces if you'd like to try things out first.
+The [installation guide](docs/INSTALL.md) explains how to open the app from other devices on your home network, such as your phone or another computer, and how to load 12 sample pieces if you'd like to try things out first.
 
 Time to give Linty something to rummage through.
 
@@ -59,7 +59,7 @@ Time to give Linty something to rummage through.
 
 Installation and recovery have been checked on Linux. Windows and macOS installation are unverified so far; if you try either, an issue saying how it went is welcome.
 
-Automated tests and security checks have passed, but there has not been an independent human security audit. Details are in the [testing and security documentation](https://closetlint.com/#docs).
+Automated tests and security checks have passed, but there has not been an independent human security audit. Details are in the [testing guide](docs/TESTING.md) and [security review](docs/SECURITY-REVIEW.md).
 
 ## Feedback
 
