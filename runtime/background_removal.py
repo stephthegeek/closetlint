@@ -1,34 +1,28 @@
 """Optional local mask worker boundary. Core server has no image dependencies."""
-import json
 import os
 from pathlib import Path
 import subprocess
 import tempfile
 
+from photo_environment import environments, setup_command
+
 WORKER = Path(__file__).with_name('background_worker.py')
 
 
 def settings(folder):
-    path = Path(folder) / 'background-removal.json'
-    if not path.is_file():
-        return None
-    try:
-        data = json.loads(path.read_text())
-        interpreter = Path(data['python']).expanduser()
-        models = Path(data['models']).expanduser()
-        if not interpreter.is_absolute() or not interpreter.is_file() or not models.is_absolute():
-            return None
-        if not any((models / p).is_file() for p in ('models/u2net/u2net.onnx', 'u2net.onnx')):
-            return None
-        return {'python': str(interpreter), 'models': str(models)}
-    except (KeyError, ValueError, OSError, TypeError):
-        return None
+    for config in environments(folder):
+        if not config.get('models'):
+            continue
+        models = Path(config['models'])
+        if any((models / p).is_file() for p in ('models/u2net/u2net.onnx', 'u2net.onnx')):
+            return {'python': config['python'], 'models': str(models)}
+    return None
 
 
 def remove_background(folder, image_bytes):
     config = settings(folder)
     if not config:
-        raise ValueError('Local background removal is not installed. See docs/PHOTOS.md for optional setup.')
+        raise ValueError('Local background removal is not set up. Run: ' + setup_command(folder, background=True))
     env = dict(os.environ, U2NET_HOME=config['models'], OMP_NUM_THREADS='2', NUMBA_NUM_THREADS='2')
     with tempfile.TemporaryDirectory(prefix='closetlint-mask-') as tmp:
         source, target = Path(tmp) / 'source', Path(tmp) / 'cutout.png'

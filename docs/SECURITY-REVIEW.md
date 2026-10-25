@@ -1,3 +1,31 @@
+# Security review for 0.2 ZIP imports
+
+The additional **AI-assisted implementation review is complete** for code commit `1a637c9216f6ffd709196a5a3e972ea6884a207c`, tree `9a61fe7b8812ea03150bf4b9d7dc2b1b160a7dc0`. No blocking findings remain from the reviewed scope. This is not an independent human audit, penetration test, or guarantee of security. Owner device acceptance and publication approval are separate release gates.
+
+Later 0.2.0 preparation also changes board autosave recovery, saved-outfit identity and navigation, and HTTP connection handling. These are implementation changes, not metadata-only preparation. The ZIP parser, import behavior, importer, and storage implementation remain unchanged from the reviewed commit. A 25 October follow-up adds website terms, permission, and responsibility guidance to three browser-assistance descriptions; removing those three copy additions reproduces the reviewed setup module exactly. The affected board, navigation, runtime, connection, and security checks have been rerun; the full current Linux suite passes 94 Python tests and the JavaScript suite. Temporary photo diagnostics and experimental delivery switches are excluded. Final package hashes and exact-commit CI results are recorded separately with the release evidence.
+
+## Scope and resolved findings
+
+Reviewed the browser ZIP parser and JSON/photo handoff as untrusted input: local and central headers, offsets and ranges, malformed/truncated data, CRCs, duplicate/ambiguous names, unsafe paths, links, encryption, unsupported formats/flags, expansion limits, cancellation, text rendering, temporary Blob URLs, review-before-save, retry integrity, and separation from full-backup restore.
+
+The review found and fixed missing explicit overlap rejection, missing active cancellation/total elapsed-time bounds, and insufficient local-header/data-descriptor consistency checks. The parser now rejects overlapping local-entry ranges, checks local sizes and CRCs against the directory, validates streaming data descriptors, and applies a 30-second elapsed-time budget across awaited reads. Closing the import or replacing its file aborts loading. Existing session photo URLs are revoked on errors, cancellation, replacement, and close. PNG detection checks the complete eight-byte signature.
+
+## Verification
+
+- Adversarial tests cover stored/Deflate archives, CRC failures, header disagreement, overlapping entries, descriptor success/failure, unsafe and ambiguous names, unsupported image/file types, symlinks, encryption, declared limits, false expansion sizes, missing native decompression, elapsed-time limits, and object-URL cleanup. Additional extracted-parser checks cover cancellation during active inflate, cleanup after late cancellation, 200 malformed buffers, and 801-entry rejection.
+- Full source and extracted JavaScript suites and all 91 Python tests passed on Linux. Core startup also passed with `python -S`, without optional packages.
+- Chrome exercised ZIP load, review, and save with one new wishlist piece and one existing owned update. The existing piece kept its original photo. Native copy/paste worked on the HTTP home-network address.
+- The extracted app exported and restored a synthetic full backup, preserving all collections, the working board, and 13 photo hashes, with a recovery copy. Chrome required the owner to select Keep for the download. Active-load cancellation and timeouts were simulated in automated tests rather than forced through the live UI.
+- [Exact implementation CI](https://github.com/stephthegeek/closetlint/actions/runs/40119855640) and a [second run](https://github.com/stephthegeek/closetlint/actions/runs/40119860160) passed security/source checks, dependency advisories, full-history secret scanning, and minimum-Python checks. The committed rebuild matched the browser-tested rc4 package byte for byte.
+
+## Remaining limits
+
+Browser operations are bounded but do not form an operating-system memory sandbox. The ZIP input limit is 50 MB, declared expansion is limited to 100 MB, JSON to 1 MB, and each photo to 10 MB. Buffers, Blob storage, and image-decoder allocations add overhead. Image signatures are not full decoder validation; imported photos must pass the existing browser rasterizer before save. This review does not establish a hard memory ceiling or comprehensive browser-engine exploit protection.
+
+Windows/macOS installation, all physical-mobile/browser combinations, and broad assistive-technology coverage remain unverified. Remote image downloads depend on browser and source-site restrictions; bundled ZIP photos avoid that dependency. The local service remains a single-user tool for a trusted computer/home network, with no login. The earlier 0.1 review below records the wider runtime/storage protections and limits that still apply.
+
+---
+
 # Security review for 0.1
 
 This is an AI-assisted code review with automated adversarial tests, not an independent human audit, penetration test, or guarantee of security. The initial review and subsequent fixes cover the candidate prepared for 0.1. Current check results and platform limits are in [TESTING.md](TESTING.md).

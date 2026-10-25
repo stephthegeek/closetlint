@@ -2,14 +2,16 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const source=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
 class Node{
  constructor(tag,attrs={},children=[]){this.tag=tag;this.attrs=attrs||{};Object.assign(this,this.attrs);this.children=children.filter(Boolean);this.events={};this.dataset={};this.isConnected=true}
+ set textContent(value){this.text=value;this.children=[]}get textContent(){return this.text||''}
+ setAttribute(name,value){this.attrs[name]=value}
  append(...nodes){this.children.push(...nodes.filter(Boolean))}appendChild(n){this.children.push(n)}
  addEventListener(name,fn){this.events[name]=fn}showModal(){this.open=true}close(){this.open=false;if(this.events.close)this.events.close()}remove(){this.isConnected=false}
 }
 const turn=()=>new Promise(setImmediate);
 (async()=>{
- let uploads=0,saves=0,fail=false,lastDialog;
+ let uploads=0,saves=0,fail=false,lastDialog,releaseProcessing,hold=false;
  const item={id:'synthetic',photoId:'original',ar:1,photos:[{photoId:'original',kind:'model',ar:1}]};
- const ctx={console,Date,URL:{createObjectURL:()=> 'blob:preview',revokeObjectURL(){}},window:{ClosetLintRuntime:{removeBackground:async()=>{if(fail)throw Error('Synthetic failure');return {type:'image/png'}}}},document:{body:{appendChild(d){lastDialog=d}}},el:(t,a,...ch)=>new Node(t,a,ch),toast(){},byId:()=>({synthetic:item}),state:{assets:{upload:async()=>{uploads++;return {id:'cutout'}}}},patchEdit:async(it,patch)=>{saves++;Object.assign(item,patch);return true}};
+ const ctx={console,Date,URL:{createObjectURL:()=> 'blob:preview',revokeObjectURL(){}},window:{ClosetLintRuntime:{removeBackground:async()=>{if(hold)return new Promise(resolve=>{releaseProcessing=resolve});if(fail)throw Error('Synthetic failure');return {type:'image/png'}}}},document:{body:{appendChild(d){lastDialog=d}}},el:(t,a,...ch)=>new Node(t,a,ch),toast(){},byId:()=>({synthetic:item}),state:{assets:{upload:async()=>{uploads++;return {id:'cutout'}}}},patchEdit:async(it,patch)=>{saves++;Object.assign(item,patch);return true}};
  vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('function photoRecord('),source.indexOf('function piecePhotoPanel(')),ctx);
  const photo={photoId:'original',src:'/_blob/original',kind:'model',ar:1};
  ctx.openBackgroundPreview(item,photo,()=>{});await turn();
@@ -22,5 +24,10 @@ const turn=()=>new Promise(setImmediate);
  assert.equal(item.photos.length,2);assert.equal(item.photos[0].photoId,'original');assert.equal(item.photos[1].sourcePhotoId,'original');assert.equal(item.photos[1].kind,'model','model cutout remains labeled model');assert.equal(item.photos[1].cutout,true);assert.equal(callback,'cutout');
  fail=true;ctx.openBackgroundPreview(item,photo,()=>{});await turn();
  assert.equal(lastDialog.children.at(-1).children[1].disabled,true);assert.equal(uploads,1,'failed processing never uploads');assert.equal(saves,1);
+ const failureStage=lastDialog.children[2].children[1];assert.equal(failureStage.attrs['aria-busy'],'false');assert.match(failureStage.children[0].text,/No cutout was created/,'failed result space explains recovery');lastDialog.close();
+ hold=true;ctx.openBackgroundPreview(item,photo,()=>{});
+ const processingStage=lastDialog.children[2].children[1];assert.equal(processingStage.attrs['aria-busy'],'true');assert.equal(processingStage.children[0].class,'photo-work','single-photo processing has a visible result placeholder');assert.equal(lastDialog.children.at(-1).children[1].disabled,true);
+ releaseProcessing({type:'image/png'});await turn();assert.equal(processingStage.attrs['aria-busy'],'false');assert.equal(processingStage.children[0].tag,'img','ready result replaces the loading placeholder');assert.equal(lastDialog.children.at(-1).children[1].disabled,false);
+ lastDialog.close();ctx.openBackgroundPreview(item,photo,()=>{});const closedDialog=lastDialog;closedDialog.close();releaseProcessing({type:'image/png'});await turn();assert.equal(closedDialog.isConnected,false,'late result does not reopen a discarded preview');assert.equal(uploads,1);
  console.log('Photo review: preview/discard/failure do not save; accepting makes the cutout main and retains the original.');
 })().catch(e=>{console.error(e);process.exit(1)});

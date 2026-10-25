@@ -21,3 +21,62 @@ console.log('Recent-wear weighting and Trips landing/explicit start passed.');
   picker.value='2026-10-19';picker.listeners.change();picker.listeners.change();
   assert.deepEqual(calls,[['2026-10-18','2026-10-19']],'choosing a past day saves it once without an Add step');
 }
+
+(async()=>{
+ class Node{
+  constructor(tag,attrs,...children){this.tag=tag;this.value='';this.checked=false;Object.assign(this,attrs||{});this.children=[];this.events={};this.classList={add(){},remove(){}};this.append(...children)}
+  set textContent(v){this.text=v;this.children=[]}get textContent(){return this.text||''}
+  append(...children){children.flat(Infinity).filter(x=>x!=null).forEach(x=>this.appendChild(x))}appendChild(child){this.children.push(child);return child}
+  setAttribute(k,v){this[k]=v}addEventListener(k,fn){this.events[k]=fn}showModal(){this.open=true}
+ }
+ const find=(node,p)=>p(node)?node:(node.children||[]).filter(x=>typeof x==='object').map(x=>find(x,p)).find(Boolean);
+ const nodes={},el=(...args)=>new Node(...args),items={a:{id:'a',name:'A',meta:'Tops',size:'M'},b:{id:'b',name:'B',meta:'Tops',size:'M'}},messages=[];let fail=false,closed=0;
+ const c={Set,Promise,state:{tab:'all',selectMode:true,picked:{a:true,b:true,missing:true},edits:{},db:{collection:()=>({doc:id=>({set:async patch=>{if(fail&&id==='b')throw Error('Synthetic failure');Object.assign(items[id],patch)}})})}},
+  $:id=>nodes[id]||(nodes[id]=el('div')),el,keys:o=>Object.keys(o).filter(k=>o[k]),byId:()=>items,filtered:()=>[items.a],isClosetTab:t=>t==='all',needDb:()=>false,flashIds(){},toast:msg=>messages.push(msg),renderGrid(){},closeDlg(){closed++},addClose(){},
+  META:['Tops'],SUBS:{Tops:[]},SECTIONS:[],KINDS:[],DIMS:[],STRETCH:[],SECTION:{Tops:'clothing'},kindVocab:()=>[]};
+ vm.createContext(c);vm.runInContext(['renderSelBar','applyBulk','openBulk'].map(fn).join('\n'),c);
+ c.renderSelBar();assert.equal(nodes.selbar.children[0].text,'2 selected (1 not shown)');assert.equal(c.state.picked.missing,undefined,'only no-longer-available selections are pruned');
+ const wear=nodes.selbar.children.find(n=>n.tag==='button'&&/Wear more/.test(n.text||''));await wear.onclick();
+ assert.deepEqual(Object.keys(c.state.picked),['a','b'],'bulk actions preserve selection across filters');assert.equal(items.a.wearMore,true);assert.equal(items.b.wearMore,true);
+ c.openBulk();find(nodes.dlg,n=>n['aria-label']==='Size').value='L';fail=true;
+ await find(nodes.dlg,n=>n.text==='Apply to 2 pieces').onclick();assert.equal(closed,0,'partial failures keep bulk edit open');assert.equal(items.a.size,'L');assert.equal(items.b.size,'M');assert.deepEqual(Object.keys(c.state.picked),['a','b']);
+ fail=false;await find(nodes.dlg,n=>n.text==='Apply to 2 pieces').onclick();assert.equal(closed,1);assert.equal(items.b.size,'L');assert.deepEqual(Object.keys(c.state.picked),['a','b'],'successful bulk edits leave pieces selected for another edit');
+ c.renderSelBar();find(nodes.selbar,n=>n.text==='Deselect all').onclick();assert.equal(Object.keys(c.state.picked).length,0);assert.equal(c.state.selectMode,true);
+ c.state.picked={a:true};c.renderSelBar();find(nodes.selbar,n=>n.text==='Done selecting').onclick();assert.equal(c.state.selectMode,false);assert.equal(Object.keys(c.state.picked).length,0);
+ const selection={'slight stretch':true};c.cap=x=>x;c.chip=(label,on,onclick)=>el('button',{text:label,'aria-pressed':String(on),onclick});vm.runInContext(fn('tagField'),c);
+ const stretch=c.tagField({key:'stretch',label:'Stretch',vocab:['non-stretch','slight stretch','high stretch']},selection);assert.equal(stretch.tag,'details');
+ find(stretch,n=>n.tag==='button'&&n.text==='high stretch').onclick();assert.equal(selection['slight stretch'],undefined);assert.equal(selection['high stretch'],true);assert.equal(find(stretch,n=>n.tag==='button'&&n.text==='slight stretch')['aria-pressed'],'false');
+ find(stretch,n=>n.tag==='button'&&n.text==='high stretch').onclick();assert.equal(Object.keys(selection).filter(k=>selection[k]).length,0,'clicking the chosen Stretch chip clears it');
+ const timers=[],toastNode=el('div');Object.assign(c,{$:()=>toastNode,toastTimer:null,setTimeout:(fn,ms)=>{timers.push(ms);return timers.length},clearTimeout(){}});vm.runInContext(fn('toast')+'\n'+fn('toastAct'),c);
+ c.toast('Saved');assert.equal(timers.at(-1),2200);c.toast('Could not save this outfit');assert.equal(timers.at(-1),6000);c.toastAct('Hidden','Undo',()=>{});assert.equal(timers.at(-1),8000);c.toastAct('Saved','Plan it for a day',()=>{},5000);assert.equal(timers.at(-1),5000);
+ console.log('Tweaks: retained bulk selection, offscreen counts, retries, explicit deselection, single Stretch chips, and readable toast timing pass.');
+})().catch(e=>{console.error(e);process.exit(1)});
+
+{
+ const dialog={children:[],open:false,appendChild(n){this.children.push(n)},showModal(){this.open=true}};
+ function el(tag,attrs,...children){return {tag,...attrs,children:children.flat().filter(Boolean),appendChild(n){this.children.push(n)}}}
+ const pieces=[
+  {meta:'Jewelry',sub:'Earrings',sizeKind:'gauge',size:'16g'},
+  {meta:'Jewelry',sub:'Earrings',size:'18g'},
+  {meta:'Jewelry',sub:'Earrings',sizeKind:'clothing',size:'20g'},
+  {meta:'Underwear',sub:'Bras',sizeKind:'clothing',size:'38G'},
+  {meta:'Underwear',sub:'Bras',size:'95C'},
+  {meta:'Tops',size:'XL'}, {meta:'Footwear',size:'9.5'}
+ ];
+ const c={state:{measurements:{},profile:{}},needDb:()=>false,$:()=>dialog,unitsMetric:()=>false,todayStr:()=> '2026-10-24',CLOTHING_ORDER:['XL'],allItems:()=>pieces,el,chip:(text)=>el('button',{text}),closeDlg(){},addClose(){}};
+ vm.createContext(c);vm.runInContext(['normSize','effSize','deriveKind','openMeasurements'].map(fn).join('\n'),c);c.openMeasurements();
+ const groups=dialog.children[0].children;
+ function labels(title){const group=groups.find(n=>n.children?.[0]?.text===title);return group.children[1].children.map(n=>n.text)}
+ assert.deepEqual(labels('Bras'),['38G','95C'],'real G-cup bras remain; explicit, inferred, and stale earring size kinds cannot add gauges');
+ assert.deepEqual(labels('Tops, dresses, and outerwear'),['XL']);assert.deepEqual(labels('Shoes'),['9.5']);
+ console.log('Sizes & fit: earring gauges excluded from Bras and clothing, G-cup bras retained, and footwear inferred correctly.');
+}
+
+{
+ const groups=[0,1].map(()=>{const classes=new Set();const button={setAttribute(k,v){this[k]=v}};return {button,classList:{contains:k=>classes.has(k),remove:k=>classes.delete(k),toggle(k){if(classes.has(k)){classes.delete(k);return false}classes.add(k);return true}},querySelector:()=>button}});
+ const c={$:()=>({querySelectorAll:()=>groups.filter(g=>g.classList.contains('open'))})};vm.createContext(c);vm.runInContext(fn('toggleAppSubmenu').split("$('menubtn').addEventListener")[0],c);
+ c.toggleAppSubmenu(groups[0],groups[0].button);assert.equal(groups[0].button['aria-expanded'],'true');
+ c.toggleAppSubmenu(groups[1],groups[1].button);assert.equal(groups[0].classList.contains('open'),false);assert.equal(groups[0].button['aria-expanded'],'false');assert.equal(groups[1].button['aria-expanded'],'true');
+ c.toggleAppSubmenu(groups[1],groups[1].button);assert.equal(groups[1].button['aria-expanded'],'false');assert.equal(groups[1].classList.contains('open'),false,'the open submenu can still be collapsed');
+ console.log('Hamburger submenus: opening one closes its sibling and updates expanded state; toggling closed still works.');
+}

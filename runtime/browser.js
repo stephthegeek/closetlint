@@ -5,6 +5,7 @@
   if (!config) return;
   var cache = {}, listeners = {}, tail = Promise.resolve(), busy = 0, failed = false;
   var board = config.board, boardDirty = false, boardTimer = null, restoring = false;
+  var boardRetries = 0, boardError = false;
   function copy(value) { return JSON.parse(JSON.stringify(value)); }
   var sessionRefresh = null;
   function refreshSession() {
@@ -33,16 +34,16 @@
       if (response.status === 403 && !retried) {
         return refreshSession().then(function () { return request(path, options, true); });
       }
-      return response.json().catch(function () { return {}; }).then(function (data) { throw new Error(data.error || 'Local storage request failed'); });
+      return response.json().catch(function () { return {}; }).then(function (data) { var error = new Error(data.error || 'Local storage request failed'); error.status = response.status; throw error; });
     });
   }
   function jsonRequest(path, method, value) {
     return request(path, {method: method, headers: {'Content-Type': 'application/json'}, body: value === undefined ? undefined : JSON.stringify(value)}).then(function (r) { return r.json(); });
   }
-  function write(job) {
+  function write(job, recoverable) {
     busy++;
     var result = tail.then(job);
-    tail = result.then(function () { busy--; }, function () { busy--; failed = true; });
+    tail = result.then(function () { busy--; }, function () { busy--; if (!recoverable) failed = true; });
     return result;
   }
   function emit(col) {
@@ -81,7 +82,22 @@
     clearTimeout(boardTimer);
     if (!boardDirty) return tail;
     var value = copy(board); boardDirty = false;
-    return write(function () { return jsonRequest('/api/board', 'PUT', value); }).catch(function (error) { boardDirty = true; throw error; });
+    return write(function () { return jsonRequest('/api/board', 'PUT', value); }, true).then(function () {
+      boardRetries = 0;
+      if (boardError && !boardDirty) { boardError = false; notify('Board autosave recovered.'); }
+    }).catch(function (error) { boardDirty = true; throw error; });
+  }
+  function saveBoardSoon(delay) {
+    clearTimeout(boardTimer);
+    boardTimer = setTimeout(function () {
+      if (restoring) return;
+      boardWrite().catch(function (error) {
+        boardError = true;
+        var retry = (!error.status || error.status >= 500) && boardRetries < 2;
+        notify('Board not saved yet. ' + (error.message || 'The local service is unavailable.') + ' Keep this tab open.' + (retry ? ' Retrying…' : ' Move a piece to try saving again.'));
+        if (retry) { boardRetries++; saveBoardSoon(boardRetries * 1500); }
+      });
+    }, delay);
   }
   function flush() {
     return boardWrite().then(function () { return tail; }).then(function () {
@@ -109,8 +125,8 @@
     setBoard: function (value) {
       if (restoring) return;
       board = copy(value); runtime.board = board; boardDirty = true;
-      clearTimeout(boardTimer);
-      boardTimer = setTimeout(function () { boardWrite().catch(function () { notify('The board could not be saved. Keep this tab open and check the local service.'); }); }, 200);
+      boardRetries = 0;
+      saveBoardSoon(200);
     },
     flush: flush,
     backgroundStatus: function () { return request('/api/photos/background-status').then(function (r) { return r.json(); }); },
@@ -167,5 +183,6 @@
   // Capabilities attach their rejection handlers immediately when the app boots.
   ready.catch(function () {});
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') boardWrite().catch(function () {}); });
+  window.addEventListener('online', function () { if (boardDirty && !restoring) { boardRetries = 0; saveBoardSoon(200); } });
   window.addEventListener('beforeunload', function (event) { if (busy || boardDirty || failed) { event.preventDefault(); event.returnValue = ''; } });
 })();

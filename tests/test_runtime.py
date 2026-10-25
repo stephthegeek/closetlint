@@ -10,6 +10,7 @@ import tempfile
 import threading
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'runtime'))
@@ -91,6 +92,18 @@ class RuntimeTests(unittest.TestCase):
         with contextlib.closing(Archive(target)) as exported:
             self.assertEqual(exported.payload['collections'], payload['collections'])
             self.assertEqual(exported.payload['board'], payload['board'])
+
+    def test_wishlist_pass_and_ranking_survive_full_backup(self):
+        self.load()
+        ranking = {'r': {'c-demo': {'s': 1720, 'n': 3}}, 't': {'a': 1600, 'b': 1460},
+                   'pass': {'c-demo': True}, 'v': 1}
+        self.store.set_record('wishrank', 'main', ranking)
+        target = self.root / 'pass-backup.zip'
+        self.store.export(target)
+        restored = Store(self.root / 'pass-restored')
+        with contextlib.closing(Archive(target)) as exported:
+            restored.restore(exported)
+        self.assertEqual(restored.state()['collections']['wishrank']['main'], ranking)
 
     def test_complete_roundtrip_preserves_every_collection_base_board_and_asset(self):
         self.load()
@@ -178,7 +191,50 @@ class RuntimeTests(unittest.TestCase):
         connection = Connection(raw)
         Handler(connection, ('127.0.0.1', 1234), self.server)
         head, data = bytes(connection.output).split(b'\r\n\r\n', 1)
+        self.response_headers = dict(line.split(': ', 1) for line in head.decode().split('\r\n')[1:])
         return int(head.split()[1]), data
+
+    def test_weather_lookup_requires_local_token_and_recovers(self):
+        with patch('server.lookup_weather', return_value={'daily': {}, 'years': [2023, 2025]}) as lookup:
+            self.assertEqual(self.call('GET', '/api/weather?latitude=48.4&longitude=-123.3')[0], 403)
+            lookup.assert_not_called()
+            token = {'X-ClosetLint-Token': 'test-token'}
+            status, data = self.call('GET', '/api/weather?latitude=48.4&longitude=-123.3', headers=token)
+            self.assertEqual(status, 200)
+            lookup.assert_called_once_with('48.4', '-123.3')
+        for exception, status in [(ValueError, 400), (TimeoutError, 502)]:
+            with patch('server.lookup_weather', side_effect=exception):
+                actual, data = self.call('GET', '/api/weather?latitude=0&longitude=0', headers=token)
+                self.assertEqual(actual, status)
+                self.assertIn('temperatures yourself', json.loads(data)['error'])
+
+    def test_photo_cache_revalidates_and_detects_changed_bytes_after_restore(self):
+        self.load()
+        self.assertEqual(self.call('GET', '/_blob/' + PHOTO), (200, PNG))
+        etag = self.response_headers['ETag']
+        self.assertEqual(self.response_headers['Cache-Control'], 'private, no-cache')
+        for condition in (etag, 'W/' + etag, '"other", ' + etag, '*'):
+            self.assertEqual(self.call('GET', '/_blob/' + PHOTO,
+                                      headers={'If-None-Match': condition}), (304, b''))
+            self.assertEqual(self.response_headers['ETag'], etag)
+            self.assertNotIn('Content-Length', self.response_headers)
+        changed = PNG + b'changed backup photo'
+        replacement = archive(self.root / 'replacement.zip', assets={PHOTO: changed, BUNDLE: b'{}'})
+        with contextlib.closing(Archive(replacement)) as source:
+            self.store.restore(source, replace=True)
+        self.assertEqual(self.call('GET', '/_blob/' + PHOTO,
+                                  headers={'If-None-Match': etag}), (200, changed))
+        self.assertNotEqual(self.response_headers['ETag'], etag)
+        self.assertEqual(self.call('GET', '/_blob/' + PHOTO, headers={
+            'If-None-Match': '*', 'Sec-Fetch-Site': 'cross-site'})[0], 403)
+        self.assertEqual(self.response_headers['Cache-Control'], 'no-store')
+        self.assertEqual(self.call('GET', '/_blob/' + 'f' * 32,
+                                  headers={'If-None-Match': '*'})[0], 404)
+        self.assertEqual(self.response_headers['Cache-Control'], 'no-store')
+        self.call('GET', '/api/state', headers={'X-ClosetLint-Token': 'test-token'})
+        self.assertEqual(self.response_headers['Cache-Control'], 'no-store')
+        self.call('GET', '/')
+        self.assertEqual(self.response_headers['Cache-Control'], 'no-store')
 
     def test_http_gate_rejects_other_origins_hosts_and_missing_tokens(self):
         for headers in [{}, {'X-ClosetLint-Token': 'wrong'}, {'X-ClosetLint-Token': 'test-token', 'Origin': 'https://other.example'}, {'X-ClosetLint-Token': 'test-token', 'Host': 'other.example'}, {'X-ClosetLint-Token': 'test-token', 'Sec-Fetch-Site': 'cross-site'}]:
@@ -188,6 +244,49 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(status, 404)
         status, _ = self.call('GET', '/api/state')
         self.assertEqual(status, 403)
+
+    def test_uploaded_photo_is_queued_before_any_thumbnail_request(self):
+        self.call('GET', '/')
+        queued = []
+        self.server.thumbnails = SimpleNamespace(enqueue=queued.append)
+        status, body = self.call('POST', '/api/assets', PNG,
+                                 {'X-ClosetLint-Token': 'test-token'})
+        self.assertEqual(status, 200)
+        asset_id = json.loads(body)['id']
+        self.assertEqual(queued, [asset_id])
+        self.assertEqual(self.store.asset(asset_id)[1], PNG)
+
+    def test_thumbnail_http_fallback_preview_and_private_cache_revalidation(self):
+        self.load()
+        self.call('GET', '/')
+        self.server.thumbnails = SimpleNamespace(enabled=True, get=lambda key, asset: None)
+        self.assertEqual(self.call('GET', '/_thumb/' + PHOTO), (200, PNG))
+        original_tag = self.response_headers['ETag']
+        preview = b'RIFF\0\0\0\0WEBPsynthetic'
+        self.server.thumbnails.get = lambda key, asset: preview
+        self.assertEqual(self.call('GET', '/_thumb/' + PHOTO,
+                                  headers={'If-None-Match': original_tag}), (200, preview))
+        self.assertEqual(self.response_headers['Content-Type'], 'image/webp')
+        self.assertEqual(self.response_headers['Cache-Control'], 'private, no-cache')
+        self.assertEqual(self.call('GET', '/_thumb/' + PHOTO,
+                                  headers={'If-None-Match': self.response_headers['ETag']}), (304, b''))
+        self.assertEqual(self.call('GET', '/_blob/' + PHOTO), (200, PNG), 'full-size photo is untouched')
+        self.assertEqual(self.call('GET', '/_thumb/' + PHOTO,
+                                  headers={'Sec-Fetch-Site': 'cross-site'})[0], 403)
+
+    def test_city_lookup_needs_same_origin_token_and_has_manual_entry_recovery(self):
+        token = {'X-ClosetLint-Token': 'test-token'}
+        with patch('server.lookup_places', return_value={'places': [{'label': 'Synthetic city'}]}) as lookup:
+            self.assertEqual(self.call('GET', '/api/places?name=Synthetic')[0], 403)
+            lookup.assert_not_called()
+            status, data = self.call('GET', '/api/places?name=Synthetic', headers=token)
+            self.assertEqual(status, 200)
+            self.assertEqual(json.loads(data)['places'][0]['label'], 'Synthetic city')
+            self.assertEqual(self.response_headers['Cache-Control'], 'no-store')
+        with patch('server.lookup_places', side_effect=TimeoutError):
+            status, data = self.call('GET', '/api/places?name=Synthetic', headers=token)
+            self.assertEqual(status, 502)
+            self.assertIn('enter any destination', json.loads(data)['error'])
 
     def test_cross_site_top_level_visit_opens_app_but_not_api_or_photos(self):
         navigation = {'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'navigate',

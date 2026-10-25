@@ -1,11 +1,11 @@
 {
   "name": "closet-lint",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Personal wardrobe app with a local Python/SQLite runtime.",
   "scripts": {
     "test": "npm run test:unit && npm run test:storage",
-    "test:unit": "node tools/sync_import_vocab.js --check && node tests/security.js && node tests/navigation.js && node tests/native-links.js && node tests/url-navigation.js && node tests/url-navigation-app.js && node tests/mobile-ui.js && node tests/runtime-adapter.js && node tests/runtime-session.js && node tests/outfit-flow.js && node tests/lab-block-pairs.js && node tests/board-workspace.js && node tests/themes.js && node tests/control-emojis.js && node tests/wishlist-flow.js && node tests/setup.js && node tests/import-images.js && node tests/photo-gallery.js && node tests/photo-review.js && node tests/tidy-photos.js && node tests/trip-navigation.js && node tests/packing-room.js && node tests/collections.js && node tests/cleanup-flow.js && node tests/layering.js && node tests/ux-controls.js && node tests/product-source.js && node tests/photo-drag.js",
+    "test:unit": "node tools/sync_import_vocab.js --check && node tests/security.js && node tests/navigation.js && node tests/native-links.js && node tests/url-navigation.js && node tests/url-navigation-app.js && node tests/mobile-ui.js && node tests/runtime-adapter.js && node tests/runtime-session.js && node tests/outfit-flow.js && node tests/lab-block-pairs.js && node tests/taste.js && node tests/board-workspace.js && node tests/themes.js && node tests/control-emojis.js && node tests/control-icon-packs.js && node tests/color-picker.js && node tests/wishlist-flow.js && node tests/wishlist-pass.js && node tests/wishlist-photos.js && node tests/oracle.js && node tests/oracle-flow.js && node tests/setup.js && node tests/import-matches.js && node tests/setup-flow.js && node tests/setup-zip.js && node tests/add-menu.js && node tests/clipboard.js && node tests/import-images.js && node tests/photo-fetch.js && node tests/photo-gallery.js && node tests/photo-review.js && node tests/tidy-photos.js && node tests/trip-navigation.js && node tests/trip-places.js && node tests/trip-weather.js && node tests/photo-thumbnails.js && node tests/photo-bundles.js && node tests/packing-room.js && node tests/collections.js && node tests/cleanup-flow.js && node tests/undo-actions.js && node tests/layering.js && node tests/ux-controls.js && node tests/product-source.js && node tests/photo-drag.js",
     "test:storage": "python3 -m unittest discover -s tests -p \"test_*.py\" -v",
     "test:browser": "node tests/smoke.js"
   },

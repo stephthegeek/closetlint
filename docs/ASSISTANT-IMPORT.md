@@ -2,6 +2,8 @@
 
 You can build your closet by having a conversation. Ask your AI assistant to find your clothing orders, collect the photos, and add the pieces—or give it a wishlist full of things you're still considering. It can do the naming, tagging, and filing while you decide what belongs in your closet.
 
+Separate OpenAI and Claude import helpers are in development, with initial notes for Amazon, SHEIN, Temu, and Etsy. They use the import workflow described here; platform and retailer trials are still pending.
+
 You don't need to write code or fill out a form for every piece. For automatic additions, your assistant needs permission to read files and run commands on the computer where Closet Lint is installed. There is a little setup the first time; an assistant with that access can handle it for you using the reference below.
 
 ## Start with your order emails
@@ -36,7 +38,15 @@ Bought it in a shop, made it yourself, or inherited it from a friend? Send your 
 
 Pause edits in the app while the assistant imports, then refresh to see your pieces. You can adjust any titles or tags afterward.
 
-If your assistant can't access your computer, it can still prepare an import file for **Menu → Utilities → Import pieces**, using the prompts there. That route needs you to load and review the file, and may need separate photo uploads if the assistant couldn't collect usable images. Local access, email connectors, and browser tools are separate capabilities; not every assistant or free plan includes all three.
+Open **+ → Bulk import pieces** to choose **Have my assistant add pieces** or **Bring back an import file**. Each route prepares a request for your existing assistant conversation. The recent-order shortcut lets you choose a store and inclusive date range; copying its request does not search your email or record a completed check.
+
+If your assistant cannot access the computer running your wardrobe, choose the file route. Load its prepared ZIP containing one import JSON and its referenced photos, review possible matches and missing photos, and save your selected pieces. JSON alone is also supported. You can attach photos during review or explicitly add without one. Matching checks all active owned and wishlist pieces, including hidden and stashed pieces, using product links, original listing titles, and conservative name suggestions. For an owned import, one strong existing match starts selected for an update. Uncertain or multiple matches require your choice. The comparison stays visible before saving. You can skip, add a separate piece, mark a wishlist match owned, or update an owned match. Find existing piece lets you search the whole wardrobe when incomplete source details prevent an automatic suggestion. Existing-piece updates fill only blank size, price, product-link, and supplied-date fields; photos, tags, names, and populated details are preserved. New matches that appear before saving require another review. That ownership action keeps existing photos and tags, and fills only blank size, price, product-link, and supplied-date fields.
+
+A ZIP can contain one `closet-lint-import/v1` JSON file and PNG, JPEG, WebP, or GIF photos. Use `images: [{"file": "photos/top.png", "kind": "isolated"}]` (up to 12 views per piece) or `photoFile` for a single photo. Paths are relative to the JSON file; filenames must be unique when using filename-only matching. Limits are 50 pieces, 1 MB of JSON, 10 MB per photo, 50 MB compressed, and 100 MB unpacked. Encrypted, split, ZIP64, unsafe-path, and ambiguous archives are rejected. Opening the ZIP does not save pieces or photos. Missing photos need a review decision. A modern browser unpacks normal stored or deflated ZIPs without another installed package; if decompression is unavailable, extract the archive and load the JSON instead. Full wardrobe backup ZIPs still belong in Restore full backup.
+
+Browser imports stop at a failed save. Successful pieces stay saved; retry the remaining pieces in the same open session, or reload the file later to recheck matches. Browser imports do not yet keep the command importer’s batch receipts. Local access, email connectors, and browser tools are separate capabilities; not every assistant includes all three. On a public demo, imports affect only this browser for this site address.
+
+Shipping and refund notices belong in the assistant’s summary; Closet Lint does not track order progress. Refunds do not automatically change ownership, hide a piece, or remove it: you may still keep or use the item.
 
 ## Technical reference for assistants
 
@@ -44,15 +54,17 @@ The rest of this page is for the assistant doing the import, or anyone who wants
 
 ### One-time preparation
 
-The server still runs with Python’s standard library. Photo intake additionally uses Pillow for decoding, orientation, resizing, and metadata removal:
+Start your wardrobe once using [INSTALL.md](INSTALL.md), so its data folder exists. The importer deliberately refuses an unknown/nonexistent data folder: a typo must not silently create another wardrobe.
+
+For photo imports, set up the shared photo environment once. From the app folder, use Python 3.11–3.13:
 
 ```bash
-python3 -m pip install -r runtime/requirements-import.txt
+python3.12 tools/setup_photos.py --data ../closet-lint
 ```
 
-If your Python installation requires a virtual environment, create one, activate it, and install the requirements there. Use that same Python interpreter for the import command. On Windows, use the interpreter chosen in the installation guide.
+On Windows, use `py -3.12` instead of `python3.12`. Adjust the version if you installed 3.11 or 3.13. Add `--background` to also set up local background removal. An existing background-removal environment can already be used for imports, without another installation.
 
-Start your wardrobe once using [INSTALL.md](INSTALL.md), so its data folder exists. The importer deliberately refuses an unknown/nonexistent data folder: a typo must not silently create another wardrobe.
+The import command finds the configured environment automatically; you don't need to activate it or install packages into your system Python. Normal app use still needs only Python's standard library. If something fails, run `python3 tools/check_setup.py --data ../closet-lint` (on Windows, use `py -3`) for readiness checks and next steps.
 
 ### Batch format
 
@@ -100,7 +112,7 @@ These example photo files are not bundled. Use real prepared files or use your o
 python3 tools/import_pieces.py --schema
 ```
 
-Limits: 1–50 pieces, up to 10 saved images per piece, JSON up to 1 MB, source images up to 32 MB each and 192 MB per batch. Files must stay inside the JSON file’s directory, including symlink targets. The command makes no network requests. A URL alone is source metadata, not a downloaded photo.
+Limits: 1–50 pieces, up to 12 saved images per piece, JSON up to 1 MB, source images up to 32 MB each and 192 MB per batch. Files must stay inside the JSON file’s directory, including symlink targets. The command makes no network requests. A URL alone is source metadata, not a downloaded photo.
 
 Image kinds: `isolated`, `model`, `scene`, `flatlay`, `display`, `detail`, `unclassified`, `recast`. The first view becomes the main photo. `sourceUrl` on an image optionally preserves its public HTTPS source. Optional `imageSources` can retain additional `{url, kind}` references without claiming those files were saved. Mark AI-generated views `recast`; keep originals separately.
 
@@ -113,13 +125,13 @@ Item fields include the usual tags plus `variant`, `priceNote`, `originalTitle`,
 From the app source folder:
 
 ```bash
-python3 tools/import_pieces.py --data ../closet-lint-data --file /path/to/my-batch/import.json
+python3 tools/import_pieces.py --data ../closet-lint --file /path/to/my-batch/import.json
 ```
 
 This validates every row and image, reads the existing wardrobe, and prints JSON describing planned additions/skips. It saves nothing. To commit:
 
 ```bash
-python3 tools/import_pieces.py --data ../closet-lint-data --file /path/to/my-batch/import.json --apply
+python3 tools/import_pieces.py --data ../closet-lint --file /path/to/my-batch/import.json --apply
 ```
 
 All pieces, saved image bytes, and the batch receipt commit together in one transaction. A validation or write failure leaves no partial batch. The running app may stay open; pause edits during intake and refresh afterward so its in-memory view sees the additions. No importer UI needs to open.
@@ -143,3 +155,15 @@ Exit status is 0 for a valid preview/successful apply/already-applied receipt, o
 The checked-in `runtime/import-vocabulary.json` is generated from the app’s real categories and tag dimensions. After editing that vocabulary, run `node tools/sync_import_vocab.js`; the unit suite checks synchronization. Node is only a development dependency.
 
 Install the photo requirements before running the full importer tests. `tests/test_piece_import.py` uses temporary synthetic wardrobes/images for preview, apply, gallery metadata, duplicates, ownership promotion, rollback, retries, backup receipts, concurrency, file containment, orientation, and metadata removal. Photo tests explicitly skip if Pillow is unavailable.
+
+### Choosing sources and browser help
+
+Check each website’s terms of service before using AI or browser tools. You are responsible for obtaining any required permissions; Closet Lint is not responsible for unauthorized use.
+
+The request builder offers order emails, orders or a wishlist page, a store data export, product links, and photos, screenshots, or a list. Attach the store’s original data export in the assistant conversation; the assistant converts it to the supported Closet Lint JSON/ZIP format before you load it here. An export can reduce page-by-page browsing for a long history, where the store makes one available.
+
+Email requests leave browser help off by default. Opt in to browser tools for missing details or better photos if you want a combined workflow. This may require a separate extension or connection in your assistant, along with access you grant there. Store-page and product-link requests explain this requirement. Browsing many pages can take time and consume more of the assistant’s usage allowance. Requests stop at the chosen batch size, report progress, and ask before continuing. User restrictions, such as Gmail-only access, still apply.
+
+Import review checks actual image dimensions as previews load. Photos with a longest edge below 600 px receive a small-photo notice; below 300 px, the notice says very small. Alternate views have their own notices when opened. These notices do not block saving, upscale images, or replace existing photos during an existing-piece update. You can replace a small photo later in the piece’s Photo options.
+
+For an owned import, one strong existing match (the same product link, exact name, or original listing title, without known category, size, variant, or color conflicts) defaults to updating the existing piece. Multiple candidates, approximate-name suggestions, and duplicates within the incoming batch require a choice. The comparison stays visible, and nothing is saved until you confirm the import. Existing photos and populated details are preserved.

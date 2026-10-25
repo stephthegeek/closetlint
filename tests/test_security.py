@@ -99,6 +99,7 @@ class SecurityTests(unittest.TestCase):
     def test_server_rejects_excess_connections_and_releases_worker_slot(self):
         server = LocalServer.__new__(LocalServer)
         server.slots = threading.BoundedSemaphore(1)
+        server.pending = threading.BoundedSemaphore(1)
         connection = rt.Connection(b'')
         with patch.object(ThreadingHTTPServer,'process_request'), patch.object(server,'shutdown_request') as shutdown:
             server.process_request(connection,('127.0.0.1',1))

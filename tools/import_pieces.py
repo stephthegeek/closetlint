@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'runtime'))
 from piece_import import KINDS, LAYER, VOCAB, import_batch, prepare_batch
 from storage import Store
+from photo_environment import import_in_environment
 
 
 def main(argv=None):
@@ -32,6 +33,9 @@ def main(argv=None):
             data = args.data.resolve()
             if data.is_relative_to(ROOT) or not (data / 'wardrobe.sqlite3').is_file():
                 raise ValueError('Choose an existing wardrobe outside the source folder. Start the app once to create one; no new data folder is created by this command')
+            delegated = import_in_environment(data, list(argv) if argv is not None else sys.argv[1:])
+            if delegated is not None:
+                return delegated
             batch, digest, rows = prepare_batch(args.file, allow_no_photo=args.allow_no_photo)
             os.umask(0o077)
             result = import_batch(Store(data), batch, digest, rows, apply=args.apply, duplicates=args.duplicates, promote_wishlist=args.promote_wishlist)

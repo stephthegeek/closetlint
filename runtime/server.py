@@ -10,15 +10,20 @@ import os
 from pathlib import Path
 import re
 import secrets
+import socket
 import tempfile
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 import zipfile
 
 from storage import Archive, Folder, MAX_ARCHIVE, Store, encode, decode
 from background_removal import settings as background_settings, remove_background
+from thumbnails import ThumbnailCache
+from catalog_photos import CatalogPhotos
+from places import lookup as lookup_places
+from weather import lookup as lookup_weather
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -36,21 +41,32 @@ def content_policy(page=None):
     return "default-src 'self'; script-src 'self' " + ' '.join(hashes) + "; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
 
 
-def render_app(store, token):
+def render_app(store, token, *, thumbnails=False, catalog=None):
     state = store.state()
+    photo_urls = None
+    if catalog is not None:
+        try:
+            photo_urls = catalog.refresh(state['base']['bundles'])
+        except (OSError, ValueError):
+            pass  # Keep the original bundle path usable if the cache is unavailable.
     html = (ROOT / 'app/closet-lint.html').read_text()
     for key in ('catalog', 'tags', 'bundles', 'pubdata'):
         value = state['base'].get(key, {}) if key != 'pubdata' else {}
+        if key == 'bundles' and photo_urls is not None:
+            value = []
         pattern = r'(<script\b[^>]*\bid="' + key + r'"[^>]*>).*?(</script>)'
         html, count = re.subn(pattern, lambda m: m[1] + safe_json(value) + m[2], html, count=1, flags=re.S)
         if count != 1:
             raise ValueError('App is missing its data boundary')
-    config = {'token': token, 'board': state['board'], 'instance': state['instance'], 'demo': state['collections']['profile'].get('demo', {}).get('synthetic') is True}
+    config = {'token': token, 'board': state['board'], 'instance': state['instance'], 'demo': state['collections']['profile'].get('demo', {}).get('synthetic') is True, 'thumbnails': thumbnails}
+    if photo_urls is not None:
+        config['catalogPhotos'] = photo_urls
     return html.replace('</head>', '<script>window.ClosetLintLocal=' + safe_json(config) + ';</script><script src="/runtime.js"></script></head>')
 
 
 class LocalServer(ThreadingHTTPServer):
     daemon_threads = True
+    request_queue_size = 32
 
     def __init__(self, port, store, host="127.0.0.1"):
         self.host = host
@@ -59,49 +75,91 @@ class LocalServer(ThreadingHTTPServer):
         self.tickets = {}
         self.mutation_lock = threading.RLock()
         self.slots = threading.BoundedSemaphore(8)
+        self.pending = threading.BoundedSemaphore(32)
         super().__init__((host, port), Handler)
+        self.catalog = CatalogPhotos(store)
+        try:
+            self.catalog.refresh(store.state()['base']['bundles'])
+        except (OSError, ValueError):
+            pass
+        self.thumbnails = ThumbnailCache(store, self.catalog)
+        self.thumbnails.start()
+
+    def server_close(self):
+        if hasattr(self, 'thumbnails'):
+            self.thumbnails.close()
+        super().server_close()
 
     def get_request(self):
         connection, address = super().get_request()
+        connection.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         connection.settimeout(30)
         return connection, address
 
     def process_request(self, request, client_address):
-        if not self.slots.acquire(blocking=False):
+        if not self.pending.acquire(blocking=False):
             try:
-                request.sendall(b'HTTP/1.0 503 Service Unavailable\r\nContent-Length: 0\r\nConnection: close\r\n\r\n')
+                request.sendall(b'HTTP/1.0 503 Service Unavailable\r\nRetry-After: 1\r\nContent-Length: 0\r\nConnection: close\r\n\r\n')
             finally:
                 self.shutdown_request(request)
             return
         try:
             super().process_request(request, client_address)
         except BaseException:
-            self.slots.release()
+            self.pending.release()
             raise
 
     def process_request_thread(self, request, client_address):
         try:
             super().process_request_thread(request, client_address)
         finally:
-            self.slots.release()
+            self.pending.release()
 
 
 class Handler(BaseHTTPRequestHandler):
     server_version = 'ClosetLintLocal/1'
+    protocol_version = 'HTTP/1.1'
+
+    def parse_request(self):
+        if not super().parse_request():
+            return False
+        # Idle/preconnected sockets must not occupy active request slots.
+        slot = getattr(self.server, 'slots', None)
+        if slot is not None:
+            slot.acquire()
+            self.active_slot = slot
+        return True
+
+    def handle_one_request(self):
+        self.active_slot = None
+        try:
+            super().handle_one_request()
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
+            # Browsers cancel images and reset idle keep-alive sockets during navigation.
+            self.close_connection = True
+        finally:
+            if self.active_slot is not None:
+                self.active_slot.release()
+                self.active_slot = None
 
     def log_message(self, fmt, *args):
         # Do not print URLs, record IDs, bodies or personal data.
         pass
 
-    def send_data(self, status, data, mime='application/json', extra=None):
+    def send_data(self, status, data, mime='application/json', extra=None, *, cache_control='no-store'):
         if isinstance(data, (dict, list)):
             data = encode(data).encode()
         elif isinstance(data, str):
             data = data.encode()
         self.send_response(status)
+        if status >= 400:
+            # Rejected upload bodies may be unread; never parse them as another request.
+            self.close_connection = True
+            self.send_header('Connection', 'close')
         self.send_header('Content-Type', mime)
-        self.send_header('Content-Length', str(len(data)))
-        self.send_header('Cache-Control', 'no-store')
+        if status != 304:
+            self.send_header('Content-Length', str(len(data)))
+        self.send_header('Cache-Control', cache_control)
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('Cross-Origin-Resource-Policy', 'same-origin')
         self.send_header('Referrer-Policy', 'no-referrer')
@@ -158,11 +216,28 @@ class Handler(BaseHTTPRequestHandler):
             return
         try:
             if path == '/':
-                self.send_data(200, render_app(self.server.store, self.server.token), 'text/html; charset=utf-8')
+                cache = getattr(self.server, 'thumbnails', None)
+                self.send_data(200, render_app(self.server.store, self.server.token, thumbnails=bool(cache and cache.enabled), catalog=getattr(self.server, 'catalog', None)), 'text/html; charset=utf-8')
             elif path == '/runtime.js':
                 self.send_data(200, (ROOT / 'runtime/browser.js').read_bytes(), 'text/javascript; charset=utf-8')
             elif path == '/api/photos/background-status':
                 self.send_data(200, {'available': background_settings(self.server.store.folder) is not None})
+            elif path == '/api/places':
+                name = parse_qs(urlsplit(self.path).query).get('name', [''])[0]
+                try:
+                    self.send_data(200, lookup_places(name))
+                except ValueError:
+                    self.send_data(400, {'error': 'Enter a city or region, using 3 to 100 characters.'})
+                except Exception:
+                    self.send_data(502, {'error': 'City suggestions are unavailable. You can enter any destination.'})
+            elif path == '/api/weather':
+                query = parse_qs(urlsplit(self.path).query)
+                try:
+                    self.send_data(200, lookup_weather(query.get('latitude', [''])[0], query.get('longitude', [''])[0]))
+                except (ValueError, TypeError):
+                    self.send_data(400, {'error': 'Weather data is unavailable for this destination. You can enter temperatures yourself.'})
+                except Exception:
+                    self.send_data(502, {'error': 'Weather lookup is unavailable. You can enter temperatures yourself.'})
             elif path == '/api/state':
                 state = self.server.store.state()
                 state.pop('base')
@@ -173,12 +248,32 @@ class Handler(BaseHTTPRequestHandler):
                         self.server.store.export(target)
                     target.seek(0)
                     self.send_data(200, target.read(), 'application/zip', {'Content-Disposition': 'attachment; filename="closetlint-full-backup.zip"'})
-            elif path.startswith('/_blob/'):
-                asset = self.server.store.asset(path.removeprefix('/_blob/'))
+            elif path.startswith(('/_blob/', '/_thumb/', '/_catalog/', '/_catalog_thumb/')):
+                asset_id = path.split('/', 2)[2]
+                legacy = path.startswith(('/_catalog/', '/_catalog_thumb/'))
+                catalog = getattr(self.server, 'catalog', None)
+                if legacy:
+                    asset = catalog.asset(asset_id) if catalog else None
+                else:
+                    asset = self.server.store.asset(asset_id)
                 if asset is None:
                     self.send_data(404, {'error': 'Photo not found'})
                 else:
-                    self.send_data(200, asset[1], asset[0])
+                    cache = getattr(self.server, 'thumbnails', None)
+                    if path.startswith(('/_thumb/', '/_catalog_thumb/')) and cache:
+                        read_preview = getattr(cache, 'wait_for', cache.get)
+                        preview = read_preview(('catalog-' if legacy else '') + asset_id, asset)
+                        if preview is not None:
+                            asset = ('image/webp', preview)
+                    # Revalidate private browser copies: a restore can replace
+                    # bytes under an existing asset ID, unlike a normal upload.
+                    etag = '"' + hashlib.sha256(asset[1]).hexdigest() + '"'
+                    candidates = [value.strip().removeprefix('W/') for value in
+                                  self.headers.get('If-None-Match', '').split(',')]
+                    unchanged = etag in candidates or '*' in candidates
+                    self.send_data(304 if unchanged else 200,
+                                   b'' if unchanged else asset[1], asset[0],
+                                   {'ETag': etag}, cache_control='private, no-cache')
             else:
                 self.send_data(404, {'error': 'Not found'})
         except (ValueError, KeyError, zipfile.BadZipFile):
@@ -215,7 +310,11 @@ class Handler(BaseHTTPRequestHandler):
                     self.server.store.set_board(decode(self.body(4 * 1024 * 1024)))
                     self.send_data(200, {'ok': True})
                 elif path == '/api/assets' and method == 'POST':
-                    self.send_data(200, {'id': self.server.store.upload(self.body(32 * 1024 * 1024))})
+                    asset_id = self.server.store.upload(self.body(32 * 1024 * 1024))
+                    cache = getattr(self.server, 'thumbnails', None)
+                    if cache and hasattr(cache, 'enqueue'):
+                        cache.enqueue(asset_id)
+                    self.send_data(200, {'id': asset_id})
                 elif path == '/api/photos/remove-background' and method == 'POST':
                     data = decode(self.body(4096))
                     if not isinstance(data, dict):
@@ -264,6 +363,11 @@ class Handler(BaseHTTPRequestHandler):
                     try:
                         with contextlib.closing(Archive(ticket[0])) as archive:
                             recovery = self.server.store.restore(archive, replace=True)
+                        if getattr(self.server, 'catalog', None):
+                            self.server.catalog.invalidate()
+                        cache = getattr(self.server, 'thumbnails', None)
+                        if cache and hasattr(cache, 'refresh'):
+                            cache.refresh()
                         self.send_data(200, {'ok': True, 'recoverySaved': bool(recovery)})
                     finally:
                         ticket[0].unlink(missing_ok=True)

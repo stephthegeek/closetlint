@@ -8,8 +8,16 @@ The server uses the Python standard library, including SQLite. The client is pla
 
 ## Optional tools
 
-- Assistant photo import uses Pillow, installed separately through `runtime/requirements-import.txt`.
+- Browse previews and assistant photo import use Pillow, installed in the shared optional environment by `tools/setup_photos.py`, using `runtime/requirements-import.txt`.
 - Local background removal installs ONNX Runtime, NumPy, Pillow, and their dependencies into a separate environment. Setup downloads and verifies the U²-Net model. Neither the environment nor model weights are included in the source archive. Package and model terms should be reviewed separately before any future redistribution.
+
+## Optional city suggestions and seasonal weather
+
+Trips uses [Open-Meteo geocoding](https://open-meteo.com/en/docs/geocoding-api), based on [GeoNames](https://www.geonames.org/), for online destination suggestions. Only the typed destination is sent, with no wardrobe records. The local runtime forwards queries to the fixed service endpoint; static sites query it directly. Manual destination entry remains available without the service. The public API has free non-commercial usage terms and limits; commercial deployments need to review the provider’s paid or self-hosted options.
+
+**Get typical weather** uses the [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api). It averages daily lows and highs for the trip’s season across the three most recent completed calendar years, including a three-day margin around the trip dates. These recent seasonal averages are not a forecast or long-term climate normals. The rain/snow packing suggestion is enabled when at least 30% of sampled days have 1 mm or more precipitation. Review the result and edit it for your plans.
+
+Weather requests send the selected location’s coordinates and a generic historical date range, not trip names, actual travel dates, packing lists, or wardrobe records. Choosing a destination suggestion avoids silently using the wrong city. Local requests go through fixed, token-protected endpoints with timeouts, response limits, and bounded in-memory caches; static sites contact the provider directly. No API key or additional Python package is required. Manual weather entry stays available if lookup is unavailable. The same provider usage terms above apply.
 
 ## Fonts and network requests
 
