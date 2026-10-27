@@ -11,7 +11,7 @@ Only one server should access a wardrobe at a time. Browser tabs may cache old c
 
 ## Updating from 0.2 to 0.3
 
-Use the same separate wardrobe data folder and the steps above. Sky and the daily fortune do not require reimporting pieces. Resolve failed saves before stopping the old version. Ordinary outfit and partial wear-log retries need the current tab to remain open. Dated Save & schedule retains its reserved save identity across reloads, and direct-import receipts retain their saved results. These recovery paths do not replace a full backup. The extracted 0.3.0-rc.2 candidate passed a synthetic 0.2 update and full-backup restore on Linux, including records, board, plans, wear history, and photo bytes; see [testing](TESTING.md) for the evidence and limits.
+Use the same separate wardrobe data folder and the steps above. Sky and the daily fortune do not require reimporting pieces. Resolve failed saves before stopping the old version. Ordinary outfit and partial wear-log retries need the current tab to remain open. Dated Save & schedule retains its reserved save identity across reloads, and direct-import receipts retain their saved results. These recovery paths do not replace a full backup. The extracted 0.3.0-rc.4 candidate passed a synthetic 0.2 update, full-backup export, and mobile-width restore on Linux, including records, board, plans, wear history, and exact photo bytes; see [testing](TESTING.md) for the evidence and limits.
 
 ## Updating from 0.1 to 0.2
 

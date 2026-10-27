@@ -23,6 +23,6 @@ Save open edits, export a full backup, stop the old server, and extract this ver
 
 The core app needs Python 3.10 or newer and a web browser. No account or AI subscription is required; optional photo tools have separate dependencies.
 
-This candidate is still under review. Automated development checks use synthetic wardrobes on Linux; they do not establish Windows or macOS installation, physical-phone acceptance, or an independent security review. See [testing](TESTING.md) and [security review](SECURITY-REVIEW.md).
+Testing has focused on Linux with synthetic wardrobes. Windows and macOS installation and an independent security review remain unverified. Native phone sharing depends on browser support; Save image is the fallback. See [testing](TESTING.md) and [security review](SECURITY-REVIEW.md).
 
 The local app has no login. Keep it on your computer or a trusted home network, and do not expose its port to the public internet.

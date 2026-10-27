@@ -54,6 +54,8 @@ Your computer needs to stay awake, with the app running. Connect your phone to t
    On Windows, use `py -3` instead of `python3`.
 4. Open the address printed in the terminal on both your phone and computer.
 
+For Sky, **Save image** downloads a picture you can share from Photos or Gallery. The direct **Share** action depends on browser support and a secure HTTPS address, so it may be unavailable at your ordinary home-network HTTP address.
+
 Anyone who can reach that address can view and edit the wardrobe. Use a home network you trust, and don’t expose it to the public internet. Edit on one device at a time so changes don’t overwrite each other.
 
 ## Backups

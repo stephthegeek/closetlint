@@ -4,7 +4,7 @@
 
 Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. It runs locally and opens in your browser. No account, no subscription, no sync, no telemetry: your wardrobe and photos stay with you.
 
-> **0.3.0 in release preparation.** Includes Your Style Sky, assistant imports, laundry and care, and safer outfit planning. Candidate checks and owner review are in progress. Keep a current backup before updating.
+> **Closet Lint 0.3.0** brings Your Style Sky, assistant imports, laundry and care, and safer outfit planning. Keep a current backup before updating.
 
 ## What's included
 
