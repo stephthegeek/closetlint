@@ -13,12 +13,12 @@ Closet Lint is a personal wardrobe app for shopping your closet like a store whe
 - 👗 **Outfits and calendar:** log what you wore, schedule saved outfits, or build an outfit for a future date.
 - 🧑‍🔬 **Outfit Lab:** rate combinations, save favorites, and explore the patterns behind My taste.
 - 🌌 **Your Style Sky:** wardrobe constellations, Sun, Moon, and Rising readings, and shareable chart images.
-- 🔮 **Linty’s daily fortune card:** optional daily readings, wardrobe nudges, and color omens.
+- 🪬 **Linty’s daily fortune card:** optional daily readings, wardrobe nudges, and color omens.
 - 🏆 **Wishlist ranking:** keep your own order, with compatibility and similarity evidence from your closet, Lab ratings, and wear history.
 - 🧳 **Trips:** plan outfits and keep track of packing.
 - 🧺 **Laundry and care:** manually mark pieces that need cleaning, save care instructions, and keep photos of care labels.
 - 🗄️ **Storage:** organize stored pieces, print bin labels, and make pull lists.
-- 📬 **Bring Your Own Assistant:** use your own AI assistant to import order emails, links, documents, or photos. Save directly with local Codex or Claude Code, or review an import file from a chat conversation. Upload sources in Closet Lint, request supported tags, and optionally separate multipacks or create individual product photos when your assistant has image tools. See [assistant imports](docs/ASSISTANT-IMPORT.md).
+- 🤖 **Bring Your Own AI Assistant:** use your own AI assistant to import order emails, links, documents, or photos. Save directly with local Codex or Claude Code, or review an import file from a chat conversation. Upload sources in Closet Lint, request supported tags, and optionally separate multipacks or create individual product photos when your assistant has image tools. See [assistant imports](docs/ASSISTANT-IMPORT.md).
 - 🔮 **Ask the Oracle:** take a wardrobe summary, question, and optional photos to your own AI assistant.
 - 📷 **Photo tools:** optional local background removal, with originals kept and results reviewed before saving.
 - 💾 **Backup and restore:** keep your wardrobe data and photos together.
