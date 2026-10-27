@@ -67,6 +67,28 @@ class ThumbnailTests(unittest.TestCase):
         self.assertIsNone(cache.get(self.asset_id, ('image/png', PNG)))
         self.assertFalse(cache.path(self.asset_id, PNG).exists(), 'corrupt previews can be rebuilt')
 
+    def test_indexed_hit_avoids_original_reads_and_restore_invalidates(self):
+        cache = self.cache()
+        def generate(args, **kwargs):
+            Path(args[-1]).write_bytes(WEBP)
+            return SimpleNamespace(returncode=0)
+        with patch('thumbnails.subprocess.run', side_effect=generate):
+            cache.prepare(self.asset_id)
+        with patch.object(self.store, 'asset', side_effect=AssertionError('Original read')):
+            self.assertEqual(cache.get_ready(self.asset_id), WEBP)
+        generation = cache.generation
+        target = cache.path(self.asset_id, PNG)
+        cache.refresh()
+        self.assertIsNone(cache.get_ready(self.asset_id))
+        cache.index(self.asset_id, target, len(PNG), generation)
+        self.assertIsNone(cache.get_ready(self.asset_id), 'an old worker cannot publish after restore')
+        cache.prepare(self.asset_id)
+        self.assertEqual(cache.get_ready(self.asset_id), WEBP, 'disk previews can be indexed after restart')
+        target.write_bytes(b'corrupt')
+        self.assertIsNone(cache.get_ready(self.asset_id))
+        self.assertFalse(target.exists())
+        self.assertIn(self.asset_id, cache.queued)
+
     def test_cold_request_can_receive_a_ready_preview_without_original_download(self):
         cache = self.cache()
         cache.running = True

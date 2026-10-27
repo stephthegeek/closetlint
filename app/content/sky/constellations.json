@@ -1,0 +1,3099 @@
+{
+  "_note": "Versioned definitions for harmonic essential-star scoring. Supporting stars provide a bounded bonus; signature evidence and guards govern eligibility. Eclectic is pending a diversity definition.",
+  "constellations": [
+    {
+      "id": "whimsigoth",
+      "name": "Whimsigoth",
+      "house": "dark",
+      "blurb": "Velvet, moons, and the sense that you own at least one crystal ball. Gothic, but it had a nice time in the 90s.",
+      "searchTerms": [
+        "crushed velvet maxi skirt",
+        "celestial print slip dress",
+        "90s witchy layered jewelry",
+        "burnout velvet duster"
+      ],
+      "core": [
+        "witchy",
+        "boho"
+      ],
+      "support": [
+        "gothic",
+        "romantic",
+        "vintage"
+      ],
+      "signals": {
+        "motif": [
+          "celestial",
+          "moon",
+          "crystal",
+          "crushed"
+        ],
+        "shape": [
+          "maxi skirt",
+          "shawl",
+          "slip dress"
+        ],
+        "texture": [
+          "velvet"
+        ]
+      },
+      "stars": [
+        "witchy",
+        "boho",
+        "gothic",
+        "romantic",
+        "vintage"
+      ],
+      "signature": "Mystical or celestial motifs combined with flowing, layered, or richly textured bohemian pieces.",
+      "guardrail": "Black clothing or a moon necklace alone is insufficient.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "witchy"
+        ],
+        "anchorAll": [
+          "witchy"
+        ]
+      }
+    },
+    {
+      "id": "romantic-goth",
+      "name": "Romantic goth",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "black lace corset top",
+        "velvet bodice midi dress",
+        "ruffled poet blouse",
+        "rose embroidered tulle skirt"
+      ],
+      "core": [
+        "gothic",
+        "romantic"
+      ],
+      "support": [
+        "elegant",
+        "vintage",
+        "coquette"
+      ],
+      "signals": {
+        "motif": [
+          "floral",
+          "corset",
+          "rose"
+        ],
+        "shape": [
+          "corset",
+          "maxi skirt"
+        ],
+        "texture": [
+          "lace",
+          "velvet"
+        ]
+      },
+      "stars": [
+        "gothic",
+        "romantic",
+        "elegant",
+        "vintage",
+        "coquette"
+      ],
+      "signature": "Dark romantic construction: lace, corsetry, velvet, rose motifs, or dramatic flowing silhouettes.",
+      "guardrail": "Lace alone also occurs in non-gothic wardrobes.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "gothic"
+        ],
+        "anchorAll": [
+          "gothic"
+        ]
+      }
+    },
+    {
+      "id": "victorian-goth",
+      "name": "Victorian goth",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "high neck lace blouse",
+        "black bustle skirt",
+        "cameo choker brooch",
+        "lace-up granny boots"
+      ],
+      "core": [
+        "gothic",
+        "vintage"
+      ],
+      "support": [
+        "theatrical",
+        "romantic",
+        "elegant"
+      ],
+      "signals": {
+        "shape": [
+          "long skirt"
+        ],
+        "historical": [
+          "victorian"
+        ],
+        "motif": [
+          "cameo",
+          "high neck"
+        ],
+        "texture": [
+          "brocade"
+        ]
+      },
+      "stars": [
+        "gothic",
+        "vintage",
+        "theatrical",
+        "romantic",
+        "elegant"
+      ],
+      "signature": "Period-inspired construction such as high-neck lace, jabot, cameo, bustle, brocade, or Victorian boots.",
+      "guardrail": "Vintage should not mean every older-looking graphic tee.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "gothic"
+        ],
+        "anchorAll": [
+          "gothic"
+        ]
+      }
+    },
+    {
+      "id": "gothic-lolita",
+      "name": "Gothic Lolita",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "black lolita JSK dress",
+        "petticoat bell skirt",
+        "rectangle headdress bow",
+        "platform Mary Janes"
+      ],
+      "core": [
+        "gothic",
+        "coquette"
+      ],
+      "support": [
+        "cute",
+        "vintage",
+        "romantic"
+      ],
+      "signals": {
+        "shape": [
+          "petticoat",
+          "bell skirt",
+          "bell shaped",
+          "lolita dress"
+        ],
+        "motif": [
+          "lolita",
+          "petticoat"
+        ],
+        "detail": [
+          "lace trim",
+          "peter pan collar",
+          "bows",
+          "ruffles"
+        ],
+        "texture": [
+          "lace"
+        ],
+        "historical": [
+          "gothic lolita",
+          "elegant gothic lolita"
+        ]
+      },
+      "stars": [
+        "gothic",
+        "coquette",
+        "cute",
+        "vintage",
+        "romantic"
+      ],
+      "signature": "Repeated structured bell-shaped or A-line dresses/skirts with coordinated blouse, lace, bows, or petticoat evidence.",
+      "guardrail": "Cute plus Gothic is not enough; Lolita has a specific clothing silhouette.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "gothic"
+        ],
+        "collectionEvidenceAny": [
+          "shape",
+          "historical"
+        ],
+        "anchorAll": [
+          "gothic"
+        ]
+      }
+    },
+    {
+      "id": "trad-goth",
+      "name": "Trad goth",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "80s batcave style",
+        "fishnet sleeves mesh top",
+        "buckle creeper shoes",
+        "black PVC corset"
+      ],
+      "core": [
+        "gothic",
+        "edgy"
+      ],
+      "support": [
+        "punk",
+        "theatrical"
+      ],
+      "signals": {
+        "texture": [
+          "fishnet",
+          "mesh"
+        ],
+        "detail": [
+          "spike",
+          "spikes",
+          "studded",
+          "buckle",
+          "buckles",
+          "chain",
+          "chains"
+        ],
+        "shape": [
+          "platform boots",
+          "pointed boots"
+        ],
+        "historical": [
+          "trad goth",
+          "deathrock",
+          "post punk"
+        ]
+      },
+      "stars": [
+        "gothic",
+        "edgy",
+        "punk",
+        "theatrical"
+      ],
+      "signature": "Repeated post-punk/goth styling evidence: fishnet or mesh, dark hardware, pointed footwear, distressed layering, or relevant graphic references.",
+      "guardrail": "Gothic plus Edgy or Punk on the piece, with corroborating construction/hardware or an explicit tradition reference; mesh or skull alone cannot qualify.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "gothic"
+        ],
+        "pieceAny": [
+          "edgy",
+          "punk"
+        ],
+        "context": "trad",
+        "anchorAll": [
+          "gothic"
+        ]
+      }
+    },
+    {
+      "id": "nu-goth",
+      "name": "Nu-goth",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "sheer black kimono",
+        "occult print tee",
+        "oversized black maxi",
+        "geometric silver jewelry"
+      ],
+      "core": [
+        "gothic",
+        "minimalist"
+      ],
+      "support": [
+        "edgy",
+        "witchy"
+      ],
+      "signals": {
+        "motif": [
+          "geometric",
+          "sheer",
+          "occult",
+          "triangle"
+        ],
+        "shape": [
+          "oversized top",
+          "maxi skirt"
+        ]
+      },
+      "stars": [
+        "gothic",
+        "minimalist",
+        "edgy",
+        "witchy"
+      ],
+      "signature": "Dark restrained silhouettes with occult, geometric, sheer-layered, or sharp-line evidence.",
+      "guardrail": "Minimalist alone must not carry the result.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "gothic"
+        ],
+        "anchorAll": [
+          "gothic"
+        ]
+      }
+    },
+    {
+      "id": "pastel-goth",
+      "name": "Pastel goth",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "lavender skull print",
+        "pastel creepers",
+        "bat wing backpack",
+        "pink and black kawaii"
+      ],
+      "core": [
+        "gothic",
+        "cute"
+      ],
+      "support": [
+        "spooky",
+        "quirky",
+        "coquette"
+      ],
+      "signals": {
+        "motif": [
+          "skull",
+          "bat",
+          "skeleton",
+          "occult",
+          "cartoon"
+        ],
+        "palette": [
+          "pastel pink",
+          "lavender",
+          "pastel",
+          "light pink"
+        ]
+      },
+      "stars": [
+        "gothic",
+        "cute",
+        "spooky",
+        "quirky",
+        "coquette"
+      ],
+      "signature": "Pastel palette deliberately paired with dark/spooky motifs or goth construction.",
+      "guardrail": "Pastel alone or a Halloween item alone is insufficient.",
+      "anyCore": false,
+      "guards": {
+        "context": "pastel",
+        "collectionEvidenceAll": [
+          "palette",
+          "motif"
+        ]
+      }
+    },
+    {
+      "id": "vampire-glam",
+      "name": "Vampire glam",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "blood red velvet gown",
+        "satin opera gloves",
+        "black lace choker",
+        "vampy plum lip look"
+      ],
+      "core": [
+        "gothic",
+        "glam"
+      ],
+      "support": [
+        "sexy",
+        "romantic",
+        "theatrical"
+      ],
+      "signals": {
+        "shape": [
+          "corset"
+        ],
+        "texture": [
+          "velvet",
+          "satin"
+        ],
+        "motif": [
+          "vampire",
+          "choker"
+        ]
+      },
+      "stars": [
+        "gothic",
+        "glam",
+        "sexy",
+        "romantic",
+        "theatrical"
+      ],
+      "signature": "Opulent dark eveningwear or jewelry: velvet/satin drama, ornate chokers, corsetry, or vampire motifs.",
+      "guardrail": "Do not infer sexuality or personal identity from the result.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "gothic"
+        ],
+        "anchorAll": [
+          "gothic"
+        ]
+      }
+    },
+    {
+      "id": "cybergoth",
+      "name": "Cybergoth",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "neon green fluffies",
+        "reflective vinyl pants",
+        "cyber goggles accessories",
+        "UV reactive rave"
+      ],
+      "core": [
+        "gothic"
+      ],
+      "support": [
+        "y2k",
+        "edgy",
+        "festival"
+      ],
+      "signals": {
+        "motif": [
+          "geometric",
+          "neon",
+          "cyber",
+          "platform",
+          "reflective"
+        ],
+        "texture": [
+          "vinyl",
+          "pvc",
+          "reflective",
+          "mesh"
+        ],
+        "detail": [
+          "goggle",
+          "goggles",
+          "chain",
+          "industrial",
+          "harness"
+        ],
+        "palette": [
+          "neon",
+          "fluorescent"
+        ],
+        "historical": [
+          "cyber",
+          "cybergoth",
+          "rave"
+        ]
+      },
+      "stars": [
+        "gothic",
+        "y2k",
+        "edgy",
+        "festival"
+      ],
+      "signature": "Repeated industrial-futuristic/rave evidence: neon with dark hardware, reflective/PVC surfaces, goggles, or cyber motifs.",
+      "guardrail": "Y2K is supporting, not mandatory; a robot tee alone is not Cybergoth.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "gothic"
+        ],
+        "context": "cyber",
+        "anchorAll": [
+          "gothic"
+        ]
+      }
+    },
+    {
+      "id": "witchcore",
+      "name": "Witchcore",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "black wool witch hat",
+        "herb print midi skirt",
+        "hooded cloak cape",
+        "moon phase necklace"
+      ],
+      "core": [
+        "witchy"
+      ],
+      "support": [
+        "cottagecore",
+        "gothic",
+        "boho"
+      ],
+      "signals": {
+        "motif": [
+          "celestial",
+          "floral",
+          "witch",
+          "herb",
+          "moon",
+          "crystal",
+          "cape"
+        ],
+        "shape": [
+          "cape",
+          "shawl",
+          "maxi skirt"
+        ]
+      },
+      "stars": [
+        "witchy",
+        "cottagecore",
+        "gothic",
+        "boho"
+      ],
+      "signature": "Occult, herbal, celestial, ritual, or folklore motifs recur across pieces, with nature or draped styling evidence.",
+      "guardrail": "Not every botanical print or crystal-colored bead is witchy.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "spooky-season",
+      "name": "Spooky season",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "ghost print cardigan",
+        "bat sleeve sweater",
+        "skeleton hand earrings",
+        "pumpkin orange knit"
+      ],
+      "core": [
+        "spooky"
+      ],
+      "support": [
+        "holiday-themed",
+        "quirky",
+        "gothic"
+      ],
+      "signals": {
+        "motif": [
+          "skull",
+          "cartoon",
+          "novelty print",
+          "halloween",
+          "ghost",
+          "bat",
+          "pumpkin",
+          "skeleton",
+          "spider"
+        ]
+      },
+      "stars": [
+        "spooky",
+        "holiday-themed",
+        "quirky",
+        "gothic"
+      ],
+      "signature": "Explicit Halloween or spooky motifs such as ghosts, jack-o-lanterns, haunted imagery, or skeleton graphics.",
+      "guardrail": "Holiday-themed alone could mean Christmas; skulls can also be Punk/Gothic.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "riot-grrrl",
+      "name": "Riot grrrl",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "plaid mini with patches",
+        "babydoll dress combat boots",
+        "DIY slogan tee",
+        "90s zine punk"
+      ],
+      "core": [
+        "punk"
+      ],
+      "support": [
+        "grunge",
+        "edgy",
+        "quirky"
+      ],
+      "signals": {
+        "motif": [
+          "plaid",
+          "slogan",
+          "hearts",
+          "band",
+          "punk",
+          "grrrl"
+        ],
+        "detail": [
+          "safety pin"
+        ]
+      },
+      "stars": [
+        "punk",
+        "grunge",
+        "edgy",
+        "quirky"
+      ],
+      "signature": "DIY, protest, feminist, zine, band, or deliberately subversive clothing references corroborated by punk styling.",
+      "guardrail": "Do not require Cute or infer politics from a plaid skirt.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "e-girl",
+      "name": "E-girl",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "striped long sleeve layering",
+        "chain belt mini skirt",
+        "heart choker necklace",
+        "black checkered pants"
+      ],
+      "core": [
+        "edgy"
+      ],
+      "support": [
+        "cute",
+        "grunge",
+        "y2k",
+        "geeky"
+      ],
+      "signals": {
+        "motif": [
+          "striped",
+          "checkered",
+          "hearts",
+          "anime"
+        ],
+        "shape": [
+          "arm warmers"
+        ],
+        "detail": [
+          "chain"
+        ]
+      },
+      "stars": [
+        "edgy",
+        "cute",
+        "grunge",
+        "y2k",
+        "geeky"
+      ],
+      "signature": "Repeated contrast between cute/digital references and dark chains, stripes, mesh, pleats, or layered street styling.",
+      "guardrail": "A heart motif or anime reference alone is insufficient; no age/gender inference.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "indie-sleaze",
+      "name": "Indie sleaze",
+      "house": "dark",
+      "blurb": "",
+      "searchTerms": [
+        "2010s party outfit",
+        "leopard faux fur jacket",
+        "metallic mini with tights",
+        "smudged eyeliner look"
+      ],
+      "core": [
+        "grunge",
+        "glam"
+      ],
+      "support": [
+        "edgy",
+        "retro"
+      ],
+      "signals": {
+        "motif": [
+          "animal print",
+          "slogan",
+          "leopard"
+        ],
+        "shape": [
+          "mini dress",
+          "tights"
+        ],
+        "texture": [
+          "metallic",
+          "sequin"
+        ]
+      },
+      "stars": [
+        "grunge",
+        "glam",
+        "edgy",
+        "retro"
+      ],
+      "signature": "Disheveled partywear contrast: distressed pieces with sequins/metallics, skinny tailoring, leopard, or mini silhouettes.",
+      "guardrail": "Leopard alone is not enough; distinguish from polished Glam.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "balletcore",
+      "name": "Balletcore",
+      "house": "romantic",
+      "blurb": "",
+      "searchTerms": [
+        "wrap cardigan leg warmers",
+        "satin ballet flats",
+        "pink tulle skirt",
+        "bodysuit with ribbon"
+      ],
+      "core": [
+        "coquette"
+      ],
+      "support": [
+        "romantic",
+        "elegant",
+        "cozy"
+      ],
+      "signals": {
+        "shape": [
+          "ballet flats",
+          "leg warmers",
+          "tutu",
+          "leotard",
+          "ballet wrap"
+        ],
+        "historical": [
+          "ballet"
+        ],
+        "texture": [
+          "tulle",
+          "satin"
+        ],
+        "detail": [
+          "ribbon",
+          "bows"
+        ]
+      },
+      "stars": [
+        "coquette",
+        "romantic",
+        "elegant",
+        "cozy"
+      ],
+      "signature": "Ballet-linked shapes recur: ballet flats, wrap knits, leg warmers, leotard shapes, tulle, or ribbon details.",
+      "guardrail": "A single bow or generic wrap top is not a complete ballet affinity.",
+      "anyCore": false,
+      "guards": {
+        "evidenceAny": [
+          "shape",
+          "historical"
+        ]
+      }
+    },
+    {
+      "id": "fairycore",
+      "name": "Fairycore",
+      "house": "romantic",
+      "blurb": "",
+      "searchTerms": [
+        "butterfly wing hair clips",
+        "sheer tiered fairy dress",
+        "iridescent organza top",
+        "mushroom cottage aesthetic"
+      ],
+      "core": [
+        "fairy"
+      ],
+      "support": [
+        "cottagecore",
+        "romantic",
+        "coquette"
+      ],
+      "signals": {
+        "motif": [
+          "floral",
+          "fairy",
+          "butterfly",
+          "iridescent",
+          "mushroom"
+        ],
+        "texture": [
+          "tulle"
+        ]
+      },
+      "stars": [
+        "fairy",
+        "cottagecore",
+        "romantic",
+        "coquette"
+      ],
+      "signature": "Ethereal/nature styling: petal or handkerchief hems, airy layers, butterfly/woodland motifs, or iridescence.",
+      "guardrail": "Not every floral dress is Fairycore.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "baroque-romance",
+      "name": "Baroque romance",
+      "house": "romantic",
+      "blurb": "",
+      "searchTerms": [
+        "gold brocade corset",
+        "velvet puff sleeve gown",
+        "damask print skirt",
+        "pearl drop earrings"
+      ],
+      "core": [
+        "romantic",
+        "glam"
+      ],
+      "support": [
+        "elegant",
+        "vintage",
+        "theatrical"
+      ],
+      "signals": {
+        "motif": [
+          "floral"
+        ],
+        "shape": [
+          "corset",
+          "blazer"
+        ],
+        "texture": [
+          "brocade",
+          "velvet",
+          "damask"
+        ],
+        "historical": [
+          "baroque"
+        ]
+      },
+      "stars": [
+        "romantic",
+        "glam",
+        "elegant",
+        "vintage",
+        "theatrical"
+      ],
+      "signature": "Ornate historical decoration: damask, brocade, elaborate scrolling, rich embroidery, or substantial ornament.",
+      "guardrail": "Velvet alone is too broad.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "regencycore",
+      "name": "Regencycore",
+      "house": "romantic",
+      "blurb": "",
+      "searchTerms": [
+        "empire waist midi dress",
+        "puff sleeve muslin dress",
+        "Bridgerton style outfits",
+        "ribbon tie bonnet"
+      ],
+      "core": [
+        "romantic",
+        "vintage"
+      ],
+      "support": [
+        "elegant",
+        "coquette"
+      ],
+      "signals": {
+        "motif": [
+          "floral",
+          "bonnet"
+        ],
+        "shape": [
+          "empire dress"
+        ],
+        "historical": [
+          "empire",
+          "regency"
+        ],
+        "detail": [
+          "puff"
+        ]
+      },
+      "stars": [
+        "romantic",
+        "vintage",
+        "elegant",
+        "coquette"
+      ],
+      "signature": "Regency-linked silhouette or construction: empire waist, period sleeve/neckline, spencer-style jacket, or coordinated period accessories.",
+      "guardrail": "Puff sleeves or floral fabric alone are insufficient.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "soft-girl",
+      "name": "Soft girl",
+      "house": "romantic",
+      "blurb": "",
+      "searchTerms": [
+        "fuzzy pastel cardigan",
+        "heart print knit",
+        "strawberry print dress",
+        "claw clip blush look"
+      ],
+      "core": [
+        "cute",
+        "coquette"
+      ],
+      "support": [
+        "cozy",
+        "romantic"
+      ],
+      "signals": {
+        "motif": [
+          "hearts",
+          "gingham",
+          "fuzzy",
+          "strawberry",
+          "cloud"
+        ],
+        "detail": [
+          "bow"
+        ]
+      },
+      "stars": [
+        "cute",
+        "coquette",
+        "cozy",
+        "romantic"
+      ],
+      "signature": "Repeated soft/pastel styling with gentle silhouettes, small playful motifs, or ribbon/ruffle details.",
+      "guardrail": "Cozy should support, not be a hard requirement.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "old-hollywood",
+      "name": "Old Hollywood",
+      "house": "romantic",
+      "blurb": "",
+      "searchTerms": [
+        "bias cut satin gown",
+        "1940s glamour waves",
+        "long evening gloves",
+        "fur stole evening coat"
+      ],
+      "core": [
+        "glam",
+        "vintage"
+      ],
+      "support": [
+        "elegant",
+        "classic",
+        "theatrical"
+      ],
+      "signals": {
+        "shape": [
+          "gown"
+        ],
+        "texture": [
+          "satin",
+          "velvet",
+          "silk"
+        ],
+        "motif": [
+          "pearl",
+          "gown"
+        ]
+      },
+      "stars": [
+        "glam",
+        "vintage",
+        "elegant",
+        "classic",
+        "theatrical"
+      ],
+      "signature": "Period evening silhouettes: bias gowns, dramatic draping, satin gloves, sculpted tailoring, or strong vintage occasionwear evidence.",
+      "guardrail": "Formalwear alone does not establish an era.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "boudoir",
+      "name": "Boudoir",
+      "house": "romantic",
+      "blurb": "",
+      "searchTerms": [
+        "silk slip dress layering",
+        "lace bralette as top",
+        "satin robe dressing gown",
+        "corset with blazer"
+      ],
+      "core": [
+        "romantic",
+        "sexy"
+      ],
+      "support": [
+        "elegant",
+        "coquette",
+        "gothic"
+      ],
+      "signals": {
+        "shape": [
+          "bodysuit",
+          "slip",
+          "corset"
+        ],
+        "texture": [
+          "lace",
+          "satin",
+          "silk"
+        ],
+        "motif": [
+          "slip"
+        ]
+      },
+      "stars": [
+        "romantic",
+        "sexy",
+        "elegant",
+        "coquette",
+        "gothic"
+      ],
+      "signature": "Styling-oriented lingerie references: visible lace/satin, slip shapes, corsetry, or decorative bodysuits.",
+      "guardrail": "Functional bras/underwear and Everyday basics do not establish this style.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "disco",
+      "name": "Disco",
+      "house": "romantic",
+      "blurb": "",
+      "searchTerms": [
+        "sequin halter jumpsuit",
+        "70s metallic flares",
+        "disco ball earrings",
+        "Studio 54 outfit"
+      ],
+      "core": [
+        "retro",
+        "glam"
+      ],
+      "support": [
+        "theatrical",
+        "maximalist"
+      ],
+      "signals": {
+        "motif": [
+          "ombre",
+          "sparkle",
+          "glitter"
+        ],
+        "shape": [
+          "jumpsuit",
+          "flares"
+        ],
+        "texture": [
+          "sequin",
+          "metallic"
+        ],
+        "historical": [
+          "disco"
+        ]
+      },
+      "stars": [
+        "retro",
+        "glam",
+        "theatrical",
+        "maximalist"
+      ],
+      "signature": "Dance/1970s party evidence: flared or jumpsuit silhouettes with sequins, metallics, lurex-like finish, or disco motifs.",
+      "guardrail": "Glitter without a retro or dance connection is generic Glam.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "parisian-chic",
+      "name": "Parisian chic",
+      "house": "romantic",
+      "blurb": "",
+      "searchTerms": [
+        "breton stripe top",
+        "French girl trench",
+        "red lip ballet flats",
+        "silk neck scarf styling"
+      ],
+      "core": [
+        "classic",
+        "elegant"
+      ],
+      "support": [
+        "romantic",
+        "vintage",
+        "minimalist"
+      ],
+      "signals": {
+        "motif": [
+          "striped",
+          "breton",
+          "beret",
+          "trench",
+          "silk scarf"
+        ],
+        "shape": [
+          "trench",
+          "striped top",
+          "ballet flats",
+          "beret"
+        ]
+      },
+      "stars": [
+        "classic",
+        "elegant",
+        "romantic",
+        "vintage",
+        "minimalist"
+      ],
+      "signature": "Repeated restrained combinations of Breton stripes, trench-style outerwear, ballet flats, beret, or scarf styling.",
+      "guardrail": "Stripes or a French slogan alone are insufficient; this is styling, not nationality.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "vintage-librarian",
+      "name": "Dark academia",
+      "house": "scholar",
+      "blurb": "",
+      "searchTerms": [
+        "tweed blazer turtleneck",
+        "plaid pleated wool skirt",
+        "oxford loafers knee socks",
+        "brown argyle sweater vest"
+      ],
+      "core": [
+        "dark-academia"
+      ],
+      "support": [
+        "vintage",
+        "classic",
+        "cozy",
+        "preppy"
+      ],
+      "signals": {
+        "motif": [
+          "book",
+          "books",
+          "argyle",
+          "glen plaid"
+        ],
+        "shape": [
+          "waistcoat",
+          "sweater vest",
+          "pleated skirt",
+          "loafers",
+          "oxford shirt"
+        ],
+        "texture": [
+          "tweed",
+          "herringbone",
+          "corduroy",
+          "wool"
+        ]
+      },
+      "stars": [
+        "dark-academia",
+        "vintage",
+        "classic",
+        "cozy",
+        "preppy"
+      ],
+      "signature": "Scholarly/heritage tailoring or literary motifs recur: tweed/herringbone, argyle, waistcoats, pleated tailoring, loafers, or book references in a dark/muted context.",
+      "guardrail": "Propose naming this constellation Dark academia; Vintage librarian becomes supporting flavor, not a four-star gate.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "light-academia",
+      "name": "Light academia",
+      "house": "scholar",
+      "blurb": "",
+      "searchTerms": [
+        "cream linen trousers",
+        "white poet shirt",
+        "beige cable knit",
+        "pleated tennis skirt"
+      ],
+      "core": [
+        "preppy",
+        "romantic"
+      ],
+      "support": [
+        "classic",
+        "cozy",
+        "vintage"
+      ],
+      "signals": {
+        "motif": [
+          "striped",
+          "poet"
+        ],
+        "texture": [
+          "linen"
+        ],
+        "detail": [
+          "pleated"
+        ]
+      },
+      "stars": [
+        "preppy",
+        "romantic",
+        "classic",
+        "cozy",
+        "vintage"
+      ],
+      "signature": "Light-toned scholarly tailoring with soft period details: pleats, waistcoats, poet blouses, knits, or literary references.",
+      "guardrail": "Cream color alone is not academic; Cozy is optional.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "old-money",
+      "name": "Old money",
+      "house": "scholar",
+      "blurb": "",
+      "searchTerms": [
+        "cashmere crewneck pearls",
+        "navy blazer gold buttons",
+        "riding boots outfit",
+        "cable knit over shoulders"
+      ],
+      "core": [
+        "classic",
+        "preppy"
+      ],
+      "support": [
+        "elegant",
+        "minimalist"
+      ],
+      "signals": {
+        "motif": [
+          "striped",
+          "polo",
+          "riding"
+        ],
+        "shape": [
+          "blazer",
+          "loafers"
+        ],
+        "texture": [
+          "cashmere",
+          "cable knit"
+        ]
+      },
+      "stars": [
+        "classic",
+        "preppy",
+        "elegant",
+        "minimalist"
+      ],
+      "signature": "Repeated heritage-prep styling: polos, cable knits, riding-inspired shapes, loafers, or restrained tailoring.",
+      "guardrail": "Never infer wealth, garment quality, authenticity, or price from titles or brands.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "grandmacore",
+      "name": "Grandmacore",
+      "house": "scholar",
+      "blurb": "",
+      "searchTerms": [
+        "crochet granny square cardigan",
+        "floral print house dress",
+        "brooch on cardigan",
+        "embroidered collar blouse"
+      ],
+      "core": [
+        "cozy",
+        "vintage"
+      ],
+      "support": [
+        "quirky",
+        "cottagecore"
+      ],
+      "signals": {
+        "motif": [
+          "floral",
+          "granny",
+          "doily"
+        ],
+        "texture": [
+          "crochet",
+          "knit"
+        ]
+      },
+      "stars": [
+        "cozy",
+        "vintage",
+        "quirky",
+        "cottagecore"
+      ],
+      "signature": "Repeated nostalgic domestic craft signals: crochet, patchwork, doily-like lace, embroidered cardigans, or small traditional florals.",
+      "guardrail": "A generic knit cardigan is too broad; no age inference.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "60s-mod",
+      "name": "60s mod",
+      "house": "scholar",
+      "blurb": "",
+      "searchTerms": [
+        "A-line mini shift dress",
+        "go-go boots outfit",
+        "geometric color block dress",
+        "Twiggy style eyeliner"
+      ],
+      "core": [
+        "retro"
+      ],
+      "support": [
+        "classic",
+        "quirky",
+        "preppy"
+      ],
+      "signals": {
+        "motif": [
+          "geometric",
+          "color block",
+          "checkered",
+          "optical",
+          "op art"
+        ],
+        "shape": [
+          "shift dress",
+          "a line mini",
+          "mini skirt",
+          "a line skirt",
+          "go go boots",
+          "collarless coat"
+        ],
+        "historical": [
+          "mod",
+          "go go",
+          "1960s",
+          "sixties",
+          "mary quant"
+        ]
+      },
+      "stars": [
+        "retro",
+        "classic",
+        "quirky",
+        "preppy"
+      ],
+      "signature": "A repeated 1960s design cluster: shift/A-line mini silhouettes, go-go boots, optical/geometric prints, sharp color blocking, or mod tailoring.",
+      "guardrail": "Retro + Quirky is explicitly insufficient; generic stripes, any mini, or a cloud sweater do not establish Mod.",
+      "anyCore": false,
+      "guards": {
+        "evidenceAny": [
+          "motif",
+          "historical"
+        ]
+      }
+    },
+    {
+      "id": "pinup",
+      "name": "Pinup",
+      "house": "scholar",
+      "blurb": "",
+      "searchTerms": [
+        "polka dot swing dress",
+        "cherry print halter",
+        "high waist pencil skirt",
+        "victory rolls styling"
+      ],
+      "core": [
+        "retro"
+      ],
+      "support": [
+        "romantic",
+        "sexy",
+        "coquette"
+      ],
+      "signals": {
+        "motif": [
+          "polka dot",
+          "gingham",
+          "cherry",
+          "swing",
+          "halter",
+          "polka"
+        ],
+        "shape": [
+          "swing dress",
+          "halter top",
+          "pencil skirt"
+        ]
+      },
+      "stars": [
+        "retro",
+        "romantic",
+        "sexy",
+        "coquette"
+      ],
+      "signature": "Repeated mid-century silhouette evidence: fitted-waist swing shapes, sweetheart/halter construction, wiggle/pencil styling, or period-linked prints.",
+      "guardrail": "Cherry print alone is insufficient; Sexy is not mandatory.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "rockabilly",
+      "name": "Rockabilly",
+      "house": "scholar",
+      "blurb": "",
+      "searchTerms": [
+        "leopard print wiggle dress",
+        "bandana and cuffed jeans",
+        "bowling shirt outfit",
+        "saddle shoes styling"
+      ],
+      "core": [
+        "retro",
+        "edgy"
+      ],
+      "support": [
+        "punk",
+        "classic",
+        "quirky"
+      ],
+      "signals": {
+        "motif": [
+          "animal print",
+          "polka dot",
+          "cherry",
+          "leopard",
+          "bandana",
+          "bowling"
+        ],
+        "shape": [
+          "swing dress",
+          "jeans",
+          "bandana"
+        ]
+      },
+      "stars": [
+        "retro",
+        "edgy",
+        "punk",
+        "classic",
+        "quirky"
+      ],
+      "signature": "Rock-and-roll/workwear contrast: bowling shirts, cuffed denim, bandana styling, creepers, or mid-century silhouettes with edgy details.",
+      "guardrail": "Do not require Punk or assume leopard/cherries alone identify the subculture.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "tenniscore",
+      "name": "Tenniscore",
+      "house": "scholar",
+      "blurb": "",
+      "searchTerms": [
+        "white pleated tennis skirt",
+        "varsity stripe cardigan",
+        "cable knit tennis sweater",
+        "polo dress outfit"
+      ],
+      "core": [
+        "sporty",
+        "preppy"
+      ],
+      "support": [
+        "classic",
+        "retro"
+      ],
+      "signals": {
+        "motif": [
+          "striped",
+          "polo",
+          "varsity"
+        ],
+        "shape": [
+          "pleated skirt",
+          "polo"
+        ],
+        "historical": [
+          "tennis"
+        ],
+        "detail": [
+          "pleated"
+        ]
+      },
+      "stars": [
+        "sporty",
+        "preppy",
+        "classic",
+        "retro"
+      ],
+      "signature": "Court-linked pieces recur: tennis skirts, polos, cricket/tennis knits, court shoes, or racket motifs.",
+      "guardrail": "Pleats alone also occur in academic and punk styles.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "70s-boho",
+      "name": "70s boho",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "suede fringe jacket",
+        "bell bottom jeans outfit",
+        "crochet vest top",
+        "paisley maxi dress"
+      ],
+      "core": [
+        "boho",
+        "retro"
+      ],
+      "support": [
+        "romantic",
+        "quirky",
+        "western"
+      ],
+      "signals": {
+        "motif": [
+          "tie dye",
+          "paisley"
+        ],
+        "shape": [
+          "flares",
+          "bell sleeves",
+          "bell sleeve",
+          "peasant blouse",
+          "peasant top"
+        ],
+        "texture": [
+          "crochet",
+          "suede"
+        ],
+        "detail": [
+          "fringe"
+        ]
+      },
+      "stars": [
+        "boho",
+        "retro",
+        "romantic",
+        "quirky",
+        "western"
+      ],
+      "signature": "A repeated 1970s bohemian cluster: flares, bell sleeves, crochet, suede-like textures, paisley, fringe, or flowing maxi shapes.",
+      "guardrail": "Generic florals and vest types are insufficient. A flare title and the same flared shape are one signal, not corroboration.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "prairie",
+      "name": "Prairie",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "tiered calico maxi dress",
+        "smocked puff sleeve blouse",
+        "gingham prairie skirt",
+        "ruffle collar dress"
+      ],
+      "core": [
+        "cottagecore",
+        "romantic"
+      ],
+      "support": [
+        "vintage",
+        "western"
+      ],
+      "signals": {
+        "motif": [
+          "gingham",
+          "floral",
+          "prairie",
+          "calico"
+        ],
+        "shape": [
+          "prairie dress",
+          "maxi skirt"
+        ],
+        "detail": [
+          "smocked",
+          "tiered"
+        ]
+      },
+      "stars": [
+        "cottagecore",
+        "romantic",
+        "vintage",
+        "western"
+      ],
+      "signature": "Repeated rural-period construction: tiered/ruffled long skirts, calico/gingham, smocking, high-neck yokes, or puff sleeves.",
+      "guardrail": "A floral tee or one tiered skirt is not a wardrobe identity.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "goblincore",
+      "name": "Goblincore",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "mushroom print cardigan",
+        "thrifted earthy layers",
+        "frog embroidered sweater",
+        "moss green cargo pants"
+      ],
+      "core": [
+        "cottagecore",
+        "quirky"
+      ],
+      "support": [
+        "witchy",
+        "grunge",
+        "cozy"
+      ],
+      "signals": {
+        "motif": [
+          "novelty print",
+          "food",
+          "mushroom",
+          "frog",
+          "moss",
+          "snail",
+          "beetle",
+          "thrifted"
+        ],
+        "shape": [
+          "cargo pants"
+        ]
+      },
+      "stars": [
+        "cottagecore",
+        "quirky",
+        "witchy",
+        "grunge",
+        "cozy"
+      ],
+      "signature": "Repeated woodland/earthy oddities: fungi, frogs, snails, beetles, mossy botanical motifs, or intentionally rustic mismatched textures.",
+      "guardrail": "Witchy and Grunge are supporting, not compulsory; Food is not a proxy for mushrooms.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "fairy-grunge",
+      "name": "Fairy grunge",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "distressed lace cardigan",
+        "sheer layered slip dress",
+        "moss green grunge layers",
+        "tattered tulle skirt"
+      ],
+      "core": [
+        "fairy",
+        "grunge"
+      ],
+      "support": [
+        "romantic",
+        "witchy",
+        "cottagecore"
+      ],
+      "signals": {
+        "motif": [
+          "floral",
+          "ombre",
+          "moss",
+          "fairy"
+        ],
+        "shape": [
+          "slip dress"
+        ],
+        "texture": [
+          "tulle",
+          "lace"
+        ],
+        "detail": [
+          "distressed"
+        ]
+      },
+      "stars": [
+        "fairy",
+        "grunge",
+        "romantic",
+        "witchy",
+        "cottagecore"
+      ],
+      "signature": "Visible contrast between ethereal lace/airy layers and distressed or rough-edged pieces.",
+      "guardrail": "Fairy and Grunge must have joint or coherent styling evidence, not two unrelated tagged pieces.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "coastal-cowgirl",
+      "name": "Coastal cowgirl",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "white eyelet sundress boots",
+        "denim skirt cowboy boots",
+        "turquoise silver jewelry",
+        "straw cowboy hat"
+      ],
+      "core": [
+        "western",
+        "resort"
+      ],
+      "support": [
+        "boho",
+        "romantic"
+      ],
+      "signals": {
+        "shape": [
+          "cowboy boots",
+          "western boots",
+          "denim skirt",
+          "cowboy hat"
+        ],
+        "historical": [
+          "cowboy",
+          "western"
+        ],
+        "motif": [
+          "western",
+          "cowboy",
+          "turquoise"
+        ],
+        "texture": [
+          "denim",
+          "linen",
+          "suede"
+        ]
+      },
+      "stars": [
+        "western",
+        "resort",
+        "boho",
+        "romantic"
+      ],
+      "signature": "Western footwear/denim/hat details paired with light beach-ready fabrics or shapes.",
+      "guardrail": "Do not replace Resort with Romantic; a cowboy boot alone is simply Western.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "riviera",
+      "name": "Riviera",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "striped boat neck top",
+        "linen wide leg pants",
+        "silk headscarf sunglasses",
+        "espadrille sandals outfit"
+      ],
+      "core": [
+        "resort",
+        "elegant"
+      ],
+      "support": [
+        "classic",
+        "retro"
+      ],
+      "signals": {
+        "motif": [
+          "striped",
+          "nautical",
+          "riviera"
+        ],
+        "shape": [
+          "sundress",
+          "linen pants"
+        ],
+        "texture": [
+          "linen"
+        ]
+      },
+      "stars": [
+        "resort",
+        "elegant",
+        "classic",
+        "retro"
+      ],
+      "signature": "Refined warm-weather styling: relaxed tailored linen-like pieces, restrained nautical stripes, sundresses, or refined sandals.",
+      "guardrail": "Nautical stripes alone are not enough; no material-quality inference.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "coastal-grandmother",
+      "name": "Coastal grandmother",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "oversized linen shirt",
+        "cream knit cardigan",
+        "straw market tote",
+        "relaxed white trousers"
+      ],
+      "core": [
+        "resort",
+        "cozy"
+      ],
+      "support": [
+        "classic",
+        "minimalist"
+      ],
+      "signals": {
+        "motif": [
+          "striped",
+          "straw",
+          "nautical"
+        ],
+        "shape": [
+          "linen shirt",
+          "wide pants"
+        ],
+        "texture": [
+          "linen"
+        ]
+      },
+      "stars": [
+        "resort",
+        "cozy",
+        "classic",
+        "minimalist"
+      ],
+      "signature": "Repeated breezy relaxed layering: loose shirts, wide trousers, light knits, straw accessories, or muted coastal palettes.",
+      "guardrail": "No age/gender inference; plain beige clothing alone is insufficient.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "hippie",
+      "name": "Hippie",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "tie dye maxi skirt",
+        "peasant blouse embroidery",
+        "daisy print sundress",
+        "patchwork bell bottoms"
+      ],
+      "core": [
+        "boho"
+      ],
+      "support": [
+        "retro",
+        "quirky",
+        "maximalist"
+      ],
+      "signals": {
+        "motif": [
+          "peace sign",
+          "peace symbol",
+          "tie dye",
+          "patchwork"
+        ],
+        "shape": [
+          "flares",
+          "peasant top",
+          "bell sleeve"
+        ],
+        "detail": [
+          "fringe"
+        ],
+        "texture": [
+          "crochet",
+          "hemp"
+        ]
+      },
+      "stars": [
+        "boho",
+        "retro",
+        "quirky",
+        "maximalist"
+      ],
+      "signature": "Repeated counterculture-linked motifs/construction: peace symbols, tie-dye, patchwork, crochet, flares, or peasant silhouettes.",
+      "guardrail": "Boho + Quirky is explicitly insufficient; one novelty top does not establish the historical style.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "granola",
+      "name": "Granola",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "Patagonia fleece vest",
+        "Birkenstocks with socks",
+        "hemp overalls outfit",
+        "flannel and hiking boots"
+      ],
+      "core": [
+        "outdoorsy",
+        "boho"
+      ],
+      "support": [
+        "cozy",
+        "utility"
+      ],
+      "signals": {
+        "motif": [
+          "floral",
+          "tie dye",
+          "hiking",
+          "flannel"
+        ],
+        "shape": [
+          "fleece",
+          "flannel",
+          "cargo pants"
+        ],
+        "texture": [
+          "fleece",
+          "hemp"
+        ]
+      },
+      "stars": [
+        "outdoorsy",
+        "boho",
+        "cozy",
+        "utility"
+      ],
+      "signature": "Practical outdoor pieces mixed with relaxed natural/craft styling: trail sandals, flannel, fleece, woven textures, or hiking references.",
+      "guardrail": "Earth colors alone are not Outdoorsy; technical gear alone belongs nearer Gorpcore.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "gorpcore",
+      "name": "Gorpcore",
+      "house": "earth",
+      "blurb": "",
+      "searchTerms": [
+        "Arc'teryx shell jacket",
+        "trail runners outfit",
+        "technical fleece layering",
+        "hiking pants street style"
+      ],
+      "core": [
+        "outdoorsy",
+        "utility"
+      ],
+      "support": [
+        "sporty",
+        "streetwear"
+      ],
+      "signals": {
+        "motif": [
+          "color block",
+          "gore tex",
+          "trail",
+          "hiking",
+          "puffer"
+        ],
+        "shape": [
+          "fleece",
+          "puffer",
+          "shell jacket",
+          "hiking boots"
+        ],
+        "texture": [
+          "fleece"
+        ]
+      },
+      "stars": [
+        "outdoorsy",
+        "utility",
+        "sporty",
+        "streetwear"
+      ],
+      "signature": "Repeated technical outdoor clothing evidence: shells, hiking footwear, trail/puffer/fleece systems, or technical fastening/storage details.",
+      "guardrail": "Sporty is supporting; a puffer jacket alone is insufficient.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "dopamine-dressing",
+      "name": "Dopamine dressing",
+      "house": "bright",
+      "blurb": "",
+      "searchTerms": [
+        "color block outfit ideas",
+        "hot pink and orange",
+        "bright mismatched prints",
+        "rainbow knit sweater"
+      ],
+      "core": [
+        "maximalist"
+      ],
+      "support": [
+        "quirky",
+        "cute",
+        "glam"
+      ],
+      "signals": {
+        "motif": [
+          "color block",
+          "rainbow",
+          "graphic"
+        ],
+        "palette": [
+          "hot pink",
+          "yellow",
+          "orange",
+          "red",
+          "blue",
+          "green"
+        ]
+      },
+      "stars": [
+        "maximalist",
+        "quirky",
+        "cute",
+        "glam"
+      ],
+      "signature": "Repeated high-impact color play: bold contrasting palettes, graphic clashes, or deliberately bright statement pieces.",
+      "guardrail": "Quirky alone is insufficient; avoid claiming a psychological effect from clothing tags.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "kidcore",
+      "name": "Kidcore",
+      "house": "bright",
+      "blurb": "",
+      "searchTerms": [
+        "primary color overalls",
+        "cartoon print sweatshirt",
+        "smiley face accessories",
+        "rainbow beaded jewelry"
+      ],
+      "core": [
+        "cute",
+        "quirky"
+      ],
+      "support": [
+        "retro",
+        "maximalist",
+        "geeky"
+      ],
+      "signals": {
+        "motif": [
+          "toy",
+          "toys",
+          "crayon",
+          "crayons",
+          "teddy bear",
+          "building blocks",
+          "rubber duck",
+          "playground",
+          "care bears",
+          "sesame street"
+        ],
+        "palette": [
+          "yellow",
+          "red",
+          "blue",
+          "hot pink"
+        ],
+        "shape": [
+          "overalls",
+          "pinafore"
+        ]
+      },
+      "stars": [
+        "cute",
+        "quirky",
+        "retro",
+        "maximalist",
+        "geeky"
+      ],
+      "signature": "Repeated explicitly childhood/play-themed motifs, with playful shape or color corroboration; Cute and Quirky context on the same piece.",
+      "guardrail": "Generic cartoons, novelty, animals, robots, comics, and rainbows alone are insufficient. Named characters are examples, not a required brand list.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "cute",
+          "quirky"
+        ],
+        "evidenceAny": [
+          "motif"
+        ]
+      }
+    },
+    {
+      "id": "clowncore",
+      "name": "Clowncore",
+      "house": "bright",
+      "blurb": "",
+      "searchTerms": [
+        "ruffle collar top",
+        "harlequin diamond print",
+        "oversized polka dot pants",
+        "pastel clown cardigan"
+      ],
+      "core": [
+        "theatrical",
+        "quirky"
+      ],
+      "support": [
+        "maximalist",
+        "cute",
+        "retro"
+      ],
+      "signals": {
+        "motif": [
+          "polka dot",
+          "striped",
+          "checkered",
+          "clown",
+          "jester",
+          "harlequin"
+        ],
+        "shape": [
+          "collar top"
+        ],
+        "detail": [
+          "ruffle collar"
+        ]
+      },
+      "stars": [
+        "theatrical",
+        "quirky",
+        "maximalist",
+        "cute",
+        "retro"
+      ],
+      "signature": "Repeated clown/jester or exaggerated costume-like construction: harlequin, ruff collars, pom-poms, oversized contrast, or deliberate clown motifs.",
+      "guardrail": "A polka-dot blouse alone is not enough.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "y2k-glam",
+      "name": "Y2K glam",
+      "house": "bright",
+      "blurb": "",
+      "searchTerms": [
+        "rhinestone baby tee",
+        "velour tracksuit set",
+        "butterfly hair clips",
+        "low rise mini skirt"
+      ],
+      "core": [
+        "y2k",
+        "glam"
+      ],
+      "support": [
+        "cute",
+        "sexy",
+        "quirky"
+      ],
+      "signals": {
+        "motif": [
+          "animal print",
+          "hearts",
+          "butterfly",
+          "rhinestone",
+          "glitter"
+        ],
+        "shape": [
+          "baby tee",
+          "mini skirt",
+          "low rise"
+        ],
+        "texture": [
+          "velour"
+        ]
+      },
+      "stars": [
+        "y2k",
+        "glam",
+        "cute",
+        "sexy",
+        "quirky"
+      ],
+      "signature": "Early-2000s glamour cues recur: rhinestone graphics, velour, butterfly motifs with period shapes, baby tees, or low-rise styling.",
+      "guardrail": "Cute is optional; a butterfly by itself is not period evidence.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "eclectic",
+      "name": "Eclectic",
+      "house": "bright",
+      "blurb": "",
+      "searchTerms": [
+        "pattern mixing outfit ideas",
+        "vintage kimono jacket",
+        "maximalist thrift layering",
+        "embroidered vest mix"
+      ],
+      "core": [],
+      "support": [],
+      "signals": {},
+      "stars": [
+        "maximalist",
+        "vintage",
+        "boho"
+      ],
+      "signature": "Repeated combinations of materially different influences across pieces or saved outfits, with visible contrast rather than only many labels.",
+      "guardrail": "Do not require Boho or Vintage, and do not reward raw tag count as aesthetic diversity.",
+      "anyCore": false,
+      "pending": "Cross-style diversity needs an independently tested derived measure; do not substitute raw tag count.",
+      "guards": {}
+    },
+    {
+      "id": "mob-wife",
+      "name": "Mob wife",
+      "house": "bright",
+      "blurb": "",
+      "searchTerms": [
+        "faux fur coat leopard",
+        "gold chain jewelry stack",
+        "black bodysuit fur",
+        "animal print sunglasses"
+      ],
+      "core": [
+        "glam",
+        "maximalist"
+      ],
+      "support": [
+        "sexy",
+        "vintage",
+        "elegant"
+      ],
+      "signals": {
+        "motif": [
+          "animal print",
+          "fur",
+          "leopard",
+          "gold",
+          "faux fur"
+        ],
+        "shape": [
+          "fur coat",
+          "bodysuit"
+        ]
+      },
+      "stars": [
+        "glam",
+        "maximalist",
+        "sexy",
+        "vintage",
+        "elegant"
+      ],
+      "signature": "Repeated opulent styling: large-scale animal patterns, faux-fur volume, substantial gold-tone ornament, or dramatic accessories.",
+      "guardrail": "Do not infer ethnicity, occupation, wealth, or real-fur content; consider a less stereotype-dependent label later.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "holiday-sparkle",
+      "name": "Holiday sparkle",
+      "house": "bright",
+      "blurb": "",
+      "searchTerms": [
+        "sequin party skirt",
+        "velvet bow hair clip",
+        "metallic holiday knit",
+        "red satin party dress"
+      ],
+      "core": [
+        "holiday-themed",
+        "glam"
+      ],
+      "support": [
+        "cute",
+        "quirky",
+        "theatrical"
+      ],
+      "signals": {
+        "motif": [
+          "novelty print",
+          "christmas",
+          "sparkle",
+          "festive",
+          "snowflake"
+        ],
+        "texture": [
+          "sequin"
+        ]
+      },
+      "stars": [
+        "holiday-themed",
+        "glam",
+        "cute",
+        "quirky",
+        "theatrical"
+      ],
+      "signature": "Explicit seasonal motifs paired with sparkle/metallic/party styling across multiple pieces.",
+      "guardrail": "A sequin party dress with no holiday connection is not Holiday sparkle.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "festival-season",
+      "name": "Festival season",
+      "house": "bright",
+      "blurb": "",
+      "searchTerms": [
+        "crochet festival top",
+        "fringe suede shorts",
+        "body chain jewelry",
+        "glitter festival makeup"
+      ],
+      "core": [
+        "festival"
+      ],
+      "support": [
+        "boho",
+        "glam",
+        "quirky",
+        "edgy"
+      ],
+      "signals": {
+        "motif": [
+          "tie dye",
+          "ombre",
+          "festival",
+          "body chain"
+        ],
+        "texture": [
+          "crochet",
+          "sequin",
+          "mesh"
+        ],
+        "detail": [
+          "fringe",
+          "body chain"
+        ],
+        "historical": [
+          "festival"
+        ]
+      },
+      "stars": [
+        "festival",
+        "boho",
+        "glam",
+        "quirky",
+        "edgy"
+      ],
+      "signature": "Festival-use evidence plus repeated styling cues such as fringe, body chains, crochet, statement layering, or embellished practical pieces.",
+      "guardrail": "Festival is an Occasion source, not a missing Aesthetic; do not make Boho mandatory.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "rave",
+      "name": "Rave",
+      "house": "bright",
+      "blurb": "",
+      "searchTerms": [
+        "holographic rave outfit",
+        "mesh bodysuit neon",
+        "platform rave boots",
+        "LED festival accessories"
+      ],
+      "core": [
+        "festival"
+      ],
+      "support": [
+        "y2k",
+        "edgy",
+        "sexy",
+        "sporty"
+      ],
+      "signals": {
+        "motif": [
+          "ombre",
+          "neon",
+          "holographic"
+        ],
+        "shape": [
+          "crop top",
+          "bodysuit"
+        ],
+        "historical": [
+          "rave"
+        ],
+        "texture": [
+          "mesh",
+          "fishnet"
+        ]
+      },
+      "stars": [
+        "festival",
+        "y2k",
+        "edgy",
+        "sexy",
+        "sporty"
+      ],
+      "signature": "Repeated dance-club/rave evidence: neon, holographic/reflective finishes, mesh/fishnet, utility accessories, or explicit rave motifs.",
+      "guardrail": "Sexy and Y2K are optional; one neon garment alone is insufficient.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "office-siren",
+      "name": "Office siren",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "fitted pencil skirt outfit",
+        "sheer button-up blouse",
+        "kitten heels office",
+        "rimless glasses office look"
+      ],
+      "core": [
+        "professional",
+        "sexy"
+      ],
+      "support": [
+        "minimalist",
+        "elegant",
+        "edgy"
+      ],
+      "signals": {
+        "shape": [
+          "pencil skirt",
+          "blazer"
+        ],
+        "motif": [
+          "pencil",
+          "sheer",
+          "kitten heel"
+        ]
+      },
+      "stars": [
+        "professional",
+        "sexy",
+        "minimalist",
+        "elegant",
+        "edgy"
+      ],
+      "signature": "Repeated intentional contrast of office tailoring with body-conscious, sheer, sharp eyewear, or sleek evening-style elements.",
+      "guardrail": "Do not infer workplace behavior or require Minimalist.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "business-casual",
+      "name": "Business casual",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "smart trousers and blouse",
+        "loafers work outfit",
+        "knit polo office",
+        "capsule work wardrobe"
+      ],
+      "core": [
+        "professional",
+        "classic"
+      ],
+      "support": [
+        "elegant",
+        "preppy",
+        "minimalist"
+      ],
+      "signals": {
+        "motif": [
+          "striped",
+          "tailored",
+          "slacks"
+        ],
+        "shape": [
+          "blazer",
+          "loafers"
+        ]
+      },
+      "stars": [
+        "professional",
+        "classic",
+        "elegant",
+        "preppy",
+        "minimalist"
+      ],
+      "signature": "Repeated less-formal work tailoring: trousers, blouses, relaxed blazers, fine knits, or loafers.",
+      "guardrail": "The word work may refer to workwear or a seller slogan; it is not enough alone.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "power-suit",
+      "name": "Power suit",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "oversized women's suit",
+        "double breasted blazer set",
+        "wide leg suit trousers",
+        "pinstripe suit women"
+      ],
+      "core": [
+        "professional"
+      ],
+      "support": [
+        "elegant",
+        "masculine",
+        "glam"
+      ],
+      "signals": {
+        "motif": [
+          "plaid",
+          "suit",
+          "tailored",
+          "power",
+          "pinstripe"
+        ],
+        "shape": [
+          "suit",
+          "blazer"
+        ]
+      },
+      "stars": [
+        "professional",
+        "elegant",
+        "masculine",
+        "glam"
+      ],
+      "signature": "Coordinated suit evidence or substantial sharp tailoring across blazers, trousers/skirts, and structured pieces.",
+      "guardrail": "Masculine is supporting, not essential; one blazer is not a Power suit wardrobe.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "quiet-luxury",
+      "name": "Quiet luxury",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "cashmere neutral outfits",
+        "camel wool coat",
+        "minimal gold jewelry",
+        "tailored cream trousers"
+      ],
+      "core": [
+        "minimalist",
+        "elegant"
+      ],
+      "support": [
+        "classic",
+        "cozy"
+      ],
+      "signals": {
+        "texture": [
+          "silk",
+          "cashmere",
+          "wool",
+          "fine knit"
+        ],
+        "shape": [
+          "tailored trousers",
+          "structured coat",
+          "draped blouse"
+        ]
+      },
+      "stars": [
+        "minimalist",
+        "elegant",
+        "classic",
+        "cozy"
+      ],
+      "signature": "Repeated restrained styling with clean construction, fine-looking textures, and little overt ornament; multiple corroborating pieces.",
+      "guardrail": "Do not infer luxury/quality/wealth from fiber claims; optional clearer name: Understated elegance.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "scandi-minimal",
+      "name": "Scandi minimal",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "oversized neutral knit",
+        "Copenhagen street style",
+        "wide leg trousers loafers",
+        "black and white basics"
+      ],
+      "core": [
+        "minimalist",
+        "cozy"
+      ],
+      "support": [
+        "classic",
+        "elegant"
+      ],
+      "signals": {
+        "shape": [
+          "oversized sweater",
+          "wide pants"
+        ],
+        "texture": [
+          "knit",
+          "wool"
+        ]
+      },
+      "stars": [
+        "minimalist",
+        "cozy",
+        "classic",
+        "elegant"
+      ],
+      "signature": "Repeated relaxed clean lines, tactile knits, practical layering, and uncluttered silhouettes.",
+      "guardrail": "Each signature piece must itself be Minimalist, with a clean relaxed shape or a Cozy knit. A Cozy tag alone cannot qualify.",
+      "anyCore": false,
+      "guards": {
+        "pieceAll": [
+          "minimalist"
+        ],
+        "context": "scandi"
+      }
+    },
+    {
+      "id": "normcore",
+      "name": "Normcore",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "plain white tee jeans",
+        "grey crewneck sweatshirt",
+        "dad sneakers outfit",
+        "simple everyday basics"
+      ],
+      "core": [
+        "classic",
+        "minimalist"
+      ],
+      "support": [
+        "sporty",
+        "cozy"
+      ],
+      "signals": {
+        "shape": [
+          "straight jeans",
+          "plain tee",
+          "jeans",
+          "sneakers",
+          "straight trousers"
+        ]
+      },
+      "stars": [
+        "classic",
+        "minimalist",
+        "sporty",
+        "cozy"
+      ],
+      "signature": "Repeated understated everyday casual combinations: plain tees, straightforward jeans/trousers, simple knits, and low-key sneakers.",
+      "guardrail": "Explicit Everyday basics remain excluded; missing detail tags do not prove Plain or Normcore.",
+      "anyCore": true,
+      "guards": {}
+    },
+    {
+      "id": "menswear",
+      "name": "Menswear",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "borrowed boyfriend blazer",
+        "oxford shirt and tie",
+        "tweed vest trousers",
+        "brogues women outfit"
+      ],
+      "core": [
+        "masculine",
+        "classic"
+      ],
+      "support": [
+        "preppy",
+        "professional",
+        "vintage"
+      ],
+      "signals": {
+        "motif": [
+          "plaid",
+          "striped",
+          "oxford",
+          "brogue"
+        ],
+        "shape": [
+          "button up",
+          "blazer",
+          "vest"
+        ],
+        "texture": [
+          "tweed"
+        ]
+      },
+      "stars": [
+        "masculine",
+        "classic",
+        "preppy",
+        "professional",
+        "vintage"
+      ],
+      "signature": "Repeated menswear-inspired construction: Oxford shirts, waistcoats, brogues, suiting, or tailored trousers.",
+      "guardrail": "This describes garment styling, not the user's gender; possible label: Menswear-inspired tailoring.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "workwear",
+      "name": "Workwear",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "carpenter pants outfit",
+        "chore coat street style",
+        "canvas work jacket",
+        "Carhartt women outfit"
+      ],
+      "core": [
+        "utility"
+      ],
+      "support": [
+        "masculine",
+        "classic",
+        "outdoorsy"
+      ],
+      "signals": {
+        "shape": [
+          "chore jacket",
+          "overalls",
+          "cargo pants",
+          "work boots"
+        ],
+        "texture": [
+          "canvas",
+          "duck"
+        ],
+        "detail": [
+          "carpenter",
+          "reinforced",
+          "utility pockets",
+          "cargo pockets"
+        ],
+        "motif": [
+          "utility",
+          "chore"
+        ]
+      },
+      "stars": [
+        "utility",
+        "masculine",
+        "classic",
+        "outdoorsy"
+      ],
+      "signature": "Repeated durable/work-derived construction: chore jackets, carpenter pockets, overalls, canvas/duck references, or practical reinforced shapes.",
+      "guardrail": "Masculine is optional; office work is not Workwear.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "techwear",
+      "name": "Techwear",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "black tactical cargo pants",
+        "waterproof shell jacket",
+        "strap harness vest",
+        "utility techwear women"
+      ],
+      "core": [
+        "utility",
+        "streetwear"
+      ],
+      "support": [
+        "edgy",
+        "outdoorsy",
+        "sporty"
+      ],
+      "signals": {
+        "shape": [
+          "shell jacket",
+          "cargo pants"
+        ],
+        "motif": [
+          "tactical",
+          "waterproof",
+          "cargo",
+          "technical"
+        ],
+        "detail": [
+          "modular",
+          "articulated",
+          "utility pockets",
+          "cargo pockets",
+          "straps"
+        ],
+        "texture": [
+          "waterproof",
+          "reflective",
+          "technical"
+        ]
+      },
+      "stars": [
+        "utility",
+        "streetwear",
+        "edgy",
+        "outdoorsy",
+        "sporty"
+      ],
+      "signature": "Repeated technical urban construction: articulated cargo storage, shells, modular straps, waterproof/technical surfaces, or functional fastening systems.",
+      "guardrail": "Edgy is optional; a robot graphic or Geeky tag is not Techwear.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "skater",
+      "name": "Skater",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "baggy jeans skate shoes",
+        "checkered Vans outfit",
+        "oversized graphic hoodie",
+        "beanie skater style"
+      ],
+      "core": [
+        "streetwear",
+        "sporty"
+      ],
+      "support": [
+        "grunge",
+        "retro",
+        "quirky"
+      ],
+      "signals": {
+        "motif": [
+          "slogan",
+          "checkered",
+          "baggy"
+        ],
+        "shape": [
+          "hoodie",
+          "baggy pants"
+        ],
+        "historical": [
+          "skate"
+        ]
+      },
+      "stars": [
+        "streetwear",
+        "sporty",
+        "grunge",
+        "retro",
+        "quirky"
+      ],
+      "signature": "Repeated skate-linked combinations: roomy trousers, skate footwear, hoodies, or skate graphics with practical street styling.",
+      "guardrail": "A graphic tee or checkerboard alone is insufficient; Grunge is optional.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "athleisure",
+      "name": "Athleisure",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "matching leggings set",
+        "oversized sweatshirt leggings",
+        "sports bra layering",
+        "jogger and sneakers"
+      ],
+      "core": [
+        "sporty"
+      ],
+      "support": [
+        "cozy",
+        "minimalist",
+        "streetwear"
+      ],
+      "signals": {
+        "motif": [
+          "color block",
+          "yoga",
+          "athletic",
+          "jogger",
+          "legging"
+        ],
+        "shape": [
+          "leggings",
+          "sports bra",
+          "sweatshirt"
+        ]
+      },
+      "stars": [
+        "sporty",
+        "cozy",
+        "minimalist",
+        "streetwear"
+      ],
+      "signature": "Repeated exercise-derived pieces styled for casual wear: leggings, sports bras, track/jogger shapes, performance knits, or sneakers.",
+      "guardrail": "Minimalist is optional; distinguish deliberate sport-derived styling from any comfortable outfit.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "blokecore",
+      "name": "Blokecore",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "retro football jersey",
+        "track pants Sambas",
+        "soccer jersey outfit",
+        "vintage team kit"
+      ],
+      "core": [
+        "sporty",
+        "retro"
+      ],
+      "support": [
+        "streetwear",
+        "classic"
+      ],
+      "signals": {
+        "motif": [
+          "striped",
+          "color block",
+          "jersey",
+          "track"
+        ],
+        "shape": [
+          "jersey",
+          "track pants"
+        ],
+        "historical": [
+          "football",
+          "soccer"
+        ]
+      },
+      "stars": [
+        "sporty",
+        "retro",
+        "streetwear",
+        "classic"
+      ],
+      "signature": "Football/soccer jersey or related sportswear cluster: team graphics, track layers, terrace-style footwear, or period sport silhouettes.",
+      "guardrail": "Do not infer gender or fandom; unrelated striped tops are insufficient.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "y2k-street",
+      "name": "Y2K street",
+      "house": "city",
+      "blurb": "",
+      "searchTerms": [
+        "baggy cargo jeans",
+        "cropped zip hoodie",
+        "rhinestone logo tee",
+        "2000s streetwear women"
+      ],
+      "core": [
+        "y2k",
+        "streetwear"
+      ],
+      "support": [
+        "edgy",
+        "sporty",
+        "geeky"
+      ],
+      "signals": {
+        "motif": [
+          "slogan",
+          "baggy",
+          "cargo",
+          "rhinestone"
+        ],
+        "shape": [
+          "baggy jeans",
+          "hoodie",
+          "baby tee"
+        ]
+      },
+      "stars": [
+        "y2k",
+        "streetwear",
+        "edgy",
+        "sporty",
+        "geeky"
+      ],
+      "signature": "Repeated early-2000s street cues: baggy/low-rise denim, baby tees, rhinestone/logotype graphics, or period accessories.",
+      "guardrail": "A logo or cargo pocket alone is not enough.",
+      "anyCore": false,
+      "guards": {}
+    },
+    {
+      "id": "geek-chic",
+      "name": "Geek chic",
+      "core": [
+        "geeky"
+      ],
+      "support": [
+        "quirky",
+        "preppy",
+        "classic",
+        "cute"
+      ],
+      "signals": {
+        "motif": [
+          "robot",
+          "keyboard",
+          "delete key",
+          "dna",
+          "ruler",
+          "pencil",
+          "bitcoin",
+          "crypto",
+          "pixel heart",
+          "alien",
+          "spaceship",
+          "planet",
+          "saturn",
+          "book",
+          "pac man",
+          "tetris",
+          "science",
+          "chemistry"
+        ]
+      },
+      "house": "bright",
+      "stars": [
+        "geeky",
+        "quirky",
+        "preppy",
+        "classic",
+        "cute"
+      ],
+      "signature": "Repeated specific intellectual/fandom motifs: computing, science, games, books, math, or recognizable nerd-culture references.",
+      "guardrail": "Do not require Quirky; exclude pencil-skirt silhouettes, device compatibility names, and vague science-themed product names without corroboration.",
+      "anyCore": false,
+      "guards": {},
+      "searchTerms": [
+        "retro oversized glasses",
+        "nerdy cardigan sweater vest",
+        "graphic tee blazer",
+        "bookish collared shirt"
+      ]
+    }
+  ]
+}

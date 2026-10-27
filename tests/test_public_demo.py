@@ -62,6 +62,33 @@ class PublicDemoTests(unittest.TestCase):
         self.assertEqual(len(photos), 12)
         self.assertTrue(all(p.suffix == '.webp' for p in photos), 'SiteGround must serve the static photos directly')
 
+    def test_sizes_require_explicit_review_opt_in_and_never_export_profile(self):
+        ordinary = json.loads((self.review / 'review.json').read_text())
+        self.assertTrue(all('size' not in p['public'] for p in ordinary['pieces']))
+        review = self.root / 'sizes-review'
+        prepare(self.store, 'collection-imaginary', review, include_sizes=True)
+        data = json.loads((review / 'review.json').read_text())
+        self.assertTrue(data['includeSizes'])
+        self.assertEqual(data['pieces'][0]['public']['size'], 'M')
+        data['approved'] = True
+        for piece in data['pieces']:
+            piece['photos'][0]['approved'] = True
+        (review / 'review.json').write_text(json.dumps(data))
+        target = self.root / 'sizes-site'
+        build(self.store, review, target, site='dev')
+        page = (target / 'index.html').read_text()
+        catalog = json.loads(re.search(r'<script[^>]*id="catalog"[^>]*>(.*?)</script>', page, re.S).group(1))
+        self.assertEqual(catalog[0]['size'], 'M')
+        self.assertEqual(catalog[0]['sizeKind'], 'clothing')
+        pub = json.loads(re.search(r'<script[^>]*id="pubdata"[^>]*>(.*?)</script>', page, re.S).group(1))
+        self.assertNotIn('wear', pub['profile'])
+        self.assertNotIn('measurements', pub)
+        self.assertNotIn('PRIVATE BRA', page)
+        data['includeSizes'] = False
+        (review / 'review.json').write_text(json.dumps(data))
+        with self.assertRaisesRegex(ValueError, 'details changed'):
+            build(self.store, review, self.root / 'tampered-size-review', site='dev')
+
     def test_changes_after_review_require_a_new_review(self):
         self.approve()
         self.store.set_record('custom', 'later', {'name': 'Changed since review', 'meta': 'Tops'})

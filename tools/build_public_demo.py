@@ -8,7 +8,8 @@ Build:   python3 tools/build_public_demo.py --data DATA --review-dir REVIEW --ou
 
 REVIEW and OUT must be new folders outside the source tree. The review folder is
 private: it contains source asset IDs and candidate photos. Nothing is uploaded.
-The default wardrobe mode publishes selected pieces only. Showcase also includes
+The default wardrobe mode publishes selected pieces only. The explicit --include-sizes option publishes garment sizes,
+never body measurements or personal fit settings. Showcase also includes
 eligible saved outfits and exact wear dates; its mode is recorded in the review.
 All active pieces may be selected for the owner's dev site. Pieces without photos
 are allowed there, while collection demos still require approved photos.
@@ -58,7 +59,7 @@ def wear_dates(value):
     return sorted(set(dates))
 
 
-def public_fields(source, mode='wardrobe'):
+def public_fields(source, mode='wardrobe', include_sizes=False):
     """Allow known style fields only; never copy the source record wholesale."""
     result = {}
     for key in ('name', 'meta', 'sub', 'section'):
@@ -82,6 +83,14 @@ def public_fields(source, mode='wardrobe'):
     for key in OTHER_BOOL:
         if source.get(key) is True:
             result[key] = True
+    if include_sizes:
+        for key in ('size', 'fitsLike'):
+            value = source.get(key)
+            if isinstance(value, str) and value.strip() and len(value) <= 40:
+                result[key] = value.strip()
+        kind = source.get('sizeKind')
+        if kind in ('clothing', 'shoe', 'ring', 'gauge', 'onesize', 'none', 'glasses'):
+            result['sizeKind'] = kind
     if mode == 'showcase':
         if source.get('fav') is True:
             result['fav'] = True
@@ -154,7 +163,7 @@ def selected_pieces(state, collection_id):
     cols = state['collections']
     if collection_id == ALL_ACTIVE:
         ids = [item['id'] for item in state['base']['catalog']] + ['c-' + key for key in cols['custom']]
-        collection = {'name': "StephTheGeek's closet", 'description': '', 'ids': ids}
+        collection = {'name': "stephthegeek's closet", 'description': '', 'ids': ids}
     else:
         collection = cols['profile'].get(collection_id)
         if not isinstance(collection, dict) or collection.get('kind') != 'piece-collection' or collection.get('deleted'):
@@ -265,7 +274,7 @@ def checked_folder(path):
     return path
 
 
-def prepare(store, collection_id, folder, mode='wardrobe'):
+def prepare(store, collection_id, folder, mode='wardrobe', include_sizes=False):
     if mode not in MODES:
         raise ValueError('Choose wardrobe or showcase export mode')
     state = store.state()
@@ -274,10 +283,10 @@ def prepare(store, collection_id, folder, mode='wardrobe'):
     entries = []
     for piece_id, piece in pieces:
         entries.append({'sourceId': piece_id, 'include': not (piece.get('hidden') or piece.get('removed')),
-                        'public': public_fields(piece, mode), 'photos': photo_candidates(piece) or ([fallbacks[piece_id]] if piece_id in fallbacks else [])})
+                        'public': public_fields(piece, mode, include_sizes), 'photos': photo_candidates(piece) or ([fallbacks[piece_id]] if piece_id in fallbacks else [])})
     allowed_ids = {entry['sourceId'] for entry in entries if entry['include']}
     outfits = reviewed_outfits(state, allowed_ids) if mode == 'showcase' else []
-    review = {'format': 'closet-lint-public-demo/v1', 'approved': False, 'mode': mode,
+    review = {'format': 'closet-lint-public-demo/v1', 'approved': False, 'mode': mode, 'includeSizes': bool(include_sizes),
               'sourceInstance': state['instance'], 'sourceRevision': state['revision'],
               'collection': {'sourceId': collection_id, 'name': collection['name'],
                              'description': str(collection.get('description', ''))[:1000]},
@@ -343,7 +352,7 @@ def build(store, review_folder, out, site='generic', link_peer=False):
     for index, (entry, (_, source)) in enumerate(zip(review['pieces'], current), 1):
         if not entry.get('include'):
             continue
-        if entry.get('public') != public_fields(source, mode):
+        if entry.get('public') != public_fields(source, mode, review.get('includeSizes') is True):
             raise ValueError('Piece details changed since review')
         photos = []
         allowed = photo_candidates(source) or ([fallbacks[entry['sourceId']]] if entry['sourceId'] in fallbacks else [])
@@ -422,6 +431,7 @@ def main():
     parser.add_argument('--collection-id')
     parser.add_argument('--all-pieces', action='store_true', help='Prepare all active pieces for the personal dev playground')
     parser.add_argument('--mode', choices=MODES, default='wardrobe', help='Wardrobe only, or wardrobe with saved outfits and exact wear dates')
+    parser.add_argument('--include-sizes', action='store_true', help='Explicitly include garment sizes and size types in the public review; never body measurements or personal fit settings')
     parser.add_argument('--site', choices=SITES, default='generic', help='Public notice and cross-link for a specific site (build only)')
     parser.add_argument('--link-peer', action='store_true', help='Show the link to the other site once it is ready for visitors')
     parser.add_argument('--review-dir', type=Path, required=True)
@@ -443,7 +453,7 @@ def main():
             print(f'Built a local static site with {count} approved pieces: {out}')
         else:
             folder = checked_folder(args.review_dir)
-            count = prepare(store, ALL_ACTIVE if args.all_pieces else args.collection_id, folder, args.mode)
+            count = prepare(store, ALL_ACTIVE if args.all_pieces else args.collection_id, folder, args.mode, args.include_sizes)
             print(f'Prepared {count} candidates for private review: {folder}')
     except (ValueError, OSError, KeyError, TypeError, sqlite3.Error) as error:
         parser.exit(2, f'Could not prepare the public demo: {error}\n')

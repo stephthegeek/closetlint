@@ -5,7 +5,13 @@
   if (!config) return;
   var cache = {}, listeners = {}, tail = Promise.resolve(), busy = 0, failed = false;
   var board = config.board, boardDirty = false, boardTimer = null, restoring = false;
-  var boardRetries = 0, boardError = false;
+  var boardRetries = 0, boardError = false, boardFlight = null;
+  var saveListeners = [], boardStatus = {phase: 'saved', error: ''}, failedRecords = {};
+  function boardState(phase, error) {
+    boardStatus = {phase: phase, error: error || ''};
+    saveListeners.slice().forEach(function (fn) { try { fn(copy(boardStatus)); } catch (e) {} });
+  }
+  function hasFailedWrites() { return failed || Object.keys(failedRecords).length > 0; }
   function copy(value) { return JSON.parse(JSON.stringify(value)); }
   var sessionRefresh = null;
   function refreshSession() {
@@ -40,10 +46,27 @@
   function jsonRequest(path, method, value) {
     return request(path, {method: method, headers: {'Content-Type': 'application/json'}, body: value === undefined ? undefined : JSON.stringify(value)}).then(function (r) { return r.json(); });
   }
-  function write(job, recoverable) {
+  function sourcePath(batch) { return '/api/import/sources?instance=' + encodeURIComponent(config.instance) + '&batch=' + encodeURIComponent(batch); }
+  function importSourceRequest(path, options, blob) {
+    var controller = new AbortController(), timer = setTimeout(function () { controller.abort(); }, 40000);
+    return request(path, Object.assign({}, options, {signal: controller.signal})).then(function (r) { return blob ? r.blob() : r.json(); }).catch(function (error) {
+      if (error.name === 'AbortError') throw new Error('The upload request timed out. Check the server, then retry; completed uploads will not be duplicated.');
+      if (error.status === 404) throw new Error('Restart the local server to use source uploads, then retry.');
+      throw error;
+    }).finally(function () { clearTimeout(timer); });
+  }
+  function importRead(path) {
+    var controller = new AbortController(), timer = setTimeout(function () { controller.abort(); }, 40000);
+    return request(path, {signal: controller.signal}).then(function (r) { return r.json(); }).catch(function (error) {
+      if (error.name === 'AbortError') throw new Error('The import check timed out. Check the local server, then retry; the batch ID is unchanged.');
+      if (error.status === 404) throw new Error('Restart the local server to load direct-import setup, then retry this check.');
+      throw error;
+    }).finally(function () { clearTimeout(timer); });
+  }
+  function write(job, recoverable, key) {
     busy++;
     var result = tail.then(job);
-    tail = result.then(function () { busy--; }, function () { busy--; if (!recoverable) failed = true; });
+    tail = result.then(function () { busy--; if (key) delete failedRecords[key]; }, function () { busy--; if (key) failedRecords[key] = true; else if (!recoverable) failed = true; });
     return result;
   }
   function emit(col) {
@@ -63,10 +86,10 @@
         return {
           set: function (value) {
             var record = copy(value);
-            return write(function () { return jsonRequest(path, 'PUT', record).then(function () { cache[col][id] = record; emit(col); }); });
+            return write(function () { return jsonRequest(path, 'PUT', record).then(function () { cache[col][id] = record; emit(col); }); }, false, path);
           },
           delete: function () {
-            return write(function () { return jsonRequest(path, 'DELETE').then(function () { delete cache[col][id]; emit(col); }); });
+            return write(function () { return jsonRequest(path, 'DELETE').then(function () { delete cache[col][id]; emit(col); }); }, false, path);
           }
         };
       }
@@ -80,28 +103,38 @@
   }
   function boardWrite() {
     clearTimeout(boardTimer);
+    if (boardFlight) return boardFlight;
     if (!boardDirty) return tail;
     var value = copy(board); boardDirty = false;
-    return write(function () { return jsonRequest('/api/board', 'PUT', value); }, true).then(function () {
+    boardState('saving');
+    boardFlight = write(function () { return jsonRequest('/api/board', 'PUT', value); }, true).then(function () {
       boardRetries = 0;
       if (boardError && !boardDirty) { boardError = false; notify('Board autosave recovered.'); }
-    }).catch(function (error) { boardDirty = true; throw error; });
+      boardState(boardDirty ? 'pending' : 'saved');
+    }).catch(function (error) {
+      boardDirty = true; boardError = true; boardState('error', error.message || 'The local service is unavailable.');
+      throw error;
+    }).finally(function () {
+      boardFlight = null;
+      if (boardDirty && boardStatus.phase === 'pending') saveBoardSoon(200);
+    });
+    return boardFlight;
   }
   function saveBoardSoon(delay) {
     clearTimeout(boardTimer);
     boardTimer = setTimeout(function () {
-      if (restoring) return;
+      if (restoring || boardFlight) return;
       boardWrite().catch(function (error) {
         boardError = true;
         var retry = (!error.status || error.status >= 500) && boardRetries < 2;
-        notify('Board not saved yet. ' + (error.message || 'The local service is unavailable.') + ' Keep this tab open.' + (retry ? ' Retrying…' : ' Move a piece to try saving again.'));
-        if (retry) { boardRetries++; saveBoardSoon(boardRetries * 1500); }
+        notify('Board not saved yet. ' + (error.message || 'The local service is unavailable.') + ' Keep this tab open.' + (retry ? ' Retrying…' : ' Use Retry draft save on the board.'));
+        if (retry) { boardRetries++; boardState('retrying', error.message); saveBoardSoon(boardRetries * 1500); }
       });
     }, delay);
   }
   function flush() {
     return boardWrite().then(function () { return tail; }).then(function () {
-      if (failed) throw new Error('A change could not be saved. Keep this tab open and check local storage before backing up or restoring.');
+      if (hasFailedWrites()) throw new Error('A change could not be saved. Keep this tab open and check local storage before backing up or restoring.');
       if (boardDirty || busy) return flush();
     });
   }
@@ -126,9 +159,20 @@
       if (restoring) return;
       board = copy(value); runtime.board = board; boardDirty = true;
       boardRetries = 0;
+      boardState(boardFlight ? 'saving' : 'pending');
       saveBoardSoon(200);
     },
+    boardSaveStatus: function () { return copy(boardStatus); },
+    watchBoardSave: function (fn) { saveListeners.push(fn); try { fn(copy(boardStatus)); } catch (e) {} return function () { saveListeners = saveListeners.filter(function (f) { return f !== fn; }); }; },
+    retryBoardSave: function () { if (!boardDirty || restoring || boardFlight) return; boardRetries = 0; boardState('retrying'); saveBoardSoon(0); },
     flush: flush,
+    importSetup: function (batch) { return importRead('/api/import/setup?batch=' + encodeURIComponent(batch)).then(function (data) { if (data.instance !== config.instance) throw new Error('The local wardrobe changed. Reopen the original installation before importing.'); return data; }); },
+    importStatus: function (batch) { return importRead('/api/import/status?instance=' + encodeURIComponent(config.instance) + '&batch=' + encodeURIComponent(batch)); },
+    importSources: function (batch) { return importSourceRequest(sourcePath(batch)); },
+    importSourceUpload: function (batch, id, file) { return importSourceRequest(sourcePath(batch) + '&id=' + encodeURIComponent(id) + '&name=' + encodeURIComponent(file.name), {method: 'POST', body: file}); },
+    importSourceChoices: function (batch, choices) { return importSourceRequest(sourcePath(batch), {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(choices)}); },
+    importSourceRemove: function (batch, id) { return importSourceRequest(sourcePath(batch) + '&id=' + encodeURIComponent(id), {method: 'DELETE'}); },
+    importSourceBlob: function (batch, id) { return importSourceRequest(sourcePath(batch) + '&id=' + encodeURIComponent(id), {}, true); },
     backgroundStatus: function () { return request('/api/photos/background-status').then(function (r) { return r.json(); }); },
     removeBackground: function (photoId) { return request('/api/photos/remove-background', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({photoId: photoId})}).then(function (r) { return r.blob(); }); },
     fullBackup: function () {
@@ -170,7 +214,7 @@
         applying = true; restoring = true; apply.disabled = true; cancel.disabled = true; file.disabled = true;
         status.textContent = 'Restoring wardrobe…';
         flush().then(function () { return jsonRequest('/api/restore/apply', 'POST', {ticket: ticket, confirm: 'replace-wardrobe'}); }).then(function () {
-          ticket = null; failed = false; boardDirty = false; window.location.reload();
+          ticket = null; failed = false; failedRecords = {}; boardDirty = false; window.location.reload();
         }).catch(function (error) { applying = false; restoring = false; status.textContent = error.message; cancel.disabled = false; file.disabled = false; });
       });
       actions.append(cancel, apply); dialog.append(title, note, file, status, actions); document.body.appendChild(dialog); dialog.showModal(); file.focus();
@@ -184,5 +228,5 @@
   ready.catch(function () {});
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') boardWrite().catch(function () {}); });
   window.addEventListener('online', function () { if (boardDirty && !restoring) { boardRetries = 0; saveBoardSoon(200); } });
-  window.addEventListener('beforeunload', function (event) { if (busy || boardDirty || failed) { event.preventDefault(); event.returnValue = ''; } });
+  window.addEventListener('beforeunload', function (event) { if (busy || boardDirty || hasFailedWrites()) { event.preventDefault(); event.returnValue = ''; } });
 })();

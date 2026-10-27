@@ -19,7 +19,7 @@ class PreviewNode{
  constructor(tag,props,...children){this.tag=tag;Object.assign(this,props||{});this.children=[];this.classList={toggle(){}};this.append(...children)}
  append(...children){this.children.push(...children.flat().filter(x=>x!=null))}appendChild(child){this.append(child);return child}
 }
-const nodes={};ctx.el=(...args)=>new PreviewNode(...args);ctx.$=id=>nodes[id]||(nodes[id]=new PreviewNode('div'));ctx.state={collectionManager:true};ctx.routeAnchor=(route,props)=>new PreviewNode('a',props);
+const nodes={};ctx.el=(...args)=>new PreviewNode(...args);ctx.$=id=>nodes[id]||(nodes[id]=new PreviewNode('div'));ctx.state={collectionManager:true};ctx.routeAnchor=(route,props,action,children)=>new PreviewNode('a',props,children);
 vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/collections.js','utf8'),ctx);
 ctx.collectionList=()=>[{id:'test',name:'Synthetic collection',ids:['upload','legacy']}];ctx.byId=()=>({upload:{photo:original},legacy:{photo:'/_catalog/'+'b'.repeat(32)}});ctx.collectionContext(2);
 const images=[];function visit(n){if(n.tag==='img')images.push(n);(n.children||[]).forEach(visit)}visit(nodes['collection-context']);

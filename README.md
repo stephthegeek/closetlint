@@ -4,21 +4,27 @@
 
 Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. It runs locally and opens in your browser. No account, no subscription, no sync, no telemetry: your wardrobe and photos stay with you.
 
-> **New in 0.2:** easier imports, the Closet Oracle, clearer taste insights, and improved photo cleanup. See the [release notes](docs/RELEASE-NOTES.md). Keep a full backup before updating.
+> **Closet Lint 0.3.0** brings Your Style Sky, assistant imports, laundry and care, and safer outfit planning. Keep a current backup before updating.
 
 ## What's included
 
-- Your wardrobe and wishlist, with photos, tags, filters, and collections.
-- An outfit board, saved outfits, wear tracking, and a calendar.
-- Outfit suggestions based on your ratings, with My taste patterns and the actual outfits behind them.
-- Wishlist ranking based on your closet.
-- Trip planning and packing lists.
-- Storage tracking with bin labels and pull lists.
-- Bring Your Own Assistant imports: your own AI assistant can turn product links, order emails, store exports, screenshots, or photos into an import batch. The assistant does the reading; Closet Lint never needs access to your email or browser. AI is entirely optional, and you can add everything by hand, too.
-- 🔮 Ask the Oracle: prepare a wardrobe summary and question for your own AI assistant, with optional details and photos. The conversation stays in your assistant.
-- Optional local photo background removal, with originals kept and results reviewed before saving.
-- Full backup and restore of your wardrobe data and photos.
-- Three themes, plus light and dark modes.
+- 👚 **Your closet:** pieces and wishlist finds, with photos, tags, filters, and collections.
+- 🪞 **Outfit board:** arrange pieces, save outfits, and return to unfinished drafts.
+- 👗 **Outfits and calendar:** log what you wore, schedule saved outfits, or build an outfit for a future date.
+- 🧑‍🔬 **Outfit Lab:** rate combinations, save favorites, and explore the patterns behind My taste.
+- 🌌 **Your Style Sky:** wardrobe constellations, Sun, Moon, and Rising readings, and shareable chart images.
+- 🪬 **Linty’s daily fortune card:** optional daily readings, wardrobe nudges, and color omens.
+- 🏆 **Wishlist ranking:** keep your own order, with compatibility and similarity evidence from your closet, Lab ratings, and wear history.
+- 🧳 **Trips:** plan outfits and keep track of packing.
+- 🧺 **Laundry and care:** manually mark pieces that need cleaning, save care instructions, and keep photos of care labels.
+- 🗄️ **Storage:** organize stored pieces, print bin labels, and make pull lists.
+- 🤖 **Bring Your Own AI Assistant:** use your own AI assistant to import order emails, links, documents, or photos. Save directly with local Codex or Claude Code, or review an import file from a chat conversation. Upload sources in Closet Lint, request supported tags, and optionally separate multipacks or create individual product photos when your assistant has image tools. See [assistant imports](docs/ASSISTANT-IMPORT.md).
+- 🔮 **Ask the Oracle:** take a wardrobe summary, question, and optional photos to your own AI assistant.
+- 📷 **Photo tools:** optional local background removal, with originals kept and results reviewed before saving.
+- 💾 **Backup and restore:** keep your wardrobe data and photos together.
+- 🎨 **Themes:** three themes, each with light and dark modes.
+
+AI is optional: you can add pieces and use the core app without an assistant. For direct imports, start with **Add → Bulk import pieces → Set up direct import**. Closet Lint does not connect to your email or AI account; your assistant handles any access it needs.
 
 ## Get started
 
@@ -71,6 +77,4 @@ Found a bug? [Open an issue](https://github.com/stephthegeek/closetlint/issues).
 
 Created by stephthegeek, with substantial AI assistance. Code, documentation, and Linty artwork are GPL-3.0-or-later. Third-party components retain their own licenses; see [NOTICE](NOTICE). Your wardrobe data and photos remain yours.
 
-## Development and releases
-
-Read the [0.2 release notes](docs/RELEASE-NOTES.md). See the [testing guide](docs/TESTING.md), [update instructions](docs/UPDATING.md), and [release workflow and 0.2 scope](docs/RELEASING.md).
+Read the [0.3 release notes](docs/RELEASE-NOTES.md) for the current release scope.

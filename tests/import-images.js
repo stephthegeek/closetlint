@@ -5,7 +5,7 @@ function fn(n){const a=script.indexOf('function '+n+'('),start=script.slice(Math
  let uploads=0,writes=0,fail=true;const records=[];
  const ctx={URL,Set,AbortController,setTimeout,clearTimeout,fetch:async()=>({ok:true,headers:{get:()=> 'image/png'},blob:async()=>({size:100,type:'image/png'})}),readImage:async()=>({blob:{},ar:.75}),setupText:(x,n)=>typeof x==='string'?x.slice(0,n):'',layerDefaults:x=>x};
  ctx.state={assets:{upload:async()=>({id:'photo-'+(++uploads)})},db:{collection(){return {doc(){return {set:async record=>{writes++;if(fail)throw Error('Retry');records.push(JSON.parse(JSON.stringify(record)))}}}}}}};
- vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/photo-fetch.js','utf8'),ctx);vm.runInContext(['setupPhotoURL','setupImageList','setupSaveImages','setupSaveRow'].map(fn).join('\n'),ctx);
+ vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/photo-fetch.js','utf8'),ctx);vm.runInContext(['setupSourceBlob','setupPhotoURL','setupImageList','setupSaveImages','setupSaveRow'].map(fn).join('\n'),ctx);
  const row={piece:{images:[{url:'https://img.example.com/isolated.jpg',kind:'isolated'},{url:'https://img.example.com/model.jpg',kind:'model'}]}};
  await assert.rejects(()=>ctx.setupSaveRow('synthetic',{},row),/Retry/);assert.equal(uploads,2);
  fail=false;await ctx.setupSaveRow('synthetic',{},row);assert.equal(uploads,2,'retry retains both already uploaded photos');assert.equal(writes,2);

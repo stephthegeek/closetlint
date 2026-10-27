@@ -9,7 +9,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ['INSTALL.md','ASSISTANT-IMPORT.md','PHOTOS.md','LOCAL-RUNTIME.md',
-        'ORACLE.md','RELEASE-NOTES.md','ONBOARDING.md','NAVIGATION.md','THEMES.md','TESTING.md','UPDATING.md','THIRD-PARTY.md','SECURITY-REVIEW.md','RELEASING.md']
+        'ORACLE.md','BOARD-EDITOR.md','WISHLIST-ANALYSIS.md','RELEASE-NOTES.md','ONBOARDING.md','NAVIGATION.md','THEMES.md','TESTING.md','UPDATING.md','THIRD-PARTY.md','SECURITY-REVIEW.md']
 ART = ['linty-logo-original.png','linty-side-peek-sock.png','linty-favicon-face-1024.png','README.md']
 DEMO = ['01-black-tee.jpg','02-burgundy-top.jpg','03-black-trousers.jpg',
         '04-blue-jeans.jpg','05-beige-skirt.jpg','06-black-dress.jpg',
@@ -26,6 +26,9 @@ def selected_files(root=ROOT):
     paths += [root / 'docs' / n for n in DOCS]
     paths += [root / 'app/assets/linty' / n for n in ART]
     paths += [root / 'app/assets/demo' / n for n in DEMO]
+    paths += [root / 'app/assets/social/sky-opengraph.png']
+    paths += [root / 'app/content/sky' / n for n in ('stars.json', 'constellations.json', 'scoring.json', 'search-links.json', 'share-copy.json')]
+    paths += [root / 'app/content/linty/daily-lines.json']
     for folder, types in TYPES.items():
         paths += [p for p in (root / folder).rglob('*') if p.is_file() and p.suffix in types and '__pycache__' not in p.parts]
     for name in ['LICENSE','LICENSE.md','NOTICE']:
@@ -48,7 +51,7 @@ def inspect(paths):
         if p.name=='build_release.py':continue # contains the scanner's own signatures
         if p.suffix in ('.png', '.jpg'):continue # Explicit mascot/demo allowlists above; no arbitrary wardrobe photos.
         text=p.read_text(encoding='utf-8')
-        if re.search(r'/home/[^/\s]+/',text):problems.append('Machine-specific path: '+str(p.relative_to(ROOT)))
+        if re.search(r'/home/[^/\s]+/',text.replace('/home/yourname/', '/example-user/')):problems.append('Machine-specific path: '+str(p.relative_to(ROOT)))
         if forbidden.search(text):problems.append('Potential credential: '+str(p.relative_to(ROOT)))
     return problems
 
@@ -72,7 +75,7 @@ def main():
     lock=json.loads(files['package-lock.json']);lock['version']=args.version;lock['packages']['']['version']=args.version
     files['package-lock.json']=(json.dumps(lock,indent=2)+'\n').encode()
     if args.candidate:
-        files['AUDIT-CANDIDATE.txt']=('UNPUBLISHED CANDIDATE '+args.version+'. Final platform checks and UI verification remain open. No personal wardrobe or curated collection is included.\n').encode()
+        files['AUDIT-CANDIDATE.txt']=b'UNPUBLISHED AUDIT PACKAGE. Not a published release. Final platform checks and UI verification remain open. No personal wardrobe or curated collection is included.\n'
     manifest={name:hashlib.sha256(data).hexdigest() for name,data in sorted(files.items())}
     files['SOURCE-MANIFEST.json']=(json.dumps(manifest,indent=2)+'\n').encode()
     args.out.parent.mkdir(parents=True,exist_ok=True)

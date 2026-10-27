@@ -78,6 +78,42 @@ class RuntimeTests(unittest.TestCase):
         reopened.delete_record('custom', 'new')
         self.assertEqual(Store(self.root / 'store').state()['collections']['custom'], {})
 
+    def test_laundry_care_and_label_photos_survive_full_backup(self):
+        photo = self.store.upload(PNG)
+        self.store.set_record('custom', 'laundry-test', {'name': 'Synthetic shirt', 'noPhoto': True})
+        record = {'laundry': True, 'care': {'wash': 'Hand wash cold', 'dry': 'Lay flat to dry', 'note': 'Keep this note'},
+                  'photos': [{'photoId': photo, 'kind': 'carelabel', 'ar': 1}], 'photoId': '', 'noPhoto': True}
+        self.store.set_record('edits', 'c-laundry-test', record)
+        self.store.set_record('profile', 'laundry-settings', {'enabled': True})
+        target = self.root / 'laundry-backup.zip'
+        self.store.export(target)
+        restored = Store(self.root / 'laundry-restored')
+        with contextlib.closing(Archive(target)) as source:
+            restored.restore(source)
+        state = restored.state()
+        self.assertEqual(state['collections']['edits']['c-laundry-test'], record)
+        self.assertTrue(state['collections']['profile']['laundry-settings']['enabled'])
+        self.assertEqual(restored.asset(photo)[1], PNG)
+        for invalid in ({'laundry': 'yes'}, {'care': {'note': 42}}):
+            with self.assertRaises(ValueError):
+                self.store.set_record('edits', 'invalid-care', invalid)
+
+    def test_workspace_drafts_survive_reopen_and_full_backup_restore(self):
+        self.load()
+        board = self.store.state()['board']
+        board['workspace'] = {'version': 1, 'activeKey': 'outfit:test', 'previousKey': 'draft:original',
+                              'drafts': [{'key': 'draft:original', 'updatedAt': 1,
+                                          'board': {'id': None, 'name': 'Previous work', 'pieces': [{'id': 'c-demo'}],
+                                                    'texts': [{'t': 'Keep this'}], 'st': {'bg': {'c': '#ffffff'}}}}]}
+        self.store.set_board(board)
+        self.assertEqual(Store(self.root / 'store').state()['board'], board)
+        target = self.root / 'workspace.zip'
+        self.store.export(target)
+        other = Store(self.root / 'workspace-restored')
+        with contextlib.closing(Archive(target)) as source:
+            other.restore(source)
+        self.assertEqual(other.state()['board'], board)
+
     def test_prelaunch_brand_export_and_original_backup_restore(self):
         payload = fixture()
         payload['app'] = 'lint-goblin'  # Historical backup label, not the active runtime identity.
@@ -118,6 +154,39 @@ class RuntimeTests(unittest.TestCase):
             self.assertEqual(other.state()[key], self.store.state()[key])
         self.assertEqual(other.verification()['assetHashes'], self.store.verification()['assetHashes'])
         self.assertEqual(other.verification()['integrity'], 'ok')
+
+    def test_full_backup_after_daily_card_preserves_nonphoto_identifiers(self):
+        self.load()
+        instance = 'c' * 32
+        self.store.set_record('profile', 'daily-card', {'instance': instance, 'date': '2026-10-27', 'revealed': True})
+        self.store.set_record('custom', instance, {'name': 'Synthetic piece', 'note': 'd' * 32})
+        status, data = self.call('GET', '/api/backup', headers={'X-ClosetLint-Token': 'test-token'})
+        self.assertEqual(status, 200, data)
+        self.assertEqual(self.response_headers['Content-Type'], 'application/zip')
+        target = self.root / 'daily-http-backup.zip'
+        target.write_bytes(data)
+        restored = Store(self.root / 'daily-restored')
+        with contextlib.closing(Archive(target)) as source:
+            restored.restore(source)
+        self.assertEqual(restored.state()['collections'], self.store.state()['collections'])
+        self.assertEqual(restored.verification()['assetHashes'], self.store.verification()['assetHashes'])
+
+    def test_backup_still_rejects_missing_piece_care_map_and_bundle_photos(self):
+        missing = 'e' * 32
+        for location in ('piece', 'care', 'map', 'bundle'):
+            with self.subTest(location=location):
+                payload = fixture()
+                if location == 'piece':
+                    payload['collections']['custom']['demo']['photoId'] = missing
+                elif location == 'care':
+                    payload['collections']['edits']['demo-base'] = {'photos': [{'photoId': missing, 'kind': 'carelabel'}]}
+                elif location == 'map':
+                    payload['collections']['profile']['photoMap']['map']['demo-base'] = [missing, 1]
+                else:
+                    payload['base']['bundles'].append(missing)
+                path = archive(self.root / ('missing-' + location + '.zip'), payload)
+                with self.assertRaisesRegex(ValueError, 'missing .* referenced photo'):
+                    Archive(path)
 
     def test_nonempty_import_refuses_replacement_and_restore_keeps_recovery(self):
         self.load()
@@ -273,6 +342,16 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(self.call('GET', '/_blob/' + PHOTO), (200, PNG), 'full-size photo is untouched')
         self.assertEqual(self.call('GET', '/_thumb/' + PHOTO,
                                   headers={'Sec-Fetch-Site': 'cross-site'})[0], 403)
+
+    def test_warm_thumbnail_route_does_not_read_original(self):
+        self.load()
+        self.call('GET', '/')
+        preview = b'RIFF\0\0\0\0WEBPsynthetic'
+        self.server.thumbnails = SimpleNamespace(enabled=True, get_ready=lambda key: preview)
+        with patch.object(self.store, 'asset', side_effect=AssertionError('Original must not be read')):
+            self.assertEqual(self.call('GET', '/_thumb/' + PHOTO), (200, preview))
+            self.assertEqual(self.call('GET', '/_thumb/' + PHOTO,
+                                      headers={'If-None-Match': self.response_headers['ETag']}), (304, b''))
 
     def test_city_lookup_needs_same_origin_token_and_has_manual_entry_recovery(self):
         token = {'X-ClosetLint-Token': 'test-token'}

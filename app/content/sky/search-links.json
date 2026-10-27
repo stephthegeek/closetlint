@@ -1,0 +1,26 @@
+{
+  "inspiration": [
+    {
+      "label": "Pinterest",
+      "url": "https://www.pinterest.com/search/pins/?q={q}"
+    },
+    {
+      "label": "Google Images",
+      "url": "https://www.google.com/search?tbm=isch&q={q}"
+    }
+  ],
+  "shops": [
+    {
+      "label": "Amazon",
+      "url": "https://www.amazon.com/s?k={q}"
+    },
+    {
+      "label": "Etsy",
+      "url": "https://www.etsy.com/search?q={q}"
+    },
+    {
+      "label": "Poshmark",
+      "url": "https://poshmark.com/search?query={q}"
+    }
+  ]
+}

@@ -28,6 +28,8 @@ class ThumbnailCache:
         self.running = False
         self.stopped = threading.Event()
         self.rescan = threading.Event()
+        self.previews = {}
+        self.generation = 0
 
     def path(self, asset_id, data):
         return self.folder / (asset_id + '-' + hashlib.sha256(data).hexdigest() + '.webp')
@@ -47,6 +49,41 @@ class ThumbnailCache:
         self.enqueue(asset_id)
         return None
 
+    def get_ready(self, asset_id):
+        """Read an indexed preview without opening or hashing its original.
+
+        Uploads are immutable; restore explicitly clears this disposable index.
+        Only the worker publishes entries after validating the source bytes.
+        """
+        if not self.enabled:
+            return None
+        with self.lock:
+            entry = self.previews.get(asset_id)
+        if entry is None:
+            return None
+        target, original_size, generation = entry
+        try:
+            with target.open('rb') as source:
+                data = source.read(4 * 1024 * 1024 + 1)
+            if len(data) <= 4 * 1024 * 1024 and data[:4] == b'RIFF' and data[8:12] == b'WEBP':
+                with self.lock:
+                    if generation != self.generation:
+                        return None
+                return data if len(data) < original_size else None
+            target.unlink()
+        except OSError:
+            pass
+        with self.lock:
+            if self.previews.get(asset_id) == entry:
+                self.previews.pop(asset_id, None)
+        self.enqueue(asset_id)
+        return None
+
+    def index(self, asset_id, target, original_size, generation):
+        with self.lock:
+            if generation == self.generation:
+                self.previews[asset_id] = (target, original_size, generation)
+
     def enqueue(self, asset_id):
         """Schedule a saved upload without loading its original on the request thread."""
         if not self.enabled or self.stopped.is_set():
@@ -58,6 +95,9 @@ class ThumbnailCache:
 
     def refresh(self):
         """Rescan replaced records after restore; cached hashes still validate bytes."""
+        with self.lock:
+            self.generation += 1
+            self.previews.clear()
         self.rescan.set()
 
     def wait_for(self, asset_id, asset, timeout=0.9):
@@ -79,11 +119,16 @@ class ThumbnailCache:
                 self.ready.wait(min(remaining, 0.05))
 
     def prepare(self, asset_id):
+        with self.lock:
+            generation = self.generation
         asset = self.catalog.asset(asset_id[8:]) if asset_id.startswith('catalog-') and self.catalog else self.store.asset(asset_id)
         if not asset or not asset[0].startswith('image/'):
             return
         target = self.path(asset_id, asset[1])
-        if target.is_file() or target.name in self.failed:
+        if target.is_file():
+            self.index(asset_id, target, len(asset[1]), generation)
+            return
+        if target.name in self.failed:
             return
         self.folder.mkdir(parents=True, exist_ok=True, mode=0o700)
         with tempfile.TemporaryDirectory(prefix='building-', dir=self.folder) as tmp:
@@ -102,6 +147,7 @@ class ThumbnailCache:
                     raise ValueError('Invalid preview')
                 output.chmod(0o600)
                 output.replace(target)
+                self.index(asset_id, target, len(asset[1]), generation)
             except (OSError, ValueError, subprocess.TimeoutExpired):
                 self.failed.add(target.name)
 

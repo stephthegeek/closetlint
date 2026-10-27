@@ -1,0 +1,67 @@
+// Synthetic laundry states, partial saves, care references, and selection boundaries.
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8'),code=fs.readFileSync(__dirname+'/../app/scripts/laundry.js','utf8');
+function fn(name){const a=html.indexOf('function '+name+'('),b=html.indexOf('\nfunction ',a+1);assert(a>=0,name);return html.slice(a,b)}
+const clone=x=>JSON.parse(JSON.stringify(x));
+function fixture(){
+ let fail='',action;const messages=[],writes=[],nodes={};
+ const items={a:{id:'a',laundry:false,meta:'Tops'},b:{id:'b',laundry:true,meta:'Bottoms'},c:{id:'c',laundry:true,meta:'Jewelry'}};
+ const state={profile:{},edits:{a:{name:'Keep',notes:'Original'},b:{laundry:true},c:{laundry:true}},lab:{},picked:{a:true,b:true}};
+ const c={state,PLACEHOLDER:'placeholder',Promise,JSON,Object,Date,window:{},photoThumbnail:x=>x,todayStr:()=> '2026-10-26',realPhoto:it=>!!it.photo&&it.photo!=='placeholder',$:id=>nodes[id],el:(tag,attrs,...children)=>({tag,...attrs,value:tag==='textarea'?'':attrs&&attrs.value||'',children,appendChild(n){this.children.push(n)},append(...nodes){this.children.push(...nodes)},events:{},addEventListener(type,handler){this.events[type]=handler},setAttribute(){}}),byId:()=>Object.fromEntries(Object.entries(items).map(([id,it])=>[id,Object.assign({},it,state.edits[id])])),needDb:()=>false,onDataSoon(){},renderGrid(){},renderSelBar(){},flashIds(){},toast:m=>messages.push(m),toastAct:(m,label,callback)=>{messages.push(m);action={label,callback}},allItems:()=>Object.values(c.byId()),labRole:it=>({Tops:'top',Bottoms:'bottom'}[it.meta]),isUnderCand:()=>false,realPhoto:()=>true,wornRecently:()=>false,labFits:()=>true,labEither:()=>false,labTopish:()=>true,labParts:o=>[o.top,o.bottom].filter(Boolean)};
+ state.db={collection:collection=>({doc:id=>({set:async record=>{if(id===fail)throw Error('Offline');state[collection][id]=clone(record);writes.push({collection,id,record:clone(record)})}})})};
+ vm.createContext(c);vm.runInContext(code+'\n'+['pieceActionUndo','pieceAction','applyBulk','labOK','labPool','photoRecord','piecePhotos','savePhotoViews','toggleWornToday'].map(fn).join('\n'),c);
+ c.patchEdit=async(it,patch)=>{if(it.id===fail)return false;state.edits[it.id]=Object.assign({},state.edits[it.id],clone(patch));return true};
+ return {c,state,items,writes,messages,nodes,get action(){return action},set fail(v){fail=v}};
+}
+(async()=>{
+ const f=fixture();assert.equal(f.c.laundryEnabled(),false);assert.equal(f.c.laundryPlanningOnly(),false);
+ assert.equal(f.c.laundryEmptyMessage(f.c.allItems()),'Nothing needs cleaning with these filters.','dirty pieces outside the visible filters prevent a whole-wardrobe empty claim');
+ assert.equal(f.c.laundryEmptyMessage([{id:'ready',laundry:false}]),'Nothing needs cleaning. The hamper is appeased.');
+ assert.equal(f.c.laundryEmptyMessage([]),'Nothing needs cleaning. The hamper is appeased.');
+ f.nodes['laundry-enabled']={};f.nodes['laundry-settings-status']={textContent:'',appendChild(){}};
+ assert(await f.c.laundrySaveSettings(true));assert.equal(f.state.profile['laundry-settings'].enabled,true);assert.equal(f.c.laundryPlanningOnly(),true);
+ f.fail='laundry-settings';assert.equal(await f.c.laundrySaveSettings(false),false);assert.equal(f.c.laundryEnabled(),true);f.fail='';
+ assert.equal(f.c.labOK(f.items.b),false);f.state.fantasy=true;assert.equal(f.c.labOK(f.items.b),false,'Fantasy never overrides explicit ready-only filtering');f.state.lab.readyOnly=false;assert.equal(f.c.labOK(f.items.b),true);f.state.lab.readyOnly=true;
+ assert.equal(f.c.labPool({}).bottom.length,0);assert.equal(f.c.labPool({includeLaundry:true}).bottom.length,1,'wishlist and skipped-count evidence can explicitly include laundry');
+ assert.equal(f.c.labPool({}).top.length,1);assert.equal(f.c.labOK(f.items.c),false,'accessories obey availability too');
+ const form=f.c.laundryCareForm({id:'a',care:{wash:'Hand wash cold',dry:'Lay flat to dry',note:'Retain saved note'},photo:'legacy'},()=>{});
+ assert.equal(form.read().note,'Retain saved note','textarea loads saved text, not just its value attribute');assert.equal(form.read().wash,'Hand wash cold');
+ f.state.edits.b.care={note:'Keep care'};await f.c.toggleWornToday(f.c.byId().b);assert.equal(f.state.edits.b.laundry,true,'wear logging never clears laundry status');assert.equal(f.state.edits.b.care.note,'Keep care');
+ const before=clone(f.state.edits.a);assert(await f.c.laundrySet(f.c.byId().a,true));assert.equal(f.state.edits.a.laundry,true);assert.equal(f.state.edits.a.notes,before.notes);assert.equal(f.action.label,'Undo');f.state.edits.a.notes='Later note';await f.action.callback();assert.equal(f.state.edits.a.laundry,undefined);assert.equal(f.state.edits.a.notes,'Later note');assert.equal(f.c.labPool({}).top.length,1,'Undo makes a clean piece eligible again');
+ f.fail='a';assert.equal(await f.c.laundrySet(f.c.byId().a,true),false);assert.equal(f.action.label,'Retry');f.fail='';await f.action.callback();assert.equal(f.state.edits.a.laundry,true);
+ f.state.edits.b.laundry=false;f.fail='b';const bulk=await f.c.applyBulk(['a','b'],()=>({laundry:true}),'Marked');assert.equal(bulk.failed,1);assert.deepEqual(Object.keys(f.state.picked),['b']);assert.equal(f.state.bulkRetry.ids[0],'b');assert.equal(f.action.label,'Undo');await f.action.callback();assert.equal(f.state.edits.b.laundry,false,'failed entries are never in Undo');f.fail='';const retry=f.state.bulkRetry;await f.c.applyBulk(retry.ids,retry.patchFn,retry.message);assert.equal(f.state.edits.b.laundry,true);assert.equal(f.state.bulkRetry,null);
+ const batch=fixture();batch.state.picked={a:true,b:true,c:true};batch.fail='c';
+ const cleanPatch=it=>batch.c.needsLaundry(it)?{laundry:false}:null;
+ const mixed=await batch.c.applyBulk(['a','b','c'],cleanPatch,'Set as clean');
+ assert.equal(mixed.updated,1,'unchanged pieces are not counted as successful writes');assert.equal(mixed.failed,1);
+ assert(batch.messages.includes('Updated 1 piece, 1 failed'));assert.deepEqual(Object.keys(batch.state.picked),['c']);
+ await batch.action.callback();assert.equal(batch.state.edits.b.laundry,true,'Undo restores only the successfully changed piece');
+ batch.fail='';await batch.c.applyBulk(batch.state.bulkRetry.ids,cleanPatch,'Set as clean');assert.equal(batch.state.edits.c.laundry,false);
+ const writesBefore=batch.writes.length;const noChange=await batch.c.applyBulk(['a','c'],cleanPatch,'Set as clean');
+ assert.equal(noChange.updated,0);assert.equal(batch.writes.length,writesBefore);assert.equal(batch.messages.at(-1),'Nothing changed.');
+ const upload=fixture();upload.state.assets={};let finishUpload,uploadCalls=0,photoRefreshes=0;
+ upload.c.laundryUploadLabel=()=>{uploadCalls++;return new Promise(resolve=>{finishUpload=resolve})};
+ const careForm=upload.c.laundryCareForm({id:'a',photo:'legacy',care:{note:'Keep this entry'}},()=>photoRefreshes++);
+ const careBody=careForm.node.children[1],uploadButton=careBody.children.find(n=>n.tag==='button'),file=careBody.children.find(n=>n.type==='file');
+ const washing=careBody.children[0].children[1],uploadStatus=careBody.children.find(n=>n.role==='status');
+ file.files=[{name:'synthetic-label.png'}];const firstUpload=file.events.change();
+ washing.value='Hand wash cold';washing.events.change();careForm.refreshPhotos();
+ assert.equal(uploadButton.disabled,true,'form changes and photo refreshes cannot unlock an active upload');
+ file.events.change();assert.equal(uploadCalls,1,'overlapping care-label uploads cannot overwrite each other');
+ finishUpload(false);await firstUpload;assert.equal(uploadButton.disabled,false);assert.equal(uploadStatus.textContent,'Photo not saved. Try again.');
+ assert.equal(careForm.read().wash,'Hand wash cold');assert.equal(careForm.read().note,'Keep this entry');assert.equal(photoRefreshes,0);
+ const secondUpload=file.events.change();finishUpload(true);await secondUpload;
+ assert.equal(uploadButton.disabled,false);assert.equal(photoRefreshes,1);assert.equal(upload.messages.at(-1),'Care label saved. Tiny scroll acquired.');
+ const photo={id:'a',photoId:'main',photo:'/_blob/main',ar:.8},photos=[{photoId:'main',kind:'isolated',ar:.8},{photoId:'label',kind:'carelabel',ar:1}];
+ assert.equal(f.c.laundryPhotoPatch(photo,photos,photos[1]).photoId,'main','a reference cannot become the main photo');
+ const changed=[{photoId:'main',kind:'carelabel',ar:.8},{photoId:'alt',kind:'model',ar:.7}];assert.equal(f.c.laundryPhotoPatch(photo,changed,null).photoId,'alt');
+ assert.equal(f.c.laundryPhotoPatch(photo,[changed[0]],null).noPhoto,true);assert.equal(f.c.laundryPhotoPatch(photo,[changed[0]],null).photoId,'');
+ assert.equal(f.c.laundryPhotoPatch(photo,[{photoId:'label',kind:'carelabel'}],{photoId:'label',kind:'unclassified'}).noPhoto,true,'caller metadata cannot promote a saved reference');
+ const saved=clone(photo);assert(await f.c.savePhotoViews(saved,changed,null));assert.equal(saved.photoId,'alt');assert.equal(saved.photos[0].kind,'carelabel');assert.equal(saved.photos.length,2,'reclassification retains label reference');
+ f.fail='a';const unsaved=clone(photo);assert.equal(await f.c.savePhotoViews(unsaved,changed,null),false);assert.deepEqual(unsaved,photo,'failed photo save cannot change the main view');f.fail='';
+ assert.deepEqual(Array.from(f.c.laundryIds([{id:'b'},{id:'b'},{id:'missing'}],f.c.byId())),['b']);
+ f.state.lab.cur={top:f.items.a,bottom:f.items.b};f.c.laundryLabInvalidate();assert.equal(f.state.lab.cur,null);
+ f.state.edits.a.laundry=false;f.state.edits.b.laundry=false;f.state.edits.c.laundry=true;f.state.lab.cur={top:f.items.a,acc:{jewelry:[f.items.c]}};f.c.laundryLabInvalidate();assert.equal(f.state.lab.cur,null,'a newly unavailable jewelry item invalidates a cached Lab suggestion');
+ f.state.edits.b.laundry=true;await f.c.laundrySaveSettings(false);assert.equal(f.state.edits.b.laundry,true,'disabling tracking retains statuses');assert.equal(f.c.labOK(f.items.b),true);
+ console.log('Laundry: wardrobe opt-in, failure/retry, explicit Fantasy-safe pools, accessories, accurate batch counts/recovery, field-aware Undo, care-upload locking/recovery, and care-photo main selection pass.');
+})().catch(e=>{console.error(e);process.exitCode=1});

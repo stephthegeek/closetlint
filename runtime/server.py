@@ -19,11 +19,13 @@ from urllib.parse import parse_qs, unquote, urlsplit
 import zipfile
 
 from storage import Archive, Folder, MAX_ARCHIVE, Store, encode, decode
+import import_sources
 from background_removal import settings as background_settings, remove_background
 from thumbnails import ThumbnailCache
 from catalog_photos import CatalogPhotos
 from places import lookup as lookup_places
 from weather import lookup as lookup_weather
+from assistant_import import setup_info as import_setup_info, saved_status as import_saved_status, readiness as import_readiness
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -222,6 +224,31 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_data(200, (ROOT / 'runtime/browser.js').read_bytes(), 'text/javascript; charset=utf-8')
             elif path == '/api/photos/background-status':
                 self.send_data(200, {'available': background_settings(self.server.store.folder) is not None})
+            elif path == '/api/import/sources':
+                query = parse_qs(urlsplit(self.path).query)
+                with self.server.mutation_lock:
+                    try:
+                        args = (self.server.store, query.get('instance', [''])[0], query.get('batch', [''])[0])
+                        if query.get('id'):
+                            mime, data = import_sources.contents(*args, query['id'][0])
+                            self.send_data(200, data, mime, {'Content-Disposition': 'attachment'})
+                        else:
+                            self.send_data(200, import_sources.get(*args))
+                    except ValueError as error:
+                        self.send_data(400, {'error': str(error)})
+            elif path == '/api/import/setup':
+                query = parse_qs(urlsplit(self.path).query)
+                self.send_data(200, import_setup_info(self.server.store, query.get('batch', [''])[0]))
+            elif path == '/api/import/status':
+                query = parse_qs(urlsplit(self.path).query)
+                try:
+                    result = import_saved_status(self.server.store, query.get('instance', [''])[0], query.get('batch', [''])[0])
+                except ValueError as error:
+                    self.send_data(409, {'error': str(error)})
+                    return
+                result['ready'] = import_readiness(self.server.store.folder)['ready']
+                result['setupVerified'] = result['setupVerified'] and result['ready']
+                self.send_data(200, result)
             elif path == '/api/places':
                 name = parse_qs(urlsplit(self.path).query).get('name', [''])[0]
                 try:
@@ -252,7 +279,14 @@ class Handler(BaseHTTPRequestHandler):
                 asset_id = path.split('/', 2)[2]
                 legacy = path.startswith(('/_catalog/', '/_catalog_thumb/'))
                 catalog = getattr(self.server, 'catalog', None)
-                if legacy:
+                cache = getattr(self.server, 'thumbnails', None)
+                thumb = path.startswith(('/_thumb/', '/_catalog_thumb/'))
+                preview = None
+                if thumb and cache and hasattr(cache, 'get_ready'):
+                    preview = cache.get_ready(('catalog-' if legacy else '') + asset_id)
+                if preview is not None:
+                    asset = ('image/webp', preview)
+                elif legacy:
                     asset = catalog.asset(asset_id) if catalog else None
                 else:
                     asset = self.server.store.asset(asset_id)
@@ -260,7 +294,7 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_data(404, {'error': 'Photo not found'})
                 else:
                     cache = getattr(self.server, 'thumbnails', None)
-                    if path.startswith(('/_thumb/', '/_catalog_thumb/')) and cache:
+                    if thumb and cache and preview is None:
                         read_preview = getattr(cache, 'wait_for', cache.get)
                         preview = read_preview(('catalog-' if legacy else '') + asset_id, asset)
                         if preview is not None:
@@ -299,7 +333,17 @@ class Handler(BaseHTTPRequestHandler):
             with self.server.mutation_lock:
                 self.expire_tickets()
                 match = re.fullmatch(r'/api/doc/([^/]+)/([^/]+)', path)
-                if match and method in ('PUT', 'DELETE'):
+                if path == '/api/import/sources':
+                    query = parse_qs(urlsplit(self.path).query)
+                    args = (self.server.store, query.get('instance', [''])[0], query.get('batch', [''])[0])
+                    if method == 'POST':
+                        result = import_sources.upload(*args, query.get('id', [''])[0], query.get('name', [''])[0], self.body(import_sources.MAX_FILE))
+                    elif method == 'PUT':
+                        result = import_sources.update(*args, decode(self.body(256 * 1024)))
+                    elif method == 'DELETE':
+                        result = import_sources.remove(*args, query.get('id', [''])[0])
+                    self.send_data(200, result)
+                elif match and method in ('PUT', 'DELETE'):
                     col, record_id = map(unquote, match.groups())
                     if method == 'PUT':
                         self.server.store.set_record(col, record_id, decode(self.body(2 * 1024 * 1024)))

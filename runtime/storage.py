@@ -69,6 +69,12 @@ def validate_piece(record):
     for key in ('colors', 'seasons', 'styles', 'looks', 'fits', 'stretch', 'neckline', 'pattern', 'material', 'details', 'shoefeat', 'eartags', 'jfeat', 'jmetal', 'lens'):
         if key in record and not (isinstance(record[key], str) or isinstance(record[key], list) and all(isinstance(v, str) for v in record[key])):
             raise ValueError('Invalid piece tags: ' + key)
+    if 'laundry' in record and not isinstance(record['laundry'], bool):
+        raise ValueError('Invalid laundry status')
+    if 'care' in record:
+        care = record['care']
+        if not isinstance(care, dict) or any(k in care and (not isinstance(care[k], str) or len(care[k]) > (1000 if k == 'note' else 100)) for k in ('wash', 'dry', 'note')):
+            raise ValueError('Invalid care instructions')
     # Retain the legacy archive ceiling so existing galleries/backups remain readable.
     # New photo additions and assistant imports use a ten-view product limit.
     if 'photos' in record and (not isinstance(record['photos'], list) or len(record['photos']) > 12 or any(not isinstance(p, dict) or not isinstance(p.get('photoId'), str) or not ASSET_ID.fullmatch(p['photoId']) for p in record['photos'])):
@@ -191,15 +197,17 @@ def media_type(data):
 
 
 def references(value):
+    """Collect explicit photo fields, not unrelated 32-character identifiers."""
     found = set()
     if isinstance(value, dict):
+        photo = value.get('photoId')
+        if isinstance(photo, str) and ASSET_ID.fullmatch(photo):
+            found.add(photo)
         for child in value.values():
             found.update(references(child))
     elif isinstance(value, list):
         for child in value:
             found.update(references(child))
-    elif isinstance(value, str) and ASSET_ID.fullmatch(value):
-        found.add(value)
     return found
 
 
@@ -227,7 +235,13 @@ def validate_payload(payload, asset_ids):
     board = payload.get('board')
     if board is not None:
         validate_board(board)
-    missing = references([cols, base]) - set(asset_ids)
+    required = references([cols, base, board]) | set(base['bundles'])
+    photo_map = cols['profile'].get('photoMap', {}).get('map', {})
+    if isinstance(photo_map, dict):
+        for entry in photo_map.values():
+            if isinstance(entry, list) and entry and isinstance(entry[0], str) and ASSET_ID.fullmatch(entry[0]):
+                required.add(entry[0])
+    missing = required - set(asset_ids)
     if missing:
         raise ValueError(f'Backup is missing {len(missing)} referenced photo file(s)')
     encode(payload)  # Reject non-finite numbers before any write.

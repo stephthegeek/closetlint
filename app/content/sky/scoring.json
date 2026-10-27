@@ -1,0 +1,158 @@
+{
+  "version": "2.0.0",
+  "method": "harmonic-essential-signature",
+  "minimums": {
+    "sun": 15,
+    "moon": 5,
+    "rising": 10
+  },
+  "wearWindowDays": 365,
+  "wearHalfLifeDays": 90,
+  "accessoryWeight": 0.5,
+  "moonWeights": {
+    "favorite": 1,
+    "wishlist": 1.5,
+    "lovedOutfit": 0.5
+  },
+  "signature": {
+    "minimumPieces": 3,
+    "minimumFamilies": 2,
+    "minimumCorroboratedPieces": 1
+  },
+  "supportCap": 0.12,
+  "emerging": {
+    "constellationPieces": 5,
+    "broadPieces": 3
+  },
+  "contrast": {
+    "enabled": false,
+    "maximumAdjustment": 0.2
+  },
+  "cues": {
+    "repeatPieces": 3,
+    "motifRate": 0.05,
+    "silhouetteRate": 0.05,
+    "accessoryRates": {
+      "medium": 0.05,
+      "loud": 0.1
+    },
+    "totalCap": 0.25,
+    "eyewearStars": [
+      "dark-academia",
+      "geeky",
+      "retro",
+      "quirky"
+    ],
+    "eyewearRates": {
+      "plain": 0.1,
+      "medium": 0.15,
+      "loud": 0.2,
+      "unset": 0.1
+    },
+    "motifs": [
+      {
+        "id": "botanical",
+        "stars": [
+          "cottagecore",
+          "romantic",
+          "boho"
+        ],
+        "words": [
+          "botanical",
+          "floral",
+          "flower",
+          "flowers",
+          "leaf",
+          "leaves",
+          "vine",
+          "vines",
+          "fern"
+        ]
+      },
+      {
+        "id": "celestial",
+        "stars": [
+          "witchy",
+          "fairy",
+          "geeky"
+        ],
+        "words": [
+          "celestial",
+          "constellation",
+          "galaxy",
+          "moon",
+          "saturn",
+          "planet",
+          "planets"
+        ]
+      },
+      {
+        "id": "technology",
+        "stars": [
+          "geeky",
+          "quirky"
+        ],
+        "words": [
+          "robot",
+          "keyboard",
+          "delete key",
+          "circuit",
+          "pixel heart",
+          "spaceship",
+          "dna",
+          "tetris",
+          "pac man"
+        ]
+      },
+      {
+        "id": "spooky",
+        "stars": [
+          "gothic",
+          "witchy",
+          "spooky"
+        ],
+        "words": [
+          "skull",
+          "skulls",
+          "skeleton",
+          "bat",
+          "bats",
+          "ghost",
+          "ghosts",
+          "occult"
+        ]
+      }
+    ],
+    "silhouettePairs": [
+      {
+        "id": "flowing-retro",
+        "stars": [
+          "retro",
+          "boho"
+        ],
+        "parts": [
+          "flares",
+          "bell-sleeves"
+        ]
+      },
+      {
+        "id": "scholarly-tailoring",
+        "stars": [
+          "dark-academia",
+          "preppy"
+        ],
+        "parts": [
+          "pleated-skirt",
+          "waistcoat"
+        ]
+      }
+    ]
+  },
+  "messages": {
+    "early": "Still gathering, but early signs say {name}.",
+    "broad": "A clear direction; the finer details are still taking shape.",
+    "risingEstimate": "Still gathering: your wardrobe suggests {name} for now. Log a few wears to reveal your Rising.",
+    "moonEstimate": "Still gathering: your wardrobe suggests {name} for now. Heart a few pieces or add wishlist favorites to reveal your Moon.",
+    "empty": "Your sky is still gathering. Add a few pieces and style tags to reveal the first signs."
+  }
+}

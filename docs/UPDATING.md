@@ -9,9 +9,13 @@ Before updating, save open edits and download **Utilities → Export backup**. K
 
 Only one server should access a wardrobe at a time. Browser tabs may cache old code; refresh after the server restarts. Display preferences belong to the browser/origin and are not a substitute for a wardrobe backup.
 
+## Updating from 0.2 to 0.3
+
+Use the same separate wardrobe data folder and the steps above. Sky and the daily fortune do not require reimporting pieces. Resolve failed saves before stopping the old version. Ordinary outfit and partial wear-log retries need the current tab to remain open. Dated Save & schedule retains its reserved save identity across reloads, and direct-import receipts retain their saved results. These recovery paths do not replace a full backup. The extracted 0.3.0-rc.4 candidate passed a synthetic 0.2 update, full-backup export, and mobile-width restore on Linux, including records, board, plans, wear history, and exact photo bytes; see [testing](TESTING.md) for the evidence and limits.
+
 ## Updating from 0.1 to 0.2
 
-Keep using your existing wardrobe data folder; an ordinary app update does not require importing your pieces again. A synthetic 0.1 wardrobe was opened with the extracted 0.2 candidate without changes to its catalog, collections, board, or photos. Keep your pre-update backup, and check your own wardrobe after restarting. See the [0.2 release notes](RELEASE-NOTES.md).
+Keep using your existing wardrobe data folder; an ordinary app update does not require importing your pieces again. A synthetic 0.1 wardrobe was opened with the extracted 0.2 candidate without changes to its catalog, collections, board, or photos. Keep your pre-update backup, and check your own wardrobe after restarting. See the published 0.2 release for its historical release notes.
 
 ## Rollback limits
 

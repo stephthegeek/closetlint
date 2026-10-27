@@ -4,7 +4,7 @@ You can keep several photos of a piece: on a model, laid flat, isolated, or a cl
 
 ## Offline clothes count too
 
-Thrift-shop find? Hand-me-down? A mediocre phone photo + AI is enough to get a professional-looking, close enough result for your catalog.
+Thrift-shop find? Hand-me-down? An ordinary phone photo is enough to add it to your closet. An AI image editor can sometimes help make a clearer product photo.
 
 If you want a cleaner product shot, upload it to an AI image editor and try:
 
@@ -38,7 +38,7 @@ Background removal is optional and runs on the computer hosting Closet Lint. It 
 
 Choose **Remove background** and check the result. **Use cutout as main photo** saves it as the main photo; **Discard** keeps the original as it was. The original remains available either way.
 
-For several pieces, open **Menu → Utilities → Tidy photos**. Choose a collection or another group, then review up to 12 pairs at a time. Each piece starts with **Original** selected. Click a **Cutout** to choose it as the main photo, then save and continue, or choose **Save and close** to finish this batch and exit. Each new batch opens at the top. Photos left on **Original** will not be suggested in Tidy photos again. Originals remain available, and you can retry background removal from an individual piece page. Failed removals can still be retried later.
+For several pieces, open **Menu → Utilities → Tidy photos**. Choose a collection or another group, then review up to 12 pairs at a time. Tidy photos works on each piece’s current main photo, including an isolated or AI recast view. Each piece starts with **Current photo** selected. Alternate gallery photos are used only after you make one the main photo. Click a **Cutout** to choose it as the main photo, then save and continue, or choose **Save and close** to finish this batch and exit. Each new batch opens at the top. Photos left on **Current photo** will not be suggested in Tidy photos again. Originals remain available, and you can retry background removal from an individual piece page. Failed removals can still be retried later.
 
 ### Set up background removal
 
@@ -62,3 +62,24 @@ Already set up background removal? Your existing environment still works, and ph
 - **Removal is unavailable or fails:** run `python3 tools/check_setup.py --data ../closet-lint` (on Windows, use `py -3`). It checks the photo environment and model and prints the setup command if needed. Regular photo uploads work without this tool.
 
 Full backups include all saved photo versions. For help adding photos through your assistant, see [AI assistant imports](ASSISTANT-IMPORT.md).
+
+Warm previews are indexed in memory after the background worker checks their source bytes. Once indexed, thumbnail requests read the preview directly, without loading or hashing the full-size original. The index is disposable: restarting rebuilds it from the existing preview files, and restoring a wardrobe clears it before new requests reuse previews. Cold or unavailable previews retain the bounded wait and original-photo fallback.
+
+You can also select a piece on the outfit board and choose **Remove background**, including in a collage window. Review the result before accepting it. Accepting makes the cutout the piece’s main photo everywhere; switch back to the original from the piece page whenever you like.
+
+Photo-derived swatches live inside **Photo options** on the piece page. Open it to adjust or sample colors; the existing save and Undo behavior is unchanged. The disclosure also contains the framing, replacement, crop, and optional background-removal controls.
+
+## Care-label references
+
+Open **Care** on a piece page and choose **Add care-label photo**, or classify an existing gallery view as **Care label** in Photo options. A label photo alone is enough; Washing, Drying, and Care note are optional and save with the piece form. Photo uploads save immediately and retain other unfinished form entries.
+
+Care labels can be enlarged from Care or the gallery. They stay out of main garment photos, board images, swatch sampling, photo cleanup, and background removal. Changing the main view to Care label selects another garment view, or the usual no-photo placeholder. Labels count toward the existing 12-photo limit and travel with full backups. **Remove photo** offers Undo and retains the underlying image asset.
+
+Tidy photos skips a main photo that is already a cutout. If you switch the main photo while a tidy batch is being reviewed, saving that stale result is blocked; reopen Tidy photos to use the new main photo.
+
+
+## Product photos during bulk import
+
+Under Prepare your pieces, select **Create an individual product photo for each piece** for emails, links, exports, or uploaded photos. Combine it with **Separate multipacks into individual pieces** to request a separate record and image for every confirmed pack member. Record splitting by itself keeps the source photo. Shoes, socks, gloves, and earrings remain normal pairs.
+
+The assistant uses its available image editor and asks for any additional access. Originals stay available; successful new product views are labeled recast and become the main view. If editing is unavailable, declined, or fails, the original is kept and the reason appears with the import result. For uploads, change an individual photo checkbox or supply brief guidance about details to preserve. There is no separate photo-splitting control, automatic recoloring of model photos, or new alternate-view uploader.

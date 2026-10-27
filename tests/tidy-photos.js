@@ -24,13 +24,19 @@ const tick=()=>new Promise(setImmediate);
  assert.equal(c.tidyPhotoCandidates([{...items[0],tidySkippedSourcePhotoId:'photo0'}],null,true).length,0,'reviewed original is not proposed again');
  assert.equal(c.tidyPhotoCandidates([{...items[0],tidySkippedSourcePhotoId:'older-photo'}],null,true).length,1,'a changed source photo can be reviewed');
  const oldRejected={...items[0],tidySkippedSourcePhotoId:'photo0',photos:[{photoId:'photo0',tidySkipped:true},{photoId:'new-upload'}]};
- assert.equal(c.tidyPhotoCandidates([oldRejected],null,true)[0].source.photoId,'new-upload','a new gallery upload is eligible even while the old original stays main');
+ assert.equal(c.tidyPhotoCandidates([oldRejected],null,true).length,0,'an alternate upload does not override a reviewed main photo');
+ assert.equal(c.tidyPhotoCandidates([{...oldRejected,photoId:'new-upload'}],null,true)[0].source.photoId,'new-upload','a new main photo can be reviewed');
  const oldCutout={...withCutout,photoId:'cutout',photos:[...withCutout.photos,{photoId:'new-upload'}]};
- assert.equal(c.tidyPhotoCandidates([oldCutout],null,true)[0].source.photoId,'new-upload','an old accepted cutout does not hide a new source photo');
+ assert.equal(c.tidyPhotoCandidates([oldCutout],null,true).length,0,'an accepted main cutout does not fall back to another gallery photo');
+ assert.equal(c.tidyPhotoCandidates([oldCutout],null,false).length,0,'including processed sources still never falls back from the main cutout');
  const twiceSkipped={...oldRejected,tidySkippedSourcePhotoId:'new-upload',photos:oldRejected.photos.map(p=>({...p,tidySkipped:true}))};
  assert.equal(c.tidyPhotoCandidates([twiceSkipped],null,true).length,0,'earlier rejected originals do not reappear after reviewing a second photo');
  assert.equal(c.tidyPhotoCandidates([{...twiceSkipped,photoId:'new-main'}],null,true)[0].source.photoId,'new-main','a replacement main missing from legacy gallery metadata remains eligible');
- assert.equal(c.tidyPhotoCandidates([{...items[0],photos:[{photoId:'photo0'},{photoId:'older-alt'},{photoId:'latest-alt'}]}],null,true)[0].source.photoId,'latest-alt','the most recently added original is prioritized');
+ assert.equal(c.tidyPhotoCandidates([{...items[0],photos:[{photoId:'photo0'},{photoId:'older-alt'},{photoId:'latest-alt'}]}],null,true)[0].source.photoId,'photo0','the current main photo wins over newer alternate views');
+ const recastMain={...items[0],photoId:'isolated-main',photos:[{photoId:'isolated-main',kind:'recast'},{photoId:'camera-original',kind:'model'}]};
+ assert.equal(c.tidyPhotoCandidates([recastMain],null,true)[0].source.photoId,'isolated-main','imported isolated/recast main is used instead of the retained original');
+ assert.equal(c.tidyPhotoCandidates([{...recastMain,photos:recastMain.photos.slice().reverse()}],null,true)[0].source.photoId,'isolated-main','gallery order cannot change the selected source');
+ assert.equal(c.tidyPhotoCandidates([{...recastMain,photoId:undefined,photo:'catalog.jpg'}],null,true).length,0,'a catalog main without a saved ID cannot silently select an alternate');
  assert.equal(c.tidyPhotoCandidates(items,['p4'],true)[0].itemId,'p4');
  assert.equal(c.tidyPhotoCandidates([items[0],{...items[0],id:'other-variant'}],null,true).length,2,'separate pieces sharing a source are not lost');
  const scopes=[{...items[0],meta:'Jewelry',sub:'Necklaces'},{...items[1],meta:'Footwear',sub:'Heels'}];
@@ -90,7 +96,7 @@ async function checkDialogFlow(){
  assert.equal(button('Save and continue'),undefined,'last batch offers only save and close');assert.equal(find(dialog,n=>n.id==='tidy-save-count').text,'0 cutouts to save');await click(button('Save and close'));assert.equal(dialog.open,false);
  assert.equal(pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped,true,'an original choice is remembered on its photo');
  delete pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped; // Legacy record: only the piece-level skip ID exists.
- pieces[1].photos.push({photoId:'new-gallery-photo',kind:'unclassified'});
+ pieces[1].photos.push({photoId:'new-gallery-photo',kind:'unclassified'});pieces[1].photoId='new-gallery-photo';
  await begin();assert.equal(prepared,26);assert.equal(processed.at(-1),'new-gallery-photo');
  await click(button('Save and close'));assert.equal(pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped,true);assert.equal(pieces[1].photos.find(p=>p.photoId==='new-gallery-photo').tidySkipped,true,'both rejected originals retain separate review history');
  assert.equal(ctx.tidyPhotoCandidates(pieces,null,true).length,0,'saving the new photo choice does not resurrect legacy or current rejected photos');
@@ -103,10 +109,15 @@ async function checkDialogFlow(){
  assert.equal(button('Save and close').disabled,true);const savedBefore=saved;
  gates.shift()({size:10});await tick();
  const firstCutout=find(dialog,n=>n['aria-label']==='Save cutout as main photo for Slow 0');assert.equal(firstCutout.disabled,false,'finished photo is selectable while another processes');click(firstCutout);
- assert.equal(find(dialog,n=>n['aria-label']==='Keep original as main photo for Slow 1').disabled,true,'unfinished photo stays locked');
+ assert.equal(find(dialog,n=>n['aria-label']==='Keep current main photo for Slow 1').disabled,true,'unfinished photo stays locked');
  assert.equal(button('Save and close').disabled,true,'saving still waits for the batch');assert.equal(saved,savedBefore,'selection never saves automatically');
  const progress=find(dialog,n=>n.tag==='progress');assert.equal(progress.value,1);assert.equal(progress.max,2);assert.equal(progress.hidden,false);
  gates.shift()({size:10});await tick();assert.equal(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Slow 0')['aria-pressed'],'true','selection survives later photo completion');
  assert.equal(find(dialog,n=>n.tag==='progress').hidden,true);assert.equal(button('Save and close').disabled,false);await click(button('Save and close'));assert.equal(saved,savedBefore+1);assert.equal(pieces.at(-1).tidySkippedSourcePhotoId,'slow-original1');
+ const changed={id:'changed-main',name:'Changed main',meta:'Tops',sub:'Tees',photoId:'first-main',photos:[{photoId:'first-main',src:'/_blob/first-main'}]};pieces.push(changed);
+ ctx.window.ClosetLintRuntime.removeBackground=async()=>({size:10});await begin();
+ click(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Changed main'));
+ const beforeChanged=saved;changed.photos.push({photoId:'replacement-main',src:'/_blob/replacement-main'});changed.photoId='replacement-main';await click(button('Save and close'));
+ assert.equal(saved,beforeChanged,'a queued cutout cannot overwrite a new main photo');assert.equal(changed.photoId,'replacement-main');assert.equal(dialog.open,true);assert(find(dialog,n=>typeof n.text==='string'&&n.text.includes('The main photo changed')));click(button('Close'));
  console.log('Tidy dialog: batch scroll reset, stable selection scroll, save-and-close, retry safety, and untouched later photos pass.');
 }

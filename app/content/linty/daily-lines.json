@@ -1,0 +1,159 @@
+{
+  "fortune": {
+    "mystic": [
+      "Something you already own is about to become your favorite again.",
+      "Today rewards whoever wears the slightly strange earrings.",
+      "Check every pocket. One of them is keeping a secret.",
+      "Somewhere, a sock you lost is doing fine. Let it go.",
+      "Layers are just secrets you can take off.",
+      "The universe does not require you to match. Neither do I.",
+      "A compliment is drifting toward you. Give it somewhere to land.",
+      "Lint is only fabric that wanted an adventure.",
+      "The good outfit is already in there. It is being theatrical about it.",
+      "One familiar thing, one unexpected thing. The stars can manage the rest.",
+      "Leave a little room for the accessory with questionable intentions.",
+      "Your pockets know more than they are saying.",
+      "An ordinary Tuesday can still have excellent sleeves.",
+      "The clothes on the chair have formed a small committee.",
+      "Wear something because you like it. A sufficient prophecy.",
+      "The mirror is a witness, not a judge.",
+      "Today’s experiment: one dramatic piece, everything else familiar.",
+      "Something you’re saving for an occasion would like to know what’s wrong with Tuesday.",
+      "A good outfit may be hiding one accessory away from your usual combination.",
+      "You’re allowed to love a piece and dislike wearing it. Useful information, that.",
+      "Your most reliable shoes are about to enable a questionable amount of flair.",
+      "Try the combination you keep almost wearing. Almost has had enough turns.",
+      "Some days, getting dressed is the creative project. Some days, it’s putting on pants. Both count.",
+      "If the outfit feels unfinished, try a different texture before adding another color.",
+      "Today’s forecast: familiar clothes, unusual earrings, a small chance of overdoing it.",
+      "Build around the piece you usually add last.",
+      "Keep the silhouette. Change the mood.",
+      "Choose a detail you usually hide. Let it lead today.",
+      "Repeat a color in two places that rarely get introduced.",
+      "Try a familiar outfit with one piece missing. Does it still work?",
+      "Let the practical piece choose the outfit for once.",
+      "Dress for an imaginary destination. Then go about your actual day.",
+      "Pick the shoes first. Let the rest of the outfit catch up.",
+      "Borrow a combination from another season. Adjust for the actual weather.",
+      "Try giving a dressy piece an ordinary job.",
+      "Choose two textures that disagree. See whether they can be civil.",
+      "Make one detail the main event. Give the others the afternoon off.",
+      "Try the same outfit tucked, untucked, or with a sleeve rolled. Small experiments count.",
+      "Before adding something, try swapping something.",
+      "Give a familiar favorite a different supporting cast."
+    ],
+    "gremlin": [
+      "Today's energy: a cardigan sliding off a chair at 3am.",
+      "I consulted the laundry. It has demands.",
+      "The socks have voted. The result is inconclusive.",
+      "I rearranged the hangers. Consider it a celestial event.",
+      "A button is plotting something. Remain magnificent.",
+      "The lint roller and I are no longer on speaking terms.",
+      "A very small goblin has approved your general direction.",
+      "I checked the pockets for portents. Found a receipt.",
+      "Before buying another black top, introduce two of the ones you already own.",
+      "The outfit does not need a plot twist. But I have prepared one.",
+      "Your safe option and your strange option should have a little meeting.",
+      "Let one accessory be mildly unreasonable. I’ll handle the paperwork."
+    ]
+  },
+  "do": {
+    "mystic": [
+      "Try the #piece# today. It’s been waiting politely.",
+      "Give the #piece# a little daylight.",
+      "Let the #piece# have a turn today.",
+      "Start with the #piece#. See where it takes you.",
+      "Try the #piece# with a familiar favorite.",
+      "There is room in today for the #piece#.",
+      "Build around the #piece#. Choose everything else second.",
+      "Give the #piece# a different companion this time.",
+      "Try the #piece# in an outfit you already trust.",
+      "Let the #piece# set the mood. Matching every detail is optional."
+    ],
+    "gremlin": [
+      "I sniffed the #piece#. It's the one. Wear it.",
+      "The #piece# has bribed Linty. Fair enough.",
+      "The #piece# is making eyes at the door.",
+      "Release the #piece# from hanger jail.",
+      "The #piece# has requested an outing. I said I’d ask.",
+      "Put the #piece# in charge. A small, reversible wardrobe coup."
+    ]
+  },
+  "dont": {
+    "mystic": [
+      "Don’t let a belt tell you what to do.",
+      "You don’t owe anyone an explanation for your outfit.",
+      "Don’t save all the interesting things for an unspecified occasion.",
+      "Don’t assume the plainest option is the only option.",
+      "Don’t take a stubborn fastening personally. It has one job, and it’s struggling.",
+      "Don’t wait for the stars to issue a dress code.",
+      "An outfit can be comfortable without being quiet.",
+      "You don’t have to make a difficult piece work today.",
+      "Don’t mistake unfamiliar for wrong. Give the combination a second look.",
+      "You can repeat a good outfit. It isn’t a single-use spell.",
+      "Don’t buy a whole new outfit to rescue one awkward purchase.",
+      "If you keep adjusting it, you’re allowed to change out of it."
+    ],
+    "gremlin": [
+      "Don’t let a zipper ruin your day. It is a very small machine.",
+      "Don’t negotiate with static. It has no honor.",
+      "Don’t assume the other sock is innocent.",
+      "Don’t give a hanger the final say.",
+      "You don’t have to obey a size label. It has never met you.",
+      "Don’t let the laundry chair make all your styling decisions."
+    ]
+  },
+  "neglected": {
+    "mystic": [
+      "No wear logged for the #piece# in #days# days. A reunion, or a paperwork issue?",
+      "The #piece# is still here. Excellent taste, past you.",
+      "A small reunion with the #piece# is overdue.",
+      "The #piece# has been keeping its own counsel. Ask it out.",
+      "The #piece# is a favorite with a quiet wear log. See if you still get along.",
+      "Give the #piece# another look. Keep the affection; reconsider the styling."
+    ],
+    "gremlin": [
+      "The #piece# has filed a missing-person report. For you.",
+      "I found the #piece#. It wants visitation rights.",
+      "The #piece# has begun charging the hangers rent.",
+      "The #piece# is a favorite. The wear log would like proof."
+    ],
+    "stored": [
+      "#bin# has been very quiet. Too quiet. The #piece# is in there.",
+      "The #piece# is keeping watch in #bin#. It would accept a change of scenery."
+    ]
+  },
+  "color": {
+    "mystic": [
+      "The omen is #color#. The omen is rarely wrong, and a little smug about it.",
+      "A little #color# would change the conversation.",
+      "Let #color# have a speaking part today.",
+      "You own a little collection of #color#, but it’s been quiet in your wear log.",
+      "Start with a little #color#. It doesn’t have to be the whole outfit.",
+      "Try #color# in a familiar combination. Change one thing at a time."
+    ],
+    "gremlin": [
+      "I pulled #color# out of the void. It had lint on it.",
+      "The goblin council requests a little #color#.",
+      "#color# has been rattling the hangers again.",
+      "Your #color# pieces have requested more stage time. A sleeve would do."
+    ],
+    "pair": [
+      "I haven’t found #colorA# and #colorB# together in your wear logs or saved outfits. Try an introduction.",
+      "The stars propose #colorA# and #colorB#. They seem willing.",
+      "Try #colorA# and #colorB# together. One can whisper while the other talks.",
+      "Let #colorA# lead, with a little #colorB# along for the adventure."
+    ]
+  },
+  "almanac": {
+    "halloween": [
+      "Halloween. The one day I don't have to hide. Dress accordingly."
+    ],
+    "friday13": [
+      "Friday the 13th. The clothes are innocent. Probably."
+    ],
+    "newyear": [
+      "A new year. Your favorite things are allowed to come with you."
+    ]
+  }
+}

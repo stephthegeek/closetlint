@@ -1,32 +1,32 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8'),routes=fs.readFileSync(__dirname+'/../app/scripts/navigation.js','utf8');
 function fn(n){const a=html.indexOf('function '+n+'('),b=html.indexOf('\nfunction ',a+1);assert(a>=0,n);return html.slice(a,b)}
-function fixture(hash=''){
+function fixture(hash='',install=true){
  const nodes={},listeners={},stack=[{state:null,url:hash}],writes=[],prompts=[],notices=[];let pos=0,allow=true;
  function node(id){if(nodes[id])return nodes[id];const classes=new Set();return nodes[id]={value:'',open:false,scrollTop:0,fields:[],images:[],pressed:[],dataset:{},events:{},classList:{toggle(k,v){if(v)classes.add(k);else classes.delete(k)},contains:k=>classes.has(k)},setAttribute(){},getAttribute(){return ''},querySelectorAll(sel){return sel==='.ph img'?this.images:sel.includes('.form .tagfield')?this.pressed:this.fields},querySelector(){return null},addEventListener(k,f){(this.events[k]??=[]).push(f)},close(){if(!this.open)return;this.open=false;(this.events.close||[]).forEach(f=>f({}))},showModal(){this.open=true}}}
  const location={hash},win={location,scrollY:0,addEventListener(k,f){(listeners[k]??=[]).push(f)},scrollTo(x,y){this.scrollY=y},confirm(m){prompts.push(m);return allow},ClosetLintRuntime:{setBoard(b){writes.push(JSON.parse(JSON.stringify(b)))}}};
  const hist=win.history={pushState(state,x,url){stack.splice(pos+1);stack.push({state,url});pos++;location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},replaceState(state,x,url){stack[pos]={state,url};location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},go(delta){pos+=delta;assert(pos>=0&&pos<stack.length);location.hash=stack[pos].url.includes('#')?stack[pos].url.slice(stack[pos].url.indexOf('#')):'';this.state=stack[pos].state;(listeners.popstate||[]).forEach(f=>f({state:this.state}));(listeners.hashchange||[]).forEach(f=>f({}))},back(){this.go(-1)},forward(){this.go(1)}};
  const scratch={id:null,name:'My working pile',pieces:[{id:'a',x:1,y:2,w:30,z:1}]},saved={id:'o1',name:'Dinner',pieces:[{id:'b',x:5,y:6,w:40,z:1}]};
  const state={tab:'all',capsDone:false,db:{},pub:false,board:scratch,outfits:{o1:saved},trips:{t1:{name:'Weekend',settings:{dest:'Home'},plan:{}}},q:'',collectionFilter:{},of:{},fantasy:false};
- const ctx={window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},renderOracle(){ctx.oracleSession=ctx.oracleSession||{question:''}},oracleLeave(){},oracleSession:null,labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
+ const ctx={releaseOutfitPreview(){},paintWorkspaceRecovery(){},skyRender(){},window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},renderOracle(){ctx.oracleSession=ctx.oracleSession||{question:''}},oracleLeave(){},oracleSession:null,labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
  openEdit(it){const d=node('dlg');d.fields=[{name:'name',type:'text',value:it.id,getAttribute(){return ''},closest(){return null}}];d.showModal()},openAdd(){const d=node('dlg');d.fields=[];d.images=[];d.showModal()},openOutfitDetails(){node('dlg').showModal()}};
  vm.createContext(ctx);
- vm.runInContext(['setTab','persistBoard','ofOpen','outfitEditorDirty','boardNeedsProtection','boardHasContent','tripNew','tripSettings','tripHasUnsaved','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar'].map(fn).join('\n')+'\n'+routes,ctx);
- ctx.installClosetRoutes();
+ vm.runInContext(['paintBoardSaveStatus','adoptBoard','copyBoardPieces','boardDocument','setTab','persistBoard','workspaceKey','workspaceSnapshot','ofOpen','outfitEditorDirty','boardNeedsProtection','boardHasContent','tripNew','tripSettings','tripHasUnsaved','tripCancelPending','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar'].map(fn).join('\n')+'\n'+routes,ctx);
+ if(install)ctx.installClosetRoutes();
  return {ctx,state,scratch,saved,writes,prompts,notices,win,hist,stack,node,setAllow:v=>allow=v,ready(){state.capsDone=true;['edits','custom','outfits','profile','trips'].forEach(k=>ctx.setupLoaded[k]=true);win.ClosetLintRoutes.ready()}};
 }
 {
  const f=fixture('#/outfits/o1'),{ctx,state,scratch,saved,win,hist}=f;
  win.ClosetLintRoutes.ready();assert.equal(state.editingOutfit,undefined,'deep link waits for storage');f.ready();
  assert.equal(ctx.document.title,'Dinner · Closet Lint');
- assert.equal(state.editingOutfit,true);assert.equal(state.scratchBoard,null);assert.equal(state.board.id,'o1');assert.notEqual(state.board.pieces[0],saved.pieces[0]);assert.equal(f.writes.length,0);assert.equal(f.prompts.length,1,'a deep link protects an existing draft');f.prompts.length=0;
+ assert.equal(state.tab,'saved');assert.equal(state.ofPreview,'o1');assert.equal(state.board,scratch);assert.equal(f.writes.length,0,'preview never writes the board');assert.equal(f.prompts.length,0,'preview does not ask to discard work');
  state.board.pieces[0].x=99;const edited=state.board;ctx.openEdit({id:'b'});assert.equal(win.location.hash,'#/pieces/b');assert.equal(f.prompts.length,0,'piece can open over unsaved outfit');
  assert.equal(ctx.document.title,'Piece · Closet Lint');
  hist.back();assert.equal(win.location.hash,'#/outfits/o1');assert.equal(state.board,edited);assert.equal(state.board.pieces[0].x,99,'Back closes piece without discarding outfit edits');assert.equal(f.prompts.length,0);
  assert.equal(ctx.document.title,'Dinner · Closet Lint');
  hist.forward();f.node('dlg').fields[0].value='Edited piece';f.setAllow(false);hist.back();assert.equal(win.location.hash,'#/pieces/b');assert.equal(f.node('dlg').open,true);assert.equal(state.board,edited);
  f.setAllow(true);hist.back();assert.equal(state.board,edited);f.setAllow(false);ctx.setTab('all');assert.equal(state.board,edited,'ordinary navigation preserves the current outfit draft');
- f.setAllow(true);ctx.setTab('outfits');assert.equal(win.location.hash,'#/board');assert.equal(state.board,edited);assert.equal(saved.pieces[0].x,5);ctx.persistBoard();assert.equal(f.writes.at(-1).id,'o1','autosave remembers the linked board without updating the saved outfit');
+ f.setAllow(true);ctx.setTab('outfits');assert.equal(win.location.hash,'#/board');assert.equal(state.board,edited);assert.equal(saved.pieces[0].x,5);assert.equal(f.writes.length,0,'navigation and modal close only repaint');ctx.persistBoard();assert.equal(f.writes.at(-1).id,null,'autosave preserves the original draft while viewing saved outfits');
  ctx.ofOpen(saved,ctx.byIdA());state.board.name='Changed';const current=state.board;ctx.ofOpen(saved,ctx.byIdA());assert.equal(state.board,current,'same-outfit navigation never reloads unsaved editor');
 }
 {
@@ -62,7 +62,35 @@ function fixture(hash=''){
  ctx.setTab('saved');assert.equal(win.location.hash,'#/outfits');assert.equal(state.ofView,'outfits');hist.back();assert.equal(state.ofView,'history');assert.equal(state.histMonth,'2026-12');assert.equal(state.board,f.scratch);
  const d=f.node('collections-dialog');d.showModal();let name='Original',busy=false;win.ClosetLintRoutes.trackDialog(d,()=>name,()=>busy);name='Edit';f.setAllow(false);assert.equal(win.ClosetLintRoutes.closeTrackedDialog(d),false);assert.equal(d.open,true);f.setAllow(true);busy=true;assert.equal(win.ClosetLintRoutes.closeTrackedDialog(d),false);busy=false;assert.equal(win.ClosetLintRoutes.closeTrackedDialog(d),true);assert.equal(d.open,false);assert.equal(win.location.hash,'#/calendar?month=2026-12','closing collection editor preserves underlying workflow');
 }
-console.log('URL app integration: deep links, board isolation, unsaved fields and chips, trips, collections, calendar, and browser history pass.');
+{
+ const f=fixture('#/sky'),{ctx,state,win,hist}=f;f.ready();assert.equal(state.tab,'sky','Sky deep link opens its own view');
+ const working=state.board;ctx.openEdit({id:'a'});ctx.closeDlg();assert.equal(win.location.hash,'#/sky');assert.equal(state.tab,'sky');assert.equal(state.board,working);
+ ctx.setTab('all');hist.back();assert.equal(win.location.hash,'#/sky');hist.forward();assert.equal(state.tab,'all');assert.equal(state.board,working);
+ ctx.ofOpen(f.saved,ctx.byIdA());state.board.name='Unsaved';f.setAllow(false);assert.equal(ctx.setTab('sky'),true,'Sky navigation retains the autosaved board without discarding outfit changes');assert.equal(state.board,working);assert.equal(state.board.name,'Unsaved');
+}
+console.log('URL app integration: hydrated deep links, real board isolation, dirty forms/photos/outfits/trips, cancelled Back/menu navigation, direct-link close, missing records, collections, and browse context pass.');
+
+{
+ const f=fixture('#/sky/catalog'),{ctx,state,win,hist}=f;f.ready();assert.equal(state.tab,'sky');assert.equal(state.skyCatalog,true,'catalog deep link opens catalog');const board=state.board;
+ win.ClosetLintRoutes.sky(false);assert.equal(win.location.hash,'#/sky');assert.equal(state.skyCatalog,false);hist.back();assert.equal(win.location.hash,'#/sky/catalog');assert.equal(state.skyCatalog,true);hist.forward();assert.equal(state.skyCatalog,false);
+ win.ClosetLintRoutes.sky(true);ctx.openEdit({id:'a'});ctx.closeDlg();assert.equal(win.location.hash,'#/sky/catalog');assert.equal(state.skyCatalog,true,'returning from a piece retains the catalog');assert.equal(state.board,board);
+ ctx.setTab('sky');assert.equal(win.location.hash,'#/sky');assert.equal(state.skyCatalog,false,'main Sky entry returns to overview');
+}
+console.log('Sky catalog: deep links, overview navigation, Back/Forward, piece return, and board preservation pass.');
+
+{
+ const f=fixture('#/sky'),{win,hist,state}=f;f.ready();const board=state.board;win.scrollY=760;
+ win.ClosetLintRoutes.sky(true);assert.equal(win.scrollY,0,'explicit catalog navigation starts at its heading');win.scrollY=430;
+ hist.back();assert.equal(win.location.hash,'#/sky');assert.equal(win.scrollY,760,'Back retains the overview scroll position');hist.forward();assert.equal(win.scrollY,430,'Forward retains the catalog scroll position');
+ win.ClosetLintRoutes.sky(false);assert.equal(win.scrollY,0,'explicit return to overview starts at the top');assert.equal(state.board,board);
+}
+console.log('Sky catalog scroll: new navigation starts at top; Back/Forward restores each view without changing the board.');
+
+{
+ const f=fixture(),{ctx,state,win,hist,stack}=f;ctx.PUB={skySharePage:'sky.html',skyLanding:true};f.ready();assert.equal(state.tab,'sky');assert.equal(stack.at(-1).url,'./sky.html#/sky');const board=state.board;
+ ctx.setTab('all');assert.equal(stack.at(-1).url,'./#/closet');hist.back();assert.equal(state.tab,'sky');hist.forward();assert.equal(state.tab,'all');ctx.setTab('sky');ctx.openEdit({id:'a'});assert.equal(stack.at(-1).url,'./#/pieces/a');ctx.closeDlg();assert.equal(state.tab,'sky');assert.equal(state.board,board);
+}
+console.log('Public Sky alias: default landing, normal-view URLs, Back/Forward, piece return, and board preservation pass.');
 
 {
  const f=fixture('#/closet'),{ctx,state,scratch,node}=f;f.ready();
@@ -102,4 +130,67 @@ console.log('URL app integration: deep links, board isolation, unsaved fields an
  console.log('Oracle page routing: direct link, title, primary views, Back/Forward, retained question, and active-download navigation guard pass.');
 }
 
-{const f=fixture('#/outfits/o1');f.setAllow(false);f.ready();assert.equal(f.win.location.hash,'#/board');assert.equal(f.state.board,f.scratch);assert.equal(f.writes.length,0);}
+{const f=fixture('#/outfits/o1');f.setAllow(false);f.ready();assert.equal(f.win.location.hash,'#/outfits/o1');assert.equal(f.state.ofPreview,'o1');assert.equal(f.state.board,f.scratch);assert.equal(f.writes.length,0);}
+
+// Real startup waits for storage and resolves the requested destination before rendering.
+{
+ const f=fixture('#/oracle',false),{ctx,state,node}=f,renders=[];
+ Object.assign(ctx,{maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false,initShell(){},wireBoard(){},restoreBoard(){},loadBundles(){}});
+ ctx.localStorage.getItem=()=> 'clothing';
+ ctx.renderGrid=()=>renders.push('closet');ctx.renderOracle=()=>renders.push('oracle');
+ vm.runInContext(fn('initialTab')+'\n'+fn('onDataInner'),ctx);
+ const boot=html.match(/\ninitShell\(\);\n[\s\S]*?\ninstallClosetRoutes\(\);/);assert(boot);vm.runInContext(boot[0],ctx);
+ assert.equal(state.tab,'clothing');assert.deepEqual(renders,[],'remembered tab does not render before route hydration');
+ assert.equal(ctx.window.ClosetLintRoutes.ready(),false);ctx.onDataInner();assert.deepEqual(renders,[]);
+ state.capsDone=true;ctx.setupLoaded.edits=true;ctx.onDataInner();assert.deepEqual(renders,[],'partial initial snapshots do not render a fallback closet');
+ f.ready();assert.deepEqual(renders,['oracle']);assert.equal(state.tab,'oracle');assert.equal(node('app-loading').classList.contains('hide'),true);
+ assert.equal(ctx.window.ClosetLintRoutes.ready(),true,'later data refreshes remain enabled');
+}
+{
+ const f=fixture('#/oracle'),{ctx,state}=f,renders=[];
+ ctx.labRender=()=>renders.push('lab'); // The route installer captures render entry points through setTab.
+ ctx.setTab('lab');assert.equal(state.tab,'all','navigation while loading queues the destination');f.ready();assert.equal(state.tab,'lab');assert.deepEqual(renders,['lab']);
+}
+{
+ const f=fixture('#/oracle'),{ctx,state,node}=f;state.capsDone=true;state.db=null;
+ assert.equal(ctx.window.ClosetLintRoutes.ready(),'started','no-database fallback can finish startup');assert.equal(state.tab,'oracle');assert.equal(node('app-loading').classList.contains('hide'),true);
+}
+{
+ const f=fixture('#/outfits'),{ctx}=f;f.ready();let draws=0;ctx.ofDraw=()=>draws++;
+ Object.assign(ctx,{maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false});
+ vm.runInContext(fn('onDataInner'),ctx);ctx.onDataInner();assert.equal(draws,1,'one saved-outfit data update performs one draw');
+}
+{
+ const f=fixture(),{ctx,state,node}=f;let failed;
+ ctx.console={warn(){}};state.db={collection:()=>({onSnapshot:(ok,error)=>failed=error})};
+ vm.runInContext(fn('watch'),ctx);ctx.watch('custom','custom');failed(new Error('Synthetic startup failure'));
+ assert.match(node('app-loading').textContent,/Could not load your wardrobe/);assert.equal(ctx.setupLoaded.custom,undefined,'failed snapshots are not mistaken for an empty wardrobe');
+}
+console.log('Startup: no provisional page, hydration gating, queued navigation, no-database fallback, visible load errors, and one saved-outfit redraw pass.');
+
+{
+ const f=fixture('#/outfits'),{ctx,state}=f;let draws=0;
+ ctx.renderSaved=()=>draws++;ctx.ofDraw=()=>draws++;
+ Object.assign(ctx,{maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false});
+ state.capsDone=true;['edits','custom','outfits','profile','trips'].forEach(k=>ctx.setupLoaded[k]=true);
+ vm.runInContext(fn('onDataInner'),ctx);ctx.onDataInner();assert.equal(draws,1,'initial hydration renders saved outfits once');ctx.onDataInner();assert.equal(draws,2,'later updates still redraw saved outfits');
+}
+
+(async()=>{
+ const f=fixture('#/trips/new');f.ready();const c=f.ctx,T=f.state.trip;
+ T.plan={outfits:[]};T.name='Synthetic created trip';c.needDb=()=>false;
+ f.state.db={collection:()=>({doc:id=>({set:record=>{f.state.trips[id]=JSON.parse(JSON.stringify(record));return Promise.resolve()}})})};
+ vm.runInContext(html.slice(html.indexOf('function tripSave('),html.indexOf('function tripOpen(')),c);
+ await c.tripSave();assert(T.id);assert.equal(f.win.location.hash,'#/trips/'+T.id,'first Save replaces the new-trip route with its saved identity');
+ T._tripFlight=Promise.resolve();const before=f.win.location.hash;c.setTab('saved');assert.equal(f.win.location.hash,before,'URL navigation cannot abandon a trip write');assert(f.notices.some(message=>message.includes('Wait for this trip save')));
+ console.log('Trips routing: first Save adopts its saved URL, and in-flight navigation stays put.');
+})().catch(error=>{console.error(error);process.exitCode=1});
+
+{
+ const f=fixture('#/board');f.ready();f.ctx.openCalendar('2026-11');f.ctx.setTab('outfits');
+ f.state.boardSaving=true;f.state.outfitSave={planning:true};
+ assert.equal(f.ctx.openCalendar('2026-11'),false,'calendar navigation waits for atomic Save & schedule');assert.equal(f.win.location.hash,'#/board');
+ f.hist.back();assert.equal(f.win.location.hash,'#/board','browser Back also waits for Save & schedule');assert.equal(f.state.board,f.scratch);
+ f.state.boardSaving=false;assert.equal(f.ctx.openCalendar('2026-11'),true);
+ console.log('Calendar planning: menu navigation and browser Back wait for the in-flight outfit/date save.');
+}
