@@ -44,6 +44,55 @@ class PieceImportTests(unittest.TestCase):
         path.write_text(json.dumps({'format': 'closet-lint-import/v1', 'batchId': batch, 'pieces': pieces if pieces is not None else [self.piece]}))
         return prepare_batch(path, **kwargs)
 
+    def test_multipack_records_share_original_and_report_editor_fallback(self):
+        pieces = [{**self.piece, 'name': color.title() + ' beanie', 'category': 'Hats', 'subcategory': 'Beanies',
+                   'status': 'owned', 'size': '', 'price': None, 'variant': color, 'colors': [color],
+                   'images': [{'file': 'model.jpg', 'kind': 'scene'}], 'productPhotoRequested': True,
+                   'photoNote': 'Image editor unavailable; original pack photo kept.'}
+                  for color in ('black', 'blue', 'white')]
+        prepared = self.prepare(pieces, batch='three-beanies')
+        report = import_batch(self.store, *prepared, apply=True)
+        self.assertEqual(report['added'], 3)
+        self.assertEqual(report['photosSaved'], 1, 'shared original is saved once')
+        self.assertTrue(all(not r['photoStatus']['created'] for r in report['results']))
+        self.assertTrue(all('editor unavailable' in r['photoStatus']['note'] for r in report['results']))
+        records = list(self.store.state()['collections']['custom'].values())
+        self.assertEqual(len(records), 3)
+        self.assertEqual(len({r['photoId'] for r in records}), 1)
+        self.assertEqual({r['variant'] for r in records}, {'black', 'blue', 'white'})
+        self.assertTrue(all('productPhotoRequested' not in r and 'photoNote' not in r for r in records))
+        retry = import_batch(self.store, *prepared, apply=True)
+        self.assertEqual(retry['mode'], 'already-applied')
+        self.assertEqual(len(self.store.state()['collections']['custom']), 3)
+
+    def test_requested_product_photo_recast_and_original_are_retained(self):
+        piece = {**self.piece, 'productPhotoRequested': True, 'images': [
+            {'file': 'isolated.png', 'kind': 'recast'}, {'file': 'model.jpg', 'kind': 'scene'}]}
+        prepared = self.prepare([piece], batch='recast-test')
+        report = import_batch(self.store, *prepared, apply=True)
+        self.assertTrue(report['results'][0]['photoStatus']['created'])
+        self.assertEqual(report['results'][0]['photoStatus']['note'], '')
+        self.assertEqual(report['results'][0]['warnings'], [])
+        record = next(iter(self.store.state()['collections']['custom'].values()))
+        self.assertEqual(record['photos'][0]['kind'], 'recast')
+        self.assertEqual(record['photos'][1]['kind'], 'scene')
+        self.assertEqual(record['photoId'], record['photos'][0]['photoId'])
+        with self.assertRaisesRegex(ValueError, 'true or false'):
+            self.prepare([{**piece, 'productPhotoRequested': 'yes'}])
+        with self.assertRaisesRegex(ValueError, 'photoNote'):
+            self.prepare([{**piece, 'photoNote': 'x' * 601}])
+
+    def test_care_label_is_preserved_but_never_main(self):
+        piece = {**self.piece, 'images': [{'file': 'isolated.png', 'kind': 'carelabel'}, {'file': 'model.jpg', 'kind': 'model'}]}
+        record = self.prepare([piece])[2][0]['record']
+        self.assertEqual(record['photos'][0]['kind'], 'carelabel')
+        self.assertEqual(record['photoId'], record['photos'][1]['photoId'])
+        piece['images'] = piece['images'][:1]
+        record = self.prepare([piece])[2][0]['record']
+        self.assertTrue(record['noPhoto'])
+        self.assertNotIn('photoId', record)
+        self.assertEqual(record['photos'][0]['kind'], 'carelabel')
+
     def test_twelve_photo_limit_includes_primary_photo_file(self):
         images = []
         for i in range(12):
@@ -132,6 +181,19 @@ class PieceImportTests(unittest.TestCase):
             self.prepare([{**self.piece, 'images': []}])
         _, _, rows = self.prepare([{**self.piece, 'images': []}], allow_no_photo=True)
         self.assertTrue(rows[0]['record']['noPhoto'])
+
+    def test_tagged_recast_import_retains_tags_and_original(self):
+        tags = {'colors': ['black'], 'seasons': ['summer'], 'styles': ['casual'], 'looks': ['resort'], 'material': ['crochet'], 'details': ['bows'], 'statement': 'medium'}
+        piece = {**self.piece, **tags, 'images': [{'file': 'isolated.png', 'kind': 'recast'}, {'file': 'model.jpg', 'kind': 'unclassified'}]}
+        prepared = self.prepare([piece])
+        report = import_batch(self.store, *prepared, apply=True)
+        record = next(iter(self.store.state()['collections']['custom'].values()))
+        for key, value in tags.items():
+            self.assertEqual(record[key], value)
+        self.assertTrue(record['guess'])
+        self.assertEqual(record['photoId'], record['photos'][0]['photoId'])
+        self.assertEqual([photo['kind'] for photo in record['photos']], ['recast', 'unclassified'])
+        self.assertEqual(report['photosSaved'], 2)
 
     def test_metadata_allowlist_unknown_tags_and_sizes(self):
         _, _, rows = self.prepare([{**self.piece, 'address': 'must not be stored', 'photoId': 'x', 'colors': ['black', 'clear', 'imaginary'], 'looks': ['geeky', 'utility'], 'pattern': ['animal', 'botanical'], 'date': '2026-10-15', 'imageSources': [{'url': 'https://example.com/alternate.jpg', 'kind': 'detail'}]}])

@@ -42,6 +42,12 @@ const clone=value=>JSON.parse(JSON.stringify(value));
   assert.equal(saved.custom.unsaved,undefined,'failed writes are not emitted as committed records');
   await assert.rejects(runtime.flush(),/could not be saved/);
   let blocked=false;events.beforeunload({preventDefault(){blocked=true}});assert.equal(blocked,true,'unsaved changes warn before closing');
+  fail=false;
+  await db.collection('custom').doc('unsaved').set({name:'Recovered'});await runtime.flush();
+  blocked=false;events.beforeunload({preventDefault(){blocked=true}});assert.equal(blocked,false,'successful retry clears only the recovered record failure');
+  fail=true;for(const id of ['one','two'])await assert.rejects(db.collection('custom').doc(id).set({name:id}));
+  fail=false;await db.collection('custom').doc('one').set({name:'Recovered one'});await assert.rejects(runtime.flush(),/could not be saved/);
+  await db.collection('custom').doc('two').set({name:'Recovered two'});await runtime.flush();
   const failingContext={...ctx,window:{ClosetLintLocal:{token:'fixture-token',board:{pieces:[]}},addEventListener(){}},fetch:async()=>{throw new Error('Offline')}};
   vm.createContext(failingContext);vm.runInContext(fs.readFileSync(path.join(__dirname,'../runtime/browser.js'),'utf8'),failingContext);
   await assert.rejects(failingContext.window.ClosetLintRuntime.use('db'),/Offline/);
@@ -56,6 +62,7 @@ const clone=value=>JSON.parse(JSON.stringify(value));
       setTimeout(fn){const id=++state.serial;state.timers.set(id,fn);return id},clearTimeout(id){state.timers.delete(id)},
       fetch:async(url,options)=>{
         if(url==='/api/state')return {ok:true,json:async()=>({collections:{custom:{}}})};
+        if(state.hold)await new Promise(resolve=>{state.release=resolve});
         if(state.failures){state.failures--;if(!state.status)throw new TypeError('Failed to fetch');return {ok:false,status:state.status,json:async()=>({error:'Synthetic save rejection'})}}
         state.writes.push(JSON.parse(options.body));return {ok:true,json:async()=>({ok:true})};
       }};
@@ -81,6 +88,16 @@ const clone=value=>JSON.parse(JSON.stringify(value));
   recovery.runtime.setBoard({pieces:[]});await recovery.tick();
   assert.equal(recovery.timers.size,0,'invalid payloads are not automatically retried');
   assert.match(recovery.notices.at(-1),/Synthetic save rejection/,'autosave exposes the server reason');
-  await recovery.runtime.flush();
+  assert.equal(recovery.runtime.boardSaveStatus().phase,'error');
+  const statuses=[];const stopStatus=recovery.runtime.watchBoardSave(s=>statuses.push(s.phase));
+  recovery.runtime.retryBoardSave();assert.equal(recovery.runtime.boardSaveStatus().phase,'retrying');await recovery.tick();
+  await recovery.runtime.flush();assert.equal(recovery.runtime.boardSaveStatus().phase,'saved');assert(statuses.includes('saving'));stopStatus();
+  recovery=boardFixture();await recovery.runtime.use('db');recovery.hold=true;
+  recovery.runtime.watchBoardSave(()=>{throw Error('Synthetic UI subscriber failure')});
+  recovery.runtime.setBoard({pieces:[{id:'a',x:1}]});await recovery.tick();
+  recovery.runtime.setBoard({pieces:[{id:'a',x:2}]});await recovery.tick();assert.equal(recovery.runtime.boardSaveStatus().phase,'saving');
+  recovery.hold=false;recovery.release();for(let i=0;i<30;i++)await Promise.resolve();
+  assert.equal(recovery.runtime.boardSaveStatus().phase,'pending','older acknowledgement cannot mark newer edits saved');
+  await recovery.tick();await recovery.runtime.flush();assert.equal(recovery.writes.at(-1).pieces[0].x,2);assert.equal(recovery.runtime.boardSaveStatus().phase,'saved');
   console.log('Runtime adapter: snapshot isolation, serialized writes, board-before-backup, deletion, optional AI, and failure handling passed.');
 })().catch(error=>{console.error(error);process.exit(1)});

@@ -40,6 +40,20 @@ ctx.applyDisplayPrefs({menuEmoji:false,sizeReferenceName:'My usual UK size'});as
 node('menu-emoji').value='off';node('size-reference-name').value='Temu/Shein size';ctx.storeDisplayPrefs();assert.equal(writes.at(-1)[1].menuEmoji,false);assert.equal(writes.at(-1)[1].sizeReferenceName,'Temu/Shein size');
 console.log('Launch identity stays fixed; fit-reference labels migrate, trim and persist independently of size choices.');
 
+// Daily-card visibility is opt-out, survives reload, and does not reset other preferences.
+assert.equal(ctx.cleanDisplayPrefs({}).dailyCard,true);
+node('daily-card-enabled').checked=false;ctx.storeDisplayPrefs();
+const hiddenDaily=writes.at(-1)[1];
+assert.equal(hiddenDaily.dailyCard,false);
+assert.equal(hiddenDaily.sizeReferenceName,'Temu/Shein size');
+ctx.localStorage.getItem=()=>JSON.stringify(hiddenDaily);
+ctx.applyDisplayPrefs(ctx.readDisplayPrefs());
+assert.equal(node('daily-card-enabled').checked,false);
+assert.equal(node('root').attrs['data-daily-card'],'off');
+node('daily-card-enabled').checked=true;ctx.storeDisplayPrefs();
+assert.equal(writes.at(-1)[1].dailyCard,true);
+console.log('Daily-card display preference persists and restores.');
+
 // Reset only the display preference record; keep fit labels and unrelated browser data.
 const browserData=new Map([
   ['closetlint.board.v1','synthetic-board'],
@@ -50,7 +64,7 @@ const browserData=new Map([
 ]);
 const unrelatedBefore=[...browserData];
 ctx.localStorage={getItem:key=>browserData.get(key)||null,setItem:(key,value)=>browserData.set(key,value)};
-ctx.applyDisplayPrefs({theme:'dark',skin:'editorial',density:3,photo:'light',menuEmoji:false,emoji:'grayscale',edge:'outline',icons:'other',sizeReferenceName:'My usual UK size'});
+ctx.applyDisplayPrefs({theme:'dark',skin:'editorial',density:3,photo:'light',menuEmoji:false,emoji:'grayscale',edge:'outline',icons:'other',dailyCard:false,sizeReferenceName:'My usual UK size'});
 ctx.storeDisplayPrefs();
 ctx.resetDisplayPrefs();
 const resetPrefs=ctx.readDisplayPrefs();

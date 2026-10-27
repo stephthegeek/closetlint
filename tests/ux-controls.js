@@ -39,8 +39,8 @@ console.log('Recent-wear weighting and Trips landing/explicit start passed.');
  const wear=nodes.selbar.children.find(n=>n.tag==='button'&&/Wear more/.test(n.text||''));await wear.onclick();
  assert.deepEqual(Object.keys(c.state.picked),['a','b'],'bulk actions preserve selection across filters');assert.equal(items.a.wearMore,true);assert.equal(items.b.wearMore,true);
  c.openBulk();find(nodes.dlg,n=>n['aria-label']==='Size').value='L';fail=true;
- await find(nodes.dlg,n=>n.text==='Apply to 2 pieces').onclick();assert.equal(closed,0,'partial failures keep bulk edit open');assert.equal(items.a.size,'L');assert.equal(items.b.size,'M');assert.deepEqual(Object.keys(c.state.picked),['a','b']);
- fail=false;await find(nodes.dlg,n=>n.text==='Apply to 2 pieces').onclick();assert.equal(closed,1);assert.equal(items.b.size,'L');assert.deepEqual(Object.keys(c.state.picked),['a','b'],'successful bulk edits leave pieces selected for another edit');
+ await find(nodes.dlg,n=>n.text==='Apply to 2 pieces').onclick();assert.equal(closed,0,'partial failures keep bulk edit open');assert.equal(items.a.size,'L');assert.equal(items.b.size,'M');assert.deepEqual(Object.keys(c.state.picked),['b'],'failed pieces stay selected for retry');
+ fail=false;await find(nodes.dlg,n=>n.text==='Apply to 2 pieces').onclick();assert.equal(closed,1);assert.equal(items.b.size,'L');assert.deepEqual(Object.keys(c.state.picked),['b'],'retry retains the failed selection for another edit');
  c.renderSelBar();find(nodes.selbar,n=>n.text==='Deselect all').onclick();assert.equal(Object.keys(c.state.picked).length,0);assert.equal(c.state.selectMode,true);
  c.state.picked={a:true};c.renderSelBar();find(nodes.selbar,n=>n.text==='Done selecting').onclick();assert.equal(c.state.selectMode,false);assert.equal(Object.keys(c.state.picked).length,0);
  const selection={'slight stretch':true};c.cap=x=>x;c.chip=(label,on,onclick)=>el('button',{text:label,'aria-pressed':String(on),onclick});vm.runInContext(fn('tagField'),c);
@@ -52,31 +52,41 @@ console.log('Recent-wear weighting and Trips landing/explicit start passed.');
  console.log('Tweaks: retained bulk selection, offscreen counts, retries, explicit deselection, single Stretch chips, and readable toast timing pass.');
 })().catch(e=>{console.error(e);process.exit(1)});
 
+// Random order survives redraws, filtering, and incremental additions.
 {
- const dialog={children:[],open:false,appendChild(n){this.children.push(n)},showModal(){this.open=true}};
- function el(tag,attrs,...children){return {tag,...attrs,children:children.flat().filter(Boolean),appendChild(n){this.children.push(n)}}}
- const pieces=[
-  {meta:'Jewelry',sub:'Earrings',sizeKind:'gauge',size:'16g'},
-  {meta:'Jewelry',sub:'Earrings',size:'18g'},
-  {meta:'Jewelry',sub:'Earrings',sizeKind:'clothing',size:'20g'},
-  {meta:'Underwear',sub:'Bras',sizeKind:'clothing',size:'38G'},
-  {meta:'Underwear',sub:'Bras',size:'95C'},
-  {meta:'Tops',size:'XL'}, {meta:'Footwear',size:'9.5'}
- ];
- const c={state:{measurements:{},profile:{}},needDb:()=>false,$:()=>dialog,unitsMetric:()=>false,todayStr:()=> '2026-10-24',CLOTHING_ORDER:['XL'],allItems:()=>pieces,el,chip:(text)=>el('button',{text}),closeDlg(){},addClose(){}};
- vm.createContext(c);vm.runInContext(['normSize','effSize','deriveKind','openMeasurements'].map(fn).join('\n'),c);c.openMeasurements();
- const groups=dialog.children[0].children;
- function labels(title){const group=groups.find(n=>n.children?.[0]?.text===title);return group.children[1].children.map(n=>n.text)}
- assert.deepEqual(labels('Bras'),['38G','95C'],'real G-cup bras remain; explicit, inferred, and stale earring size kinds cannot add gauges');
- assert.deepEqual(labels('Tops, dresses, and outerwear'),['XL']);assert.deepEqual(labels('Shoes'),['9.5']);
- console.log('Sizes & fit: earring gauges excluded from Bras and clothing, G-cup bras retained, and footwear inferred correctly.');
+ const c={state:{randomSeed:1234,sort:'random',q:'',metas:{},subs:{},sizes:{},source:{},where:{},colors:{},collectionFilter:{},heelB:{}},collectionList:()=>[],collectionMatches:()=>true,setHas:s=>Object.values(s||{}).some(Boolean),DIMS:[],searchHay:x=>x.name.toLowerCase(),uwLast:a=>a};
+ const items=Array.from({length:80},(_,i)=>({id:'piece-'+i,name:i%2?'Blue':'Red'}));c.sectionItems=()=>items;
+ vm.createContext(c);vm.runInContext(fn('shuffleCloset')+'\n'+fn('randomPieceRank')+'\n'+fn('filtered'),c);
+ const ids=()=>Array.from(c.filtered(),p=>p.id),first=ids();assert.deepEqual(ids(),first);assert.notDeepEqual(first,items.map(p=>p.id));
+ c.state.q='Blue';assert.deepEqual(ids(),first.filter(id=>Number(id.split('-')[1])%2));c.state.q='';items.push({id:'new-piece',name:'New'});assert.deepEqual(ids().filter(id=>id!=='new-piece'),first);
+ c.state.randomSeed=5678;assert.notDeepEqual(ids().filter(id=>id!=='new-piece'),first);assert.equal(new Set(ids()).size,items.length);
+ console.log('Random sort: stable redraws, filtered subsets, added pieces, and reshuffling pass.');
 }
 
+// Empty sizes, explicit non-sized pieces, and one-size pieces are distinct filters.
 {
- const groups=[0,1].map(()=>{const classes=new Set();const button={setAttribute(k,v){this[k]=v}};return {button,classList:{contains:k=>classes.has(k),remove:k=>classes.delete(k),toggle(k){if(classes.has(k)){classes.delete(k);return false}classes.add(k);return true}},querySelector:()=>button}});
- const c={$:()=>({querySelectorAll:()=>groups.filter(g=>g.classList.contains('open'))})};vm.createContext(c);vm.runInContext(fn('toggleAppSubmenu').split("$('menubtn').addEventListener")[0],c);
- c.toggleAppSubmenu(groups[0],groups[0].button);assert.equal(groups[0].button['aria-expanded'],'true');
- c.toggleAppSubmenu(groups[1],groups[1].button);assert.equal(groups[0].classList.contains('open'),false);assert.equal(groups[0].button['aria-expanded'],'false');assert.equal(groups[1].button['aria-expanded'],'true');
- c.toggleAppSubmenu(groups[1],groups[1].button);assert.equal(groups[1].button['aria-expanded'],'false');assert.equal(groups[1].classList.contains('open'),false,'the open submenu can still be collapsed');
- console.log('Hamburger submenus: opening one closes its sibling and updates expanded state; toggling closed still works.');
+ const c={state:{sort:'name',q:'',metas:{},subs:{},sizes:{},source:{},where:{},colors:{},collectionFilter:{},heelB:{}},collectionList:()=>[],collectionMatches:()=>true,setHas:x=>Object.values(x||{}).some(Boolean),DIMS:[],searchHay:x=>x.name.toLowerCase(),uwLast:x=>x};
+ const items=[
+  {id:'missing',name:'A tee',meta:'Tops',sizeKind:'clothing',size:''},
+  {id:'gauge',name:'B earring',meta:'Jewelry',sub:'Earrings',sizeKind:'gauge',size:''},
+  {id:'ring',name:'C ring',meta:'Jewelry',sub:'Rings',sizeKind:'ring',size:''},
+  {id:'na',name:'D earring',meta:'Jewelry',sub:'Earrings',sizeKind:'none',size:''},
+  {id:'bag',name:'E bag',meta:'Bags',sizeKind:'none',size:''},
+  {id:'one',name:'F hat',meta:'Hats',sizeKind:'onesize',size:''},
+  {id:'os',name:'G tee',meta:'Tops',sizeKind:'clothing',size:'One size'},
+  {id:'adjustable',name:'H ring',meta:'Jewelry',sub:'Rings',sizeKind:'ring',size:'adjustable'},
+  {id:'sized',name:'I tee',meta:'Tops',sizeKind:'clothing',size:'M'},
+  {id:'fit',name:'J tee',meta:'Tops',sizeKind:'clothing',size:'',fitsLike:'L'}
+ ];
+ c.sectionItems=()=>items;vm.createContext(c);
+ vm.runInContext(['normSize','effSize','deriveKind','sizeRelevant','sizeKey','sizeFilterGroup','needsSize','filtered'].map(fn).join('\n'),c);
+ const ids=()=>Array.from(c.filtered(),x=>x.id);
+ c.state.sizes={__missing:true};assert.deepEqual(ids(),['missing','gauge','ring']);
+ c.state.sizes={__nosize:true};assert.deepEqual(ids(),['na','bag'],'not applicable includes all non-sized kinds, not every earring');
+ c.state.sizes={__onesize:true};assert.deepEqual(ids(),['one','os','adjustable'],'explicit one size, aliases, and adjustable rings share one group');
+ c.state.sizes={'clothing:M':true};assert.deepEqual(ids(),['sized']);
+ c.state.sizes={'clothing:L':true};assert.deepEqual(ids(),['fit'],'a recorded fits-like size is not missing');
+ c.state.sizes={'ring:o/s':true};assert.deepEqual(ids(),['adjustable'],'older specific one-size filter URLs still match');
+ c.state.sizes={__missing:true,__onesize:true};assert.deepEqual(ids(),['missing','gauge','ring','one','os','adjustable'],'size choices combine as OR');
+ console.log('Size filters: missing, not applicable, and one size have consistent, distinct results across clothing, jewelry, and accessories.');
 }

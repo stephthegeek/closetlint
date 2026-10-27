@@ -1,0 +1,487 @@
+{
+  "_note": "37 style stars. Professional and Festival read Occasion; other stars read Aesthetic. Outdoorsy remains a proposed vocabulary value and is not inferred.",
+  "stars": [
+    {
+      "id": "gothic",
+      "tag": "Gothic",
+      "house": "dark",
+      "sky": {
+        "x": 0.188,
+        "y": 0.312
+      },
+      "source": {
+        "field": "Style",
+        "value": "Gothic"
+      }
+    },
+    {
+      "id": "witchy",
+      "tag": "Witchy",
+      "house": "dark",
+      "sky": {
+        "x": 0.117,
+        "y": 0.425
+      },
+      "source": {
+        "field": "Style",
+        "value": "Witchy"
+      }
+    },
+    {
+      "id": "spooky",
+      "tag": "Spooky",
+      "house": "dark",
+      "sky": {
+        "x": 0.25,
+        "y": 0.2
+      },
+      "source": {
+        "field": "Style",
+        "value": "Spooky"
+      }
+    },
+    {
+      "id": "edgy",
+      "tag": "Edgy",
+      "house": "dark",
+      "sky": {
+        "x": 0.312,
+        "y": 0.362
+      },
+      "source": {
+        "field": "Style",
+        "value": "Edgy"
+      }
+    },
+    {
+      "id": "punk",
+      "tag": "Punk",
+      "house": "dark",
+      "sky": {
+        "x": 0.336,
+        "y": 0.237
+      },
+      "source": {
+        "field": "Style",
+        "value": "Punk"
+      }
+    },
+    {
+      "id": "grunge",
+      "tag": "Grunge",
+      "house": "dark",
+      "sky": {
+        "x": 0.258,
+        "y": 0.5
+      },
+      "source": {
+        "field": "Style",
+        "value": "Grunge"
+      }
+    },
+    {
+      "id": "theatrical",
+      "tag": "Theatrical",
+      "house": "dark",
+      "sky": {
+        "x": 0.125,
+        "y": 0.225
+      },
+      "source": {
+        "field": "Style",
+        "value": "Theatrical"
+      }
+    },
+    {
+      "id": "romantic",
+      "tag": "Romantic",
+      "house": "romantic",
+      "sky": {
+        "x": 0.492,
+        "y": 0.281
+      },
+      "source": {
+        "field": "Style",
+        "value": "Romantic"
+      }
+    },
+    {
+      "id": "coquette",
+      "tag": "Coquette",
+      "house": "romantic",
+      "sky": {
+        "x": 0.582,
+        "y": 0.188
+      },
+      "source": {
+        "field": "Style",
+        "value": "Coquette"
+      }
+    },
+    {
+      "id": "elegant",
+      "tag": "Elegant",
+      "house": "romantic",
+      "sky": {
+        "x": 0.562,
+        "y": 0.375
+      },
+      "source": {
+        "field": "Style",
+        "value": "Elegant"
+      }
+    },
+    {
+      "id": "cute",
+      "tag": "Cute",
+      "house": "romantic",
+      "sky": {
+        "x": 0.656,
+        "y": 0.294
+      },
+      "source": {
+        "field": "Style",
+        "value": "Cute"
+      }
+    },
+    {
+      "id": "fairy",
+      "tag": "Fairy",
+      "house": "romantic",
+      "sky": {
+        "x": 0.426,
+        "y": 0.412
+      },
+      "source": {
+        "field": "Style",
+        "value": "Fairy"
+      }
+    },
+    {
+      "id": "glam",
+      "tag": "Glam",
+      "house": "romantic",
+      "sky": {
+        "x": 0.449,
+        "y": 0.175
+      },
+      "source": {
+        "field": "Style",
+        "value": "Glam"
+      }
+    },
+    {
+      "id": "sexy",
+      "tag": "Sexy",
+      "house": "romantic",
+      "sky": {
+        "x": 0.625,
+        "y": 0.431
+      },
+      "source": {
+        "field": "Style",
+        "value": "Sexy"
+      }
+    },
+    {
+      "id": "holiday-themed",
+      "tag": "Holiday-themed",
+      "house": "bright",
+      "sky": {
+        "x": 0.715,
+        "y": 0.2
+      },
+      "source": {
+        "field": "Style",
+        "value": "Holiday-themed"
+      }
+    },
+    {
+      "id": "quirky",
+      "tag": "Quirky",
+      "house": "bright",
+      "sky": {
+        "x": 0.738,
+        "y": 0.338
+      },
+      "source": {
+        "field": "Style",
+        "value": "Quirky"
+      }
+    },
+    {
+      "id": "y2k",
+      "tag": "Y2k",
+      "house": "bright",
+      "sky": {
+        "x": 0.91,
+        "y": 0.431
+      },
+      "source": {
+        "field": "Style",
+        "value": "Y2k"
+      }
+    },
+    {
+      "id": "maximalist",
+      "tag": "Maximalist",
+      "house": "bright",
+      "sky": {
+        "x": 0.844,
+        "y": 0.5
+      },
+      "source": {
+        "field": "Style",
+        "value": "Maximalist"
+      }
+    },
+    {
+      "id": "festival",
+      "tag": "Festival",
+      "house": "bright",
+      "sky": {
+        "x": 0.773,
+        "y": 0.562
+      },
+      "source": {
+        "field": "Occasion",
+        "value": "Festival"
+      }
+    },
+    {
+      "id": "dark-academia",
+      "tag": "Dark academia",
+      "house": "scholar",
+      "sky": {
+        "x": 0.453,
+        "y": 0.65
+      },
+      "source": {
+        "field": "Style",
+        "value": "Dark academia"
+      }
+    },
+    {
+      "id": "vintage",
+      "tag": "Vintage",
+      "house": "scholar",
+      "sky": {
+        "x": 0.367,
+        "y": 0.762
+      },
+      "source": {
+        "field": "Style",
+        "value": "Vintage"
+      }
+    },
+    {
+      "id": "retro",
+      "tag": "Retro",
+      "house": "scholar",
+      "sky": {
+        "x": 0.324,
+        "y": 0.613
+      },
+      "source": {
+        "field": "Style",
+        "value": "Retro"
+      }
+    },
+    {
+      "id": "preppy",
+      "tag": "Preppy",
+      "house": "scholar",
+      "sky": {
+        "x": 0.574,
+        "y": 0.631
+      },
+      "source": {
+        "field": "Style",
+        "value": "Preppy"
+      }
+    },
+    {
+      "id": "cozy",
+      "tag": "Cozy",
+      "house": "scholar",
+      "sky": {
+        "x": 0.5,
+        "y": 0.812
+      },
+      "source": {
+        "field": "Style",
+        "value": "Cozy"
+      }
+    },
+    {
+      "id": "boho",
+      "tag": "Boho",
+      "house": "earth",
+      "sky": {
+        "x": 0.188,
+        "y": 0.65
+      },
+      "source": {
+        "field": "Style",
+        "value": "Boho"
+      }
+    },
+    {
+      "id": "cottagecore",
+      "tag": "Cottagecore",
+      "house": "earth",
+      "sky": {
+        "x": 0.109,
+        "y": 0.775
+      },
+      "source": {
+        "field": "Style",
+        "value": "Cottagecore"
+      }
+    },
+    {
+      "id": "western",
+      "tag": "Western",
+      "house": "earth",
+      "sky": {
+        "x": 0.219,
+        "y": 0.856
+      },
+      "source": {
+        "field": "Style",
+        "value": "Western"
+      }
+    },
+    {
+      "id": "resort",
+      "tag": "Resort",
+      "house": "earth",
+      "sky": {
+        "x": 0.066,
+        "y": 0.6
+      },
+      "source": {
+        "field": "Style",
+        "value": "Resort"
+      }
+    },
+    {
+      "id": "outdoorsy",
+      "tag": "Outdoorsy",
+      "house": "earth",
+      "sky": {
+        "x": 0.27,
+        "y": 0.762
+      },
+      "source": {
+        "field": "Style",
+        "value": "Outdoorsy"
+      },
+      "proposedTag": true
+    },
+    {
+      "id": "classic",
+      "tag": "Classic",
+      "house": "city",
+      "sky": {
+        "x": 0.672,
+        "y": 0.725
+      },
+      "source": {
+        "field": "Style",
+        "value": "Classic"
+      }
+    },
+    {
+      "id": "professional",
+      "tag": "Professional",
+      "house": "city",
+      "sky": {
+        "x": 0.746,
+        "y": 0.644
+      },
+      "source": {
+        "field": "Occasion",
+        "value": "Professional"
+      }
+    },
+    {
+      "id": "minimalist",
+      "tag": "Minimalist",
+      "house": "city",
+      "sky": {
+        "x": 0.766,
+        "y": 0.781
+      },
+      "source": {
+        "field": "Style",
+        "value": "Minimalist"
+      }
+    },
+    {
+      "id": "masculine",
+      "tag": "Masculine",
+      "house": "city",
+      "sky": {
+        "x": 0.688,
+        "y": 0.85
+      },
+      "source": {
+        "field": "Style",
+        "value": "Masculine"
+      }
+    },
+    {
+      "id": "streetwear",
+      "tag": "Streetwear",
+      "house": "city",
+      "sky": {
+        "x": 0.84,
+        "y": 0.681
+      },
+      "source": {
+        "field": "Style",
+        "value": "Streetwear"
+      }
+    },
+    {
+      "id": "sporty",
+      "tag": "Sporty",
+      "house": "city",
+      "sky": {
+        "x": 0.859,
+        "y": 0.8
+      },
+      "source": {
+        "field": "Style",
+        "value": "Sporty"
+      }
+    },
+    {
+      "id": "utility",
+      "tag": "Utility",
+      "house": "city",
+      "sky": {
+        "x": 0.805,
+        "y": 0.869
+      },
+      "source": {
+        "field": "Style",
+        "value": "Utility"
+      }
+    },
+    {
+      "id": "geeky",
+      "tag": "Geeky",
+      "house": "bright",
+      "sky": {
+        "x": 0.62,
+        "y": 0.33
+      },
+      "source": {
+        "field": "Style",
+        "value": "Geeky"
+      }
+    }
+  ]
+}

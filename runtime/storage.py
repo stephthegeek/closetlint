@@ -69,6 +69,12 @@ def validate_piece(record):
     for key in ('colors', 'seasons', 'styles', 'looks', 'fits', 'stretch', 'neckline', 'pattern', 'material', 'details', 'shoefeat', 'eartags', 'jfeat', 'jmetal', 'lens'):
         if key in record and not (isinstance(record[key], str) or isinstance(record[key], list) and all(isinstance(v, str) for v in record[key])):
             raise ValueError('Invalid piece tags: ' + key)
+    if 'laundry' in record and not isinstance(record['laundry'], bool):
+        raise ValueError('Invalid laundry status')
+    if 'care' in record:
+        care = record['care']
+        if not isinstance(care, dict) or any(k in care and (not isinstance(care[k], str) or len(care[k]) > (1000 if k == 'note' else 100)) for k in ('wash', 'dry', 'note')):
+            raise ValueError('Invalid care instructions')
     # Retain the legacy archive ceiling so existing galleries/backups remain readable.
     # New photo additions and assistant imports use a ten-view product limit.
     if 'photos' in record and (not isinstance(record['photos'], list) or len(record['photos']) > 12 or any(not isinstance(p, dict) or not isinstance(p.get('photoId'), str) or not ASSET_ID.fullmatch(p['photoId']) for p in record['photos'])):

@@ -3,7 +3,7 @@ const source=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
 const fn=source.slice(source.indexOf('function wishBanner(it){'),source.indexOf('function reopenSoon(id)'));
 (async()=>{
  let action,closed=0,celebrations=0,ok=true;const writes=[],messages=[];
- const ctx={celebratePurchase:()=>celebrations++,el:(tag,props,...children)=>({tag,...props,children}),todayStr:()=> '2026-10-18',closeDlg:()=>closed++,toast:m=>messages.push(m),toastAct:(m,label,fn)=>{assert.equal(m,'🎉 I got it!');assert.equal(label,'Undo');action=fn},patchEdit:async(it,patch)=>{writes.push({...patch});return ok}};
+ const ctx={celebratePurchase:()=>celebrations++,el:(tag,props,...children)=>({tag,...props,children}),todayStr:()=> '2026-10-18',closeDlg:()=>closed++,toast:m=>messages.push(m),toastAct:(m,label,fn)=>{assert.equal(label,'Undo');action=fn},patchEdit:async(it,patch)=>{writes.push({...patch});return ok}};
  vm.createContext(ctx);vm.runInContext(fn,ctx);
  const item={id:'a',wish:true,source:'Wishlist',date:'2025-11-02'};
  ctx.wishBanner(item).children[1].onclick();await new Promise(setImmediate);

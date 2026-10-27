@@ -101,6 +101,16 @@ class CatalogPhotoTests(unittest.TestCase):
         for path in (url, thumb):
             self.assertEqual(rt.RuntimeTests.call(self, 'GET', path, headers={'Sec-Fetch-Site': 'cross-site'})[0], 403)
 
+    def test_indexed_legacy_thumb_skips_catalog_original(self):
+        photos = self.catalog.refresh([rt.BUNDLE])
+        rt.RuntimeTests.call(self, 'GET', '/')
+        self.server.catalog = self.catalog
+        preview = b'RIFF\0\0\0\0WEBPsynthetic'
+        self.server.thumbnails = SimpleNamespace(enabled=True, get_ready=lambda key: preview)
+        with patch.object(self.catalog, 'asset', side_effect=AssertionError('Original must not be read')):
+            thumb = photos['legacy-photo'].replace('/_catalog/', '/_catalog_thumb/')
+            self.assertEqual(rt.RuntimeTests.call(self, 'GET', thumb), (200, preview))
+
     def test_http_restore_refreshes_catalog_urls_even_when_bundle_id_is_reused(self):
         old = self.catalog.refresh([rt.BUNDLE])['legacy-photo']
         rt.RuntimeTests.call(self, 'GET', '/')

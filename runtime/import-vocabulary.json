@@ -139,6 +139,7 @@
   "fields": [
     {
       "key": "colors",
+      "label": "Colors",
       "multi": true,
       "vocab": [
         "black",
@@ -164,16 +165,33 @@
     },
     {
       "key": "seasons",
+      "label": "Season",
       "multi": true,
       "vocab": [
         "spring",
         "summer",
         "fall",
         "winter"
+      ],
+      "categories": [
+        "Tops",
+        "Bottoms",
+        "One-pieces",
+        "Outerwear",
+        "Underwear",
+        "Swimwear",
+        "Loungewear",
+        "Footwear",
+        "Legwear",
+        "Hats",
+        "Bags",
+        "Hair accessories",
+        "Other accessories"
       ]
     },
     {
       "key": "kind",
+      "label": "Style",
       "multi": false,
       "vocab": [
         "stud",
@@ -214,10 +232,16 @@
         "slip-on",
         "bootie",
         "clog"
+      ],
+      "categories": [
+        "Tops",
+        "Jewelry",
+        "Footwear"
       ]
     },
     {
       "key": "styles",
+      "label": "Occasion",
       "multi": true,
       "vocab": [
         "casual",
@@ -236,6 +260,7 @@
     },
     {
       "key": "looks",
+      "label": "Aesthetic",
       "multi": true,
       "vocab": [
         "gothic",
@@ -276,6 +301,7 @@
     },
     {
       "key": "fits",
+      "label": "Fit",
       "multi": true,
       "vocab": [
         "oversized",
@@ -292,19 +318,42 @@
         "skinny",
         "straight",
         "flared"
+      ],
+      "categories": [
+        "Tops",
+        "Bottoms",
+        "One-pieces",
+        "Outerwear",
+        "Underwear",
+        "Swimwear",
+        "Loungewear",
+        "Lingerie"
       ]
     },
     {
       "key": "stretch",
+      "label": "Stretch",
       "multi": true,
       "vocab": [
         "non-stretch",
         "slight stretch",
         "high stretch"
+      ],
+      "categories": [
+        "Tops",
+        "Bottoms",
+        "One-pieces",
+        "Outerwear",
+        "Underwear",
+        "Swimwear",
+        "Loungewear",
+        "Lingerie",
+        "Legwear"
       ]
     },
     {
       "key": "neckline",
+      "label": "Neckline",
       "multi": true,
       "vocab": [
         "v-neck",
@@ -323,10 +372,19 @@
         "high neck",
         "keyhole",
         "collared"
+      ],
+      "categories": [
+        "Tops",
+        "One-pieces",
+        "Outerwear",
+        "Swimwear",
+        "Loungewear",
+        "Lingerie"
       ]
     },
     {
       "key": "pattern",
+      "label": "Pattern",
       "multi": true,
       "vocab": [
         "tortoiseshell",
@@ -356,6 +414,7 @@
     },
     {
       "key": "material",
+      "label": "Material",
       "multi": true,
       "vocab": [
         "knit",
@@ -387,6 +446,7 @@
     },
     {
       "key": "details",
+      "label": "Details",
       "multi": true,
       "vocab": [
         "pockets",
@@ -417,6 +477,7 @@
     },
     {
       "key": "sleeve",
+      "label": "Sleeve length",
       "multi": false,
       "vocab": [
         "sleeveless",
@@ -425,10 +486,17 @@
         "short",
         "three-quarter",
         "long"
+      ],
+      "categories": [
+        "Tops",
+        "One-pieces",
+        "Outerwear",
+        "Loungewear"
       ]
     },
     {
       "key": "length",
+      "label": "Length",
       "multi": false,
       "vocab": [
         "crop",
@@ -445,10 +513,19 @@
         "choker",
         "medium",
         "long"
+      ],
+      "categories": [
+        "Tops",
+        "Bottoms",
+        "One-pieces",
+        "Outerwear",
+        "Loungewear",
+        "Jewelry"
       ]
     },
     {
       "key": "statement",
+      "label": "Statement",
       "multi": false,
       "vocab": [
         "plain",
@@ -458,16 +535,21 @@
     },
     {
       "key": "sockType",
+      "label": "Sock type",
       "multi": false,
       "vocab": [
         "ankle",
         "crew",
         "knee high",
         "thigh high"
+      ],
+      "categories": [
+        "Legwear"
       ]
     },
     {
       "key": "shape",
+      "label": "Frame shape",
       "multi": false,
       "vocab": [
         "round",
@@ -481,10 +563,14 @@
         "heart",
         "oversized",
         "butterfly"
+      ],
+      "categories": [
+        "Glasses"
       ]
     },
     {
       "key": "shoefeat",
+      "label": "Shoe features",
       "multi": true,
       "vocab": [
         "platform",
@@ -499,10 +585,22 @@
         "slip-on",
         "zip",
         "fur / fleece-lined"
+      ],
+      "categories": [
+        "Footwear"
+      ],
+      "subcategories": [
+        "Sneakers",
+        "Boots",
+        "Sandals",
+        "Slippers",
+        "Flats",
+        "Heels"
       ]
     },
     {
       "key": "eartags",
+      "label": "Earring tags",
       "multi": true,
       "vocab": [
         "cartilage",
@@ -513,10 +611,17 @@
         "push-pin",
         "singles",
         "micro"
+      ],
+      "categories": [
+        "Jewelry"
+      ],
+      "subcategories": [
+        "Earrings"
       ]
     },
     {
       "key": "jfeat",
+      "label": "Stones & features",
       "multi": true,
       "vocab": [
         "gemstones",
@@ -526,10 +631,14 @@
         "beaded",
         "charms / dangle",
         "mixed metals"
+      ],
+      "categories": [
+        "Jewelry"
       ]
     },
     {
       "key": "jmetal",
+      "label": "Metal",
       "multi": true,
       "vocab": [
         "titanium",
@@ -540,10 +649,14 @@
         "copper / brass / alloy",
         "acrylic / resin",
         "glass / ceramic"
+      ],
+      "categories": [
+        "Jewelry"
       ]
     },
     {
       "key": "lens",
+      "label": "Lens & extras",
       "multi": true,
       "vocab": [
         "transitions",
@@ -553,6 +666,9 @@
         "blue-light",
         "gradient tint",
         "tinted"
+      ],
+      "categories": [
+        "Glasses"
       ]
     }
   ],

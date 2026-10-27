@@ -11,6 +11,9 @@ strip.children[1].attrs.onclick();assert.equal(hero.children[0].src,'/_blob/alt'
 hero.attrs.onclick();assert.equal(lightboxes[0].photo,'/_blob/alt');
 strip.children[0].attrs.onclick();assert.equal(changes[1].isMain,true);assert.equal(JSON.stringify(it),original,'view switching never mutates the saved main photo or item');
 assert.equal(ctx.piecePhotos({photoId:'replacement',photos:it.photos}).length,3,'a replacement main photo is not lost');assert.equal(ctx.piecePhotos({photo:'legacy.jpg'})[0].src,'legacy.jpg');
+// Swatches remain available without the local photo service, inside the collapsed options.
+const swatches=new Node('div',{class:'photo-swatches-wrap'}),withSwatches=ctx.piecePhotoPanel(it,null,swatches);
+const options=withSwatches.children.find(n=>n.attrs.class==='photo-options');assert(options);assert.equal(options.attrs.open,undefined,'photo options start collapsed');assert(options.children[1].children.includes(swatches));assert(!withSwatches.children.includes(swatches),'swatches no longer occupy the main photo column');
 // Run the actual upload decoder against synthetic dimensions, without image fixtures.
 let output,canvas,fillCount=0,outputMime;const decode={URL:{createObjectURL:()=>'',revokeObjectURL(){}},Image:class{constructor(){this.naturalWidth=3200;this.naturalHeight=2400}set src(v){this.onload()}},document:{createElement(){canvas={getContext:()=>({fillRect(){fillCount++},drawImage(){}}),toBlob(cb,mime){outputMime=mime;cb({})},toDataURL:()=>''};return canvas}}};
 vm.createContext(decode);vm.runInContext(source.slice(source.indexOf('function readImage('),source.indexOf('function openAdd(')),decode);

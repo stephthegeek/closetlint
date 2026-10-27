@@ -24,7 +24,7 @@ You’ll need Python 3.10 or newer, a web browser, and the downloaded Closet Lin
 
 4. Open **http://127.0.0.1:6684/** in your browser. Follow the setup prompts, then add your first piece.
 
-Keep the terminal open while using the app. Press **Ctrl+C** to stop it, and use the same command to start again. Saved pieces and photos stay in `closet-lint`, separate from the app folder. Keep the extracted app folder’s own name, such as `closet-lint-0.2.0`; the command uses a separate sibling folder for your wardrobe. These example paths are for new installations. Existing wardrobes should keep using their current `--data` path.
+Keep the terminal open while using the app. Press **Ctrl+C** to stop it, and use the same command to start again. Saved pieces and photos stay in `closet-lint`, separate from the app folder. Keep the extracted app folder’s own name, such as `closet-lint-0.3.0`; the command uses a separate sibling folder for your wardrobe. These example paths are for new installations. Existing wardrobes should keep using their current `--data` path.
 
 Installation has been checked on Linux. The Windows and macOS commands are provided, but installation on those systems has not been tested.
 

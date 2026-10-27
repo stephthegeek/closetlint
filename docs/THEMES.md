@@ -31,3 +31,7 @@ Theme, appearance, emoji, and thumbnail preferences are saved in this browser. T
 For stylesheet maintenance and checks, see [developer testing notes](TESTING.md).
 
 Control emoji choices are defined in `app/scripts/control-icons.js` and embedded with `python3 tools/sync_control_icons.py`. The owner-selected packs use feminine, masculine, or neutral/symbolic scientists, setup wizards, and trip fairies, including dynamically created controls. Literal garment/category data is unchanged. Wishlist section labels use the separately agreed medal-and-stars sequence.
+
+## Interaction states for new controls
+
+Every new interactive component needs visible hover, keyboard focus, and pressed/selected feedback where applicable. Reuse the existing button/link styles when possible; custom cards, text links, and disclosure summaries need their own states. Keep hover changes within hover-capable fine-pointer media queries, make focus visible without relying only on color, use theme variables for light/dark skins, avoid layout shifts, and honor reduced-motion preferences. Include these states in visual review instead of checking only the resting appearance.

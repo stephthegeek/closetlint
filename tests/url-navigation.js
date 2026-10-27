@@ -2,7 +2,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const source=fs.readFileSync(__dirname+'/../app/scripts/navigation.js','utf8');
 const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');assert.equal(html.split('/* BEGIN NAVIGATION (source: app/scripts/navigation.js) */\n')[1].split('\n/* END NAVIGATION */')[0],source);
 const c={URLSearchParams,encodeURIComponent,decodeURIComponent,JSON,Number};vm.createContext(c);vm.runInContext(source.slice(0,source.indexOf('function installClosetRoutes(')),c);
-for(const hash of ['#/pieces/c-abc','#/outfits/o1','#/collections/collection-a','#/trips/t1','#/board','#/calendar','#/calendar?month=2026-11','#/lab','#/outfits','#/collections','#/trips','#/closet?category=jewelry'])assert.equal(c.closetRouteHash(c.parseClosetRoute(hash)),hash);
+for(const hash of ['#/pieces/c-abc','#/outfits/o1','#/collections/collection-a','#/trips/t1','#/board','#/sky','#/sky/catalog','#/calendar','#/calendar?month=2026-11','#/lab','#/outfits','#/collections','#/trips','#/closet?category=jewelry'])assert.equal(c.closetRouteHash(c.parseClosetRoute(hash)),hash);
 for(const hash of ['#/pieces','#/pieces/a/b','#/pieces/%00','#/pieces/%2F','#/pieces/%ZZ','#/nope','#/calendar?month=2026-13','#/calendar/a','#/closet?category=bad'])assert.equal(c.parseClosetRoute(hash),null,hash);
 assert.equal(c.parseClosetRoute('#/pieces/a%20b').id,'a b');
 const location={hash:''},stack=[],renders=[];let position=-1,allowed=true,context={scroll:0,values:{q:''}},restored=[];
@@ -19,3 +19,5 @@ allowed=true;history.go(-1);router.go({type:'collections',id:'collection-a'},{ac
 const workingBoard={pieces:[{id:'untouched'}]};const missingLocation={hash:'#/outfits/missing'},otherHistory={replaceState(s,x,url){missingLocation.hash=url},pushState(){throw Error('initial deep link must replace')},go(){}};
 const missing=c.createClosetHistory({history:otherHistory,location:missingLocation,resolve:r=>({type:'outfits',id:null}),guard:()=>true,capture:()=>({}),apply:()=>{},restoreScroll:()=>{}});missing.start(c.parseClosetRoute(missingLocation.hash));assert.equal(missingLocation.hash,'#/outfits');assert.equal(workingBoard.pieces[0].id,'untouched');
 console.log('URL history: parser, deep links, cancel/restore Back, Forward, filters/scroll, branching, safe missing routes, and no history writes on rejected navigation pass.');
+
+assert.equal(c.parseClosetRoute('#/sky/extra'),null,'Sky is a page, not an arbitrary record route');

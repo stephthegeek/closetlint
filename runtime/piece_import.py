@@ -13,7 +13,7 @@ import warnings
 from storage import encode, media_type, decode, require_safe_pillow
 
 VOCAB = json.loads(Path(__file__).with_name('import-vocabulary.json').read_text(encoding='utf-8'))
-KINDS = ('isolated', 'model', 'scene', 'flatlay', 'display', 'detail', 'unclassified', 'recast')
+KINDS = ('isolated', 'model', 'scene', 'flatlay', 'display', 'detail', 'unclassified', 'recast', 'carelabel')
 MAX_FILE = 32 * 1024 * 1024
 MAX_TOTAL = 192 * 1024 * 1024
 LAYER = {'labAs': ('top', 'layer', 'either', 'under'), 'layerNeed': ('none', 'under', 'over', 'either'), 'weight': ('thin', 'regular', 'thick')}
@@ -179,7 +179,7 @@ def record(raw, notices):
                 raise ValueError('Price is too large')
         except InvalidOperation:
             raise ValueError('Invalid price') from None
-    accepted = set(TEXT) | {x['key'] for x in VOCAB['fields']} | set(LAYER) | {'category', 'subcategory', 'status', 'url', 'price', 'currency', 'images', 'photoFile', 'photoUrl', 'imageSources', 'date'}
+    accepted = set(TEXT) | {x['key'] for x in VOCAB['fields']} | set(LAYER) | {'category', 'subcategory', 'status', 'url', 'price', 'currency', 'images', 'photoFile', 'photoUrl', 'imageSources', 'date', 'productPhotoRequested', 'photoNote'}
     if set(raw) - accepted:
         notices.append('Unrecognized fields omitted: ' + ', '.join(sorted(set(raw) - accepted)))
     return result
@@ -254,6 +254,9 @@ def prepare_batch(manifest, *, allow_no_photo=False):
         notices = []
         try:
             item = record(raw, notices)
+            if 'productPhotoRequested' in raw and not isinstance(raw['productPhotoRequested'], bool):
+                raise ValueError('productPhotoRequested must be true or false')
+            photo_note = text(raw.get('photoNote'), 600, 'photoNote')
             images = raw.get('images', [])
             if not isinstance(images, list) or len(images) > 12:
                 raise ValueError('images must be an array with at most 12 views')
@@ -275,12 +278,20 @@ def prepare_batch(manifest, *, allow_no_photo=False):
             if not photos and not allow_no_photo:
                 raise ValueError('No local photo: download/prepare at least one, or explicitly use --allow-no-photo')
             if photos:
-                item.update(photos=photos, photoId=photos[0]['photoId'], ar=photos[0]['ar'], noPhoto=False)
+                item['photos'] = photos
+                primary = next((p for p in photos if p['kind'] != 'carelabel'), None)
+                if primary:
+                    item.update(photoId=primary['photoId'], ar=primary['ar'], noPhoto=False)
                 sources = item.get('imageSources', []) + [{'url': p['sourceUrl'], 'kind': p['kind']} for p in photos if p.get('sourceUrl')]
                 item['imageSources'] = list({(x['url'], x['kind']): x for x in sources}.values())
             else:
                 notices.append('Added without a photo by explicit option')
-            prepared.append({'record': item, 'assets': assets, 'imageInfo': sizes, 'warnings': notices, 'index': index})
+            row = {'record': item, 'assets': assets, 'imageInfo': sizes, 'warnings': notices, 'index': index}
+            if raw.get('productPhotoRequested'):
+                created = any(p['kind'] == 'recast' for p in photos)
+                row['photoStatus'] = {'created': created,
+                                      'note': photo_note or ('' if created else 'No reason was provided for the missing product photo. The original was kept.' if photos else 'No source photo was available.')}
+            prepared.append(row)
         except ValueError as error:
             raise ValueError(f'Piece {index + 1}: {error}') from None
     return batch, digest.hexdigest(), prepared
@@ -301,12 +312,21 @@ def existing_items(db, store):
     return result
 
 
-def import_batch(store, batch, fingerprint, prepared, *, apply=False, duplicates='skip', promote_wishlist=False):
+def import_batch(store, batch, fingerprint, prepared, *, apply=False, duplicates='skip', promote_wishlist=False, expected_instance=None, request_id=None, part=None, cursor=''):
     policy = {'duplicates': duplicates, 'promoteWishlist': promote_wishlist}
+    if request_id is not None:
+        from assistant_import import request_part
+        if not expected_instance or batch != request_part(request_id, part):
+            raise ValueError('Request part does not match its batch ID or intended wardrobe.')
+        if not isinstance(cursor, str) or len(cursor) > 1000:
+            raise ValueError('Keep progress under 1000 characters.')
+        policy.update(requestId='request:' + request_id, part=part, cursor=cursor)
     fingerprint = hashlib.sha256((fingerprint + encode(policy)).encode()).hexdigest()
     ledger_id = 'assistantImport:' + batch
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE' if apply else 'BEGIN')
+        from assistant_import import verify_instance
+        verify_instance(store, db, expected_instance)
         old = db.execute("SELECT payload FROM documents WHERE collection='profile' AND id=?", (ledger_id,)).fetchone()
         if old:
             old = json.loads(old[0])
@@ -315,13 +335,25 @@ def import_batch(store, batch, fingerprint, prepared, *, apply=False, duplicates
             saved = old['report']
             return {**saved, 'batchId': batch, 'mode': 'already-applied', 'committed': False, 'added': 0, 'promoted': 0, 'photosSaved': 0, 'skipped': len(saved['results']),
                     'results': [{**r, 'previousAction': r['action'], 'action': 'already_applied'} for r in saved['results']]}
+        if request_id:
+            progress = db.execute("SELECT payload FROM documents WHERE collection='profile' AND id=?", ('assistantRequest:' + request_id,)).fetchone()
+            if progress and json.loads(progress[0]).get('state') == 'complete':
+                raise ValueError('This request is complete. Start another import for new work.')
+            if db.execute("SELECT 1 FROM documents WHERE collection='profile' AND id=?", ('assistantImport:' + request_id,)).fetchone():
+                raise ValueError('This older single batch is already saved. Start another import for new work.')
+            if part > 1 and not db.execute("SELECT 1 FROM documents WHERE collection='profile' AND id=?", ('assistantImport:' + request_part(request_id, part - 1),)).fetchone():
+                raise ValueError('Save and verify the previous request part before continuing.')
         existing = existing_items(db, store)
         report = {'ok': True, 'batchId': batch, 'mode': 'applied' if apply else 'preview', 'committed': apply, 'added': 0, 'promoted': 0, 'skipped': 0, 'photosSaved': 0, 'results': [], 'next': 'Refresh the app after saving; no review dialog is needed.'}
+        if request_id:
+            report.update(requestId='request:' + request_id, part=part, cursor=cursor)
         for row in prepared:
             item = row['record']
             found = [p for p in existing if matches(item, p)]
             key = 'imp-' + hashlib.sha256((batch + ':' + str(row['index'])).encode()).hexdigest()[:32]
             result = {'index': row['index'] + 1, 'name': item['name'], 'warnings': row['warnings'][:], 'images': row['imageInfo'], 'matches': [p['id'] for p in found]}
+            if row.get('photoStatus'):
+                result['photoStatus'] = row['photoStatus']
             if found and promote_wishlist and not item['wish'] and len(found) == 1 and found[0].get('wish'):
                 match = found[0]
                 result.update(action='promote', id=match['id']);report['promoted'] += 1
@@ -353,5 +385,7 @@ def import_batch(store, batch, fingerprint, prepared, *, apply=False, duplicates
             report['results'].append(result)
         if apply:
             db.execute('INSERT INTO documents VALUES (?,?,?)', ('profile', ledger_id, encode({'fingerprint': fingerprint, 'report': {k: v for k, v in report.items() if k != 'batchId'}})))
+            if request_id:
+                db.execute("DELETE FROM documents WHERE collection='profile' AND id=?", ('assistantRequest:' + request_id,))
             store.bump(db)
         return report

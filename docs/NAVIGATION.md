@@ -9,6 +9,8 @@ Examples, after your usual app address:
 | `/#/closet` | Closet |
 | `/#/pieces/PIECE_ID` | Piece view |
 | `/#/board` | Your current outfit board |
+| `/#/sky` | Your Style Sky |
+| `/#/sky/catalog` | All constellations |
 | `/#/outfits` | Saved outfits |
 | `/#/outfits/OUTFIT_ID` | One saved outfit |
 | `/#/calendar?month=2026-11` | Calendar in a specific month |
@@ -28,14 +30,36 @@ The Board remembers your current layout and the saved outfit it belongs to. Save
 
 Board autosave remembers your in-progress changes on this device; it does not update the saved outfit until you choose Save changes. Piece, trip, and collection forms still ask before discarding unsaved changes. Cancel keeps the current view and address. An unsaved trip's `/#/trips/new` address cannot restore an unsaved trip after a fresh load.
 
+## Your Sky
+
+Open Sky from the main navigation. Trips is in the hamburger menu. “Look up” opens the full chart; choose a star to see its readout and contributing pieces. The Sun, Moon, and Rising cards use your wardrobe, favorites/wishlist, and wear history. Emerging readings say “Still gathering.”
+
+“Show these pieces” opens a temporary selection in the closet. “Choose pieces for board” filters the board’s piece tray; you choose what to add. “Share my sky” previews a local image of your three signs and their constellation chart, with no garment photos or private installation address.
+
+“All constellations” opens the full catalog by house. “Words to search” offers plain search links in a new tab, with no affiliate tags or click tracking. Search destinations can be changed in `app/content/sky/search-links.json`; run `python3 tools/sync_sky.py` afterward.
+
 ## These links belong to an installation
 
 A bookmark opens the wardrobe served at that app address. It does not upload anything, grant sharing permissions, or copy data to another installation. URLs and history contain navigation state, not photos, measurements, or working-board contents.
 
 For a phone on your trusted network, use the laptop's working LAN address, rather than `localhost`: on the phone, `localhost` means the phone itself. The route after `#` stays the same. If the laptop's LAN address changes, update the bookmark's host address.
 
-## Opening another tab
+## Opening another tab and sharing Sky
 
 Main navigation, piece photos and titles, saved outfit previews and titles, collection browse links, and saved-trip links support Ctrl-click, Command-click, middle-click, and the browser’s Open link in new tab menu. Ordinary clicks keep the existing unsaved-edit checks. A new tab opens the saved destination; it does not copy unsaved edits from the old tab.
 
+Public static builds can use `sky.html` for Sky’s own social preview. The other views keep their usual hash routes on the regular page. To add this to an approved static package, run `python3 tools/build_sky_share.py --site-dir /path/to/site --site-url https://your-site.example/`, then deploy all generated files together. The tool preserves the package’s public data and the regular page’s existing share metadata. Local installations keep their existing hash URLs.
+
 Board tools separate Outfit actions from Design tools. Collage mode switches, collage layout-family changes, and Arrange pieces ask before replacing the current presentation. Undo design restores the last major design change, including style, window replacement, crop/cut resets, and straightening; Undo arrange and Undo remove remain available for those actions. Recovery asks before replacing later design edits and never rewrites the outfit name or saved identity. Piece palette edits are identified as wardrobe-wide color changes and offer Undo.
+
+## Saved outfit viewing and editing
+
+Selecting a saved outfit opens its preview with Edit outfit, Wore it, and Export image. Your active board stays in place. Edit outfit keeps your current work as a draft before switching; reopening an outfit resumes its kept edits. Use Return to previous work or Kept drafts on the board to resume another draft. These drafts survive confirmed autosave and reload, and are included in full backups. Save changes explicitly updates the outfit.
+
+Collection overview cards are full-card links. Collection pages offer Edit collection, Add all to board, and 🔮 Ask questions, with the piece count shown only in the main browse controls.
+
+## Getting started and measurements
+
+Utilities → Getting started revisits optional closet identity, preferences, piece entry/import/restore, and photo-tool checks. View settings contains the closet name and Show Linty logo toggle. Identity is saved with the wardrobe; display preference reset preserves it.
+
+Sizes & fit uses one Metric/US dropdown. Switching updates placeholders, visible unit hints, history display, and converts entered numeric measurements without clearing the form. Bra size and dates remain unchanged. Chest/bust, waist, hips, inseam, and height are the main optional measurements; neck, shoulder-to-wrist sleeve length, bra, underbust, and weight are additional options. Stored length/weight units remain inches/pounds, and existing history is preserved. Numeric display conversions round to one decimal. Clothing labels and Fits me continue to use selected clothing sizes, without automatic measurement-to-size conversion.

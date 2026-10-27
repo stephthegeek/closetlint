@@ -78,6 +78,42 @@ class RuntimeTests(unittest.TestCase):
         reopened.delete_record('custom', 'new')
         self.assertEqual(Store(self.root / 'store').state()['collections']['custom'], {})
 
+    def test_laundry_care_and_label_photos_survive_full_backup(self):
+        photo = self.store.upload(PNG)
+        self.store.set_record('custom', 'laundry-test', {'name': 'Synthetic shirt', 'noPhoto': True})
+        record = {'laundry': True, 'care': {'wash': 'Hand wash cold', 'dry': 'Lay flat to dry', 'note': 'Keep this note'},
+                  'photos': [{'photoId': photo, 'kind': 'carelabel', 'ar': 1}], 'photoId': '', 'noPhoto': True}
+        self.store.set_record('edits', 'c-laundry-test', record)
+        self.store.set_record('profile', 'laundry-settings', {'enabled': True})
+        target = self.root / 'laundry-backup.zip'
+        self.store.export(target)
+        restored = Store(self.root / 'laundry-restored')
+        with contextlib.closing(Archive(target)) as source:
+            restored.restore(source)
+        state = restored.state()
+        self.assertEqual(state['collections']['edits']['c-laundry-test'], record)
+        self.assertTrue(state['collections']['profile']['laundry-settings']['enabled'])
+        self.assertEqual(restored.asset(photo)[1], PNG)
+        for invalid in ({'laundry': 'yes'}, {'care': {'note': 42}}):
+            with self.assertRaises(ValueError):
+                self.store.set_record('edits', 'invalid-care', invalid)
+
+    def test_workspace_drafts_survive_reopen_and_full_backup_restore(self):
+        self.load()
+        board = self.store.state()['board']
+        board['workspace'] = {'version': 1, 'activeKey': 'outfit:test', 'previousKey': 'draft:original',
+                              'drafts': [{'key': 'draft:original', 'updatedAt': 1,
+                                          'board': {'id': None, 'name': 'Previous work', 'pieces': [{'id': 'c-demo'}],
+                                                    'texts': [{'t': 'Keep this'}], 'st': {'bg': {'c': '#ffffff'}}}}]}
+        self.store.set_board(board)
+        self.assertEqual(Store(self.root / 'store').state()['board'], board)
+        target = self.root / 'workspace.zip'
+        self.store.export(target)
+        other = Store(self.root / 'workspace-restored')
+        with contextlib.closing(Archive(target)) as source:
+            other.restore(source)
+        self.assertEqual(other.state()['board'], board)
+
     def test_prelaunch_brand_export_and_original_backup_restore(self):
         payload = fixture()
         payload['app'] = 'lint-goblin'  # Historical backup label, not the active runtime identity.
@@ -273,6 +309,16 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(self.call('GET', '/_blob/' + PHOTO), (200, PNG), 'full-size photo is untouched')
         self.assertEqual(self.call('GET', '/_thumb/' + PHOTO,
                                   headers={'Sec-Fetch-Site': 'cross-site'})[0], 403)
+
+    def test_warm_thumbnail_route_does_not_read_original(self):
+        self.load()
+        self.call('GET', '/')
+        preview = b'RIFF\0\0\0\0WEBPsynthetic'
+        self.server.thumbnails = SimpleNamespace(enabled=True, get_ready=lambda key: preview)
+        with patch.object(self.store, 'asset', side_effect=AssertionError('Original must not be read')):
+            self.assertEqual(self.call('GET', '/_thumb/' + PHOTO), (200, preview))
+            self.assertEqual(self.call('GET', '/_thumb/' + PHOTO,
+                                      headers={'If-None-Match': self.response_headers['ETag']}), (304, b''))
 
     def test_city_lookup_needs_same_origin_token_and_has_manual_entry_recovery(self):
         token = {'X-ClosetLint-Token': 'test-token'}

@@ -8,5 +8,6 @@ for(const modifier of [{ctrlKey:true},{metaKey:true},{shiftKey:true},{altKey:tru
 assert.equal(calls,0);assert.equal(prevented,0,'modified and middle clicks keep native behavior');
 c.routeClick(event(),()=>calls++);assert.equal(calls,1);assert.equal(prevented,1);
 const link=c.routeAnchor({type:'pieces',id:'piece with space'},{class:'cardbtn'},()=>calls++,['photo']);assert.equal(link.tag,'a');assert.equal(link.attrs.href,'#/pieces/piece%20with%20space');link.attrs.onclick(event({ctrlKey:true}));assert.equal(calls,1);link.attrs.onclick(event());assert.equal(calls,2);
-console.log('Native links: ordinary clicks preserve guards; modified clicks retain browser defaults.');
+c.PUB={skySharePage:'sky.html'};assert.equal(c.closetRouteHref({type:'sky'}),'./sky.html#/sky');assert.equal(c.closetRouteHref({type:'sky',id:'catalog'}),'./sky.html#/sky/catalog');assert.equal(c.closetRouteHref({type:'outfits',id:'o1'}),'./#/outfits/o1');
 const nav=html.split('<nav class="primary-nav"')[1].split('</nav>')[0];assert.equal((nav.match(/<a href=/g)||[]).length,5,'all primary destinations are real links');
+console.log('Native links: normal clicks keep guarded actions; Ctrl/Command/Shift/Alt/middle clicks retain browser defaults; Sky uses its social page only on public builds.');
