@@ -1,4 +1,4 @@
 # Optional environment only; model weights are downloaded separately during setup.
 onnxruntime>=1.31.0,<2
-numpy>=2.3,<3
+numpy>=2.5.4,<3
 Pillow>=13.0.0,<14
