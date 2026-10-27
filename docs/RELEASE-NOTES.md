@@ -4,7 +4,7 @@
 
 ## Highlights
 
-- **Your Style, Sky.** Explore the styles in your wardrobe through stars, constellations, and your Sun, Moon, and Rising signs, then export a shareable chart.
+- **Your Style Sky.** Explore the styles in your wardrobe through stars, constellations, and your Sun, Moon, and Rising signs, then export a shareable chart.
 - **Linty’s daily fortune card.** A daily reading, clothing nudge, or color omen, with the option to dismiss it or turn it off.
 - **Easier assistant imports.** Save directly with local Codex or Claude Code, or review an import file from a chat conversation. Shared uploads, richer tagging, optional multipack splitting, and individual product photos work across both routes, with clear fallbacks when image editing is unavailable.
 - **Laundry and care.** Manually track pieces that need cleaning, keep them out of suggestions, and save care instructions and label photos. Bulk changes support Undo; wear logging never changes cleaning status.
