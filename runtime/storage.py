@@ -197,15 +197,17 @@ def media_type(data):
 
 
 def references(value):
+    """Collect explicit photo fields, not unrelated 32-character identifiers."""
     found = set()
     if isinstance(value, dict):
+        photo = value.get('photoId')
+        if isinstance(photo, str) and ASSET_ID.fullmatch(photo):
+            found.add(photo)
         for child in value.values():
             found.update(references(child))
     elif isinstance(value, list):
         for child in value:
             found.update(references(child))
-    elif isinstance(value, str) and ASSET_ID.fullmatch(value):
-        found.add(value)
     return found
 
 
@@ -233,7 +235,13 @@ def validate_payload(payload, asset_ids):
     board = payload.get('board')
     if board is not None:
         validate_board(board)
-    missing = references([cols, base]) - set(asset_ids)
+    required = references([cols, base, board]) | set(base['bundles'])
+    photo_map = cols['profile'].get('photoMap', {}).get('map', {})
+    if isinstance(photo_map, dict):
+        for entry in photo_map.values():
+            if isinstance(entry, list) and entry and isinstance(entry[0], str) and ASSET_ID.fullmatch(entry[0]):
+                required.add(entry[0])
+    missing = required - set(asset_ids)
     if missing:
         raise ValueError(f'Backup is missing {len(missing)} referenced photo file(s)')
     encode(payload)  # Reject non-finite numbers before any write.

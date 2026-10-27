@@ -155,6 +155,39 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(other.verification()['assetHashes'], self.store.verification()['assetHashes'])
         self.assertEqual(other.verification()['integrity'], 'ok')
 
+    def test_full_backup_after_daily_card_preserves_nonphoto_identifiers(self):
+        self.load()
+        instance = 'c' * 32
+        self.store.set_record('profile', 'daily-card', {'instance': instance, 'date': '2026-10-27', 'revealed': True})
+        self.store.set_record('custom', instance, {'name': 'Synthetic piece', 'note': 'd' * 32})
+        status, data = self.call('GET', '/api/backup', headers={'X-ClosetLint-Token': 'test-token'})
+        self.assertEqual(status, 200, data)
+        self.assertEqual(self.response_headers['Content-Type'], 'application/zip')
+        target = self.root / 'daily-http-backup.zip'
+        target.write_bytes(data)
+        restored = Store(self.root / 'daily-restored')
+        with contextlib.closing(Archive(target)) as source:
+            restored.restore(source)
+        self.assertEqual(restored.state()['collections'], self.store.state()['collections'])
+        self.assertEqual(restored.verification()['assetHashes'], self.store.verification()['assetHashes'])
+
+    def test_backup_still_rejects_missing_piece_care_map_and_bundle_photos(self):
+        missing = 'e' * 32
+        for location in ('piece', 'care', 'map', 'bundle'):
+            with self.subTest(location=location):
+                payload = fixture()
+                if location == 'piece':
+                    payload['collections']['custom']['demo']['photoId'] = missing
+                elif location == 'care':
+                    payload['collections']['edits']['demo-base'] = {'photos': [{'photoId': missing, 'kind': 'carelabel'}]}
+                elif location == 'map':
+                    payload['collections']['profile']['photoMap']['map']['demo-base'] = [missing, 1]
+                else:
+                    payload['base']['bundles'].append(missing)
+                path = archive(self.root / ('missing-' + location + '.zip'), payload)
+                with self.assertRaisesRegex(ValueError, 'missing .* referenced photo'):
+                    Archive(path)
+
     def test_nonempty_import_refuses_replacement_and_restore_keeps_recovery(self):
         self.load()
         self.store.set_record('custom', 'keep', {'name': 'Old record'})
