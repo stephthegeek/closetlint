@@ -15,12 +15,38 @@ import uuid
 import zipfile
 
 COLLECTIONS = ('edits', 'custom', 'outfits', 'views', 'measurements', 'profile',
-               'ratings', 'blocks', 'trips', 'drafts', 'wishrank')
+               'ratings', 'blocks', 'trips', 'drafts', 'wishrank', 'outfitHistory')
 ASSET_ID = re.compile(r'[0-9a-f]{32}\Z')
 MAX_ARCHIVE = 512 * 1024 * 1024
 MAX_JSON = 32 * 1024 * 1024
 MAX_ASSET = 32 * 1024 * 1024
 UNSAFE_KEYS = {'__proto__', 'constructor', 'prototype'}
+UNCONDITIONAL = object()
+
+
+class WriteConflict(ValueError):
+    """The submitted edit was based on a different saved record."""
+
+
+def write_version(value):
+    # Content versions also notice writes from import/photo tools and restores.
+    canonical = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)
+    return hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def write_versions(state):
+    return {'collections': {col: {key: write_version(value) for key, value in records.items()}
+                            for col, records in state['collections'].items()},
+            'board': write_version(state['board'])}
+
+
+def check_version(expected, current, intended):
+    if expected is not UNCONDITIONAL and expected != write_version(current):
+        if current == intended:
+            return False  # A lost-response retry already has its exact result.
+        raise WriteConflict('This changed in another tab or device. Your edits are still here. '
+                            'Keep this tab open, and open a new tab to review the latest version.')
+    return True
 
 
 def validate_json(value):
@@ -75,6 +101,25 @@ def validate_piece(record):
         care = record['care']
         if not isinstance(care, dict) or any(k in care and (not isinstance(care[k], str) or len(care[k]) > (1000 if k == 'note' else 100)) for k in ('wash', 'dry', 'note')):
             raise ValueError('Invalid care instructions')
+    if 'acquiredDate' in record:
+        value = record['acquiredDate']
+        if not isinstance(value, str) or value and not re.fullmatch(r'[0-9]{4}(?:-[0-9]{2}(?:-[0-9]{2})?)?', value):
+            raise ValueError('Invalid acquisition date')
+        if value:
+            dt.date.fromisoformat(value + ('-01-01' if len(value) == 4 else '-01' if len(value) == 7 else ''))
+    if 'acquiredApproximate' in record and not isinstance(record['acquiredApproximate'], bool):
+        raise ValueError('Invalid approximate acquisition date')
+    if 'acquisitionSource' in record and record['acquisitionSource'] not in ('unknown', 'user', 'import', 'wishlist'):
+        raise ValueError('Invalid acquisition date source')
+    if 'addedAt' in record:
+        if not isinstance(record['addedAt'], str):
+            raise ValueError('Invalid added date')
+        try:
+            stamp = dt.datetime.fromisoformat(record['addedAt'].replace('Z', '+00:00'))
+            if stamp.tzinfo is None:
+                raise ValueError('Added date needs a time zone')
+        except ValueError:
+            raise ValueError('Invalid added date') from None
     # Retain the legacy archive ceiling so existing galleries/backups remain readable.
     # New photo additions and assistant imports use a ten-view product limit.
     if 'photos' in record and (not isinstance(record['photos'], list) or len(record['photos']) > 12 or any(not isinstance(p, dict) or not isinstance(p.get('photoId'), str) or not ASSET_ID.fullmatch(p['photoId']) for p in record['photos'])):
@@ -216,11 +261,13 @@ def validate_payload(payload, asset_ids):
     if not isinstance(payload, dict) or payload.get('kind') != 'full-backup':
         raise ValueError('Choose a full backup, not a partial data export')
     base = validate_base(payload.get('base'))
-    if payload.get('formatVersion', 0) not in (0, 1):
+    if payload.get('formatVersion', 0) not in (0, 1, 2):
         raise ValueError('Unsupported backup format version')
     cols = payload.get('collections')
-    if not isinstance(cols, dict) or set(cols) != set(COLLECTIONS):
-        raise ValueError('Full backup must contain all eleven collections')
+    if not isinstance(cols, dict) or set(cols) not in (set(COLLECTIONS), set(COLLECTIONS) - {'outfitHistory'}):
+        raise ValueError('Full backup must contain all required collections')
+    if payload.get('formatVersion') == 2 and 'outfitHistory' not in cols:
+        raise ValueError('Full backup is missing outfit wear history')
     for col, records in cols.items():
         if not isinstance(records, dict):
             raise ValueError('Invalid collection')
@@ -230,7 +277,7 @@ def validate_payload(payload, asset_ids):
                 raise ValueError('Invalid wardrobe record')
             if col in ('custom', 'edits'):
                 validate_piece(record)
-            if col == 'outfits' and 'pieces' in record:
+            if col in ('outfits', 'outfitHistory') and 'pieces' in record:
                 validate_board(record)
     board = payload.get('board')
     if board is not None:
@@ -359,36 +406,107 @@ class Store:
             result['photos'] = db.execute('SELECT count(*) FROM assets').fetchone()[0]
             return result
 
-    def set_record(self, col, record_id, record):
+    def set_record(self, col, record_id, record, *, expected=UNCONDITIONAL):
         doc_key(col, record_id)
         if not isinstance(record, dict):
             raise ValueError('Record must be an object')
         validate_json(record)
         if col in ('custom', 'edits'):
             validate_piece(record)
-        if col == 'outfits' and 'pieces' in record:
+        if col in ('outfits', 'outfitHistory') and 'pieces' in record:
             validate_board(record)
-        data = encode(record)
-        if len(data.encode()) > 2 * 1024 * 1024:
-            raise ValueError('Record is too large')
+        record = dict(record)
         with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            previous = db.execute('SELECT payload FROM documents WHERE collection=? AND id=?', (col, record_id)).fetchone()
+            current = json.loads(previous[0]) if previous else None
+            if previous and col == 'custom':
+                old = json.loads(previous[0])
+                if 'addedAt' in old:
+                    record['addedAt'] = old['addedAt']
+            elif col == 'custom':
+                record.setdefault('addedAt', dt.datetime.now(dt.timezone.utc).isoformat())
+            if not check_version(expected, current, record):
+                return write_version(current)
+            data = encode(record)
+            if len(data.encode()) > 2 * 1024 * 1024:
+                raise ValueError('Record is too large')
             db.execute('INSERT OR REPLACE INTO documents VALUES (?,?,?)', (col, record_id, data))
             self.bump(db)
+            return write_version(record)
 
-    def delete_record(self, col, record_id):
+    def commit_wear(self, changes):
+        """Commit one wear action together, including its conditional record versions."""
+        if not isinstance(changes, list) or not 1 <= len(changes) <= 1001:
+            raise ValueError('Choose a wear action with at most 1,000 pieces')
+        prepared, seen = [], set()
+        for change in changes:
+            if not isinstance(change, dict):
+                raise ValueError('Invalid wear record')
+            col, record_id = change.get('collection'), change.get('id')
+            doc_key(col, record_id)
+            if col not in ('edits', 'outfits', 'outfitHistory') or (col, record_id) in seen:
+                raise ValueError('Invalid or repeated wear record')
+            seen.add((col, record_id))
+            expected, record = change.get('expected'), change.get('value')
+            if not isinstance(expected, str) or not re.fullmatch(r'[0-9a-f]{64}', expected):
+                raise ValueError('Refresh Closet Lint before logging wear')
+            if not isinstance(record, dict):
+                raise ValueError('Wear record must be an object')
+            validate_json(record)
+            if col == 'edits':
+                validate_piece(record)
+            elif 'pieces' in record:
+                validate_board(record)
+            data = encode(record)
+            if len(data.encode()) > 2 * 1024 * 1024:
+                raise ValueError('Record is too large')
+            prepared.append((col, record_id, record, expected, data))
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            writes, versions = [], []
+            for col, record_id, record, expected, data in prepared:
+                row = db.execute('SELECT payload FROM documents WHERE collection=? AND id=?', (col, record_id)).fetchone()
+                current = json.loads(row[0]) if row else None
+                if check_version(expected, current, record) and current != record:
+                    writes.append((col, record_id, data))
+                versions.append({'collection': col, 'id': record_id, 'version': write_version(record)})
+            # Validate every precondition before touching any record. The transaction
+            # also rolls back earlier writes if the disk fails during the commit.
+            if writes:
+                db.executemany('INSERT OR REPLACE INTO documents VALUES (?,?,?)', writes)
+                self.bump(db)
+            return versions
+
+    def delete_record(self, col, record_id, *, expected=UNCONDITIONAL):
         doc_key(col, record_id)
         with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            previous = db.execute('SELECT payload FROM documents WHERE collection=? AND id=?', (col, record_id)).fetchone()
+            current = json.loads(previous[0]) if previous else None
+            if not check_version(expected, current, None):
+                return write_version(None)
+            if col == 'outfits':
+                outfit = json.loads(previous[0]) if previous else {}
+                if outfit.get('wearLog'):
+                    history = {**outfit, 'outfitId': record_id, 'archivedAt': dt.datetime.now(dt.timezone.utc).isoformat()}
+                    db.execute('INSERT OR REPLACE INTO documents VALUES (?,?,?)', ('outfitHistory', record_id, encode(history)))
             db.execute('DELETE FROM documents WHERE collection=? AND id=?', (col, record_id))
             self.bump(db)
+            return write_version(None)
 
-    def set_board(self, board):
+    def set_board(self, board, *, expected=UNCONDITIONAL):
         validate_json(board)
         validate_board(board)
         if len(encode(board).encode()) > 4 * 1024 * 1024:
             raise ValueError('Board is too large')
         with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            if not check_version(expected, self.meta(db, 'board'), board):
+                return write_version(board)
             self.put_meta(db, 'board', board)
             self.bump(db)
+            return write_version(board)
 
     def upload(self, data):
         if not data or len(data) > MAX_ASSET:
@@ -445,7 +563,7 @@ class Store:
             cols = {c: {} for c in COLLECTIONS}
             for col, record_id, payload in db.execute('SELECT collection,id,payload FROM documents'):
                 cols[col][record_id] = json.loads(payload)
-            payload = {'app': 'closet-lint', 'kind': 'full-backup', 'formatVersion': 1,
+            payload = {'app': 'closet-lint', 'kind': 'full-backup', 'formatVersion': 2,
                        'exportedAt': dt.datetime.now(dt.timezone.utc).isoformat(), 'collections': cols,
                        'board': self.meta(db, 'board'), 'base': self.meta(db, 'base')}
             asset_ids = [r[0] for r in db.execute('SELECT id FROM assets')]

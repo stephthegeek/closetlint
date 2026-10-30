@@ -132,6 +132,15 @@ class ThumbnailTests(unittest.TestCase):
         self.assertEqual(self.store.asset(self.asset_id)[1], PNG)
         self.assertFalse(list(cache.folder.glob('building-*')))
 
+    def test_serial_hosted_requests_can_skip_cold_preview_wait(self):
+        cache = self.cache()
+        cache.running = True
+        with patch.object(cache.ready, 'wait', side_effect=AssertionError('serial gateway must not wait')):
+            self.assertIsNone(cache.wait_for(self.asset_id, ('image/png', PNG), timeout=0))
+        self.assertIn(self.asset_id, cache.queued)
+        self.assertEqual(self.store.asset(self.asset_id)[1], PNG)
+        cache.close()
+
     def test_background_warmup_prioritizes_requested_photos_and_can_stop(self):
         cache = self.cache()
         requested = self.store.upload(PNG)

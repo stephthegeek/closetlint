@@ -52,7 +52,7 @@ def setup_info(store, batch):
     base = [sys.executable, ROOT / 'tools/import_pieces.py', '--data', store.folder, '--expected-instance', instance]
     checked = readiness(store.folder)
     previous = saved_status(store, instance, batch)
-    return {'setupVerified': previous['setupVerified'] and checked['ready'], 'saved': previous['saved'], 'report': previous['report'], 'request': previous['request'], 'instance': instance, 'name': name, 'computer': platform.node(), 'appFolder': str(ROOT),
+    return {'setupVerified': previous['setupVerified'] and checked['ready'], 'saved': previous['saved'], 'report': previous['report'], 'request': previous['request'], 'instance': instance, 'name': name, 'computer': platform.node(), 'hosted': bool(os.environ.get('CLOSETLINT_ORIGIN')), 'appFolder': str(ROOT),
             'dataFolder': str(store.folder), 'batchId': batch, 'manifest': str(manifest), 'platform': platform.system(),
             'shell': 'PowerShell' if os.name == 'nt' else 'terminal',
             'openFolderCommand': ("Set-Location -LiteralPath '" + str(ROOT).replace("'", "''") + "'") if os.name == 'nt' else 'cd -- ' + shlex.quote(str(ROOT)),

@@ -5,7 +5,7 @@ const clone=value=>JSON.parse(JSON.stringify(value));
   let saved={custom:{},profile:{},ratings:{}},board=null,fail=false;
   const requests=[],events={},files=[],timers=[];
   const node=()=>({classList:{remove(){}},appendChild(){},remove(){},click(){files.push(this.download)}});
-  const ctx={window:{ClosetLintLocal:{token:'fixture-token',board:{pieces:[],name:'Starting board'}},addEventListener:(name,fn)=>{events[name]=fn}},document:{addEventListener(){},getElementById:()=>node(),body:{appendChild(){}},createElement:node},URL:{createObjectURL:()=> 'blob:fixture',revokeObjectURL(){}},setTimeout:fn=>{timers.push(fn);return timers.length},clearTimeout(){},console,
+  const ctx={window:{ClosetLintLocal:{writeProtocol:1,missingVersion:'missing',boardVersion:'board0',token:'fixture-token',board:{pieces:[],name:'Starting board'}},addEventListener:(name,fn)=>{events[name]=fn}},document:{addEventListener(){},getElementById:()=>node(),body:{appendChild(){}},createElement:node},URL:{createObjectURL:()=> 'blob:fixture',revokeObjectURL(){}},setTimeout:fn=>{timers.push(fn);return timers.length},clearTimeout(){},console,
     fetch:async(url,options)=>{
       requests.push([url,options]);
       assert.equal(options.headers['X-ClosetLint-Token'],'fixture-token');assert.equal(options.credentials,'same-origin');
@@ -16,7 +16,7 @@ const clone=value=>JSON.parse(JSON.stringify(value));
       if(url==='/api/backup')return {ok:true,blob:async()=>({size:1})};
       const match=url.match(/^\/api\/doc\/([^/]+)\/(.+)$/);
       if(match){const col=decodeURIComponent(match[1]),id=decodeURIComponent(match[2]);if(options.method==='DELETE')delete saved[col][id];else saved[col][id]=JSON.parse(options.body)}
-      return {ok:true,json:async()=>url==='/api/assets'?{id:'a'.repeat(32)}:{ok:true}};
+      return {ok:true,json:async()=>url==='/api/assets'?{id:'a'.repeat(32)}:{ok:true,version:'next'}};
     }};
   vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../runtime/browser.js'),'utf8'),ctx);
   const runtime=ctx.window.ClosetLintRuntime,db=await runtime.use('db');
@@ -48,7 +48,7 @@ const clone=value=>JSON.parse(JSON.stringify(value));
   fail=true;for(const id of ['one','two'])await assert.rejects(db.collection('custom').doc(id).set({name:id}));
   fail=false;await db.collection('custom').doc('one').set({name:'Recovered one'});await assert.rejects(runtime.flush(),/could not be saved/);
   await db.collection('custom').doc('two').set({name:'Recovered two'});await runtime.flush();
-  const failingContext={...ctx,window:{ClosetLintLocal:{token:'fixture-token',board:{pieces:[]}},addEventListener(){}},fetch:async()=>{throw new Error('Offline')}};
+  const failingContext={...ctx,window:{ClosetLintLocal:{writeProtocol:1,missingVersion:'missing',boardVersion:'board0',token:'fixture-token',board:{pieces:[]}},addEventListener(){}},fetch:async()=>{throw new Error('Offline')}};
   vm.createContext(failingContext);vm.runInContext(fs.readFileSync(path.join(__dirname,'../runtime/browser.js'),'utf8'),failingContext);
   await assert.rejects(failingContext.window.ClosetLintRuntime.use('db'),/Offline/);
   assert.match(failingContext.window.ClosetLintRuntime.error,/not being saved/);
@@ -57,14 +57,14 @@ const clone=value=>JSON.parse(JSON.stringify(value));
   function boardFixture(){
     const state={failures:0,status:0,writes:[],notices:[],timers:new Map(),events:{},serial:0};
     const toast={classList:{remove(){}},set textContent(value){state.notices.push(value)}};
-    const context={console,window:{ClosetLintLocal:{token:'fixture',board:{pieces:[]}},addEventListener:(name,fn)=>{state.events[name]=fn}},
+    const context={console,window:{ClosetLintLocal:{writeProtocol:1,missingVersion:'missing',boardVersion:'board0',token:'fixture',board:{pieces:[]}},addEventListener:(name,fn)=>{state.events[name]=fn}},
       document:{addEventListener(){},getElementById:()=>toast},
       setTimeout(fn){const id=++state.serial;state.timers.set(id,fn);return id},clearTimeout(id){state.timers.delete(id)},
       fetch:async(url,options)=>{
         if(url==='/api/state')return {ok:true,json:async()=>({collections:{custom:{}}})};
         if(state.hold)await new Promise(resolve=>{state.release=resolve});
         if(state.failures){state.failures--;if(!state.status)throw new TypeError('Failed to fetch');return {ok:false,status:state.status,json:async()=>({error:'Synthetic save rejection'})}}
-        state.writes.push(JSON.parse(options.body));return {ok:true,json:async()=>({ok:true})};
+        state.writes.push(JSON.parse(options.body));return {ok:true,json:async()=>({ok:true,version:'next'})};
       }};
     vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(__dirname,'../runtime/browser.js'),'utf8'),context);
     state.runtime=context.window.ClosetLintRuntime;

@@ -75,7 +75,7 @@ Open **Care** on a piece page and choose **Add care-label photo**, or classify a
 
 Care labels can be enlarged from Care or the gallery. They stay out of main garment photos, board images, swatch sampling, photo cleanup, and background removal. Changing the main view to Care label selects another garment view, or the usual no-photo placeholder. Labels count toward the existing 12-photo limit and travel with full backups. **Remove photo** offers Undo and retains the underlying image asset.
 
-Tidy photos skips a main photo that is already a cutout. If you switch the main photo while a tidy batch is being reviewed, saving that stale result is blocked; reopen Tidy photos to use the new main photo.
+Tidy photos skips a main photo that is already a cutout. If you switch the main photo while a tidy batch is being reviewed, saving that stale result is blocked; choose pieces again in Tidy photos to use the new main photo.
 
 
 ## Product photos during bulk import
@@ -83,3 +83,13 @@ Tidy photos skips a main photo that is already a cutout. If you switch the main 
 Under Prepare your pieces, select **Create an individual product photo for each piece** for emails, links, exports, or uploaded photos. Combine it with **Separate multipacks into individual pieces** to request a separate record and image for every confirmed pack member. Record splitting by itself keeps the source photo. Shoes, socks, gloves, and earrings remain normal pairs.
 
 The assistant uses its available image editor and asks for any additional access. Originals stay available; successful new product views are labeled recast and become the main view. If editing is unavailable, declined, or fails, the original is kept and the reason appears with the import result. For uploads, change an individual photo checkbox or supply brief guidance about details to preserve. There is no separate photo-splitting control, automatic recoloring of model photos, or new alternate-view uploader.
+
+## Prepare individual photos for existing pieces
+
+In the local app, select pieces in the closet, then choose **🤖 Prepare product photos**. This is useful when separate pieces still share a multipack photo. A successful piece split also offers **Prepare individual photos**.
+
+Add a short note if the intended color or item is unclear. Copy the request to local Codex or Claude Code, or download the source ZIP for a ChatGPT or Claude chat with image editing. The assistant should explain any photos it cannot prepare. Connected image editors may need your approval.
+
+Choose **Check photos** for local results, or upload the returned photo ZIP. Review the individual images, select the ones you want, and save them as main. Originals remain available in Photo options. This workflow does not create pieces or change tags, wear history, or outfits. You can close and resume a request. Failed saves can be retried; a piece whose photos have changed needs a fresh request.
+
+Tidy photos is a page with browser-local draft recovery. You can return to the closet without discarding ready cutouts or selections. The draft notice reports whether recovery is stored; closing during processing warns because in-flight work stops on reload. Resume preparation processes unfinished photos while retaining ready results. Save and return keeps the existing save/skip behavior; Choose pieces again asks before clearing an unfinished review. Drafts stay in this browser and are not included in wardrobe backups.

@@ -62,62 +62,76 @@ async function checkDialogFlow(){
  class Node{
   constructor(tag,attrs,...children){this.tag=tag;Object.assign(this,attrs||{});this.children=[];this.events={};this.dataset={};this.scrollTop=0;this.append(...children)}
   set textContent(value){this.text=value;this.children=[]}get textContent(){return this.text||''}
+  get options(){const out=[];function visit(n){if(n.tag==='option')out.push(n);(n.children||[]).forEach(x=>{if(typeof x==='object')visit(x)})}visit(this);return out}
   append(...children){children.flat().filter(x=>x!=null).forEach(x=>this.appendChild(x))}
   appendChild(child){this.children.push(child);if(this.tag==='select'&&this.value===undefined&&child.tag==='option')this.value=child.value;return child}
   addEventListener(name,fn){this.events[name]=fn}showModal(){this.open=true}close(){this.open=false;this.events.close?.()}remove(){this.removed=true}
  }
  function find(node,predicate){if(node&&predicate(node))return node;for(const child of node.children||[]){if(typeof child==='object'){const match=find(child,predicate);if(match)return match}}}
  function click(node){assert(node,'control exists');assert(!node.disabled,'control is enabled');return (node.onclick||node.events.click)()}
- let dialog,prepared=0,saved=0,skipped=0,failSave=false,failSkip=false,confirms=0;const processed=[];
+ let draft=null;let dialog,prepared=0,saved=0,skipped=0,failSave=false,failSkip=false,confirms=0;const processed=[];
  const pieces=Array.from({length:25},(_,i)=>({id:'test'+i,name:'Test '+i,meta:'Tops',sub:'Tees',photoId:'original'+i,photos:[{photoId:'original'+i,kind:'isolated',src:'/_blob/original'+i}]}));
- const ctx={Set,Error,console,SECTIONS:[['clothing','Clothing'],['accessories','Accessories'],['jewelry','Jewelry']],sectionOf:p=>p.meta==='Tops'?'clothing':'accessories',URL:{createObjectURL:()=> 'blob:synthetic',revokeObjectURL(){}},
+ const ctx={Blob,Set,Error,console,SECTIONS:[['clothing','Clothing'],['accessories','Accessories'],['jewelry','Jewelry']],sectionOf:p=>p.meta==='Tops'?'clothing':'accessories',URL:{createObjectURL:()=> 'blob:synthetic',revokeObjectURL(){}},
   Image:class{constructor(){this.naturalWidth=this.naturalHeight=100}set src(value){Promise.resolve().then(()=>this.onload())}},
   el:(...args)=>new Node(...args),toast(){},allItems:()=>pieces,collectionList:()=>[],byId:()=>Object.fromEntries(pieces.map(p=>[p.id,p])),piecePhotos:p=>p.photos,photoRecord:p=>({...p}),
   state:{db:{},picked:{},assets:{upload:async()=>({id:'cutout'+saved})}},
   savePhotoViews:async(item,photos,main)=>{if(failSave)return false;saved++;item.photos=photos;item.photoId=main.photoId;return true},
   patchEdit:async(item,patch)=>{if(failSkip)return false;skipped++;Object.assign(item,patch);return true},
-  document:{body:{appendChild(d){dialog=d}}},window:{addEventListener(){},removeEventListener(){},confirm(){confirms++;return true},ClosetLintRuntime:{backgroundStatus:async()=>({available:true}),removeBackground:async id=>{processed.push(id);prepared++;return {size:10}}}}};
- vm.createContext(ctx);vm.runInContext(src.slice(src.indexOf('function photoWorkIndicator('),src.indexOf('function openBackgroundPreview(')),ctx);vm.runInContext(src.slice(src.indexOf('function tidyPhotoCandidates('),src.indexOf('\nfunction openEdit(',src.indexOf('function openTidyPhotos('))),ctx);
+  $:()=>({set textContent(v){},appendChild(d){dialog=d}}),batchDraftSave(kind,read){draft=ctx.batchDraftCopy(read())},batchDraftCheckpoint:async(kind,read)=>{draft=ctx.batchDraftCopy(read())},batchDraftRead:async()=>structuredClone(draft),batchDraftNotice:()=>new Node('div'),batchWorkspaceReturn(){dialog.open=false},
+  document:{body:{appendChild(d){dialog=d}}},window:{scrollTo(){},addEventListener(){},removeEventListener(){},confirm(){confirms++;return true},ClosetLintRuntime:{backgroundStatus:async()=>({available:true}),removeBackground:async id=>{processed.push(id);prepared++;return {size:10}}}}};
+ vm.createContext(ctx);const helper=fs.readFileSync(__dirname+'/../app/scripts/batch-workspaces.js','utf8');vm.runInContext(helper.slice(helper.indexOf('function batchDraftCopy('),helper.indexOf('function batchDraftSave(')),ctx);vm.runInContext(src.slice(src.indexOf('function photoWorkIndicator('),src.indexOf('function openBackgroundPreview(')),ctx);vm.runInContext(src.slice(src.indexOf('function tidyPhotoCandidates('),src.indexOf('\nfunction openEdit(',src.indexOf('function openTidyPhotos('))),ctx);
  const button=text=>find(dialog,n=>n.tag==='button'&&n.text===text);
- const begin=async()=>{ctx.openTidyPhotos();await tick();assert(find(dialog,n=>n.tag==='option'&&n.value==='category:Tops'&&n.text==='All Tops'),'whole-category option is selectable');assert(find(dialog,n=>n.tag==='option'&&n.value==='section:clothing'),'broad closet section is selectable');assert(find(dialog,n=>n.tag==='option'&&n.value==='type:Tops|Tees'),'narrower type remains available');dialog.scrollTop=700;click(button('Prepare first 12'));await tick();assert.equal(dialog.scrollTop,0,'first review starts at the top')};
+ const begin=async()=>{ctx.openTidyPhotos();await tick();dialog.open=true;assert(find(dialog,n=>n.tag==='option'&&n.value==='category:Tops'&&n.text==='All Tops'),'whole-category option is selectable');assert(find(dialog,n=>n.tag==='option'&&n.value==='section:clothing'),'broad closet section is selectable');assert(find(dialog,n=>n.tag==='option'&&n.value==='type:Tops|Tees'),'narrower type remains available');dialog.scrollTop=700;click(button('Prepare first 12'));await tick();assert.equal(dialog.scrollTop,0,'first review starts at the top')};
  await begin();assert.equal(prepared,12);dialog.scrollTop=700;
  click(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Test 0'));
  assert.equal(dialog.scrollTop,700,'selecting a photo preserves review position');
- const footer=find(dialog,n=>n.class==='tidy-bottom');assert.equal(footer.children.filter(n=>n.tag==='button').map(n=>n.text).join('|'),'Save and close|Save and continue','close precedes continue in keyboard and visual order');assert.equal(find(dialog,n=>n.id==='tidy-save-count').text,'1 cutout to save','shared count describes both actions');
- failSave=true;await click(button('Save and close'));
+ const parked=ctx.tidyWorkspace;click(button('← Back'));assert.equal(ctx.tidyWorkspace,parked,'Back keeps ready results in memory');
+ ctx.openTidyPhotos();assert.equal(ctx.tidyWorkspace,parked);assert.equal(prepared,12,'returning does not prepare the same photos again');
+ ctx.tidyWorkspace=null;ctx.openTidyPhotos();await tick();dialog.open=true;
+ assert.equal(prepared,12,'restoring after reload does not regenerate ready cutouts');assert.equal(ctx.tidyWorkspace.queue.page[0].checked,true,'restored review retains selected cutouts');
+
+ const footer=find(dialog,n=>n.class==='tidy-bottom');assert.equal(footer.children.filter(n=>n.tag==='button').map(n=>n.text).join('|'),'Save and return|Save and continue','close precedes continue in keyboard and visual order');assert.equal(find(dialog,n=>n.id==='tidy-save-count').text,'1 cutout to save','shared count describes both actions');
+ failSave=true;await click(button('Save and return'));
  assert.equal(dialog.open,true,'save failure keeps the review open');assert.equal(saved,0);assert.equal(skipped,0,'failed saves do not discard the remaining review');assert.equal(dialog.scrollTop,0,'save failure exposes its status message');
- failSave=false;failSkip=true;await click(button('Save and close'));assert.equal(saved,1);assert.equal(dialog.open,true,'failure remembering original choices also keeps review open');
- failSkip=false;await click(button('Save and close'));
+ failSave=false;failSkip=true;await click(button('Save and return'));assert.equal(saved,1);assert.equal(dialog.open,true,'failure remembering original choices also keeps review open');
+ failSkip=false;await click(button('Save and return'));
  assert.equal(dialog.open,false);assert.equal(saved,1,'retry does not save an accepted cutout twice');assert.equal(skipped,11);assert.equal(prepared,12,'save and close never prepares a later batch');assert.equal(confirms,0,'saving and closing needs no discard confirmation');
  assert.equal(pieces[0].photos[0].photoId,'original0','original photo is retained');assert.equal(pieces[12].tidySkippedSourcePhotoId,undefined,'unreviewed photos remain eligible');
  // A separate run advances through the untouched photos, resetting only on batch changes.
  await begin();assert.equal(prepared,24);dialog.scrollTop=900;
  click(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Test 12'));await click(button('Save and continue'));await tick();assert.equal(saved,2,'continue saves selected cutouts just like close');assert.equal(prepared,25);assert.equal(dialog.scrollTop,0,'next batch opens at the top');
- assert.equal(button('Save and continue'),undefined,'last batch offers only save and close');assert.equal(find(dialog,n=>n.id==='tidy-save-count').text,'0 cutouts to save');await click(button('Save and close'));assert.equal(dialog.open,false);
+ assert.equal(button('Save and continue'),undefined,'last batch offers only save and close');assert.equal(find(dialog,n=>n.id==='tidy-save-count').text,'0 cutouts to save');await click(button('Save and return'));assert.equal(dialog.open,false);
  assert.equal(pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped,true,'an original choice is remembered on its photo');
  delete pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped; // Legacy record: only the piece-level skip ID exists.
  pieces[1].photos.push({photoId:'new-gallery-photo',kind:'unclassified'});pieces[1].photoId='new-gallery-photo';
  await begin();assert.equal(prepared,26);assert.equal(processed.at(-1),'new-gallery-photo');
- await click(button('Save and close'));assert.equal(pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped,true);assert.equal(pieces[1].photos.find(p=>p.photoId==='new-gallery-photo').tidySkipped,true,'both rejected originals retain separate review history');
+ await click(button('Save and return'));assert.equal(pieces[1].photos.find(p=>p.photoId==='original1').tidySkipped,true);assert.equal(pieces[1].photos.find(p=>p.photoId==='new-gallery-photo').tidySkipped,true,'both rejected originals retain separate review history');
  assert.equal(ctx.tidyPhotoCandidates(pieces,null,true).length,0,'saving the new photo choice does not resurrect legacy or current rejected photos');
- ctx.openTidyPhotos();await tick();assert(find(dialog,n=>n.tag==='option'&&n.value==='category:Tops'),'whole category remains discoverable when all photos were reviewed');assert.equal(button('Prepare first 12').disabled,true,'reviewed-only scope reports no eligible photos');click(button('Close'));
+ ctx.openTidyPhotos();await tick();assert(find(dialog,n=>n.tag==='option'&&n.value==='category:Tops'),'whole category remains discoverable when all photos were reviewed');assert.equal(button('Prepare first 12').disabled,true,'reviewed-only scope reports no eligible photos');click(button('← Back'));
  // Ready choices must stay usable while later photos are still processing.
- const gates=[];ctx.window.ClosetLintRuntime.removeBackground=()=>new Promise(resolve=>gates.push(resolve));
+ ctx.tidyWorkspace=null;draft=null;const gates=[];ctx.window.ClosetLintRuntime.removeBackground=()=>new Promise(resolve=>gates.push(resolve));
  for(let i=0;i<2;i++)pieces.push({id:'slow'+i,name:'Slow '+i,meta:'Tops',sub:'Tees',photoId:'slow-original'+i,photos:[{photoId:'slow-original'+i,src:'/_blob/slow-original'+i}]});
  await begin();assert(find(dialog,n=>n.class==='tidy-sticky'),'batch progress stays in the sticky header');
  assert(find(dialog,n=>n.class==='photo-work photo-work-waiting'),'queued result has a visible waiting indicator');
- assert.equal(button('Save and close').disabled,true);const savedBefore=saved;
+ assert.equal(button('Save and return').disabled,true);const savedBefore=saved;
  gates.shift()({size:10});await tick();
  const firstCutout=find(dialog,n=>n['aria-label']==='Save cutout as main photo for Slow 0');assert.equal(firstCutout.disabled,false,'finished photo is selectable while another processes');click(firstCutout);
  assert.equal(find(dialog,n=>n['aria-label']==='Keep current main photo for Slow 1').disabled,true,'unfinished photo stays locked');
- assert.equal(button('Save and close').disabled,true,'saving still waits for the batch');assert.equal(saved,savedBefore,'selection never saves automatically');
+ assert.equal(button('Save and return').disabled,true,'saving still waits for the batch');assert.equal(saved,savedBefore,'selection never saves automatically');
+ // A reload stops in-flight work. Restore only the unfinished preparation.
+ const oldQueue=ctx.tidyWorkspace.queue;oldQueue.cancel();ctx.tidyWorkspace=null;ctx.openTidyPhotos();await tick();dialog.open=true;
+ assert.equal(ctx.tidyWorkspace.queue.page[0].checked,true);assert.equal(ctx.tidyWorkspace.queue.running,false);
+ assert(button('Resume preparation'),'interrupted work has an explicit recovery action');
+ gates.shift()({size:10});await tick();click(button('Resume preparation'));await tick();
+ assert.equal(ctx.tidyWorkspace.queue.page[0].status,'ready','already prepared cutout stays ready during resumed processing');
+
  const progress=find(dialog,n=>n.tag==='progress');assert.equal(progress.value,1);assert.equal(progress.max,2);assert.equal(progress.hidden,false);
  gates.shift()({size:10});await tick();assert.equal(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Slow 0')['aria-pressed'],'true','selection survives later photo completion');
- assert.equal(find(dialog,n=>n.tag==='progress').hidden,true);assert.equal(button('Save and close').disabled,false);await click(button('Save and close'));assert.equal(saved,savedBefore+1);assert.equal(pieces.at(-1).tidySkippedSourcePhotoId,'slow-original1');
+ assert.equal(find(dialog,n=>n.tag==='progress').hidden,true);assert.equal(button('Save and return').disabled,false);await click(button('Save and return'));assert.equal(saved,savedBefore+1);assert.equal(pieces.at(-1).tidySkippedSourcePhotoId,'slow-original1');
  const changed={id:'changed-main',name:'Changed main',meta:'Tops',sub:'Tees',photoId:'first-main',photos:[{photoId:'first-main',src:'/_blob/first-main'}]};pieces.push(changed);
  ctx.window.ClosetLintRuntime.removeBackground=async()=>({size:10});await begin();
  click(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Changed main'));
- const beforeChanged=saved;changed.photos.push({photoId:'replacement-main',src:'/_blob/replacement-main'});changed.photoId='replacement-main';await click(button('Save and close'));
- assert.equal(saved,beforeChanged,'a queued cutout cannot overwrite a new main photo');assert.equal(changed.photoId,'replacement-main');assert.equal(dialog.open,true);assert(find(dialog,n=>typeof n.text==='string'&&n.text.includes('The main photo changed')));click(button('Close'));
+ const beforeChanged=saved;changed.photos.push({photoId:'replacement-main',src:'/_blob/replacement-main'});changed.photoId='replacement-main';await click(button('Save and return'));
+ assert.equal(saved,beforeChanged,'a queued cutout cannot overwrite a new main photo');assert.equal(changed.photoId,'replacement-main');assert.equal(dialog.open,true);assert(find(dialog,n=>typeof n.text==='string'&&n.text.includes('The main photo changed')));click(button('← Back'));
  console.log('Tidy dialog: batch scroll reset, stable selection scroll, save-and-close, retry safety, and untouched later photos pass.');
 }

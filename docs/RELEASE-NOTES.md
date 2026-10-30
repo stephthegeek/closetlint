@@ -5,7 +5,7 @@
 ## Highlights
 
 - **Your Style Sky.** Explore the styles in your wardrobe through stars, constellations, and your Sun, Moon, and Rising signs, then export a shareable chart.
-- **Linty’s daily fortune card.** A daily reading, clothing nudge, or color omen, with the option to dismiss it or turn it off.
+- **Linty’s daily fortune card.** A daily reading, clothing nudge, or color omen, with the option to dismiss it or turn it off. Piece suggestions and color observations exclude Off-duty items, underwear, lingerie, and bralettes.
 - **Easier assistant imports.** Save directly with local Codex or Claude Code, or review an import file from a chat conversation. Shared uploads, richer tagging, optional multipack splitting, and individual product photos work across both routes, with clear fallbacks when image editing is unavailable.
 - **Laundry and care.** Manually track pieces that need cleaning, keep them out of suggestions, and save care instructions and label photos. Bulk changes support Undo; wear logging never changes cleaning status.
 - **Safer outfit planning.** Preview saved outfits without replacing your board, recover drafts, and create an outfit for a calendar date with Save & schedule. Clearer save errors and retries help protect unfinished work.
@@ -26,3 +26,8 @@ The core app needs Python 3.10 or newer and a web browser. No account or AI subs
 Testing has focused on Linux with synthetic wardrobes. Windows and macOS installation and an independent security review remain unverified. Native phone sharing depends on browser support; Save image is the fallback. See [testing](TESTING.md) and [security review](SECURITY-REVIEW.md).
 
 The local app has no login. Keep it on your computer or a trusted home network, and do not expose its port to the public internet.
+
+### Oracle and piece-page polish
+
+- Oracle reuses local setup evidence, prepares scoped read-only requests, and keeps the download/chat route. Its supported reader checks the wardrobe identity without changing wardrobe records.
+- Piece-page fields and wear-log touch targets use a 44px baseline. Unknown dates hide the Approximate option, source fields have clearer spacing, and browse deletion labels use Delete.

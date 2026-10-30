@@ -3,6 +3,12 @@ var ClosetLintDailyUI=(function(){
  'use strict';
  var key='daily-card',memory=null,saveChain=Promise.resolve(),timer=null,mountRevision=0;
  var names={fortune:'Fortune',do:'Do',dont:"Don’t",neglected:'The neglected one',color:'Color omen'};
+ function swatchInk(hex){
+  var value=hex.slice(1);if(value.length===3)value=value.split('').map(function(c){return c+c}).join('');
+  var channels=[0,2,4].map(function(i){var c=parseInt(value.slice(i,i+2),16)/255;return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4)});
+  var luminance=.2126*channels[0]+.7152*channels[1]+.0722*channels[2];
+  return (luminance+.05)/(.0056+.05)>=1.05/(luminance+.05)?'#111111':'#ffffff';
+ }
  function identity(){return window.ClosetLintLocal&&window.ClosetLintLocal.instance||'closet-lint-public-demo'}
  function persist(record){
   memory=record;state.profile[key]=record;refreshSettings();
@@ -47,7 +53,7 @@ var ClosetLintDailyUI=(function(){
   var frontFace=el('span',{class:'daily-face daily-front'});
   var item=card.pieceId&&byId()[card.pieceId];
   if(item&&!item.wish&&!item.hidden&&!item.removed&&!item.donate&&realPhoto(item))frontFace.appendChild(el('img',{src:item.photo,alt:'',class:'daily-photo',loading:'lazy'}));
-  if(card.colors&&card.colors.length){var swatches=el('span',{class:'daily-swatches'});card.colors.forEach(function(c){var swatch=el('span',{class:'daily-swatch',text:typeof colLabel==='function'?colLabel(c):c});var hex=typeof COLORS!=='undefined'&&COLORS[c];if(hex&&/^#[0-9a-f]{3,8}$/i.test(hex))swatch.style.setProperty('--daily-color',hex);swatches.appendChild(swatch)});frontFace.appendChild(swatches)}
+  if(card.colors&&card.colors.length){var swatches=el('span',{class:'daily-swatches'});card.colors.forEach(function(c){var swatch=el('span',{class:'daily-swatch',text:typeof colLabel==='function'?colLabel(c):c});var hex=typeof COLORS!=='undefined'&&COLORS[c];if(hex&&/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)){swatch.style.setProperty('--daily-color',hex);swatch.style.setProperty('--daily-ink',swatchInk(hex))}swatches.appendChild(swatch)});frontFace.appendChild(swatches)}
   frontFace.appendChild(el('span',{class:'daily-line',text:card.text}));frontFace.appendChild(el('span',{class:'daily-signature',text:'— Linty'}));
   var flip=el('button',{type:'button',class:'daily-flip',onclick:function(){r.revealed=!r.revealed;persist(r);paint()}},el('span',{class:'daily-turn'},backFace,frontFace));
   var dismiss=el('button',{type:'button',class:'daily-dismiss','aria-label':'Dismiss Linty’s fortune until tomorrow',text:'×',onclick:function(){r.dismissed=true;persist(r);renderGrid()}});

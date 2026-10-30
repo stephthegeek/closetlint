@@ -9,7 +9,7 @@
 .daily-back:before,.daily-back:after{content:'✦';position:absolute;color:color-mix(in srgb,var(--sel) 72%,transparent);font-size:9cqw}.daily-back:before{top:5cqw;left:6cqw}.daily-back:after{bottom:5cqw;right:6cqw}
 .daily-front{transform:rotateY(180deg);gap:3cqw}.daily-date,.daily-kind,.daily-prompt{font:clamp(14px,5cqw,18px)/1.4 'Pixelify Sans',monospace;letter-spacing:.02em}.daily-date{position:absolute;top:10cqw;font-size:clamp(14px,5cqw,18px)}.daily-orb{font-size:31.25cqw;opacity:.55;filter:var(--emoji-color)}
 .daily-kind{padding-inline:4cqw;font-weight:600}.daily-prompt{position:absolute;bottom:11cqw;font-size:clamp(14px,5cqw,18px)}.daily-line{font:400 clamp(18px,7cqw,25px)/1.4 'Pixelify Sans',monospace;overflow-wrap:anywhere}.daily-signature{align-self:flex-end;font:clamp(13px,4.5cqw,17px)/1.3 'Pixelify Sans',monospace;color:var(--ink2)}
-.daily-photo{display:block;max-height:30cqw;max-width:90%;object-fit:contain;border-radius:6px}.daily-swatches{display:flex;flex-wrap:wrap;gap:2cqw;justify-content:center}.daily-swatch{border:1px solid var(--line);border-radius:24px;padding:2cqw 3cqw;font:clamp(13px,4.5cqw,17px)/1.4 'Pixelify Sans',monospace}.daily-swatch:before{content:'';display:inline-block;width:4cqw;height:4cqw;border-radius:50%;margin-right:2cqw;background:var(--daily-color,var(--sel));border:1px solid var(--line)}
+.daily-photo{display:block;max-height:30cqw;max-width:90%;object-fit:contain;border-radius:6px}.daily-swatches{display:flex;flex-wrap:wrap;gap:2cqw;justify-content:center}.daily-swatch{border:1px solid color-mix(in srgb,var(--daily-color,var(--line)) 70%,var(--ink) 30%);border-radius:24px;padding:2cqw 3cqw;background:var(--daily-color,var(--panel));color:var(--daily-ink,var(--ink));font:clamp(13px,4.5cqw,17px)/1.4 'Pixelify Sans',monospace}
 .daily-dismiss{position:absolute;right:5px;top:5px;width:44px;height:44px;z-index:2;background:transparent;color:var(--ink);border:0;font:26px/1 var(--body);cursor:pointer}.daily-dismiss[hidden]{display:none}
 .daily-card-restore{display:block;margin:10px 0 0 26px;padding:4px 0;text-align:left;font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:3px}.daily-card-restore[hidden]{display:none!important}
 @media(prefers-reduced-motion:reduce){.daily-turn{transition:none}}
@@ -32,5 +32,8 @@
 .daily-card:before{content:'';position:absolute;inset:3px;border:1px solid var(--daily-outline);border-radius:calc(7cqw - 3px);pointer-events:none;z-index:3}
 @container(max-width:200px){.daily-line{font-size:clamp(16px,6.5cqw,18px)}}
 
-@media(hover:hover) and (pointer:fine){.daily-flip:hover{box-shadow:inset 0 0 0 2px var(--sel)}.daily-dismiss:hover{background:var(--selbg);border-radius:50%}}
-.daily-flip:active{box-shadow:inset 0 0 0 2px var(--sel)}.daily-dismiss:active{background:var(--selbg);border-radius:50%}
+/* Text-only readings have more room at the two larger browse settings. */
+:root:is([data-density="2"],[data-density="3"]) .daily-front:not(:has(.daily-photo)) .daily-line{font-size:clamp(20px,8cqw,29px)}
+
+@media(hover:hover) and (pointer:fine){.daily-flip:hover .daily-prompt{text-decoration:underline;text-underline-offset:.2em}.daily-dismiss:hover{background:var(--selbg);border-radius:50%}}
+.daily-flip:active{box-shadow:none}.daily-dismiss:active{background:var(--selbg);border-radius:50%}

@@ -256,7 +256,7 @@ function wireBoard(){
     pe.addEventListener('pointermove',move);pe.addEventListener('pointerup',up);pe.addEventListener('pointercancel',up);pe.addEventListener('lostpointercapture',up);
     e.preventDefault();
   });
-  function paintCutBtn(){var on=state.cutIdx>=0;$('scut').innerHTML=on?'\u2716\uFE0F<span class="bl"> Cancel cut</span>':'\u2702\uFE0F<span class="bl"> Cut out</span>';$('scut').title=on?'Cancel the cut-out':'Cut out: draw an outline around the item';$('scut').classList.toggle('on',on);$('board').classList.toggle('cutting',on)}
+  function paintCutBtn(){var on=state.cutIdx>=0;$('scut').innerHTML=on?'\u2716\uFE0E<span class="bl"> Cancel cut</span>':'\u2702\uFE0E<span class="bl"> Cut out</span>';$('scut').title=on?'Cancel the cut-out':'Cut out: draw an outline around the item';$('scut').setAttribute('aria-label',on?'Cancel cut':'Cut out');$('scut').classList.toggle('on',on);$('board').classList.toggle('cutting',on)}
   function endCut(){state.cutIdx=-1;paintCutBtn()}
   state.endCut=endCut;
   function startLasso(e){

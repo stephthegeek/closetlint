@@ -59,15 +59,16 @@ function fixture(){
 
 // The saved-outfit scheduler changes only the date/name and links to the saved day.
 (async()=>{
- const nodes=[],messages=[],visits=[],writes=[];let fail=true;
- function el(tag,attrs,...children){const n={tag,...attrs,children:children.filter(Boolean),appendChild(x){this.children.push(x)},showModal(){this.open=true},close(){this.open=false}};nodes.push(n);return n}
+ const nodes=[],messages=[],visits=[],writes=[];let fail=true,discardPrompts=0;
+ function el(tag,attrs,...children){const n={tag,...attrs,children:children.filter(Boolean),addEventListener(){},appendChild(x){this.children.push(x)},showModal(){this.open=true},close(){this.open=false}};nodes.push(n);return n}
  const dialog=el('dialog',{}),legacy={k:'old',d:'2026-11-02',name:'Dinner',loc:'Home',lo:50,hi:70,dress:'casual',rain:true};
- const c={el,$:()=>dialog,needDb:()=>false,state:{outfits:{one:{name:'Favorite outfit',plans:[legacy]}}},todayStr:()=> '2026-10-27',histNice:d=>d,addClose(){},toast:m=>messages.push(m),toastAct:(m,label,action)=>messages.push({m,label,action}),returnCalendarDay:d=>visits.push(d),ofSave:async(id,value)=>{writes.push(JSON.parse(JSON.stringify(value)));if(fail)return false;c.state.outfits[id].plans=value.plans;return true}};
+ const c={window:{confirm:()=>{discardPrompts++;return false}},el,$:()=>dialog,needDb:()=>false,state:{outfits:{one:{name:'Favorite outfit',plans:[legacy]}}},todayStr:()=> '2026-10-27',histNice:d=>d,addClose(){},toast:m=>messages.push(m),toastAct:(m,label,action)=>messages.push({m,label,action}),returnCalendarDay:d=>visits.push(d),ofSave:async(id,value)=>{writes.push(JSON.parse(JSON.stringify(value)));if(fail)return false;c.state.outfits[id].plans=value.plans;return true}};
  vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function planOutfitDialog('),html.indexOf('function openWearOutfit(')),c);
  c.planOutfitDialog('one',null,null,legacy);
  const date=nodes.find(n=>n.type==='date'),name=nodes.find(n=>n['aria-label']==='Event name (optional)'),save=nodes.find(n=>n.text==='Save changes');
  assert.equal(nodes.filter(n=>n.tag==='input').length,2,'scheduling needs only date and optional name');
  date.value='2026-11-04';name.value='';await save.onclick();assert.equal(dialog.open,true);assert.equal(messages.length,0);assert.equal(save.disabled,false,'failed save remains retryable');
+ dialog.oncancel({preventDefault(){}});assert.equal(discardPrompts,1);assert.equal(dialog.open,true,'canceling the discard warning keeps failed-save edits');
  fail=false;await save.onclick();assert.equal(dialog.open,false);assert.equal(c.state.outfits.one.plans.length,1);const plan=c.state.outfits.one.plans[0];assert.equal(plan.d,'2026-11-04');assert.equal(plan.name,undefined);for(const key of ['loc','lo','hi','dress','rain'])assert.equal(plan[key],legacy[key],'legacy '+key+' is retained');
  assert.equal(messages[0].label,'View calendar');messages[0].action();assert.deepEqual(visits,['2026-11-04']);
  nodes.length=0;c.planOutfitDialog('one','2026-11-05');await nodes.find(n=>n.text==='Schedule outfit').onclick();assert.equal(c.state.outfits.one.plans.length,2);const fresh=c.state.outfits.one.plans[1];assert.equal(fresh.loc,undefined,'new schedules do not silently inherit location/weather');
@@ -75,14 +76,19 @@ function fixture(){
 })().catch(e=>{console.error(e);process.exitCode=1});
 
 (async()=>{
- const pieces={a:{id:'a',wears:[]},b:{id:'b',wears:[]},manual:{id:'manual',wears:['2026-10-27']}},saved=[],messages=[];let failedPiece='b',failOutfit=false;
- const c={state:{outfits:{one:{pieces:[{id:'a'},{id:'b'},{id:'manual'}]}}},needDb:()=>false,byId:()=>pieces,toast:m=>messages.push(m),patchEdit:async(it,patch)=>{if(it.id===failedPiece)return false;Object.assign(it,patch);return true},ofSave:async(id,patch)=>{saved.push(patch);if(failOutfit)return false;Object.assign(c.state.outfits[id],patch);return true},Promise};
- vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function wearOutfit('),html.indexOf('/* ---- scheduling an outfit;')),c);
- assert.equal(await c.wearOutfit('one','2026-10-27'),false);assert.equal(saved.length,0,'a failed piece write cannot produce a successful outfit log');assert.match(messages.at(-1),/not finished/);
- failedPiece='';failOutfit=true;assert.equal(await c.wearOutfit('one','2026-10-27'),false);failOutfit=false;
- const first=c.wearOutfit('one','2026-10-27'),second=c.wearOutfit('one','2026-10-27');assert.equal(first,second,'duplicate taps share the pending save');assert.equal(await first,true);
- assert.deepEqual(Array.from(c.state.outfits.one.wearLog[0].added).sort(),['a','b'],'retry retains provenance, including dates saved by an earlier attempt');
- failedPiece='b';assert.equal(await c.unwearOutfit('one','2026-10-27'),false);assert.equal(c.state.outfits.one.wearLog.length,1,'failed removal retains the outfit log for retry');failedPiece='';assert.equal(await c.unwearOutfit('one','2026-10-27'),true);
- assert.deepEqual(pieces.a.wears,[]);assert.deepEqual(pieces.b.wears,[]);assert.deepEqual(pieces.manual.wears,['2026-10-27'],'independently logged dates are preserved');
- console.log('Calendar wear saves: partial piece failure, outfit failure, duplicate tap, retry provenance, and removal recovery pass.');
+ const pieces={a:{id:'a',wears:[]},b:{id:'b',wears:[]},manual:{id:'manual',wears:['2026-10-27']}},messages=[];let failedPiece='b',failOutfit=false,attempts=0;
+ const c={state:{edits:{},outfits:{one:{pieces:[{id:'a'},{id:'b'},{id:'manual'}]}}},needDb:()=>false,byId:()=>pieces,byIdA:()=>pieces,toast:m=>messages.push(m),Promise};
+ c.state.db={commitWear:async changes=>{attempts++;if(failOutfit||changes.some(r=>r.id===failedPiece))throw Error('disk full');changes.forEach(r=>{if(r.collection==='edits')pieces[r.id].wears=clone(r.value.wears)})}};
+ vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function wearPieceChange('),html.indexOf('/* ---- scheduling an outfit;')),c);
+ assert.equal(await c.wearOutfit('one','2026-10-27'),false);assert.deepEqual(pieces.a.wears,[],'a failed save cannot leave the first piece logged');assert.equal(c.state.outfits.one.wearLog,undefined);assert.match(messages.at(-1),/Nothing was partially saved/);
+ failedPiece='';failOutfit=true;assert.equal(await c.wearOutfit('one','2026-10-27'),false);assert.deepEqual(pieces.a.wears,[]);failOutfit=false;
+ const first=c.wearOutfit('one','2026-10-27'),second=c.wearOutfit('one','2026-10-27');assert.equal(first,second,'duplicate taps share the pending transaction');assert.equal(await first,true);
+ assert.equal(attempts,3);assert.equal(c.state.outfits.one.wearLog[0].eventId,'outfit:one:2026-10-27');assert(c.state.outfits.one.wearLog[0].recordedAt);assert.equal(c.state.outfits.one.wearLog[0].source.id,'one');
+ assert.deepEqual(Array.from(c.state.outfits.one.wearLog[0].added).sort(),['a','b']);
+ failedPiece='b';assert.equal(await c.unwearOutfit('one','2026-10-27'),false);assert.equal(c.state.outfits.one.wearLog.length,1);assert.deepEqual(pieces.a.wears,['2026-10-27'],'failed removal keeps every date');failedPiece='';assert.equal(await c.unwearOutfit('one','2026-10-27'),true);
+ assert.deepEqual(pieces.a.wears,[]);assert.deepEqual(pieces.b.wears,[]);assert.deepEqual(pieces.manual.wears,['2026-10-27'],'individually logged dates remain');
+ c.state.outfits.two={pieces:[{id:'manual'}],wearLog:[{d:'2026-10-27',ids:['manual'],added:['manual']}]};
+ c.state.outfits.three={pieces:[{id:'manual'}],wearLog:[{d:'2026-10-27',ids:['manual'],added:[]}]};
+ assert.equal(await c.unwearOutfit('two','2026-10-27'),true);assert.deepEqual(pieces.manual.wears,['2026-10-27'],'another outfit still using the date is preserved');
+ console.log('Calendar wear transactions: complete saves/removals, duplicate taps, retries, provenance, independent dates, and shared dates pass.');
 })().catch(e=>{console.error(e);process.exitCode=1});

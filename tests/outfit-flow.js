@@ -34,17 +34,22 @@ const route=source.slice(source.indexOf('function labSaveOrPlan(o){'),source.ind
  let infoCalls=0;
  const c={releaseOutfitPreview(){},photoState:{loaded:0},memoRun:(fn,self,args)=>fn.apply(self,args),document:{createDocumentFragment:()=>new Node('fragment')},state,$:id=>id==='view-saved'?view:find(id),el:(...args)=>new Node(...args),byId:()=>({}),byIdA:()=>({}),
   chip:(text,on,onclick)=>new Node('button',{text,onclick,'aria-pressed':String(!!on)}),wearAny:()=>false,
-  ofInfo:()=>{infoCalls++;return ({colors:{},sizes:{},items:[],ids:[],last:'',rating:null})},ofMatch:(o,i,S)=>(!S.fav||o.fav)&&(!S.q||o.name.toLowerCase().includes(S.q.toLowerCase())),ofScore:()=>0,
+  ofInfo:o=>{infoCalls++;return ({nWorn:o.name==='Blue look'?3:0,colors:{},sizes:{},items:[],ids:[],last:'',rating:null})},ofMatch:(o,i,S)=>(!S.fav||o.fav)&&(!S.q||o.name.toLowerCase().includes(S.q.toLowerCase())),ofScore:()=>0,
   ofCard:o=>new Node('article',{outfit:o.name}),curSeason:()=> 'fall',histDraw:()=>{c.historyDrawn=true},COLORS:{},SEASONS:[],STYLES:[],LOOKS:[]};
  vm.createContext(c);vm.runInContext(source.slice(source.indexOf('function ofState(){'),source.indexOf('function ofInfo('))+'\n'+source.slice(source.indexOf('var _ofDerived='),source.indexOf('function loadImg(')),c);
- c.renderSaved();const search=find('ofq');assert(search);assert.equal(all(view,n=>n.text==='Open outfit board').length,0);
+ c.renderSaved();assert.equal(find('of-total').textContent,'2');const search=find('ofq');assert(search);assert.equal(all(view,n=>n.text==='Open outfit board').length,0);
  const getSort=()=>all(view,n=>n['aria-label']==='Sort outfits')[0];
- assert.equal(getSort().class,'of-sort');assert.equal(getSort().children[0].text,'Newest');
- search.oninput({target:{value:'Blue'}});assert.equal(find('ofq'),search,'typing redraws results without replacing the focused input');assert.equal(all(view,n=>n.tag==='article').length,1);
+ assert.equal(getSort().class,'of-sort');assert.equal(getSort().children[0].text,'↓ Newest');
+ search.oninput({target:{value:'Blue'}});assert.equal(find('of-total').textContent,'1 of 2');assert.equal(find('ofq'),search,'typing redraws results without replacing the focused input');assert.equal(all(view,n=>n.tag==='article').length,1);
  getSort().onchange({target:{value:'worn'}});assert.equal(state.of.sort,'worn');assert.equal(state.of.q,'Blue');
  find('of-filter-toggle').onclick();assert.equal(state.of.open,true);assert.equal(find('of-filter-toggle')['aria-expanded'],'true');assert(find('of-filter-options'));assert(find('of-filter-toggle').focused.preventScroll);
- buttons().find(n=>n.text.startsWith('♡ Favorites')).onclick();assert.equal(state.of.fav,true);
+ buttons().find(n=>n.text.startsWith('♡ Favorites')).onclick();assert.equal(state.of.fav,true);assert.equal(find('of-filter-toggle')['aria-pressed'],'true','expanded filter panel retains active styling without selected panel filters');
+ assert.equal(all(find('of-filter-toggle'),n=>n.class==='of-filter-count').length,0,'quick filters do not count as panel filters');
+ find('of-filter-toggle').onclick();assert.equal(find('of-filter-toggle')['aria-pressed'],'false','closing an empty panel clears its active styling');find('of-filter-toggle').onclick();
+ buttons().find(n=>n.text==='Needs tags').onclick();assert.equal(state.of.untagged,true);assert.equal(find('of-filter-toggle')['aria-pressed'],'true');assert.equal(all(find('of-filter-toggle'),n=>n.class==='of-filter-count')[0].text,'1');
  buttons().find(n=>n.text==='Clear filters').onclick();assert.equal(state.of.q,'');assert.equal(state.of.fav,false);assert.equal(state.of.sort,'worn');assert.equal(state.of.open,true);assert.equal(search.value,'');
+ for(const [sort,expected] of [['old','Red look'],['new','Blue look'],['most','Blue look'],['least','Red look'],['name','Blue look']]){getSort().onchange({target:{value:sort}});assert.equal(all(view,n=>n.tag==='article')[0].outfit,expected,sort+' uses the expected outfit order')}
+ let created=false,navigated=false;c.startNewOutfit=(piece,done)=>{assert.equal(piece,null);created=true;done()};c.setTab=tab=>{assert.equal(tab,'outfits');navigated=true};buttons().find(n=>n.text==='＋ New outfit').onclick();assert(created&&navigated,'New outfit uses the protected board action before navigation');
  state.ofView='history';c.renderSaved();assert(c.historyDrawn);assert.equal(find('ofq'),undefined,'Calendar does not render outfit search/filter controls');
  console.log('Saved-outfit toolbar: retained search input, sort/filter actions, disclosure focus, safe clear, and Calendar separation pass.');
  state.ofView='outfits';c.renderSaved();

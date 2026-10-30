@@ -7,7 +7,7 @@ function parseClosetRoute(hash){
     if(type==='closet'&&!id){var category=new URLSearchParams(parts[1]||'').get('category')||'all';if(['all','clothing','accessories','jewelry','offduty'].indexOf(category)<0)return null;return {type:'closet',category:category}}
     if(type==='calendar'&&!id){var month=new URLSearchParams(parts[1]||'').get('month');if(month&&!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return null;return {type:'calendar',month:month||null}}
     if(type==='sky'&&id==='catalog')return {type:'sky',id:'catalog'};
-    if(['board','lab','wishlist-ranking','buy-check','oracle','sky'].indexOf(type)>=0&&!id)return {type:type};
+    if(['board','lab','wishlist-ranking','buy-check','oracle','sky','import','tidy-photos'].indexOf(type)>=0&&!id)return {type:type};
   }catch(e){}return null;
 }
 function closetRouteHash(route){
@@ -55,8 +55,8 @@ function installClosetRoutes(){
   if(!window.history||!window.history.pushState)return;
   window.history.scrollRestoration='manual';
   var applying=false,started=false,formTrack=null,formBase='',closing=false,extraForms=[],scrollRevision=0;
-  var original={setTab:setTab,openEdit:openEdit,openAdd:openAdd,ofOpen:ofOpen,collectionBrowse:collectionBrowse,openCollections:openCollections,tripOpen:tripOpen,closeDlg:closeDlg,renderGrid:renderGrid,tripRender:tripRender,openOutfitDetails:openOutfitDetails,openCalendar:openCalendar,renderSaved:renderSaved};
-  var browseKeys=['drawn','q','metas','subs','sizes','heelB','fitsMe','wishOnly','photo','where','wearMoreOnly','laundryOnly','review','fav','showHidden','showStored','showDonate','sort','sortRev','collectionFilter','collectionManager','fantasy','collectionsExpanded','of','ofView','histMonth','skyFilter'].concat(MULTI_KEYS,SET_KEYS);
+  var original={setTab:setTab,openEdit:openEdit,openAdd:openAdd,ofOpen:ofOpen,collectionBrowse:collectionBrowse,openCollections:openCollections,tripOpen:tripOpen,closeDlg:closeDlg,renderGrid:renderGrid,tripRender:tripRender,openOutfitDetails:openOutfitDetails,openCalendar:openCalendar,renderSaved:renderSaved,openImport:openImport,openTidyPhotos:openTidyPhotos};
+  var browseKeys=['drawn','q','metas','subs','sizes','heelB','fitsMe','wishOnly','photo','where','wearMoreOnly','wearHeat','laundryOnly','review','fav','showHidden','showStored','showDonate','sort','sortRev','collectionFilter','collectionManager','fantasy','collectionsExpanded','of','ofView','histMonth','skyFilter'].concat(MULTI_KEYS,SET_KEYS);
   function copy(x){return JSON.parse(JSON.stringify(x))}
   function capture(){var values={};browseKeys.forEach(function(k){if(state[k]!==undefined)values[k]=copy(state[k])});return {tab:state.tab,values:values,scroll:window.scrollY||0,filterScroll:$('filters')?$('filters').scrollTop:0}}
   function restoreValues(context){if(!context)return;Object.keys(context.values||{}).forEach(function(k){if(browseKeys.indexOf(k)>=0)state[k]=copy(context.values[k])});if($('qbox'))$('qbox').value=state.q||''}
@@ -68,12 +68,13 @@ function installClosetRoutes(){
     else if(route.type==='outfits')name=route.id?(state.outfits[route.id]||{}).name||'Outfit':'Outfits';
     else if(route.type==='collections')name=route.id?(collectionList().find(function(c){return c.id===route.id})||{}).name||'Collection':'Collections';
     else if(route.type==='sky')name=route.id==='catalog'?'All constellations':'Your Style Sky';
-    else if(route.type==='trips')name=route.id&&route.id!=='new'?(state.trips[route.id]||{}).name||'Trip':route.id==='new'?'Plan a trip':'Trips';
-    else name=({board:'Board',calendar:'Calendar',lab:'Outfit Lab','wishlist-ranking':'Wishlist','buy-check':'Buy check',oracle:'Closet Oracle',sky:'Style constellation'})[route.type]||'Closet';
+    else if(route.type==='trips')name=route.id&&route.id!=='new'?(state.trips[route.id]||{}).name||'Trip':route.id==='new'?'Plan a trip':'Trips & events';
+    else name=({board:'Board',calendar:'Calendar',lab:'Outfit Lab','wishlist-ranking':'Wishlist','buy-check':'Buy check',oracle:'Closet Oracle',sky:'Style constellation',import:'Import pieces','tidy-photos':'Tidy photos'})[route.type]||'Closet';
     document.title=name+' · '+(state.profile&&state.profile.wardrobeIdentity&&String(state.profile.wardrobeIdentity.name||'').trim().slice(0,100)||'Closet Lint');
   }
   function routeFromState(){
     if(formTrack&&formTrack.id&&$('dlg').open)return {type:'pieces',id:formTrack.id};
+    if(state.tab==='import'||state.tab==='tidy-photos')return {type:state.tab};
     if(state.tab==='saved'&&state.ofPreview)return {type:'outfits',id:state.ofPreview};
     if(state.tab==='saved'&&state.ofView==='history')return {type:'calendar',month:state.histMonth||null};
     if(state.tab==='trip')return {type:'trips',id:state.trip?(state.trip.id||'new'):null};
@@ -97,6 +98,7 @@ function installClosetRoutes(){
   function sameOutfit(route){return route.type==='outfits'&&route.id&&state.tab==='outfits'&&state.board.id===route.id}
   function sameTrip(route){return route.type==='trips'&&state.tab==='trip'&&((route.id==='new'&&state.trip&&!state.trip.id)||(route.id&&state.trip&&state.trip.id===route.id))}
   function guard(route){
+    if(typeof batchWorkBusy==='function'&&batchWorkBusy()){toast('Wait for the current batch operation to finish before leaving.');return false}
     if(state.workspaceBusy){toast('Keeping your current work. Please wait before leaving.');return false}
     if(state.boardSaving&&state.outfitSave&&state.outfitSave.planning){toast('Wait for Save & schedule to finish before leaving.');return false}
     if(state.tab==='oracle'&&route.type!=='oracle'&&typeof oracleSession!=='undefined'&&oracleSession&&oracleSession.busy&&!oracleSession.photoRequest){oracleMessage('Wait for this download to finish.');return false}
@@ -119,8 +121,11 @@ function installClosetRoutes(){
       // A piece is a modal above its existing workflow; it must not discard an outfit/trip draft underneath.
       var preservePiece=route.type==='pieces';
       if(!preservePiece)discardFor(route);else{formTrack=null;closing=true;document.querySelectorAll('dialog[open]').forEach(function(d){d.close()});closing=false}
+      // Explicit All/Closet/home navigation leaves a collection; history restores its saved context.
+      if(!context&&route.type==='closet'&&(!route.category||route.category==='all'))state.collectionFilter={};
       if(action){action();return}
-      if(route.type==='pieces'){
+      if(route.type==='import'||route.type==='tidy-photos'){original.setTab(route.type);if(route.type==='import')original.openImport();else original.openTidyPhotos();if(!context)window.scrollTo(0,0)}
+      else if(route.type==='pieces'){
         var tab=state.editingOutfit||state.trip?state.tab:context&&context.tab||state.tab||'all';if(state.tab!==tab)original.setTab(tab);restoreValues(context);if(isClosetTab(tab)){renderFilters();original.renderGrid()}original.openEdit(byId()[route.id]);track(route.id);
       }else if(route.type==='outfits'&&route.id){original.ofOpen(Object.assign({id:route.id},state.outfits[route.id]),byIdA());}
       else if(route.type==='calendar'){state.ofPreview=null;state.ofView='history';state.histMonth=route.month||todayStr().slice(0,7);original.setTab('saved')}
@@ -131,12 +136,14 @@ function installClosetRoutes(){
       else if(route.type==='sky'){state.skyCatalog=route.id==='catalog';original.setTab('sky');if(!context)window.scrollTo(0,0)}
       else{original.setTab(route.type==='closet'?route.category||'all':({board:'outfits',outfits:'saved',trips:'trip',lab:'lab','wishlist-ranking':'wrank','buy-check':'buy',oracle:'oracle',sky:'sky'})[route.type]||'all')}
       if(context){restoreValues(context);if(isClosetTab(state.tab)){renderFilters();original.renderGrid()}else if(state.tab==='saved')renderSaved()}
-    }finally{pageTitle(route);applying=false;state.routeScrollRestore=false}
+    }finally{if(!context&&route.type==='wishlist-ranking')restoreScroll({scroll:0});pageTitle(route);applying=false;state.routeScrollRestore=false}
   }
   var history=createClosetHistory({history:window.history,location:window.location,href:closetRouteHref,resolve:resolve,guard:guard,capture:capture,apply:apply,restoreScroll:restoreScroll});
   var pendingRoute=null;
   function navigate(route,action){if(!started&&!applying){pendingRoute=route;return true}if(applying)return action? action():false;var same=closetRouteHash(route)===closetRouteHash(history.current().route);return history.go(route,{force:same,replace:same})}
   setTab=function(t){if(t==='saved'&&!applying)state.ofPreview=null;return navigate({type:({outfits:'board',saved:'outfits',trip:'trips',lab:'lab',wrank:'wishlist-ranking',buy:'buy-check',oracle:'oracle',sky:'sky'})[t]||'closet',category:isClosetTab(t)?t:undefined},function(){if(t==='sky')state.skyCatalog=false;original.setTab(t)})};
+  openImport=function(){return navigate({type:'import'},function(){original.setTab('import');original.openImport()})};
+  openTidyPhotos=function(){return navigate({type:'tidy-photos'},function(){original.setTab('tidy-photos');original.openTidyPhotos()})};
   openCalendar=function(month){return navigate({type:'calendar',month:month||state.histMonth||todayStr().slice(0,7)},function(){original.openCalendar(month)})};
   openEdit=function(it){return navigate({type:'pieces',id:it.id},function(){original.openEdit(it);track(it.id)})};
   openAdd=function(){if(started&&!applying&&!guard(routeFromState()))return false;original.openAdd();track(null)};
@@ -169,5 +176,5 @@ function installClosetRoutes(){
   document.addEventListener('input',captureSoon);document.addEventListener('change',captureSoon);window.addEventListener('scroll',captureSoon,{passive:true});
   window.addEventListener('popstate',function(e){if(started)history.pop(e)});window.addEventListener('hashchange',function(){if(started&&!applying&&window.location.hash!==closetRouteHash(history.current().route))history.pop({state:window.history.state})});
   window.addEventListener('beforeunload',function(e){if((typeof oracleHasDraft==='function'&&oracleHasDraft())||dirtyForm()||extraForms.some(function(f){return f.dialog.open&&(f.read()!==f.base||f.busy&&f.busy())})){e.preventDefault();e.returnValue=''}});
-  window.ClosetLintRoutes={sky:function(on){return navigate({type:'sky',id:on?'catalog':null},function(){state.skyCatalog=!!on;original.setTab('sky')})},ready:function(){if(started)return true;if(!state.capsDone)return false;if(state.db&&!state.pub&&!['edits','custom','outfits','profile','trips'].every(function(k){return setupLoaded[k]}))return false;started=true;var requested=window.location.hash;if(history.start(pendingRoute||(requested?parseClosetRoute(requested):typeof PUB!=='undefined'&&PUB&&PUB.skyLanding?{type:'sky'}:routeFromState()))===false)history.start({type:'board'});var loading=$('app-loading');if(loading)loading.classList.toggle('hide',true);return 'started'},cleanForm:function(){formBase=signature()},trackDialog:function(d,read,busy){extraForms=extraForms.filter(function(f){return f.dialog!==d&&f.dialog.open});extraForms.push({dialog:d,read:read,busy:busy,base:read()})},prepareReload:function(){formTrack=null;extraForms=[];},markImportDirty:function(d,dirty){var f=extraForms.find(function(x){return x.dialog===d});if(f&&dirty)f.base='';},hasUnsaved:function(){return dirtyForm()||extraForms.some(function(f){return f.dialog.open&&f.dialog.id!=='setup-wizard'&&(f.read()!==f.base||f.busy&&f.busy())})||!!(state.tab==='trip'&&state.trip&&tripHasUnsaved(state.trip));},cleanDialog:function(d){extraForms=extraForms.filter(function(f){return f.dialog!==d})},closeTrackedDialog:function(d){var f=extraForms.find(function(x){return x.dialog===d});if(f&&f.busy&&f.busy()){toast('Wait for this save to finish before closing.');return false}if(f&&f.read()!==f.base&&!window.confirm('Discard the unsaved changes to this collection?'))return false;extraForms=extraForms.filter(function(x){return x.dialog!==d});d.close();return true},capture:captureSoon};
+  window.ClosetLintRoutes={leaveBatch:function(){var previous=history.previous();if(previous&&previous.route.type!=='import'&&previous.route.type!=='tidy-photos'){window.history.back();return}return navigate({type:'closet',category:'all'})},sky:function(on){return navigate({type:'sky',id:on?'catalog':null},function(){state.skyCatalog=!!on;original.setTab('sky')})},ready:function(){if(started)return true;if(!state.capsDone)return false;if(state.db&&!state.pub&&!['edits','custom','outfits','profile','trips'].every(function(k){return setupLoaded[k]}))return false;started=true;var requested=window.location.hash;if(history.start(pendingRoute||(requested?parseClosetRoute(requested):typeof PUB!=='undefined'&&PUB&&PUB.skyLanding?{type:'sky'}:routeFromState()))===false)history.start({type:'board'});var loading=$('app-loading');if(loading)loading.classList.toggle('hide',true);return 'started'},cleanForm:function(){formBase=signature()},trackDialog:function(d,read,busy){extraForms=extraForms.filter(function(f){return f.dialog!==d&&f.dialog.open});extraForms.push({dialog:d,read:read,busy:busy,base:read()})},prepareReload:function(){formTrack=null;extraForms=[];},markImportDirty:function(d,dirty){var f=extraForms.find(function(x){return x.dialog===d});if(f&&dirty)f.base='';},hasUnsaved:function(){return dirtyForm()||extraForms.some(function(f){return f.dialog.open&&f.dialog.id!=='setup-wizard'&&(f.read()!==f.base||f.busy&&f.busy())})||!!(state.tab==='trip'&&state.trip&&tripHasUnsaved(state.trip));},cleanDialog:function(d){extraForms=extraForms.filter(function(f){return f.dialog!==d})},closeTrackedDialog:function(d){var f=extraForms.find(function(x){return x.dialog===d});if(f&&f.busy&&f.busy()){toast('Wait for this save to finish before closing.');return false}if(f&&f.read()!==f.base&&!window.confirm('Discard the unsaved changes to this form?'))return false;extraForms=extraForms.filter(function(x){return x.dialog!==d});d.close();return true},capture:captureSoon};
 }

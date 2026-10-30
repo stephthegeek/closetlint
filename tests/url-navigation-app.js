@@ -8,7 +8,7 @@ function fixture(hash='',install=true){
  const hist=win.history={pushState(state,x,url){stack.splice(pos+1);stack.push({state,url});pos++;location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},replaceState(state,x,url){stack[pos]={state,url};location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},go(delta){pos+=delta;assert(pos>=0&&pos<stack.length);location.hash=stack[pos].url.includes('#')?stack[pos].url.slice(stack[pos].url.indexOf('#')):'';this.state=stack[pos].state;(listeners.popstate||[]).forEach(f=>f({state:this.state}));(listeners.hashchange||[]).forEach(f=>f({}))},back(){this.go(-1)},forward(){this.go(1)}};
  const scratch={id:null,name:'My working pile',pieces:[{id:'a',x:1,y:2,w:30,z:1}]},saved={id:'o1',name:'Dinner',pieces:[{id:'b',x:5,y:6,w:40,z:1}]};
  const state={tab:'all',capsDone:false,db:{},pub:false,board:scratch,outfits:{o1:saved},trips:{t1:{name:'Weekend',settings:{dest:'Home'},plan:{}}},q:'',collectionFilter:{},of:{},fantasy:false};
- const ctx={releaseOutfitPreview(){},paintWorkspaceRecovery(){},skyRender(){},window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},renderOracle(){ctx.oracleSession=ctx.oracleSession||{question:''}},oracleLeave(){},oracleSession:null,labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
+ const ctx={openImport(){state.importOpened=(state.importOpened||0)+1},openTidyPhotos(){state.tidyOpened=(state.tidyOpened||0)+1},releaseOutfitPreview(){},paintWorkspaceRecovery(){},skyRender(){},window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},renderOracle(){ctx.oracleSession=ctx.oracleSession||{question:''}},oracleLeave(){},oracleSession:null,labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
  openEdit(it){const d=node('dlg');d.fields=[{name:'name',type:'text',value:it.id,getAttribute(){return ''},closest(){return null}}];d.showModal()},openAdd(){const d=node('dlg');d.fields=[];d.images=[];d.showModal()},openOutfitDetails(){node('dlg').showModal()}};
  vm.createContext(ctx);
  vm.runInContext(['paintBoardSaveStatus','adoptBoard','copyBoardPieces','boardDocument','setTab','persistBoard','workspaceKey','workspaceSnapshot','ofOpen','outfitEditorDirty','boardNeedsProtection','boardHasContent','tripNew','tripSettings','tripHasUnsaved','tripCancelPending','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar'].map(fn).join('\n')+'\n'+routes,ctx);
@@ -135,7 +135,7 @@ console.log('Public Sky alias: default landing, normal-view URLs, Back/Forward, 
 // Real startup waits for storage and resolves the requested destination before rendering.
 {
  const f=fixture('#/oracle',false),{ctx,state,node}=f,renders=[];
- Object.assign(ctx,{maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false,initShell(){},wireBoard(){},restoreBoard(){},loadBundles(){}});
+ Object.assign(ctx,{photoPreviewError(){},maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false,initShell(){},wireBoard(){},restoreBoard(){},loadBundles(){}});
  ctx.localStorage.getItem=()=> 'clothing';
  ctx.renderGrid=()=>renders.push('closet');ctx.renderOracle=()=>renders.push('oracle');
  vm.runInContext(fn('initialTab')+'\n'+fn('onDataInner'),ctx);
@@ -157,7 +157,7 @@ console.log('Public Sky alias: default landing, normal-view URLs, Back/Forward, 
 }
 {
  const f=fixture('#/outfits'),{ctx}=f;f.ready();let draws=0;ctx.ofDraw=()=>draws++;
- Object.assign(ctx,{maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false});
+ Object.assign(ctx,{photoPreviewError(){},maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false});
  vm.runInContext(fn('onDataInner'),ctx);ctx.onDataInner();assert.equal(draws,1,'one saved-outfit data update performs one draw');
 }
 {
@@ -171,7 +171,7 @@ console.log('Startup: no provisional page, hydration gating, queued navigation, 
 {
  const f=fixture('#/outfits'),{ctx,state}=f;let draws=0;
  ctx.renderSaved=()=>draws++;ctx.ofDraw=()=>draws++;
- Object.assign(ctx,{maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false});
+ Object.assign(ctx,{photoPreviewError(){},maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false});
  state.capsDone=true;['edits','custom','outfits','profile','trips'].forEach(k=>ctx.setupLoaded[k]=true);
  vm.runInContext(fn('onDataInner'),ctx);ctx.onDataInner();assert.equal(draws,1,'initial hydration renders saved outfits once');ctx.onDataInner();assert.equal(draws,2,'later updates still redraw saved outfits');
 }
@@ -193,4 +193,26 @@ console.log('Startup: no provisional page, hydration gating, queued navigation, 
  f.hist.back();assert.equal(f.win.location.hash,'#/board','browser Back also waits for Save & schedule');assert.equal(f.state.board,f.scratch);
  f.state.boardSaving=false;assert.equal(f.ctx.openCalendar('2026-11'),true);
  console.log('Calendar planning: menu navigation and browser Back wait for the in-flight outfit/date save.');
+}
+
+{
+ const f=fixture(),{ctx,state,win,hist}=f;f.ready();state.q='beanie';win.scrollY=460;win.ClosetLintRoutes.capture();const board=JSON.stringify(state.board);
+ ctx.openImport();assert.equal(win.location.hash,'#/import');assert.equal(state.tab,'import');assert.match(ctx.document.title,/Import pieces/);assert.equal(state.importOpened,1);
+ hist.back();assert.equal(state.q,'beanie');assert.equal(win.scrollY,460);hist.forward();assert.equal(state.tab,'import');assert.equal(state.importOpened,2);
+ ctx.openEdit({id:'a'});ctx.renderGrid();assert.equal(win.location.hash,'#/pieces/a','a piece opened above a batch page keeps its own route');hist.back();assert.equal(state.tab,'import');
+ ctx.openTidyPhotos();assert.equal(win.location.hash,'#/tidy-photos');assert.equal(state.tab,'tidy-photos');assert.equal(state.tidyOpened,1);assert.match(ctx.document.title,/Tidy photos/);
+ let saving=true;ctx.batchWorkBusy=()=>saving;assert.equal(ctx.setTab('lab'),false,'an active batch write blocks navigation');assert.equal(win.location.hash,'#/tidy-photos');
+ saving=false;hist.back();assert.equal(state.tab,'import');hist.back();assert.equal(state.q,'beanie');assert.equal(JSON.stringify(state.board),board,'batch pages never touch the working board');assert.equal(f.prompts.length,0,'returning through batch pages does not discard their in-memory drafts');
+ console.log('Batch pages: deep-link routing, titles, retained closet context, Back/Forward, active-save protection, and untouched board pass.');
+}
+
+{
+ const f=fixture(),{ctx,win,hist}=f;f.ready();win.scrollY=880;ctx.setTab('wrank');assert.equal(win.scrollY,0,'new Wishlist navigation starts at the heading');win.scrollY=320;hist.back();assert.equal(win.scrollY,880);hist.forward();assert.equal(win.scrollY,320,'Wishlist Back/Forward preserves reading position');
+}
+
+{
+ const f=fixture('#/collections/c1'),{ctx,state,hist,win}=f;f.ready();state.q='blue';state.fav=true;
+ ctx.openEdit({id:'a'});ctx.closeDlg();assert.equal(state.collectionFilter.c1,true,'piece return keeps its collection');
+ ctx.setTab('all');assert.equal(Object.keys(state.collectionFilter).length,0,'All, Closet, and home leave the collection');assert.equal(state.q,'blue');assert.equal(state.fav,true);assert.equal(win.location.hash,'#/closet');
+ hist.back();assert.equal(state.collectionFilter.c1,true,'browser Back restores the visited collection');hist.forward();assert.equal(Object.keys(state.collectionFilter).length,0);
 }
