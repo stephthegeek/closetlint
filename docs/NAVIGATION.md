@@ -58,8 +58,20 @@ Selecting a saved outfit opens its preview with Edit outfit, Wore it, and Export
 
 Collection overview cards are full-card links. Collection pages offer Edit collection, Add all to board, and 🔮 Ask questions, with the piece count shown only in the main browse controls.
 
+## Trips & events
+
+The Trips & events menu destination combines saved trips with individual saved-outfit date plans. Coming up includes ongoing trips and today's events; undated plans appear separately, and past plans start collapsed. Add trip opens the trip wizard. Add event uses the existing saved-outfit scheduling form, so the same plan appears on the full calendar without creating a second event record or logging a wear. Trips show their first available pinned outfit as a thumbnail; event cards show their scheduled outfit preview and open that day's calendar details. Deleting an event keeps its saved outfit. View calendar opens the existing visual calendar.
+
 ## Getting started and measurements
 
 Utilities → Getting started revisits optional closet identity, preferences, piece entry/import/restore, and photo-tool checks. View settings contains the closet name and Show Linty logo toggle. Identity is saved with the wardrobe; display preference reset preserves it.
 
 Sizes & fit uses one Metric/US dropdown. Switching updates placeholders, visible unit hints, history display, and converts entered numeric measurements without clearing the form. Bra size and dates remain unchanged. Chest/bust, waist, hips, inseam, and height are the main optional measurements; neck, shoulder-to-wrist sleeve length, bra, underbust, and weight are additional options. Stored length/weight units remain inches/pounds, and existing history is preserved. Numeric display conversions round to one decimal. Clothing labels and Fits me continue to use selected clothing sizes, without automatic measurement-to-size conversion.
+
+## Batch workspaces
+
+Bulk import and Tidy photos have their own pages (`#/import` and `#/tidy-photos`). Getting started remains an optional setup dialog, and opens the import page when you choose assistant help. Existing direct/file routes, review decisions, and photo operations are unchanged.
+
+Back/Forward retains closet filters and scroll position. Leaving a batch page keeps its in-memory review; active writes block navigation. Drafts, including imported photo bytes and prepared cutouts, are also kept in this browser for this wardrobe. The draft notice confirms a completed write or offers Retry on failure. If draft storage fails, retry or explicitly choose to continue without reload recovery; that fallback keeps the review only in the open tab and warns before reloading. Browser drafts do not sync to other devices and are not part of a wardrobe backup.
+
+Reloading an import restores its choices and stable row IDs; committed additions are recognized, and saved rows remain locked. Direct-import installation details are checked again. Reloading a photo review retains ready cutouts and selections; interrupted preparation has an explicit Resume action. Saving still validates that each source is the current main photo. Start over / Choose pieces again explicitly discards an unfinished review after confirmation, without removing saved pieces or photos. Closing the browser during preparation or an active save warns first.

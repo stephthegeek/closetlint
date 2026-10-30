@@ -2,7 +2,7 @@
 
 Closet Lint uses a Python HTTP service with SQLite storage and a plain HTML, CSS, and JavaScript frontend. Python 3.10 or newer is required. Running the app needs no frontend build or additional Python packages; optional photo tools have separate dependencies.
 
-For startup commands, the sample collection, and phone access, see [INSTALL.md](INSTALL.md).
+For local startup commands, the sample collection, and phone access on a trusted home network, see [INSTALL.md](INSTALL.md). For experimental protected hosting, see [HOSTING.md](HOSTING.md). Hosting adds deployment and access-control requirements; the local server alone is not a public hosting setup.
 
 ## Data folder
 
@@ -12,7 +12,7 @@ The database stores document collections, image blobs, the base catalog, and the
 
 ## Service boundary
 
-The service binds to loopback by default. `--lan-ip` enables an explicitly selected address on a trusted network. There are no accounts: anyone who can reach the page can view and edit that wardrobe. Use one editing device at a time; whole-record writes do not merge concurrent edits.
+The service binds to loopback by default. `--lan-ip` enables an explicitly selected address on a trusted network. There are no accounts: anyone who can reach the page can view and edit that wardrobe. Whole-record writes do not merge concurrent edits. Released versions without stale-save protection should be edited from one device at a time. The newer development runtime rejects stale record and board writes while retaining unfinished browser edits; see [stale-save checks](TESTING.md#stale-browser-saves--2026-10-28).
 
 `runtime/server.py` serves the app, adapter, API routes, and ID-addressed photos. It does not serve arbitrary files or directory listings. Host and origin checks reject unexpected browser requests, and API calls require the token delivered with the app page. That token protects against cross-site requests; it is not user authentication. See [SECURITY.md](../SECURITY.md).
 
@@ -24,7 +24,7 @@ A full backup ZIP includes all document collections, the base catalog and tags, 
 
 Restore previews do not change the wardrobe. Applying a full restore validates references, file types, and archive integrity, then replaces the destination inside one database transaction. An existing wardrobe gets a recovery snapshot under `DATA/recovery/` before replacement. These SQLite snapshots are private recovery files, not ZIPs for the restore dialog.
 
-Board autosaves pause during restoration. Pending writes must finish successfully before a backup can complete. Backups use a consistent read transaction. Keep a separate backup even when recovery snapshots exist.
+Board autosaves pause during restoration. Pending writes must finish successfully before a backup can complete. Backups use a consistent read transaction. Keep a separate backup even when recovery snapshots exist. Backup-format changes and rollback requirements are listed in [UPDATING.md](UPDATING.md).
 
 An offline export is available with the server stopped:
 

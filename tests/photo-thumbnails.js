@@ -8,6 +8,18 @@ assert.equal(ctx.photoThumbnail('/_catalog/'+'b'.repeat(32)),'/_catalog_thumb/'+
 for(const src of [original+'.webp',original+'?other=1','https://other.example/'+original,'data:image/png;base64,test',''])assert.equal(ctx.photoThumbnail(src),src,'do not rewrite static demos, remote URLs, or placeholders');
 ctx.window.ClosetLintLocal.thumbnails=false;assert.equal(ctx.photoThumbnail(original),original,'disabled image tools preserve normal browsing');
 console.log('Browse thumbnails: local-only preview URLs, original fallback, and static/remote photos pass.');
+vm.runInContext(html.split('\n').find(s=>s.startsWith('function photoPreviewError(')),ctx);
+for(const [preview,full] of [['/_thumb/', '/_blob/'], ['/_catalog_thumb/', '/_catalog/']]){
+ const image={tagName:'IMG',src:preview+'a'.repeat(32),getAttribute(){return this.src}};
+ ctx.photoPreviewError({target:image});assert.equal(image.src,full+'a'.repeat(32));
+ ctx.photoPreviewError({target:image});assert.equal(image.src,full+'a'.repeat(32),'a failed original must not enter a retry loop');
+}
+for(const src of ['https://other.example/_thumb/'+'a'.repeat(32),original+'.webp','data:image/png;base64,test','']){
+ const image={tagName:'IMG',src,getAttribute(){return this.src}};ctx.photoPreviewError({target:image});assert.equal(image.src,src);
+}
+ctx.photoPreviewError({target:{tagName:'SCRIPT'}});
+assert(html.includes("document.addEventListener('error',photoPreviewError,true)"),'image errors require a capture listener');
+console.log('Failed thumbnail requests fall back once to originals, without rewriting external images.');
 
 ctx.el=(tag,props)=>({tag,...props});vm.runInContext(html.split('\n').find(s=>s.startsWith('function browsePhoto(')),ctx);ctx.window.ClosetLintLocal.thumbnails=true;
 for(let i=0;i<10;i++){const photo=ctx.browsePhoto({photo:original,name:'Synthetic piece'},i);assert.equal(photo.src,'/_thumb/'+'a'.repeat(32));assert.equal(photo.loading,i<6?'eager':'lazy');assert.equal(photo.fetchpriority,i<6?'high':'auto');}
@@ -21,6 +33,7 @@ class PreviewNode{
 }
 const nodes={};ctx.el=(...args)=>new PreviewNode(...args);ctx.$=id=>nodes[id]||(nodes[id]=new PreviewNode('div'));ctx.state={collectionManager:true};ctx.routeAnchor=(route,props,action,children)=>new PreviewNode('a',props,children);
 vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/collections.js','utf8'),ctx);
+ctx.cardMenuButton=()=>new PreviewNode('button');
 ctx.collectionList=()=>[{id:'test',name:'Synthetic collection',ids:['upload','legacy']}];ctx.byId=()=>({upload:{photo:original},legacy:{photo:'/_catalog/'+'b'.repeat(32)}});ctx.collectionContext(2);
 const images=[];function visit(n){if(n.tag==='img')images.push(n);(n.children||[]).forEach(visit)}visit(nodes['collection-context']);
 assert.deepEqual(images.map(n=>n.src),['/_thumb/'+'a'.repeat(32),'/_catalog_thumb/'+'b'.repeat(32)]);assert(images.every(n=>n.loading==='lazy'&&n.decoding==='async'));

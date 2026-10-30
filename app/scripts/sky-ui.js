@@ -2,7 +2,7 @@
 var ClosetLintSkyUI=(function(){
   'use strict';
   var reading='sun',selected=null,cache=null,cacheDay='',dirty=true,full=null,detail=null,previousFocus=null,detailPiecesCleanup=null;
-  var labels={sun:'What you own',moon:'What you want',rising:'What you wear'},symbols={sun:'☼',moon:'☾',rising:'↥'};
+  var labels={sun:'What you own',moon:'What you want',rising:'What you wear'},symbols={sun:'sun',moon:'moon',rising:'rising'};
   var houses={dark:'Dark',romantic:'Romantic',scholar:'Scholar',earth:'Earth',bright:'Bright',city:'City'};
   function button(text,action,cls){return el('button',{type:'button',class:cls||'btn',text:text,onclick:action})}
   function catalog(){return SKY_CATALOG}
@@ -84,11 +84,11 @@ var ClosetLintSkyUI=(function(){
   }
   function mark(){var source=$('linty-logo-image'),href=source&&source.getAttribute('href');return href?el('img',{class:'sky-mark',src:href,alt:''}):el('span',{class:'sky-mark','aria-hidden':'true',text:'✦'})}
   function heading(title){return el('div',{class:'sky-heading-copy'},el('div',{class:'sky-kicker',text:'Constellations · Observatory'}),el('h2',{text:title}))}
-  function modes(redraw){var n=el('div',{class:'sky-modes',role:'group','aria-label':'Sky reading'});Object.keys(labels).forEach(function(k){n.appendChild(el('button',{type:'button','aria-pressed':reading===k?'true':'false',onclick:function(){reading=k;selected=null;redraw()}},el('span',{class:'sky-mode-symbol','aria-hidden':'true',text:symbols[k]}),el('span',{text:' '+cap(k)})))});return n}
-  function signCard(key){var sign=model().readings[key].sign;return el('button',{type:'button',class:'sky-sign',onclick:function(){reading=sign.basis||key;if(sign.id)openDetail(sign.kind==='constellation'||sign.kind==='wardrobe-estimate'&&definition(sign.id)?'constellation':'star',sign.id);else openFull()}},el('span',{class:'sky-sign-icon','aria-hidden':'true',text:symbols[key]}),el('span',null,el('span',{class:'sky-label',text:key+' · '+labels[key]}),el('strong',{text:sign.name}),el('small',{class:'sky-sign-kind',text:signInfo(sign).label}),sign.note?el('small',{text:sign.note}):null,sign.influences.length?el('small',{text:'With '+sign.influences.join(' and ')+' influences.'}):null))}
+  function modes(redraw){var n=el('div',{class:'sky-modes',role:'group','aria-label':'Sky reading'});Object.keys(labels).forEach(function(k){n.appendChild(el('button',{type:'button','aria-pressed':reading===k?'true':'false',onclick:function(){reading=k;selected=null;redraw()}},el('span',{class:'sky-mode-symbol','aria-hidden':'true'},ClosetLintIcons.node(symbols[k])),el('span',{text:' '+cap(k)})))});return n}
+  function signCard(key){var sign=model().readings[key].sign;return el('button',{type:'button',class:'sky-sign',onclick:function(){reading=sign.basis||key;if(sign.id)openDetail(sign.kind==='constellation'||sign.kind==='wardrobe-estimate'&&definition(sign.id)?'constellation':'star',sign.id);else openFull()}},el('span',{class:'sky-sign-icon','aria-hidden':'true'},ClosetLintIcons.node(symbols[key])),el('span',null,el('span',{class:'sky-label',text:key+' · '+labels[key]}),el('strong',{text:sign.name}),el('small',{class:'sky-sign-kind',text:signInfo(sign).label}),sign.note?el('small',{text:sign.note}):null,sign.influences.length?el('small',{text:'With '+sign.influences.join(' and ')+' influences.'}):null))}
   function render(){
     var host=$('view-sky');if(!host)return;var result=model();host.textContent='';if(state.skyCatalog){renderCatalog(host);return}
-    host.appendChild(el('div',{class:'sky-heading'},mark(),heading('Your Style Sky'),button('Share my sky',openShare,'btn sky-share-heading')));
+    host.appendChild(el('div',{class:'sky-heading page-heading'},mark(),heading('Your Style Sky'),button('Share my sky',openShare,'btn sky-share-heading')));
     var previewMap=el('div',{class:'sky-preview-map'},chart(false));
     var preview=el('div',{class:'sky-preview'},el('span',{class:'sky-label',text:'Tonight’s sky · '+reading}),button('Share',openShare,'btn small sky-share-map'),previewMap,el('button',{type:'button',class:'btn sky-look','aria-label':'Open the full sky',onclick:openFull},el('span',{'aria-hidden':'true',text:'⛶'})));
     var side=el('aside',null,el('div',{class:'sky-label sky-big-three-label',text:'Your Big Three'}),el('div',{class:'sky-signs'},signCard('sun'),signCard('moon'),signCard('rising')),el('div',{class:'sky-note'},el('p',{text:'Your closet has layers. So does its sky.'})),el('div',{class:'sky-help'},el('div',{class:'sky-label',text:'How to read your sky'}),el('p',{text:'Stars are your style tags. Constellations connect them when your pieces tell a more specific story. Your Sun reads what you own, your Moon what you love or wish for, and your Rising what you wear.'}),el('p',{text:'A sign can be a constellation or a broader style star. Early readings have limited evidence; provisional estimates use what you own until there’s enough evidence for that sign.'})));
@@ -100,21 +100,21 @@ var ClosetLintSkyUI=(function(){
   }
   function dots(strength){var count=Math.max(0,Math.min(5,Math.round(strength*5)));return '●'.repeat(count)+'○'.repeat(5-count)}
   function ranked(){return current().constellations.slice().sort(function(a,b){return Number(b.complete)-Number(a.complete)||b.brightness-a.brightness||a.name.localeCompare(b.name)})}
-  function signBadges(id){var n=el('span',{class:'sky-sign-badges'});Object.keys(labels).forEach(function(k){if(model().readings[k].sign.id===id)n.appendChild(el('span',{class:'sky-sign-badge',role:'img','aria-label':cap(k)+' · '+signInfo(model().readings[k].sign).label,title:cap(k)+' · '+signInfo(model().readings[k].sign).label,text:symbols[k]}))});return n}
+  function signBadges(id){var n=el('span',{class:'sky-sign-badges'});Object.keys(labels).forEach(function(k){if(model().readings[k].sign.id===id)n.appendChild(el('span',{class:'sky-sign-badge',role:'img','aria-label':cap(k)+' · '+signInfo(model().readings[k].sign).label,title:cap(k)+' · '+signInfo(model().readings[k].sign).label},ClosetLintIcons.node(symbols[k])))});return n}
   function showCatalog(on){if(window.ClosetLintRoutes&&window.ClosetLintRoutes.sky)return window.ClosetLintRoutes.sky(on);state.skyCatalog=on;render();window.scrollTo(0,0)}
   function catalogTree(){
     var rows=ranked().slice(0,6),tree=el('div',{class:'sky-tree sky-tree-preview'});
     rows.forEach(function(c,i){var d=definition(c.id),line=el('div',{class:'sky-tree-entry'},el('div',{class:'sky-tree-row'},button((i===rows.length-1?'└ ':'├ ')+c.name,function(){openDetail('constellation',c.id)},'sky-link'),signBadges(c.id)));
       if(i<2){var stars=el('div',{class:'sky-tree-stars'});d.core.forEach(function(id){var star=starFor(id);stars.appendChild(button(star.tag+' '+dots(star.strength),function(){openDetail('star',id)},'sky-link'))});line.appendChild(stars)}tree.appendChild(line)});
-    return el('section',{class:'sky-catalog'},el('div',{class:'sky-catalog-head'},el('span',{class:'sky-label',text:'Observatory catalog'}),modes(render)),tree,button('All '+catalog().constellations.length+' constellations · '+catalog().stars.length+' stars →',function(){showCatalog(true)},'sky-link sky-catalog-more'));
+    return el('section',{class:'sky-catalog'},el('div',{class:'sky-catalog-head'},el('span',{class:'sky-label',text:'Observatory catalog'}),el('div',{class:'sky-perspective'},el('span',{class:'sky-perspective-hint',text:'Shift your perspective →'}),modes(render))),tree,button('All '+catalog().constellations.length+' constellations · '+catalog().stars.length+' stars →',function(){showCatalog(true)},'sky-link sky-catalog-more'));
   }
   function renderCatalog(host){
-    host.appendChild(el('div',{class:'sky-heading'},button('← Back to your sky',function(){showCatalog(false)}),heading('All constellations'),modes(render)));
-    var jump=el('nav',{class:'sky-house-jumps','aria-label':'Jump to a house'}),grid=el('div',{class:'sky-house-grid'}),glyphs={dark:'☾',romantic:'♡',scholar:'❖',earth:'⚘',bright:'☼',city:'▣'};
+    host.appendChild(el('div',{class:'sky-heading page-heading'},heading('All constellations'),el('div',{class:'page-actions'},button('← Back to your sky',function(){showCatalog(false)}),modes(render))));
+    var jump=el('nav',{class:'sky-house-jumps','aria-label':'Jump to a house'}),grid=el('div',{class:'sky-house-grid'}),glyphs={dark:'moon',romantic:'heart',scholar:'diamond',earth:'flower',bright:'sun',city:'city'};
     Object.keys(houses).forEach(function(house){
       var entries=ranked().filter(function(c){return definition(c.id).house===house}),lit=entries.filter(function(c){return c.complete}),dim=entries.filter(function(c){return !c.complete}),id='sky-house-'+house;
       jump.appendChild(button(houses[house],function(){var target=$(id);if(target&&target.scrollIntoView)target.scrollIntoView({block:'start'})},'btn small'));
-      var card=el('section',{class:'sky-house-card',id:id},el('div',{class:'sky-house-head'},el('h3',{text:glyphs[house]+' '+houses[house]+' house'}),el('span',{class:'fine',text:lit.length+' lit / '+entries.length})));
+      var card=el('section',{class:'sky-house-card',id:id},el('div',{class:'sky-house-head'},el('h3',null,ClosetLintIcons.node(glyphs[house]),' '+houses[house]+' house'),el('span',{class:'fine',text:lit.length+' lit / '+entries.length})));
       lit.forEach(function(c){card.appendChild(el('div',{class:'sky-catalog-row'},button('✦ '+c.name,function(){openDetail('constellation',c.id)},'sky-link'),signBadges(c.id),el('span',{class:'sky-dots','aria-label':'Relative brightness',text:dots(Math.max(0,Math.min(1,c.brightness)))})))});
       if(!lit.length)card.appendChild(el('div',{class:'sky-house-empty'},mark(),el('p',{text:'Nothing lit yet. Linty is watching this corner.'})));
       if(dim.length){card.appendChild(el('p',{class:'sky-label',text:'Still gathering · '+dim.length}));var chips=el('div',{class:'sky-dim-chips'});dim.forEach(function(c){chips.appendChild(button(c.name,function(){openDetail('constellation',c.id)},'sky-dim-chip'))});card.appendChild(chips)}grid.appendChild(card);
@@ -131,7 +131,7 @@ var ClosetLintSkyUI=(function(){
     var view=el('div',{class:'sky-viewport'+(zoom?' zoomed':''),tabindex:'0','aria-label':'Scrollable sky map'},chart(true));
     var tools=el('div',{class:'sky-map-tools'},button(zoom?'Fit chart':'Zoom chart',function(){view.classList.toggle('zoomed');this&&this.blur&&this.blur();tools.firstChild.textContent=view.classList.contains('zoomed')?'Fit chart':'Zoom chart'}));
     var readout=el('aside',{class:'sky-readout',id:'sky-readout','aria-live':'polite'});
-    var footer=el('div',{class:'sky-full-footer'});Object.keys(labels).forEach(function(k){footer.appendChild(el('button',{type:'button',onclick:function(){reading=k;selected=null;drawFull()}},el('small',{text:k+' · '+labels[k]}),el('small',{class:'sky-sign-kind',text:signInfo(model().readings[k].sign).label}),el('span',{class:'sky-footer-symbol','aria-hidden':'true',text:symbols[k]}),el('span',{text:model().readings[k].sign.name})))});
+    var footer=el('div',{class:'sky-full-footer'});Object.keys(labels).forEach(function(k){footer.appendChild(el('button',{type:'button',onclick:function(){reading=k;selected=null;drawFull()}},el('small',{text:k+' · '+labels[k]}),el('small',{class:'sky-sign-kind',text:signInfo(model().readings[k].sign).label}),el('span',{class:'sky-footer-symbol','aria-hidden':'true'},ClosetLintIcons.node(symbols[k])),el('span',{text:model().readings[k].sign.name})))});
     full.appendChild(el('div',{class:'sky-full-head'},mark(),heading('Your Style Sky'),modes(drawFull),button('×',closeFull,'btn sky-close')));full.querySelector('.sky-close').setAttribute('aria-label','Close full sky');
     full.appendChild(el('div',{class:'sky-full-body'},el('div',null,tools,view),readout));full.appendChild(footer);drawReadout();attachMap(view);
   }
@@ -307,11 +307,11 @@ var ClosetLintSkyUI=(function(){
     var boxes=[],starBoxes=graph.stars.map(function(s){return {x:map[s.id].x-15,y:map[s.id].y-15,w:30,h:30}});
     function overlap(a,b){return Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x))*Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y))}
     graph.groups.forEach(function(g){
-      var size=30,label=g.keys.map(function(k){return symbols[k]}).join(' ')+' '+g.name;
-      var fitted=fit(label,size,24,theme.mono,radius*1.55,1);size=fitted.size;font(size,theme.mono);var width=ctx.measureText(label).width+26,height=size+23;
+      var size=30,label=g.name,iconWidth=g.keys.length*34;
+      var fitted=fit(label,size,24,theme.mono,radius*1.55-iconWidth,1);size=fitted.size;font(size,theme.mono);var width=ctx.measureText(label).width+26+iconWidth,height=size+23;
       var anchor=g.members.reduce(function(a,id){return {x:a.x+map[id].x/g.members.length,y:a.y+map[id].y/g.members.length}},{x:0,y:0}),best=null;
       [30,-45,62,-78,100,-116,140,-150,180,-190].forEach(function(dy){[-.5,0,-1].forEach(function(side){var x=Math.max(center.x-radius+14,Math.min(center.x+radius-width-14,anchor.x+side*width)),y=Math.max(center.y-radius+35,Math.min(center.y+radius-height-35,anchor.y+dy));var b={x:x,y:y,w:width,h:height},penalty=boxes.concat(starBoxes).reduce(function(sum,p){return sum+overlap(b,p)*100},0)+Math.abs(dy);var corners=[[x,y],[x+width,y],[x,y+height],[x+width,y+height]];corners.forEach(function(p){penalty+=Math.max(0,Math.hypot(p[0]-center.x,p[1]-center.y)-(radius-10))*10000});if(!best||penalty<best.penalty)best={box:b,penalty:penalty}})});
-      var b=best.box;boxes.push(b);ctx.fillStyle=theme.background;ctx.strokeStyle=theme.accent;ctx.globalAlpha=.88;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(b.x,b.y,b.w,b.h,b.h/2);else ctx.rect(b.x,b.y,b.w,b.h);ctx.fill();ctx.lineWidth=.7;ctx.stroke();ctx.globalAlpha=1;text(label,b.x+13,b.y+size+4,size,theme.mono,theme.ink);
+      var b=best.box;boxes.push(b);ctx.fillStyle=theme.background;ctx.strokeStyle=theme.accent;ctx.globalAlpha=.88;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(b.x,b.y,b.w,b.h,b.h/2);else ctx.rect(b.x,b.y,b.w,b.h);ctx.fill();ctx.lineWidth=.7;ctx.stroke();ctx.globalAlpha=1;g.keys.forEach(function(k,i){ClosetLintIcons.draw(ctx,symbols[k],b.x+13+i*34,b.y+(height-26)/2,26,theme.ink)});text(label,b.x+13+iconWidth,b.y+size+4,size,theme.mono,theme.ink);
     });
     var x=tall?130:664,width=tall?820:346,top=tall?1110:258,rowLimit=tall?510:505;
     function rowsAt(factor){return ['sun','moon','rising'].map(function(key){
@@ -323,7 +323,7 @@ var ClosetLintSkyUI=(function(){
     })}
     var factor=1,rows=rowsAt(factor);while(rows.reduce(function(n,r){return n+r.height},0)>rowLimit&&factor>.65){factor-=.025;rows=rowsAt(factor)}
     var y=top;rows.forEach(function(row,i){var f=row.factor,labelX=x+(tall?100:70),iconX=x+(tall?32:26),iconY=y+(row.labelSize+row.nameTop+row.name.size)/2,r=(tall?30:25)*f;
-      circle(iconX,iconY,r,theme.accent,1,row.info.estimate?[2,3]:[]);text(symbols[row.key],iconX,iconY+10*f,32*f,theme.body,theme.accent,'center');
+      circle(iconX,iconY,r,theme.accent,1,row.info.estimate?[2,3]:[]);ClosetLintIcons.draw(ctx,symbols[row.key],iconX-16*f,iconY-16*f,32*f,theme.accent);
       text(row.label,labelX,y+row.labelSize,row.labelSize,theme.mono,theme.muted);
       var next=y+row.nameTop+row.name.size;row.name.lines.forEach(function(s){text(s,labelX,next,row.name.size,theme.display,row.sign.kind==='empty'?theme.muted:theme.accent,'left','500');next+=row.name.size+8*f});
       next=y+row.notesTop;
@@ -335,11 +335,11 @@ var ClosetLintSkyUI=(function(){
     var maxSummaryHeight=(tall?1770:914)-summaryY,summary=fit(shareSentence(result),tall?43:33,20,theme.body,summaryWidth,Math.max(2,Math.floor(maxSummaryHeight/(tall?49:39))));
     line(tall?404:664,summaryY-36,tall?500:724,summaryY-36,theme.line,.6);line(tall?580:766,summaryY-36,tall?676:826,summaryY-36,theme.line,.6);sparkle(tall?540:745,summaryY-36,6,theme.accent);
     summary.lines.forEach(function(s,i){font(summary.size,theme.body);ctx.font='italic '+ctx.font;ctx.textAlign=tall?'center':'left';ctx.fillStyle=theme.ink;ctx.fillText(s,summaryX,summaryY+i*(summary.size+7))});
-    var footerParts=[['☼ WHAT YOU ','OWN'],['☾ WHAT YOU ','WANT'],['↥ WHAT YOU ','WEAR']],footerSize=tall?28:26,footerGap=32;
-    function footerWidth(){return footerParts.reduce(function(sum,part){font(footerSize,theme.mono);var prefix=ctx.measureText(part[0]).width;font(footerSize,theme.mono,'700');return sum+prefix+ctx.measureText(part[1]).width},footerGap*2)}
+    var footerParts=[['WHAT YOU ','OWN','sun'],['WHAT YOU ','WANT','moon'],['WHAT YOU ','WEAR','rising']],footerSize=tall?28:26,footerGap=32;
+    function footerWidth(){return footerParts.reduce(function(sum,part){font(footerSize,theme.mono);var prefix=ctx.measureText(part[0]).width;font(footerSize,theme.mono,'700');return sum+footerSize+10+prefix+ctx.measureText(part[1]).width},footerGap*2)}
     while(footerWidth()>940&&footerSize>18)footerSize--;
     var footerX=(W-footerWidth())/2,footerY=tall?1780:944;
-    footerParts.forEach(function(part){text(part[0],footerX,footerY,footerSize,theme.mono,theme.muted);font(footerSize,theme.mono);footerX+=ctx.measureText(part[0]).width;text(part[1],footerX,footerY,footerSize,theme.mono,theme.muted,'left','700');font(footerSize,theme.mono,'700');footerX+=ctx.measureText(part[1]).width+footerGap});
+    footerParts.forEach(function(part){ClosetLintIcons.draw(ctx,part[2],footerX,footerY-footerSize*.85,footerSize,theme.muted);footerX+=footerSize+10;text(part[0],footerX,footerY,footerSize,theme.mono,theme.muted);font(footerSize,theme.mono);footerX+=ctx.measureText(part[0]).width;text(part[1],footerX,footerY,footerSize,theme.mono,theme.muted,'left','700');font(footerSize,theme.mono,'700');footerX+=ctx.measureText(part[1]).width+footerGap});
     text('closetlint.com',540,H-55,tall?32:29,theme.mono,theme.accent,'center');
     canvas.setAttribute('aria-label',site+' · My Style Sky. '+['sun','moon','rising'].map(function(k){var s=result.readings[k].sign;return cap(k)+': '+s.name+', '+signInfo(s).label}).join('. '));
     return {theme:theme,site:site,sentence:shareSentence(result),graph:graph};
@@ -352,7 +352,7 @@ var ClosetLintSkyUI=(function(){
       return {background:value('--bg','#f4efdf'),ink:value('--ink','#343e36'),muted:value('--ink2','#647166'),line:value('--line','#b9bdae'),accent:value('--sel','#68557f'),display:value('--display','sans-serif'),body:value('--body','sans-serif'),mono:value('--mono',"'IBM Plex Mono',monospace")};
     }
     function draw(){return drawShare(canvas,shape)}
-    var modesBox=el('div',{class:'sky-modes sky-share-modes',role:'group','aria-label':'Share image layout'});['square','story'].forEach(function(k){var b=button(cap(k),function(){shape=k;Array.from(modesBox.children).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});draw()});b.textContent='';b.appendChild(el('span',{class:'shp','aria-hidden':'true',style:'width:'+(k==='square'?18:9)+'px;height:'+(k==='square'?18:16)+'px'}));b.appendChild(el('span',{text:cap(k)}));b.setAttribute('aria-pressed',k===shape?'true':'false');modesBox.appendChild(b)});
+    var modesBox=el('div',{class:'sky-modes sky-share-modes',role:'group','aria-label':'Share image layout'});['square','story'].forEach(function(k){var b=button(cap(k),function(){shape=k;Array.from(modesBox.children).forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});draw()});b.textContent='';b.appendChild(ClosetLintIcons.node(k));b.appendChild(el('span',{text:cap(k)}));b.setAttribute('aria-pressed',k===shape?'true':'false');modesBox.appendChild(b)});
     d.appendChild(el('div',{class:'sky-heading'},heading('Share my sky'),button('Close',function(){d.close()})));d.appendChild(el('p',{text:'Your closet name and three signs, with a simplified chart of your sky.'}));d.appendChild(modesBox);d.appendChild(canvas);d.appendChild(status);
     function updateActions(){Array.from(d.querySelector('.sky-detail-actions').children).forEach(function(b){b.disabled=exporting||!fontsReady})}
     function exportImage(action,failure){

@@ -12,7 +12,7 @@ Each theme supports light, dark, and system appearance. Thumbnail size is a sepa
 
 Under **Icons**, choose an **Emoji pack** and **Emojis + text** or **Text only** for menu and toolbar labels. With emojis enabled, compact mobile navigation and some toolbars use icons to save space; text-only keeps text on mobile, too. Standalone action symbols remain where they are the control itself.
 
-Emoji packs and the temporary **Emoji tweaks [remove for launch]** section adjust interface emoji appearance. These settings do not recolor garment photos. Photo badges, including wishlist and wear-more markers, convey piece information separately from menu labels.
+Emoji packs adjust interface emoji appearance. Development builds also include an experimental **Emoji tweaks [remove for launch]** section; it is not a permanent setting. These settings do not recolor garment photos. Photo badges, including wishlist and wear-more markers, convey piece information separately from menu labels.
 
 ## Photos and favorites
 
@@ -30,8 +30,14 @@ Theme, appearance, emoji, and thumbnail preferences are saved in this browser. T
 
 For stylesheet maintenance and checks, see [developer testing notes](TESTING.md).
 
-Control emoji choices are defined in `app/scripts/control-icons.js` and embedded with `python3 tools/sync_control_icons.py`. The owner-selected packs use feminine, masculine, or neutral/symbolic scientists, setup wizards, and trip fairies, including dynamically created controls. Literal garment/category data is unchanged. Wishlist section labels use the separately agreed medal-and-stars sequence.
+## For contributors: icon and theme maintenance
+
+Control emoji choices are defined in `app/scripts/control-icons.js` and embedded with `python3 tools/sync_control_icons.py`. The packs offer feminine, masculine, or neutral/symbolic scientists, setup wizards, and trip fairies, including dynamically created controls. Garment and category data is unchanged. Wishlist section labels use medals and stars to distinguish ranking groups.
 
 ## Interaction states for new controls
 
 Every new interactive component needs visible hover, keyboard focus, and pressed/selected feedback where applicable. Reuse the existing button/link styles when possible; custom cards, text links, and disclosure summaries need their own states. Keep hover changes within hover-capable fine-pointer media queries, make focus visible without relying only on color, use theme variables for light/dark skins, avoid layout shifts, and honor reduced-motion preferences. Include these states in visual review instead of checking only the resting appearance.
+
+## Sky palette
+
+Soft Hardware retains its original observatory colors. Other skins map Sky’s semantic color variables to the active theme’s background, panel, text, border, and selection colors; system appearance resolves through the same base theme variables. Night Bloom therefore uses plum and mauve in dark appearance and blush and plum in light appearance, while Field Notes follows its parchment/earth palette. The chart’s radial glow and muted house labels derive from these colors. Share exports continue to use the base theme palette. Scoring, star brightness levels, and animations are unchanged.

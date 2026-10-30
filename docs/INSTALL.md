@@ -1,6 +1,6 @@
 # Install Closet Lint
 
-Closet Lint runs on your computer and opens in your web browser. Your wardrobe and photos are saved on that computer.
+This guide covers running Closet Lint on your computer and opening it in your web browser. Your wardrobe and photos are saved on that computer. For access away from home, see the [experimental hosting notes](HOSTING.md); hosting has additional requirements and is not yet a generally supported installation option.
 
 ## Start the app
 
@@ -56,7 +56,7 @@ Your computer needs to stay awake, with the app running. Connect your phone to t
 
 For Sky, **Save image** downloads a picture you can share from Photos or Gallery. The direct **Share** action depends on browser support and a secure HTTPS address, so it may be unavailable at your ordinary home-network HTTP address.
 
-Anyone who can reach that address can view and edit the wardrobe. Use a home network you trust, and don’t expose it to the public internet. Edit on one device at a time so changes don’t overwrite each other.
+Anyone who can reach that address can view and edit the wardrobe. Use a home network you trust, and don’t expose it to the public internet. Finish and save edits before switching devices; changes are not merged automatically.
 
 ## Backups
 
@@ -82,3 +82,7 @@ On Windows, use `py -3` instead of `python3`. The check shows whether the app an
 - **Can’t save:** check that the server is running and the disk has free space. Preserve unsaved work before refreshing.
 
 Run only one server for each data folder. Open the address from the terminal rather than opening the app’s HTML file directly.
+
+## Category choices
+
+In development, **View settings → Categories to show** lets you choose which empty categories appear when adding pieces. The searchable list includes optional specialist categories; categories already used by your pieces stay available. Use **Show all categories…** in a piece picker for a one-time choice. A category becomes available throughout the closet after its first piece is saved. Category preferences save with the closet and are included in full backups. **Reset empty categories to defaults** restores starter choices while keeping populated categories available.

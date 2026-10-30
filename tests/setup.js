@@ -43,8 +43,8 @@ assert.equal(ctx.setupParse('```json\n'+batch([item])+'\n```',[]).length,1);
  const row={action:'add',piece:{photoUrl:''},photo:{blob:{synthetic:true},ar:0.8}};
  await assert.rejects(()=>ctx.setupSaveRow('test',{name:'Synthetic'},row),/Disk full/);
  fail=false;await ctx.setupSaveRow('test',{name:'Synthetic'},row);assert.equal(uploads,1);assert.equal(writes,2);
- await ctx.setupSaveRow('unused',{wish:false},{action:'owned',match:{id:'wish-1'},piece:{...rows[0].piece}});assert.deepEqual(Object.keys(patch),['wish']);assert.equal(patch.wish,false);assert.equal(uploads,1);
- console.log('Import photos: cached upload retry and ownership-only wishlist patch pass.');
+ await ctx.setupSaveRow('unused',{wish:false},{action:'owned',match:{id:'wish-1'},piece:{...rows[0].piece}});assert.deepEqual(Object.keys(patch),['wish','acquiredDate','acquiredApproximate','acquisitionSource']);assert.equal(patch.acquisitionSource,'unknown');assert.equal(patch.wish,false);assert.equal(uploads,1);
+ console.log('Import photos: cached upload retry and wishlist ownership and unknown acquisition metadata pass.');
 })().catch(e=>{console.error(e);process.exit(1)});
 
 assert.equal(source.split('/* BEGIN SETUP STYLES (source: app/styles/setup.css) */\n')[1].split('\n/* END SETUP STYLES */')[0],fs.readFileSync(__dirname+'/../app/styles/setup.css','utf8'),'embedded import styles are synchronized');

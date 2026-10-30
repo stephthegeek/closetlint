@@ -1,5 +1,7 @@
 # Board/editor source and state boundaries
 
+This is a contributor reference. The validation notes record individual development checkpoints; test counts and pending checks describe those passes, not the latest release status. See [release planning](NEXT-RELEASE.md) for current scope and [testing](TESTING.md) for checks to run.
+
 The board uses plain JavaScript and the existing portable app closure. Editable modules are embedded into `app/closet-lint.html`; they are not separately fetched at startup. This is a maintainability and state-safety change, not a framework migration or a bundle-size optimization.
 
 ## Source ownership
@@ -67,7 +69,7 @@ Gesture completion saves the final visible position on pointer-up, cancellation,
 
 This pass uses synthetic automated tests; no new interactive browser or physical-phone check was performed. Published 0.2 and the stable demo are unchanged.
 
-Validation for this pass: both full JavaScript suites passed, and the supported-Python suites passed (97 baseline-tree tests and 101 development-tree tests). Embedded-source checks and `git diff --check` passed. Logs: `/tmp/board-autosave-{performance-review,public-source}-{js,python}.log`.
+Validation for this pass: both full JavaScript suites passed, and the supported-Python suites passed (97 baseline-tree tests and 101 development-tree tests). Embedded-source checks and `git diff --check` passed.
 
 ## Save status and recovery (2026-10-25)
 
@@ -79,7 +81,7 @@ The runtime exposes draft status subscriptions and manual retry. One draft write
 
 Operation/retry identity is retained in the open tab, not a new persisted schema. Error copy explicitly asks the user to keep the tab open. No schema or algorithm change, and no change to the separate draft-versus-saved-outfit model.
 
-Both full JavaScript suites passed, including new failure/status tests, and both supported-Python suites passed (97 baseline tests, 101 development tests). Synthetic tests cover lost responses, stable copy identity, latest-edit retries, duplicate clicks, failed favorites, New/Undo status recovery, synchronous failures, unrelated record failures, and in-flight draft edits. No new interactive browser or physical-phone visual check was performed. Logs: `/tmp/board-save-{performance-review,public-source}-{js,python}.log`.
+Both full JavaScript suites passed, including new failure/status tests, and both supported-Python suites passed (97 baseline tests, 101 development tests). Synthetic tests cover lost responses, stable copy identity, latest-edit retries, duplicate clicks, failed favorites, New/Undo status recovery, synchronous failures, unrelated record failures, and in-flight draft edits. No new interactive browser or physical-phone visual check was performed.
 
 ## Saved-outfit previews and kept drafts
 
@@ -116,7 +118,7 @@ The 0.3 review found and fixed three edge cases. New and Undo New now stop on an
 
 Collage piece-deletion Undo now restores the original window count, including intentionally empty windows. It leaves a subsequent window-count change or replacement layout intact. Clearing an outfit name while a save is in flight also remains a newer unsaved edit; the completion callback only normalizes the name if its entered value is unchanged.
 
-Synthetic regression tests reproduce the failure boundaries and cover ordinary saves, Save a copy, uncertain responses, successful retries followed by Undo New, title clearing, collage restoration, and later layout choices. The full JavaScript unit suite passes, including runtime save serialization/retry, preview/checkpoint/reload isolation, navigation, deletion/Undo, and autosave boundaries. Embedded board sources and whitespace checks pass. No new browser/physical-phone check or Python rerun was needed for these editor-only changes; owner phone acceptance remains in progress. No new feature, schema, algorithm version, package, or deployment.
+Synthetic regression tests reproduce the failure boundaries and cover ordinary saves, Save a copy, uncertain responses, successful retries followed by Undo New, title clearing, collage restoration, and later layout choices. The full JavaScript unit suite passes, including runtime save serialization/retry, preview/checkpoint/reload isolation, navigation, deletion/Undo, and autosave boundaries. Embedded board sources and whitespace checks pass. No new browser/physical-phone check or Python rerun was needed for these editor-only changes; physical-phone acceptance remains in progress. No new feature, schema, algorithm version, package, or deployment.
 
 
 ## Calendar to board (2026-10-26)

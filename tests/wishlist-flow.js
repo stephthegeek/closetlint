@@ -7,9 +7,9 @@ const fn=source.slice(source.indexOf('function wishBanner(it){'),source.indexOf(
  vm.createContext(ctx);vm.runInContext(fn,ctx);
  const item={id:'a',wish:true,source:'Wishlist',date:'2025-11-02'};
  ctx.wishBanner(item).children[1].onclick();await new Promise(setImmediate);
- assert.equal(closed,1);assert.equal(celebrations,1);assert.deepEqual(writes[0],{wish:false,source:'Added by hand',date:'2026-10-18'});
+ assert.equal(closed,1);assert.equal(celebrations,1);assert.deepEqual(writes[0],{wish:false,source:'Added by hand',date:'2026-10-18',acquiredDate:'2026-10-18',acquiredApproximate:false,acquisitionSource:'wishlist'});
  action();await new Promise(setImmediate);
- assert.deepEqual(writes[1],{wish:true,source:'Wishlist',date:'2025-11-02'},'Undo restores previous wishlist/source/date');
+ assert.deepEqual(writes[1],{wish:true,source:'Wishlist',date:'2025-11-02',acquiredDate:undefined,acquiredApproximate:undefined,acquisitionSource:undefined},'Undo restores previous wishlist/source/date');
  assert.equal(messages.at(-1),'Back on your wishlist');
  ok=false;action=null;ctx.wishBanner(item).children[1].onclick();await new Promise(setImmediate);
  assert.equal(celebrations,1,'failed purchase does not celebrate');assert.equal(closed,1,'failed move leaves dialog open');assert.equal(action,null,'failed move offers no misleading Undo');

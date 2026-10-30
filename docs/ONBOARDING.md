@@ -1,8 +1,10 @@
 # Setup and DIY imports
 
-An empty wardrobe opens the setup wizard. You can also open **Menu → Utilities → Getting started** or **+ → Bulk import pieces**.
+An empty wardrobe opens the setup wizard. You can revisit setup through **Menu → Utilities → Getting started**. **+ → Bulk import pieces** opens the import workspace page, keeping repeat imports separate from first-time setup.
 
-Getting started has three optional sections: Your closet (name and Linty logo visibility), Preferences (units and emoji pack), and Pieces & photos (add manually, import with your assistant, restore a full backup, or browse first). You can move directly between sections. Returning after setup opens Pieces & photos, where the optional photo-tools check is available. No measurement entry is part of onboarding.
+Getting started has four optional sections: Your closet (name and Linty logo visibility), Preferences (units and emoji pack), Categories (searchable category visibility choices), and Pieces & photos (add manually, import with your assistant, restore a full backup, or browse first). You can move directly between sections. Returning after setup opens Pieces & photos, where the optional photo-tools check is available. No measurement entry is part of onboarding.
+
+Category choices save with the wardrobe and are included in backups. Sensible defaults are ready to use, and categories containing saved pieces stay visible. The same chooser is available in View settings.
 
 The closet name and logo visibility are saved in the wardrobe profile and included in full backups. They can be changed later in View settings, where the name saves after a short typing pause or on leaving the field and logo visibility saves immediately. A save failure keeps the entered values and offers Retry. No custom logo upload is provided. Units and emoji choices are browser preferences; measurements do not determine the emoji pack.
 
@@ -94,3 +96,5 @@ Import requests focus on clothing, shoes, jewelry, and accessories. The assistan
 
 
 **Prepare your pieces** offers separate multipack records and individual product photos for every source. Both start unchecked. Record splitting alone keeps the original pack photo; the photo option asks an available editor to prepare each member on a plain background. Individual upload choices override the overall photo choice. If editing cannot finish, the import keeps originals and shows the reported reason in review/results. Imported pieces remain Unreviewed.
+
+Unfinished import reviews are kept in this browser, including their selected photos, when the draft notice confirms they are stored. Back leaves the review available; Start over explicitly clears it. Reload recovery retains saved-row identities and rechecks possible new matches before adding pieces. Direct requests still use their existing saved server progress. See [Batch workspaces](NAVIGATION.md#batch-workspaces) for recovery limits.

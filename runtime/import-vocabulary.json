@@ -17,6 +17,9 @@
     "Glasses",
     "Other accessories",
     "Jewelry",
+    "Watches",
+    "Workwear & uniforms",
+    "Cultural & traditional garments",
     "Lingerie"
   ],
   "subcategories": {
@@ -32,6 +35,7 @@
     ],
     "Bottoms": [
       "Skirts",
+      "Skorts",
       "Shorts",
       "Pants",
       "Leggings",
@@ -46,7 +50,15 @@
       "Tops",
       "Bottoms",
       "Sets",
-      "Dancewear"
+      "Sports bras",
+      "Jackets",
+      "Jerseys",
+      "Dresses & skorts",
+      "Leotards & unitards",
+      "Dancewear",
+      "Cycling clothing",
+      "Snow clothing",
+      "Martial arts clothing"
     ],
     "Costumes": [
       "Full costumes",
@@ -55,7 +67,9 @@
     ],
     "Outerwear": [
       "Jackets",
-      "Coats"
+      "Coats",
+      "Vests",
+      "Capes & ponchos"
     ],
     "Footwear": [
       "Sneakers",
@@ -63,7 +77,11 @@
       "Sandals",
       "Slippers",
       "Flats",
-      "Heels"
+      "Heels",
+      "Lace-up dress shoes",
+      "Dance shoes",
+      "Hiking shoes",
+      "Work shoes"
     ],
     "Jewelry": [
       "Necklaces",
@@ -76,9 +94,13 @@
     "Underwear": [
       "Bras",
       "Panties",
+      "Briefs",
+      "Boxers",
+      "Boxer briefs",
       "Shapewear",
       "Slips & crinolines",
-      "Intimates"
+      "Intimates",
+      "Thermals"
     ],
     "Legwear": [
       "Socks",
@@ -89,8 +111,13 @@
     "Swimwear": [
       "Tops",
       "Bottoms",
+      "One-pieces",
       "Sets",
-      "Cover-ups"
+      "Cover-ups",
+      "Trunks & shorts",
+      "Rash guards & swim shirts",
+      "Swim dresses",
+      "Wetsuits"
     ],
     "Loungewear": [
       "Tops",
@@ -102,13 +129,21 @@
     ],
     "Bags": [
       "Bags",
+      "Shoulder & crossbody bags",
+      "Backpacks",
+      "Clutches",
+      "Belt bags",
       "Totes",
-      "Wallets & pouches"
+      "Wallets & pouches",
+      "Briefcases",
+      "Gym & travel bags"
     ],
     "Hats": [
+      "Caps",
       "Sun hats",
       "Bucket hats",
       "Beanies",
+      "Head coverings",
       "Other hats"
     ],
     "Hair accessories": [
@@ -116,10 +151,14 @@
       "Barrettes & pins",
       "Scrunchies & ties",
       "Headbands",
+      "Combs",
+      "Hair sticks & forks",
+      "Decorative hairpieces",
       "Other"
     ],
     "Glasses": [
       "Glasses",
+      "Sunglasses",
       "Accessories"
     ],
     "Other accessories": [
@@ -127,6 +166,24 @@
       "Scarves",
       "Belts",
       "Watch bands",
+      "Other"
+    ],
+    "Watches": [
+      "Watches",
+      "Watch bands"
+    ],
+    "Workwear & uniforms": [
+      "Tops",
+      "Bottoms",
+      "One-pieces",
+      "Sets"
+    ],
+    "Cultural & traditional garments": [
+      "Tops",
+      "Bottoms",
+      "One-pieces",
+      "Sets",
+      "Head coverings",
       "Other"
     ],
     "Lingerie": [
@@ -186,7 +243,9 @@
         "Hats",
         "Bags",
         "Hair accessories",
-        "Other accessories"
+        "Other accessories",
+        "Workwear & uniforms",
+        "Cultural & traditional garments"
       ]
     },
     {
@@ -231,12 +290,34 @@
         "loafer",
         "slip-on",
         "bootie",
-        "clog"
+        "clog",
+        "blouse",
+        "fashion top",
+        "shrug / bolero",
+        "jumpsuit",
+        "romper",
+        "overalls",
+        "boilersuit",
+        "coat",
+        "raincoat",
+        "waistcoat",
+        "puffer vest",
+        "utility vest",
+        "oxford",
+        "derby",
+        "brogue",
+        "watch",
+        "smartwatch"
       ],
       "categories": [
         "Tops",
         "Jewelry",
-        "Footwear"
+        "Footwear",
+        "One-pieces",
+        "Outerwear",
+        "Watches",
+        "Workwear & uniforms",
+        "Cultural & traditional garments"
       ]
     },
     {
@@ -327,7 +408,9 @@
         "Underwear",
         "Swimwear",
         "Loungewear",
-        "Lingerie"
+        "Lingerie",
+        "Workwear & uniforms",
+        "Cultural & traditional garments"
       ]
     },
     {
@@ -348,7 +431,9 @@
         "Swimwear",
         "Loungewear",
         "Lingerie",
-        "Legwear"
+        "Legwear",
+        "Workwear & uniforms",
+        "Cultural & traditional garments"
       ]
     },
     {
@@ -379,7 +464,9 @@
         "Outerwear",
         "Swimwear",
         "Loungewear",
-        "Lingerie"
+        "Lingerie",
+        "Workwear & uniforms",
+        "Cultural & traditional garments"
       ]
     },
     {
@@ -491,7 +578,9 @@
         "Tops",
         "One-pieces",
         "Outerwear",
-        "Loungewear"
+        "Loungewear",
+        "Workwear & uniforms",
+        "Cultural & traditional garments"
       ]
     },
     {
@@ -520,7 +609,9 @@
         "One-pieces",
         "Outerwear",
         "Loungewear",
-        "Jewelry"
+        "Jewelry",
+        "Workwear & uniforms",
+        "Cultural & traditional garments"
       ]
     },
     {
@@ -638,7 +729,7 @@
     },
     {
       "key": "jmetal",
-      "label": "Metal",
+      "label": "Metal & finish",
       "multi": true,
       "vocab": [
         "titanium",
@@ -648,10 +739,54 @@
         "plated",
         "copper / brass / alloy",
         "acrylic / resin",
-        "glass / ceramic"
+        "glass / ceramic",
+        "rose gold",
+        "bronze",
+        "copper",
+        "gunmetal",
+        "antiqued",
+        "blackened",
+        "brushed",
+        "hammered"
       ],
+      "groups": [
+        {
+          "label": "Material",
+          "vocab": [
+            "titanium",
+            "stainless steel",
+            "sterling silver",
+            "gold-filled / solid gold",
+            "plated",
+            "copper / brass / alloy",
+            "acrylic / resin",
+            "glass / ceramic"
+          ]
+        },
+        {
+          "label": "Metal tone",
+          "vocab": [
+            "rose gold",
+            "bronze",
+            "copper",
+            "gunmetal"
+          ]
+        },
+        {
+          "label": "Finish",
+          "vocab": [
+            "antiqued",
+            "blackened",
+            "brushed",
+            "hammered"
+          ]
+        }
+      ],
+      "description": "Optional. Metal tones describe appearance, not material.",
       "categories": [
-        "Jewelry"
+        "Jewelry",
+        "Watches",
+        "Bags"
       ]
     },
     {
@@ -674,7 +809,7 @@
   ],
   "glassesTypes": [
     "Distance",
-    "Computer",
+    "Intermediate",
     "Readers",
     "Sunglasses"
   ]

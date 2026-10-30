@@ -3,7 +3,7 @@ function laundryEnabled(){return !!(state.profile&&state.profile['laundry-settin
 function needsLaundry(it){return !!(it&&it.laundry===true)}
 function laundryEmptyMessage(items){return (items||[]).some(needsLaundry)?'Nothing needs cleaning with these filters.':'Nothing needs cleaning. The hamper is appeased.'}
 function laundryPlanningOnly(){return laundryEnabled()&&(!state.lab||state.lab.readyOnly!==false)}
-function laundryMark(it){return laundryEnabled()&&needsLaundry(it)?el('span',{class:'laundry-mark',role:'img','aria-label':'Needs cleaning',title:'Needs cleaning',text:'🧺'}):null}
+function laundryMark(it){return laundryEnabled()&&laundryClothing(it)&&needsLaundry(it)?el('span',{class:'laundry-mark',role:'img','aria-label':'Needs cleaning',title:'Needs cleaning',text:'🧺'}):null}
 function laundryIds(pieces,map){var seen={};return (pieces||[]).map(function(p){return typeof p==='string'?p:p.id}).filter(function(id){if(seen[id]||!needsLaundry(map[id]))return false;seen[id]=true;return true})}
 var laundryPieceRefresh=null,piecePhotoRefresh=null,laundrySettingsBusy=false,laundryPending={};
 function laundryFillSettings(){
@@ -28,12 +28,15 @@ function laundrySet(it,value,button){
     return ok;
   }).finally(function(){delete laundryPending[it.id];if(button)button.disabled=false;if(laundryPieceRefresh)laundryPieceRefresh()});
 }
+function laundryClothing(it){return !!it&&['Tops','Bottoms','One-pieces','Outerwear','Underwear','Swimwear','Loungewear','Activewear','Costumes','Legwear','Lingerie','Workwear & uniforms','Cultural & traditional garments'].indexOf(it.meta)>=0}
 function laundryPieceUI(it){
+  if(!laundryClothing(it))return null;
   var box=el('div',{class:'laundry-piece-status'}),button=el('button',{class:'btn laundry-piece-action',type:'button',onclick:function(){var fresh=byId()[it.id]||it;return laundrySet(fresh,!needsLaundry(fresh),button)}});
   function paint(){var fresh=byId()[it.id]||it,on=needsLaundry(fresh),enabled=laundryEnabled();button.hidden=!enabled;button.disabled=!!laundryPending[it.id];var label=on?'🧺 Set as clean':'🧺 Needs cleaning';button.textContent='';button.appendChild(buttonText(label));button.setAttribute('aria-label',label);box.textContent='';if(enabled&&on)box.append(el('span',{text:'🧺 Needs cleaning'}),el('button',{class:'btn small',type:'button',disabled:!!laundryPending[it.id],text:'Set as clean',onclick:function(e){laundrySet(fresh,false,e.currentTarget)}}));box.hidden=!(enabled&&on)}
   laundryPieceRefresh=function(){if(button.isConnected)paint()};paint();return {node:box,button:button};
 }
 function laundryBulkMenu(ids){
+  var map=byId();ids=ids.filter(function(id){return laundryClothing(map[id])});if(!ids.length){toast('Select clothing to update its cleaning status.');return}
   var d=$('cdlg');d.textContent='';var pending=false;
   function act(value){if(pending)return;pending=true;d.querySelectorAll('button').forEach(function(b){b.disabled=true});
     applyBulk(ids,function(it){return needsLaundry(it)===value?null:{laundry:value}},value?'Needs cleaning. Banished to the hamper.':'Set as clean. Released from hamper jail.').then(function(){d.close()}).finally(function(){pending=false});
@@ -41,11 +44,12 @@ function laundryBulkMenu(ids){
   d.appendChild(el('div',{class:'dlgwide narrow'},el('h2',{text:'Laundry · '+ids.length+' selected'}),el('div',{class:'laundry-choices'},el('button',{class:'btn',type:'button',text:'🧺 Needs cleaning',onclick:function(){act(true)}}),el('button',{class:'btn',type:'button',text:'✓ Set as clean',onclick:function(){act(false)}}),el('button',{class:'btn',type:'button',text:'Cancel',onclick:function(){d.close()}}))));addClose(d);if(!d.open)d.showModal();
 }
 function laundryCareForm(it,onPhotos){
+  if(!laundryClothing(it))return null;
   var care=it.care||{},body=el('div',{class:'origbody care-body'}),summary=el('summary',{text:'Care'}),node=el('details',{class:'origin care-section'},summary,body);
   function field(label,values,value){var select=el('select',{'aria-label':label});[['','Not set']].concat(values.map(function(v){return [v,v]})).forEach(function(v){select.appendChild(el('option',{value:v[0],text:v[1]}))});if(value&&values.indexOf(value)<0)select.appendChild(el('option',{value:value,text:value}));select.value=value||'';body.appendChild(el('label',null,label,select));return select}
   var wash=field('Washing',['Machine wash cold','Machine wash warm','Machine wash hot','Hand wash cold','Hand wash','Dry clean only','Do not wash'],care.wash),dry=field('Drying',['Tumble dry low','Tumble dry medium','Tumble dry','Hang to dry','Lay flat to dry','Do not tumble dry'],care.dry),note=el('textarea',{'aria-label':'Care note',rows:'2',maxlength:'1000',value:care.note||''});
   note.value=care.note||'';body.appendChild(el('label',null,'Care note',note));
-  var uploading=false,photos=el('div',{class:'care-label-links'}),file=el('input',{type:'file',accept:'image/*',class:'hide','data-care-upload':'true','aria-label':'Add care-label photo'}),status=el('p',{class:'fine',role:'status'}),add=el('button',{class:'btn small',type:'button',text:'📷 Add care-label photo',onclick:function(){file.click()}});
+  var uploading=false,photos=el('div',{class:'care-label-links'}),file=el('input',{type:'file',accept:'image/*',class:'hide','data-care-upload':'true','aria-label':'Add care label photo'}),status=el('p',{class:'fine',role:'status'}),add=el('button',{class:'btn small',type:'button',text:'📷 Add care label photo',onclick:function(){file.click()}});
   function paint(){photos.textContent='';piecePhotos(it).filter(function(p){return p.kind==='carelabel'}).forEach(function(p,i){photos.appendChild(el('button',{class:'care-label-thumb',type:'button','aria-label':'View care label '+(i+1),onclick:function(){openLightbox(Object.assign({},it,{photo:p.src}))}},el('img',{src:photoThumbnail(p.src),alt:'Care label '+(i+1),loading:'lazy',decoding:'async'})))});var atLimit=piecePhotos(it).filter(function(p){return p.photoId}).length>=12;add.disabled=uploading||!state.assets||atLimit;add.title=atLimit?'12-photo limit reached. Remove a photo first.':!state.assets?'Photo storage unavailable.':'';summary.textContent='Care'}
   wash.addEventListener('change',paint);dry.addEventListener('change',paint);
   file.addEventListener('change',function(){var f=file.files&&file.files[0];if(!f||uploading)return;uploading=true;paint();status.textContent='Saving photo…';

@@ -419,7 +419,7 @@ function wireBoardStyle(){
     var b=state.board,map=byIdA(),items=[];
     b.pieces.forEach(function(p){var it=map[p.id];if(it)items.push(it)});
     if(!items.length){toast('Add a few pieces first');return}
-    var ACC=['Jewelry','Hair accessories','Footwear','Bags','Hats','Glasses','Other accessories'];
+    var ACC=['Jewelry','Hair accessories','Footwear','Bags','Hats','Glasses','Watches','Other accessories'];
     var core=items.filter(function(it){return ACC.indexOf(it.meta)<0});
     var o=labOutfitFromIds(core.map(function(x){return x.id}),map);
     if(!o){
@@ -486,7 +486,7 @@ function tidyRole(it){
   var m=it.meta;
   if(m==='Bottoms')return 'low';
   if(m==='Footwear')return 'shoe';
-  if(['Tops','Outerwear','One-pieces','Loungewear','Activewear','Swimwear','Costumes','Lingerie','Underwear'].indexOf(m)>=0)return 'up';
+  if(['Tops','Outerwear','One-pieces','Loungewear','Activewear','Swimwear','Costumes','Lingerie','Underwear','Workwear & uniforms','Cultural & traditional garments'].indexOf(m)>=0)return 'up';
   return 'acc';
 }
 function tidyBoard(approved){
@@ -596,7 +596,7 @@ function renderStylePanel(){
   sec('Colors');
   (function(){
     var cp=curPalette(),prev=el('div',{class:'bpalprev',style:'display:flex;gap:4px;margin:6px 0 2px'});
-    pickRow('Palette',[['','From the outfit']].concat(PALETTES.map(function(q){return [q[0],q[1]]})),s.pn||'',function(v){setSt({pn:v||null,bdc:null,bcc:null})});
+    pickRow('Palette',[['','From outfit']].concat(PALETTES.map(function(q){return [q[0],q[1]]})),s.pn||'',function(v){setSt({pn:v||null,bdc:null,bcc:null})});
     (cp?cp[2]:boardPal()).forEach(function(h){prev.appendChild(el('i',{style:'display:block;width:26px;height:18px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);background:'+h}))});
     p.appendChild(prev);
     if(cp)p.appendChild(el('p',{class:'fine',text:'Backgrounds, frames, washi tape and the color strip all draw from this palette.'}));

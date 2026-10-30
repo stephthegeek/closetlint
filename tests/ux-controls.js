@@ -8,14 +8,14 @@ assert.deepEqual([{name:'A older',date:'2026-10-01'},{name:'Z newer',date:'2026-
 assert.deepEqual([{name:'Exported',newestOrder:0},{name:'Added here',date:'2026-10-21'}].sort(ctx.newestPieceCompare).map(x=>x.name),['Added here','Exported'],'a piece added on the public site appears first');
 assert.equal(ctx.labPickWeight({recent:true}),2);assert.equal(ctx.labPickWeight({recent:false}),1);ctx.state.lab.recent='any';assert.equal(ctx.labPickWeight({recent:true}),1);ctx.state.tab='trip';ctx.state.lab.recent='repeat';assert.equal(ctx.labPickWeight({recent:true}),1,'Lab preference does not change trip generation');
 const view={children:[],classList:{remove(){}},appendChild(x){this.children.push(x)}};
-Object.assign(ctx,{$:()=>view,el:(tag,attrs,...children)=>({tag,...attrs,children}),tripHome:()=>{},tripNew:()=>({step:1}),tripRender:()=>{ctx.rendered=true}});ctx.state.trip=null;ctx.state.trips={};vm.runInContext(fn('tripRenderInner'),ctx);ctx.tripRenderInner();assert.equal(ctx.state.trip,null,'opening Trips must not create a draft');const button=view.children[0].children.find(x=>x.tag==='button');button.onclick();assert.equal(ctx.state.trip.step,1);assert.equal(ctx.rendered,true,'explicit Plan action starts wizard');
+Object.assign(ctx,{$:()=>view,el:(tag,attrs,...children)=>({tag,...attrs,children}),routeAnchor:()=>({tag:'a'}),todayStr:()=> '2026-10-28',tripHome:()=>{},tripNew:()=>({step:1}),tripRender:()=>{ctx.rendered=true}});ctx.state.trip=null;ctx.state.trips={};vm.runInContext(fn('tripRenderInner'),ctx);ctx.tripRenderInner();assert.equal(ctx.state.trip,null,'opening Trips must not create a draft');const descendants=n=>[n,...(n.children||[]).flat(Infinity).filter(x=>x&&typeof x==='object').flatMap(descendants)];const landing=descendants(view);const button=landing.find(x=>x.tag==='button'&&x.text==='🧳 Add trip');assert(button,'the landing page offers an explicit Add trip action');button.onclick();assert.equal(ctx.state.trip.step,1);assert.equal(ctx.rendered,true,'explicit Plan action starts wizard');
 console.log('Recent-wear weighting and Trips landing/explicit start passed.');
 {
   const dialog={open:false,children:[],appendChild(x){this.children.push(x)},showModal(){this.open=true},close(){this.open=false}};
   const nodes=[];let calls=[];
   const el=(tag,attrs={},...children)=>{const n={tag,...attrs,children,listeners:{},value:'',appendChild(x){this.children.push(x)},addEventListener(k,fn){this.listeners[k]=fn}};nodes.push(n);return n};
-  const c={el,$:()=>dialog,wearsOf:x=>(x.wears||[]).slice(),todayStr:()=> '2026-10-20',toast(){},Promise};
-  vm.createContext(c);vm.runInContext(fn('openWearDates'),c);
+  const c={el,$:()=>dialog,wearsOf:x=>(x.wears||[]).slice(),todayStr:()=> '2026-10-20',state:{},Date,toast(){},Promise};
+  vm.createContext(c);vm.runInContext(['wearDayNumber','pieceWearOutfitLinked','openWearDates'].map(fn).join('\n'),c);
   c.openWearDates({wears:['2026-10-18']},(dates)=>{calls.push(Array.from(dates));return Promise.resolve(true)});
   const picker=nodes.find(x=>x.tag==='input'&&x.type==='date');assert(picker&&dialog.open);
   picker.value='2026-10-19';picker.listeners.change();picker.listeners.change();
@@ -33,10 +33,10 @@ console.log('Recent-wear weighting and Trips landing/explicit start passed.');
  const nodes={},el=(...args)=>new Node(...args),items={a:{id:'a',name:'A',meta:'Tops',size:'M'},b:{id:'b',name:'B',meta:'Tops',size:'M'}},messages=[];let fail=false,closed=0;
  const c={Set,Promise,state:{tab:'all',selectMode:true,picked:{a:true,b:true,missing:true},edits:{},db:{collection:()=>({doc:id=>({set:async patch=>{if(fail&&id==='b')throw Error('Synthetic failure');Object.assign(items[id],patch)}})})}},
   $:id=>nodes[id]||(nodes[id]=el('div')),el,keys:o=>Object.keys(o).filter(k=>o[k]),byId:()=>items,filtered:()=>[items.a],isClosetTab:t=>t==='all',needDb:()=>false,flashIds(){},toast:msg=>messages.push(msg),renderGrid(){},closeDlg(){closed++},addClose(){},
-  META:['Tops'],SUBS:{Tops:[]},SECTIONS:[],KINDS:[],DIMS:[],STRETCH:[],SECTION:{Tops:'clothing'},kindVocab:()=>[]};
+  categoryMetas:()=>['Tops'],categorySubs:()=>[],metaLabel:m=>m,META:['Tops'],SUBS:{Tops:[]},SECTIONS:[],KINDS:[],DIMS:[],STRETCH:[],SECTION:{Tops:'clothing'},kindVocab:()=>[]};
  vm.createContext(c);vm.runInContext(['renderSelBar','applyBulk','openBulk'].map(fn).join('\n'),c);
- c.renderSelBar();assert.equal(nodes.selbar.children[0].text,'2 selected (1 not shown)');assert.equal(c.state.picked.missing,undefined,'only no-longer-available selections are pruned');
- const wear=nodes.selbar.children.find(n=>n.tag==='button'&&/Wear more/.test(n.text||''));await wear.onclick();
+ c.renderSelBar();assert.equal(find(nodes.selbar,n=>n.class==='selcount').text,'2 selected (1 not shown)');assert.equal(c.state.picked.missing,undefined,'only no-longer-available selections are pruned');
+ const wear=find(nodes.selbar,n=>n.tag==='button'&&/Wear more/.test(n.text||''));await wear.onclick();
  assert.deepEqual(Object.keys(c.state.picked),['a','b'],'bulk actions preserve selection across filters');assert.equal(items.a.wearMore,true);assert.equal(items.b.wearMore,true);
  c.openBulk();find(nodes.dlg,n=>n['aria-label']==='Size').value='L';fail=true;
  await find(nodes.dlg,n=>n.text==='Apply to 2 pieces').onclick();assert.equal(closed,0,'partial failures keep bulk edit open');assert.equal(items.a.size,'L');assert.equal(items.b.size,'M');assert.deepEqual(Object.keys(c.state.picked),['b'],'failed pieces stay selected for retry');
@@ -47,6 +47,30 @@ console.log('Recent-wear weighting and Trips landing/explicit start passed.');
  const stretch=c.tagField({key:'stretch',label:'Stretch',vocab:['non-stretch','slight stretch','high stretch']},selection);assert.equal(stretch.tag,'details');
  find(stretch,n=>n.tag==='button'&&n.text==='high stretch').onclick();assert.equal(selection['slight stretch'],undefined);assert.equal(selection['high stretch'],true);assert.equal(find(stretch,n=>n.tag==='button'&&n.text==='slight stretch')['aria-pressed'],'false');
  find(stretch,n=>n.tag==='button'&&n.text==='high stretch').onclick();assert.equal(Object.keys(selection).filter(k=>selection[k]).length,0,'clicking the chosen Stretch chip clears it');
+ // Metal appearance stays separate from the universal color palette and preserves saved material tags.
+ const vocabulary={};vm.createContext(vocabulary);vm.runInContext(s.slice(s.indexOf('var META='),s.indexOf('var DEFAULT_W=')),vocabulary);
+ const metalDim=vocabulary.DIMS.find(d=>d.key==='jmetal'),metalSelection={'sterling silver':true,'legacy metal':true};
+ assert.equal(metalDim.label,'Metal & finish');assert.deepEqual(Array.from(metalDim.scope),['Jewelry','Watches','Bags']);
+ for(const tone of ['rose gold','bronze','copper','gunmetal'])assert(!Object.hasOwn(vocabulary.COLORS,tone),'metal tones must not expand every piece’s color palette');
+ const metalField=c.tagField(metalDim,metalSelection);
+ for(const label of ['Material','Metal tone','Finish','Other saved tags'])assert(find(metalField,n=>n.role==='group'&&n['aria-label']===label));
+ for(const value of ['rose gold','antiqued'])find(metalField,n=>n.tag==='button'&&n.text===value).onclick();
+ assert.equal(metalSelection['sterling silver'],true);assert.equal(metalSelection['legacy metal'],true);assert.equal(metalSelection['rose gold'],true);assert.equal(metalSelection.antiqued,true);assert.equal(metalSelection.gold,undefined,'no duplicate Gold selection is required');
+ find(metalField,n=>n.tag==='button'&&n.text==='rose gold').onclick();assert.equal(metalSelection['rose gold'],false);assert.equal(metalSelection.antiqued,true);
+ console.log('Metal & finish: scoped groups, optional independent choices, legacy tags, and unchanged universal colors pass.');
+ // Weight stays optional; opening the editor must not turn an inferred weight into a saved fact.
+ const weightSetup=s.slice(s.indexOf('  var weightStore='),s.indexOf('  var shoeSockSel='));
+ c.it={name:'Chunky knit sweater'};c.itemWeight=()=>{throw Error('Do not preselect an inferred weight')};vm.runInContext(weightSetup,c);
+ assert.equal(Object.keys(c.weightStore).filter(k=>c.weightStore[k]).length,0);
+ assert.equal(find(c.knitNode,n=>n.class==='tf-none').text,'Not set');
+ const chooseWeight=label=>find(c.knitNode,n=>n.tag==='button'&&n.text===label).onclick();
+ chooseWeight('Thin / lightweight');chooseWeight('Thick / heavy');assert.deepEqual(Object.keys(c.weightStore).filter(k=>c.weightStore[k]),['thick']);
+ assert.equal(find(c.knitNode,n=>n.class==='tf-chip').text,'Thick / heavy');
+ chooseWeight('Thick / heavy');assert.equal(Object.keys(c.weightStore).filter(k=>c.weightStore[k]).length,0,'the selected weight can be cleared');
+ for(const [record,expected] of [[{weight:'regular'},'regular'],[{knitWeight:'chunky'},'thick'],[{sockWeight:'sheer'},'thin']]){
+  c.it=record;vm.runInContext(weightSetup,c);assert.deepEqual(Object.keys(c.weightStore).filter(k=>c.weightStore[k]),[expected],'explicit and legacy weights remain selected');
+ }
+ console.log('Fabric weight: optional collapsed single choice, clearable selection, readable labels, and preserved legacy values pass.');
  const timers=[],toastNode=el('div');Object.assign(c,{$:()=>toastNode,toastTimer:null,setTimeout:(fn,ms)=>{timers.push(ms);return timers.length},clearTimeout(){}});vm.runInContext(fn('toast')+'\n'+fn('toastAct'),c);
  c.toast('Saved');assert.equal(timers.at(-1),2200);c.toast('Could not save this outfit');assert.equal(timers.at(-1),6000);c.toastAct('Hidden','Undo',()=>{});assert.equal(timers.at(-1),8000);c.toastAct('Saved','Plan it for a day',()=>{},5000);assert.equal(timers.at(-1),5000);
  console.log('Tweaks: retained bulk selection, offscreen counts, retries, explicit deselection, single Stretch chips, and readable toast timing pass.');
