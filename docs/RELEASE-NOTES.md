@@ -1,28 +1,32 @@
-# Closet Lint 0.3.0
+# Closet Lint 0.4.0
 
-**Your wardrobe has a Sky, and Linty has a daily fortune.**
+Plan daily outfits for trips, customize your categories, and give pieces their own photos from multipack images.
 
-## Highlights
+## Trips and everyday planning
 
-- **Your Style Sky.** Explore the styles in your wardrobe through stars, constellations, and your Sun, Moon, and Rising signs, then export a shareable chart.
-- **Linty’s daily fortune card.** A daily reading, clothing nudge, or color omen, with the option to dismiss it or turn it off.
-- **Easier assistant imports.** Save directly with local Codex or Claude Code, or review an import file from a chat conversation. Shared uploads, richer tagging, optional multipack splitting, and individual product photos work across both routes, with clear fallbacks when image editing is unavailable.
-- **Laundry and care.** Manually track pieces that need cleaning, keep them out of suggestions, and save care instructions and label photos. Bulk changes support Undo; wear logging never changes cleaning status.
-- **Safer outfit planning.** Preview saved outfits without replacing your board, recover drafts, and create an outfit for a calendar date with Save & schedule. Clearer save errors and retries help protect unfinished work.
-- **More useful wishlist evidence.** Keep your own ranking order, with compatibility and narrower similarity checks supported by favorites, Lab ratings, and recorded wear.
+- A redesigned trip planner with outfit suggestions for each day, pinned choices, packing quantities, and checklists.
+- Export packing lists for print/PDF or as Markdown text, with optional photos and outfit combinations.
+- Clearer calendar day details and thumbnails that favor representative pieces, including days with only accessories.
 
-## Other improvements
+## A more flexible closet
 
-Faster browsing and photo lookups, more consistent mobile layouts and controls, clearer size filters, and easier collection actions. Shuffle your pieces, remove a background from the board, and find photo choices together under Photo options.
+- Customize categories to suit your wardrobe, with more options, searchable choices, and category selection during setup.
+- Pullover, cardigan, and sweater vest types with clearer layering choices.
+- Optional Metal & finish tags for jewelry, watches, and bags.
+- Record approximate acquisition dates.
+- See the last 10 days of wear on each piece page, with Hot and Very hot indicators based on logged wear days in the last 30 days.
 
-## Updating from 0.2
+## Imports, photos, and assistance
 
-Save open edits, export a full backup, stop the old server, and extract this version into a new app folder. Start it with the same absolute wardrobe `--data` path, then refresh the browser. Run only one server against a wardrobe at a time. No piece reimport is needed. Keep the backup and previous app folder until you have checked the update. See [the update guide](UPDATING.md).
+- Dedicated bulk import and Tidy photos pages that let you return to unfinished reviews.
+- Use your AI assistant to isolate individual items from multipack photos on a plain white background, then review before saving. Originals and wear history stay available.
+- Ask the Oracle with selected wardrobe details and optional photos through your own AI assistant.
+- Remembered workflow choices and clearer local, hosted SSH, and download/upload instructions. Direct access still needs a connection configured in the AI assistant session.
 
-## Requirements and verification
+## Reliability and usability
 
-The core app needs Python 3.10 or newer and a web browser. No account or AI subscription is required; optional photo tools have separate dependencies.
+Older tabs are prevented from silently overwriting newer saved data. Outfit wear logging saves completely or leaves the wardrobe unchanged. Board photo refresh and removal are more reliable, save feedback is steadier, and controls and menus fit more consistently on smaller screens. Keyboard board controls, focus visibility, screen reader labels, and text contrast have improved.
 
-Testing has focused on Linux with synthetic wardrobes. Windows and macOS installation and an independent security review remain unverified. Native phone sharing depends on browser support; Save image is the fallback. See [testing](TESTING.md) and [security review](SECURITY-REVIEW.md).
+Local installation still needs Python and a browser. Optional photo tools need separate setup. Private hosting remains experimental, with separate access protection and backups. See [installation](GETTING-STARTED.md#start-the-app), [hosting](WEB-HOSTING.md), and [updating](GETTING-STARTED.md#updating-and-moving).
 
-The local app has no login. Keep it on your computer or a trusted home network, and do not expose its port to the public internet.
+See [testing](../CONTRIBUTING.md#testing) and the [accessibility review](../CONTRIBUTING.md#accessibility) for verification limits. Full accessibility conformance and Windows/macOS installation have not been established.

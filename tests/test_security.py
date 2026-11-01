@@ -12,14 +12,14 @@ import threading
 from unittest.mock import patch
 import zipfile
 import test_runtime as rt
-from storage import Archive, decode, encode, media_type, require_safe_pillow
+from storage import Archive, decode, encode, media_type, require_safe_pillow, write_version
 from server import content_policy, render_app, LocalServer, ThreadingHTTPServer
 
 class SecurityTests(unittest.TestCase):
     setUp = rt.RuntimeTests.setUp
     tearDown = rt.RuntimeTests.tearDown
     call = rt.RuntimeTests.call
-    token = {'X-ClosetLint-Token': 'test-token'}
+    token = {'X-ClosetLint-Token': 'test-token', 'If-Match': '"' + write_version(None) + '"'}
 
     def test_poisoned_keys_on_record_board_and_restore(self):
         for key in ('__proto__', 'constructor', 'prototype'):

@@ -2,29 +2,31 @@
 
 **A wardrobe goblin who lives in your closet and knows where everything is.**
 
-Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. It runs locally and opens in your browser. No account, no subscription, no sync, no telemetry: your wardrobe and photos stay with you.
+Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. Organize your pieces, put outfits together, and plan what to wear, all in your browser. Settle wishlist battles, discover your wardrobe’s personality through your Style Sky, and see which pieces you wear most. It’s free, with no account or subscription.
 
-> **Closet Lint 0.3.0** brings Your Style Sky, assistant imports, laundry and care, and safer outfit planning. Keep a current backup before updating.
+![Closet Lint showing wardrobe photos, filters, and collections in a dark theme.](docs/images/closet-lint-preview.jpg)
+
+> **Latest release: [Closet Lint 0.4.0](https://github.com/stephthegeek/closetlint/releases/tag/v0.4.0).** See the [release notes](docs/RELEASE-NOTES.md).
 
 ## What's included
 
-- 👚 **Your closet:** pieces and wishlist finds, with photos, tags, filters, and collections.
+- 👚 **My closet:** pieces and wishlist finds, with photos, tags, filters, and collections.
 - 🪞 **Outfit board:** arrange pieces, save outfits, and return to unfinished drafts.
 - 👗 **Outfits and calendar:** log what you wore, schedule saved outfits, or build an outfit for a future date.
 - 🧑‍🔬 **Outfit Lab:** rate combinations, save favorites, and explore the patterns behind My taste.
 - 🌌 **Your Style Sky:** wardrobe constellations, Sun, Moon, and Rising readings, and shareable chart images.
 - 🪬 **Linty’s daily fortune card:** optional daily readings, wardrobe nudges, and color omens.
 - 🏆 **Wishlist ranking:** keep your own order, with compatibility and similarity evidence from your closet, Lab ratings, and wear history.
-- 🧳 **Trips:** plan outfits and keep track of packing.
+- 🧳 **Trips:** plan daily outfits, save unfinished trips, track packing, and export a checklist. See [trips and packing](docs/USING-CLOSET-LINT.md#trips-and-packing).
 - 🧺 **Laundry and care:** manually mark pieces that need cleaning, save care instructions, and keep photos of care labels.
 - 🗄️ **Storage:** organize stored pieces, print bin labels, and make pull lists.
-- 🤖 **Bring Your Own AI Assistant:** use your own AI assistant to import order emails, links, documents, or photos. Save directly with local Codex or Claude Code, or review an import file from a chat conversation. Upload sources in Closet Lint, request supported tags, and optionally separate multipacks or create individual product photos when your assistant has image tools. See [assistant imports](docs/ASSISTANT-IMPORT.md).
+- 🤖 **Bring Your Own AI Assistant:** use your own AI assistant to prepare pieces from order emails, links, documents, or photos. Review a prepared import file, or use direct import with an assistant that can access your installation. See [AI assistant imports](docs/AI-ASSISTANT.md#ai-assistant-imports).
 - 🔮 **Ask the Oracle:** take a wardrobe summary, question, and optional photos to your own AI assistant.
-- 📷 **Photo tools:** optional local background removal, with originals kept and results reviewed before saving.
+- 📷 **Photo tools:** multiple views, cropping, optional background removal, and individual photos created from multipack images with your AI assistant, with originals kept and results reviewed before saving.
 - 💾 **Backup and restore:** keep your wardrobe data and photos together.
 - 🎨 **Themes:** three themes, each with light and dark modes.
 
-AI is optional: you can add pieces and use the core app without an assistant. For direct imports, start with **Add → Bulk import pieces → Set up direct import**. Closet Lint does not connect to your email or AI account; your assistant handles any access it needs.
+AI is optional: you can add pieces and use the core app without an AI assistant. For AI help, start with **Add → Bulk import pieces**. Closet Lint does not connect to your email or AI account; your assistant handles any access it needs.
 
 ## Get started
 
@@ -50,22 +52,26 @@ You'll need Python 3.10 or newer (check with `python3 --version`, or `py -3 --ve
 
 Keep the terminal open while you use the app; closing it stops the server.
 
-The [installation guide](docs/INSTALL.md) explains how to open the app from other devices on your home network, such as your phone or another computer, and how to load 12 sample pieces if you'd like to try things out first.
+The [Getting started guide](docs/GETTING-STARTED.md) covers setup, phone access on home Wi-Fi, a sample wardrobe, and updates. See [Using Closet Lint](docs/USING-CLOSET-LINT.md) for everyday features.
+
+For access away from home, read the [experimental hosting notes](docs/WEB-HOSTING.md). Hosting requires separate HTTPS, password protection, and backups. The current adapter has provider limitations; it is not yet a generally supported installation option. Local installation still needs only Python and a browser.
 
 Time to give Linty something to rummage through.
 
 ## A few things to know
 
-- **Keep your installation private.** The app has no login at this time, so anyone who can reach it can view and edit your wardrobe. Using it on your own computer or home network is fine; just don't make it reachable from the internet, for example by forwarding its port on your router. On a shared network, like an office or a house with roommates, other people there may be able to reach it too. The public demos work differently: visitor changes stay in their own browser.
+- **Keep your installation private.** Closet Lint has no built-in login. Anyone who can reach an unprotected installation can view and edit its wardrobe. Use the local server only on your computer or a trusted home network; do not expose it directly to the internet or forward its port on your router. A hosted installation needs separate site-wide password protection, as described in the hosting notes. The public demos work differently: visitor changes stay in their own browser.
 - **Photo tools are optional and have their own setup.** Run `python3 tools/check_setup.py --data ../closet-lint` for readiness checks and next steps (on Windows, use `py -3`). Background removal needs additional setup. Fine details can get lost, and it won't remove a person wearing the garment. You choose which results to keep.
 - **Suggestions aren't guarantees.** Outfit combinations, fit labels, and packing lists still need your judgment.
 - **Back up before updating.** Choose **Menu → Utilities → Export backup**, and keep your wardrobe data folder separate from the app folder.
 
-## Testing and security
+## Testing, accessibility, and security
 
 Installation and recovery have been checked on Linux. Windows and macOS installation are unverified so far; if you try either, an issue saying how it went is welcome.
 
-Automated tests and security checks have passed, but there has not been an independent human security audit. Details are in the [testing guide](docs/TESTING.md) and [security review](docs/SECURITY-REVIEW.md).
+Verification limits are recorded in [testing](CONTRIBUTING.md#testing) and the [security review](docs/archive/DEVELOPMENT-RECORDS.md#security-review-records). There has not been an independent human security audit.
+
+The [accessibility review](CONTRIBUTING.md#accessibility) records keyboard, contrast, and screen reader improvements, ongoing automated checks, and remaining manual review. Full accessibility conformance has not been established.
 
 ## Feedback
 
@@ -76,5 +82,3 @@ Found a bug? [Open an issue](https://github.com/stephthegeek/closetlint/issues).
 [![Proudly Vibe Coded - Aurora Pulse](https://vibecoded.fyi/badges/terminal/main/proudly-vibe-coded-aurora-pulse.svg)](https://vibecoded.fyi/)
 
 Created by stephthegeek, with substantial AI assistance. Code, documentation, and Linty artwork are GPL-3.0-or-later. Third-party components retain their own licenses; see [NOTICE](NOTICE). Your wardrobe data and photos remain yours.
-
-Read the [0.3 release notes](docs/RELEASE-NOTES.md) for the current release scope.

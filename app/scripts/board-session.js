@@ -46,7 +46,7 @@ function mapPiecesForDoc(ps){return ps.map(function(p){var o={id:p.id,x:round2(p
 function boardSig(o){return JSON.stringify([mapPiecesForDoc(o.pieces||[]),o.texts||[],o.st||null,o.lay||null])}
 function boardHasContent(){var b=state.board;return b.pieces.length>0||(b.texts||[]).length>0}
 function freshBoard(){return adoptBoard({id:null,name:'',pieces:[]})}
-function startNewOutfit(piece){
+function startNewOutfit(piece,onStarted){
   if(state.boardSaving||state.workspaceBusy){toast('Wait for the outfit to finish saving.');return}
   if(state.outfitSave&&state.outfitSave.b===state.board&&state.outfitSave.phase==='error'){toast('Retry the failed outfit save before starting a new outfit. Your edits are still here.');return}
   function start(){
@@ -62,7 +62,7 @@ function startNewOutfit(piece){
       function restore(){if(!adoptBoard(old))return;state.newOutfitUndo=null;state.boardKey=oldKey;state.boardDrafts=(state.boardDrafts||[]).filter(function(d){return d.key!==oldKey});persistBoard();renderBoard();toast(old.id?'Returned to editing "'+(old.name||'Untitled outfit')+'".':'Previous draft restored.')}
       if((state.board!==created||JSON.stringify(state.board)!==signature)&&boardNeedsProtection())askConfirm('Restore the previous board? Unsaved changes on this board will be discarded. Saved outfits stay unchanged.','Restore previous board',restore);else restore();
     };
-    state.newOutfitUndo={b:created,undo:undoNew};renderBoard();toastAct('New outfit started. Your saved outfits are unchanged.','Undo',undoNew);
+    state.newOutfitUndo={b:created,undo:undoNew};renderBoard();if(onStarted)onStarted();toastAct('New outfit started. Your saved outfits are unchanged.','Undo',undoNew);
   }
   if(boardHasContent()||state.board.name||state.board.id||state.board.st||state.board.lay)askConfirm('Start a new outfit? '+(boardNeedsProtection()?(state.board.id?'Your latest changes will be kept as a draft.':'Your current board will be kept in Other drafts.'):'The board will be cleared; your saved outfit stays unchanged.')+' Use Undo to bring the previous board back.','New outfit',start);else start();
 }
@@ -143,9 +143,23 @@ function paintBoardSaveStatus(){
   var linked=!!(state.board.id&&state.outfits[state.board.id]),hasWork=linked||boardHasContent()||!!state.board.name;
   var op=state.outfitSave,active=op&&op.b===state.board;
   var outfitBusy=active&&(op.phase==='saving'||op.phase==='error');
-  draft.textContent=phase==='error'?'Autosave failed. Keep this tab open. '+status.error:phase==='retrying'?'Retrying autosave… Keep this tab open.':!hasWork||outfitBusy?'':phase==='saving'||phase==='pending'?'Autosaving…':phase==='saved'?(linked?'':'Autosaved'):'Autosave status unavailable.';
-  var dr=$('board-draft-retry');if(dr){dr.hidden=phase!=='error';dr.disabled=phase==='saving'||phase==='retrying'}
+  draft.textContent=phase==='error'?(status.conflict?status.error:'Autosave failed. Keep this tab open. '+status.error):phase==='retrying'?'Retrying autosave… Keep this tab open.':!hasWork||outfitBusy?'':phase==='saving'||phase==='pending'?'Autosaving…':phase==='saved'?(linked?'':'Autosaved'):'Autosave status unavailable.';
+  var dr=$('board-draft-retry');if(dr){dr.hidden=phase!=='error'||!!status.conflict;dr.disabled=phase==='saving'||phase==='retrying'}
   outfit.textContent=active&&op.phase==='error'?(op.committed?'Outfit saved; finishing needs a retry.':op.asCopy?'Outfit copy not saved.':'Outfit not saved.')+' Your edits are still here. Keep this tab open and retry. '+op.error:active&&op.phase==='saving'?'Saving outfit…':linked&&phase!=='saving'&&phase!=='pending'&&phase!=='error'&&phase!=='retrying'?(outfitEditorDirty()?'Unsaved outfit changes':'Saved'):'';
+  var compact=$('board-save-inline');
+  if(compact){
+    var quiet='';
+    if(phase!=='error'&&phase!=='retrying'&&!(active&&op.phase==='error')){
+      if(active&&op.phase==='saving')quiet='Saving outfit…';
+      else if(draft.textContent==='Autosaving…'||draft.textContent==='Autosaved')quiet=draft.textContent;
+      else if(outfit.textContent==='Saved')quiet='Saved';
+      else if(outfit.textContent==='Unsaved outfit changes')quiet='Unsaved changes';
+    }
+    compact.textContent=quiet;
+    draft.hidden=!!quiet&&(draft.textContent==='Autosaving…'||draft.textContent==='Autosaved');
+    outfit.hidden=!!quiet&&(outfit.textContent==='Saving outfit…'||outfit.textContent==='Saved'||outfit.textContent==='Unsaved outfit changes');
+    var summary=$('board-save-summary');if(summary)summary.textContent=quiet;
+  }
   var retry=$('board-outfit-retry');if(retry){retry.hidden=!(active&&op.phase==='error');retry.disabled=!!state.boardSaving;retry.textContent=state.board.calendarPlan?'Retry Save & schedule':'Retry outfit save'}
 }
 
@@ -253,5 +267,6 @@ function paintWorkspaceRecovery(){
   var drafts=(state.boardDrafts||[]).filter(function(d){return d.key!==workspaceKey()});
   if(!drafts.length)return;
   var more=el('details',null,el('summary',{text:'Other drafts ('+drafts.length+')','aria-label':'Other drafts ('+drafts.length+')'}));
-  drafts.slice().reverse().forEach(function(d){more.appendChild(el('button',{class:'btn small',type:'button',text:'Resume '+(d.board.name||'Untitled draft'),onclick:function(){returnWorkspace(d.key)}}))});box.appendChild(more);
+  var options=el('div',{class:'board-draft-options'});
+  drafts.slice().reverse().forEach(function(d){options.appendChild(el('button',{class:'btn small',type:'button',text:'Resume '+(d.board.name||'Untitled draft'),onclick:function(){returnWorkspace(d.key)}}))});more.appendChild(options);box.appendChild(more);
 }

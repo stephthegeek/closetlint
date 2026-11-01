@@ -9,6 +9,15 @@ if start not in s:
 a=s.index(start)+len(start);b=s.index(end,a)
 p.write_text(s[:a]+(root/'app/scripts/setup.js').read_text()+s[b:])
 
+# The page draft helper is shared by import and photo review.
+s=p.read_text()
+batch_start='/* BEGIN BATCH WORKSPACES (source: app/scripts/batch-workspaces.js) */\n'
+batch_end='\n/* END BATCH WORKSPACES */'
+if batch_start not in s:
+ s=s.replace(start,batch_start+batch_end+'\n\n'+start,1)
+a=s.index(batch_start)+len(batch_start);b=s.index(batch_end,a)
+p.write_text(s[:a]+(root/'app/scripts/batch-workspaces.js').read_text()+s[b:])
+
 # The setup sheet styles are editable independently of the portable HTML.
 style_start='/* BEGIN SETUP STYLES (source: app/styles/setup.css) */\n'
 style_end='\n/* END SETUP STYLES */'

@@ -69,9 +69,13 @@ def matches(a, b):
         return False
     if a.get('variant') and b.get('variant') and normal(a['variant']) != normal(b['variant']):
         return False
+    ak, bk = product_key(a.get('url')), product_key(b.get('url'))
+    # Descriptive color tags can change after review. An explicit matching
+    # listing variant identifies the same item without collapsing pack colors.
+    if ak and ak == bk and normal(a.get('variant')) and normal(a.get('variant')) == normal(b.get('variant')):
+        return True
     if a.get('colors') and b.get('colors') and sorted(a['colors']) != sorted(b['colors']):
         return False
-    ak, bk = product_key(a.get('url')), product_key(b.get('url'))
     return bool(ak and bk and ak == bk) or normal(a.get('name')) == normal(b.get('name'))
 
 
@@ -82,7 +86,7 @@ def size_kind(meta, sub):
         return 'shoe'
     if meta == 'Jewelry':
         return 'ring' if sub == 'Rings' else 'gauge' if sub == 'Earrings' else 'none'
-    return 'none' if meta in ('Bags', 'Hair accessories') else 'clothing'
+    return 'none' if meta in ('Bags', 'Hair accessories', 'Watches') else 'clothing'
 
 
 def size_value(kind, value):
@@ -92,10 +96,12 @@ def size_value(kind, value):
     if re.fullmatch(r'one[- ]?size|o/s|os|open|adjustable|free[- ]?size|one size fits all', value, re.I):
         value = 'o/s'
     if kind == 'glasses':
+        if value.lower().startswith('comp'):
+            value = 'Intermediate'
         for label in VOCAB['glassesTypes']:
             if value.lower() == label.lower() or value.lower().startswith(label[:4].lower()):
                 return label
-        raise ValueError('Glasses size must be Distance, Computer, Readers or Sunglasses')
+        raise ValueError('Glasses size must be Distance, Intermediate, Readers or Sunglasses')
     if kind == 'gauge':
         match = re.fullmatch(r'(\d{1,2})\s?(?:g|ga|gauge)?', value, re.I)
         if match and 6 <= int(match[1]) <= 28:
@@ -117,6 +123,8 @@ def record(raw, notices):
         raise ValueError('Each piece must be an object')
     fields = {k: text(raw.get(k), length, k) for k, length in TEXT.items()}
     category, sub = raw.get('category'), raw.get('subcategory', '')
+    if category == 'Eyewear':
+        category = 'Glasses'
     if not fields['name'] or category not in VOCAB['categories'] or raw.get('status') not in ('owned', 'wishlist'):
         raise ValueError('Each piece needs a name, valid category, and owned/wishlist status')
     if not isinstance(sub, str) or (sub and sub not in VOCAB['subcategories'].get(category, [])):
@@ -124,7 +132,7 @@ def record(raw, notices):
     kind = size_kind(category, sub)
     result = dict(name=fields['name'], meta=category, sub=sub, size=size_value(kind, fields['size']), sizeKind=kind,
                   source=fields['retailer'] or 'DIY import', url=url(raw.get('url')), wish=raw['status'] == 'wishlist',
-                  noPhoto=True, guess=True, ar=1, date=dt.date.today().isoformat())
+                  noPhoto=True, guess=True, ar=1, date=dt.date.today().isoformat(), acquiredDate='', acquiredApproximate=False, acquisitionSource='unknown')
     for field in VOCAB['fields']:
         key, values = field['key'], field['vocab']
         value = raw.get(key, [] if field['multi'] else '')
@@ -162,10 +170,15 @@ def record(raw, notices):
             if not source:
                 raise ValueError('imageSources entries need a source URL')
             result['imageSources'].append({'url': source, 'kind': image.get('kind', 'unclassified')})
+    if 'dateApproximate' in raw and not isinstance(raw['dateApproximate'], bool):
+        raise ValueError('dateApproximate must be true or false')
     if raw.get('date'):
-        if not isinstance(raw['date'], str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', raw['date']):
-            raise ValueError('date must be YYYY-MM-DD')
-        result['date'] = dt.date.fromisoformat(raw['date']).isoformat()
+        value = raw['date']
+        if not isinstance(value, str) or not re.fullmatch(r'[0-9]{4}(?:-[0-9]{2}(?:-[0-9]{2})?)?', value):
+            raise ValueError('date must be YYYY, YYYY-MM, or YYYY-MM-DD')
+        full = value + ('-01-01' if len(value) == 4 else '-01' if len(value) == 7 else '')
+        result.update(date=dt.date.fromisoformat(full).isoformat(), acquiredDate=value,
+                      acquiredApproximate=raw.get('dateApproximate', False), acquisitionSource='import')
     price = raw.get('price')
     if price not in (None, ''):
         if isinstance(price, bool) or not re.fullmatch(r'\d+(?:\.\d{1,2})?', str(price)):
@@ -179,7 +192,7 @@ def record(raw, notices):
                 raise ValueError('Price is too large')
         except InvalidOperation:
             raise ValueError('Invalid price') from None
-    accepted = set(TEXT) | {x['key'] for x in VOCAB['fields']} | set(LAYER) | {'category', 'subcategory', 'status', 'url', 'price', 'currency', 'images', 'photoFile', 'photoUrl', 'imageSources', 'date', 'productPhotoRequested', 'photoNote'}
+    accepted = set(TEXT) | {x['key'] for x in VOCAB['fields']} | set(LAYER) | {'category', 'subcategory', 'status', 'url', 'price', 'currency', 'images', 'photoFile', 'photoUrl', 'imageSources', 'date', 'dateApproximate', 'productPhotoRequested', 'photoNote'}
     if set(raw) - accepted:
         notices.append('Unrecognized fields omitted: ' + ', '.join(sorted(set(raw) - accepted)))
     return result
@@ -359,17 +372,19 @@ def import_batch(store, batch, fingerprint, prepared, *, apply=False, duplicates
                 result.update(action='promote', id=match['id']);report['promoted'] += 1
                 if apply:
                     previous = db.execute("SELECT payload FROM documents WHERE collection='edits' AND id=?", (match['id'],)).fetchone()
-                    patch = {**(json.loads(previous[0]) if previous else {}), 'wish': False}
+                    patch = {**(json.loads(previous[0]) if previous else {}), 'wish': False, **{k: item[k] for k in ('acquiredDate', 'acquiredApproximate', 'acquisitionSource')}}
+                    if item['acquiredDate']:
+                        patch['date'] = item['date']
                     db.execute('INSERT OR REPLACE INTO documents VALUES (?,?,?)', ('edits', match['id'], encode(patch)))
                 match['wish'] = False
-                result['warnings'].append('Ownership only changed; existing metadata and photos kept')
+                result['warnings'].append('Ownership and acquisition details updated; existing tags and photos kept')
             elif found and duplicates == 'skip':
                 result.update(action='skip_duplicate');report['skipped'] += 1
             else:
                 if found:
                     result['warnings'].append('Duplicate added by explicit option')
                 # Prefix opaque batch IDs: legacy backup validation recognizes bare 32-hex strings as asset references.
-                item = {**item, 'importBatch': 'assistant:' + batch}
+                item = {**item, 'importBatch': 'assistant:' + batch, 'addedAt': dt.datetime.now(dt.timezone.utc).isoformat()}
                 result.update(action='add', id='c-' + key);report['added'] += 1
                 if apply:
                     if db.execute("SELECT 1 FROM documents WHERE collection='custom' AND id=?", (key,)).fetchone():

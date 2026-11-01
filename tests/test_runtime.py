@@ -14,7 +14,7 @@ from unittest.mock import patch
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'runtime'))
-from storage import Archive, COLLECTIONS, Store, encode
+from storage import Archive, COLLECTIONS, Store, encode, write_version
 from server import Handler, render_app
 
 PNG = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jM1sAAAAASUVORK5CYII=')
@@ -77,6 +77,34 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(reopened.state()['board']['pieces'][0]['id'], 'c-new')
         reopened.delete_record('custom', 'new')
         self.assertEqual(Store(self.root / 'store').state()['collections']['custom'], {})
+
+    def test_unfinished_trip_survives_reopen_backup_restore(self):
+        record = {'name': 'Plan later', 'settings': {'start': '', 'end': '', 'dest': '',
+                  'must': ['c-demo']}, 'plan': None, 'step': 2, 'checked': {}}
+        self.store.set_record('trips', 'partial-trip', record)
+        self.assertEqual(Store(self.root / 'store').state()['collections']['trips']['partial-trip'], record)
+        target = self.root / 'unfinished-trip.zip'
+        self.store.export(target)
+        restored = Store(self.root / 'restored-trip')
+        with contextlib.closing(Archive(target)) as source:
+            restored.restore(source)
+        self.assertEqual(restored.state()['collections']['trips']['partial-trip'], record)
+
+    def test_category_preferences_and_classifications_survive_backup(self):
+        preferences = {'version': 1, 'choices': {'Activewear|Dancewear': False, 'Underwear|Thermals': True}}
+        piece = {'name': 'Test dance piece', 'meta': 'Activewear', 'sub': 'Dancewear', 'noPhoto': True,
+                 'looks': ['retro'], 'wearLog': ['2026-01-12']}
+        self.store.set_record('profile', 'categoryVisibility', preferences)
+        self.store.set_record('custom', 'category-test', piece)
+        piece = self.store.state()['collections']['custom']['category-test']
+        target = self.root / 'categories.zip'
+        self.store.export(target)
+        restored = Store(self.root / 'categories-restored')
+        with contextlib.closing(Archive(target)) as source:
+            restored.restore(source)
+        collections = restored.state()['collections']
+        self.assertEqual(collections['profile']['categoryVisibility'], preferences)
+        self.assertEqual(collections['custom']['category-test'], piece)
 
     def test_laundry_care_and_label_photos_survive_full_backup(self):
         photo = self.store.upload(PNG)
@@ -389,7 +417,8 @@ class RuntimeTests(unittest.TestCase):
 
     def test_http_save_reload_backup_preview_cancel_and_explicit_restore(self):
         token = {'X-ClosetLint-Token': 'test-token', 'Origin': 'http://127.0.0.1:6684'}
-        self.assertEqual(self.call('PUT', '/api/doc/custom/demo', b'{"name":"Synthetic"}', token)[0], 200)
+        self.assertEqual(self.call('PUT', '/api/doc/custom/demo', b'{"name":"Synthetic"}',
+                                   {**token, 'If-Match': '"' + write_version(None) + '"'})[0], 200)
         status, data = self.call('GET', '/api/state', headers=token)
         self.assertEqual(json.loads(data)['collections']['custom']['demo']['name'], 'Synthetic')
         status, data = self.call('POST', '/api/restore/preview', self.backup.read_bytes(), token)

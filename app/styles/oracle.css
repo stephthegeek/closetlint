@@ -29,3 +29,5 @@
 .oracle-summary p{margin:4px 0 14px}.oracle-summary details{margin-top:12px}.oracle-summary ul{padding-left:22px;line-height:1.6;overflow-wrap:anywhere;max-height:220px;overflow:auto}
 .oracle-photo-options{max-height:240px;overflow:auto;overscroll-behavior:contain;border-block:1px solid var(--line);padding:8px 0;margin:12px 0}
 @media(max-width:600px){.oracle-question{padding:12px}.oracle-check{min-height:44px;font-size:16px}.oracle-fieldset{padding:12px}.oracle-inline>.btn{flex:1 1 auto;white-space:normal}}
+
+.oracle-routes>.btn{width:auto;max-width:100%;justify-self:start}

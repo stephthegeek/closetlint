@@ -2,7 +2,7 @@
 function nextZ(){var m=0;state.board.pieces.forEach(function(p){if(p.z>m)m=p.z});return m+1}
 var procCache={};
 function needProc(p){return !!(hideW()||(p.clip&&p.clip.length>=3))}
-function procKey(it,p){return it.id+'|'+(it.photo||'').length+'|'+(p.clip?p.clip.map(function(q){return q[0]+','+q[1]}).join(';'):'')+'|'+(hideW()?1:0)}
+function procKey(it,p){return JSON.stringify([it.id,it.photo||'',p.clip||null,hideW()?1:0])}
 function makeProc(it,p){
   return new Promise(function(res){
     var im=new Image();
@@ -85,7 +85,7 @@ function normRot(a){a=((Math.round(a)%360)+360)%360;return a>180?a-360:a}
 function renderTray(){
   var t=$('tray'),items=ownedItems();
   t.textContent='';
-  t.appendChild(el('h3',{text:'Add pieces to board',style:'margin-top:0'}));
+  t.appendChild(el('h2',{class:'board-tray-heading',text:'Add pieces to board',style:'margin-top:0'}));
   if(state.skyTrayIds)t.appendChild(el('div',{class:'sky-filter-note'},el('span',{text:'From your sky: '+state.skyTrayLabel}),el('button',{class:'btn small',type:'button',text:'Clear Sky selection',onclick:function(){state.skyTrayIds=null;renderTray()}})));
   var cm=el('div',{class:'chips'});
   cm.appendChild(chip('\u2665 Faves',state.trayFav,function(){state.trayFav=!state.trayFav;renderTray()}));
@@ -137,21 +137,25 @@ function renderTrayGrid(){
 
 function addPiece(it){
   if(state.board.lay){collAdd(it);return}
-  var b=state.board,w=Math.min(60,Math.round((DEFAULT_W[it.meta]||24)*1.4)),n=b.pieces.length;
-  var hpct=w*boardAR()/(it.ar||1);
-  var x=clamp(34+(n%6)*3,0,100-w),y=clamp(14+(n%6)*4,0,Math.max(0,100-hpct));
+  var b=state.board,n=b.pieces.length,AR=boardAR(),photoAR=Number(it.ar);
+  if(!Number.isFinite(photoAR)||photoAR<=0)photoAR=1;
+  // Leave room for the resize handle as well as the photo, in either dimension.
+  var bd=$('board'),bw=bd&&bd.clientWidth||260,padX=1600/bw,padY=padX*AR;
+  var w=Math.min(60,Math.round((DEFAULT_W[it.meta]||24)*1.4),100-2*padX,(100-2*padY)*photoAR/AR);
+  var hpct=w*AR/photoAR;
+  var x=clamp(34+(n%6)*3,padX,100-padX-w),y=clamp(14+(n%6)*4,padY,100-padY-hpct);
   if(n>0){
     /* spread out: try a bunch of spots and keep the one with the most clear space around it */
-    var map=byIdA(),AR=boardAR(),mx=Math.max(0,100-w),my=Math.max(0,100-hpct),best=-1;
+    var map=byIdA(),mx=Math.max(0,100-2*padX-w),my=Math.max(0,100-2*padY-hpct),best=-1;
     for(var k=0;k<40;k++){
-      var cx=Math.random()*mx,cy=Math.random()*my,sc=1e9;
+      var cx=padX+Math.random()*mx,cy=padY+Math.random()*my,sc=1e9;
       for(var j=0;j<n;j++){
         var q=b.pieces[j],qi=map[q.id],qh=q.w*AR/((qi&&qi.ar)||1);
         var dx=(cx+w/2)-(q.x+q.w/2),dy=(cy+hpct/2)-(q.y+qh/2);
         var d=Math.pow(dx/((w+q.w)/2),2)+Math.pow(dy/((hpct+qh)/2),2);
         if(d<sc)sc=d;
       }
-      if(sc>best){best=sc;x=Math.round(cx*10)/10;y=Math.round(cy*10)/10}
+      if(sc>best){best=sc;x=cx;y=cy}
     }
   }
   b.pieces.push({id:it.id,x:x,y:y,w:w,z:nextZ()});
@@ -199,7 +203,7 @@ function renderBoard(){renderPullBtn();paintOMeta();if(typeof laundryBoardNotice
   }else state.board.pieces.forEach(function(p,i){
     var it=map[p.id];if(!it||((it.wish||it.stored)&&!state.fantasy))return;shown++;
     var tsp=tpal?tapeSpec(i,tpal):null;
-    var pe=el('div',{class:'piece'+(i===state.sel?' sel':'')+(p.nf?' nf':'')+(tsp?' tp'+tsp.pat:''),'data-i':String(i),style:pieceStyle(p,it)+(tsp?';--tp:'+tsp.c+';--tp2:'+tsp.c2:'')+(lpal?';--lc:'+lineSpec(i,lpal):'')+';--pin:'+PINS[(i*5+3)%PINS.length]+';--pind:'+mixHex(PINS[(i*5+3)%PINS.length],'#000000',.45)},
+    var pe=el('div',{role:'group',tabindex:'0','aria-label':it.name+' on the board','aria-describedby':'board-keyboard-help','data-piece-id':String(p.id),class:'piece'+(i===state.sel?' sel':'')+(p.nf?' nf':'')+(tsp?' tp'+tsp.pat:''),'data-i':String(i),style:pieceStyle(p,it)+(tsp?';--tp:'+tsp.c+';--tp2:'+tsp.c2:'')+(lpal?';--lc:'+lineSpec(i,lpal):'')+';--pin:'+PINS[(i*5+3)%PINS.length]+';--pind:'+mixHex(PINS[(i*5+3)%PINS.length],'#000000',.45)},
       boardImg(it,p),
       el('button',{class:'del',type:'button','aria-label':'Remove '+it.name,text:'x'}),
       el('span',{class:'rot','aria-hidden':'true',title:'Drag to rotate',text:'\u21BB'}),
@@ -211,6 +215,28 @@ function renderBoard(){renderPullBtn();paintOMeta();if(typeof laundryBoardNotice
   applyBoardLook(bd);
   paintSel();
   renderTabs();
+}
+function focusBoardPiece(i){
+  var nodes=$('board').querySelectorAll('.piece[data-i]'),node=nodes[Math.min(i,nodes.length-1)];
+  if(node)node.focus();else $('oname').focus();
+}
+function boardKeyboard(e){
+  var node=e.target.closest&&e.target.closest('.piece[data-i]');if(!node||e.target!==node||isColl())return;
+  var i=+node.dataset.i,p=state.board.pieces[i];if(!p)return;
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();selectPiece(i);return}
+  if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();e.stopPropagation();boardDel('p',i);focusBoardPiece(i);return}
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  var step=e.shiftKey?5:1,before=JSON.stringify(p);
+  if(e.key==='ArrowLeft')p.x=clamp(p.x-step,-p.w/2,100-p.w/2);
+  else if(e.key==='ArrowRight')p.x=clamp(p.x+step,-p.w/2,100-p.w/2);
+  else if(e.key==='ArrowUp')p.y=clamp(p.y-step,-5,98);
+  else if(e.key==='ArrowDown')p.y=clamp(p.y+step,-5,98);
+  else if(e.key==='+'||e.key==='=')p.w=clamp(p.w+step,6,95);
+  else if(e.key==='-')p.w=clamp(p.w-step,6,95);
+  else if(e.key==='['||e.key===']')p.rot=normRot((p.rot||0)+(e.key===']'?step:-step));
+  else return;
+  e.preventDefault();selectPiece(i);if(JSON.stringify(p)===before)return;
+  node.style.left=p.x+'%';node.style.top=p.y+'%';node.style.width=p.w+'%';node.style.transform=p.rot?'rotate('+p.rot+'deg)':'';persistBoard();
 }
 function initBoardTools(){
   var tools=$('board-more'),mq=window.matchMedia('(max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse)');
@@ -224,8 +250,11 @@ function wireBoard(){
   $('board-draft-retry').addEventListener('click',function(){if(runtime&&runtime.retryBoardSave)runtime.retryBoardSave();else if(!runtime)persistBoard()});
   $('board-outfit-retry').addEventListener('click',function(){saveOutfit()});
   var bd=$('board');
+  bd.addEventListener('focusin',function(e){var n=e.target;if(n.matches&&n.matches('.piece[data-i]')){var p=state.board.pieces[+n.dataset.i];if(p&&p.id===n.dataset.pieceId)selectPiece(+n.dataset.i)}});
+  bd.addEventListener('click',function(e){var button=e.target.closest&&e.target.closest('.piece .del');if(!button)return;var node=button.closest('.piece'),text=node.dataset.t!=null,i=+(text?node.dataset.t:node.dataset.i),item=text?(state.board.texts||[])[i]:state.board.pieces[i];if(!item||(!text&&item.id!==node.dataset.pieceId))return;e.stopPropagation();if(state.cutIdx>=0&&state.endCut)state.endCut();boardDel(text?'t':'p',i);if(e.detail===0){if(text)$('otext').focus();else focusBoardPiece(i)}});
   bd.addEventListener('pointerdown',function(e){
     var owner=state.board;
+    if(e.target.closest&&e.target.closest('.piece .del'))return;
     if(state.cutIdx>=0){startLasso(e);return}
     var pl0=e.target.closest('.bpal');if(pl0){palPointer(e,pl0,bd);return}
     var cs0=e.target.closest('.cslot');if(cs0){collPointer(e,cs0,bd);return}
@@ -234,7 +263,6 @@ function wireBoard(){
     if(!pe){selectPiece(-1);return}
     if(pe.dataset.t!=null){textPointer(e,pe,bd);return}
     var i=+pe.dataset.i,p=state.board.pieces[i];if(!p)return;
-    if(e.target.classList.contains('del')){boardDel('p',i);e.preventDefault();return}
     selectPiece(i);
     var before=JSON.stringify(p);
     var rect=bd.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,o={x:p.x,y:p.y,w:p.w};
@@ -256,7 +284,7 @@ function wireBoard(){
     pe.addEventListener('pointermove',move);pe.addEventListener('pointerup',up);pe.addEventListener('pointercancel',up);pe.addEventListener('lostpointercapture',up);
     e.preventDefault();
   });
-  function paintCutBtn(){var on=state.cutIdx>=0;$('scut').innerHTML=on?'\u2716\uFE0F<span class="bl"> Cancel cut</span>':'\u2702\uFE0F<span class="bl"> Cut out</span>';$('scut').title=on?'Cancel the cut-out':'Cut out: draw an outline around the item';$('scut').classList.toggle('on',on);$('board').classList.toggle('cutting',on)}
+  function paintCutBtn(){var on=state.cutIdx>=0;$('scut').innerHTML=on?'\u2716\uFE0E<span class="bl"> Cancel cut</span>':'\u2702\uFE0E<span class="bl"> Cut out</span>';$('scut').title=on?'Cancel the cut-out':'Cut out: draw an outline around the item';$('scut').setAttribute('aria-label',on?'Cancel cut':'Cut out');$('scut').classList.toggle('on',on);$('board').classList.toggle('cutting',on)}
   function endCut(){state.cutIdx=-1;paintCutBtn()}
   state.endCut=endCut;
   function startLasso(e){
@@ -297,13 +325,13 @@ function wireBoard(){
   $('sflipx').addEventListener('click',function(){var p=state.board.pieces[state.sel];if(!p)return;if(p.fx)delete p.fx;else p.fx=1;persistBoard();renderBoard()});
   $('sframe').addEventListener('click',function(){var p=state.board.pieces[state.sel];if(!p)return;if(p.nf)delete p.nf;else p.nf=1;persistBoard();renderBoard()});
   $('sflipy').addEventListener('click',function(){var p=state.board.pieces[state.sel];if(!p)return;if(p.fy)delete p.fy;else p.fy=1;persistBoard();renderBoard()});
-  $('srotreset').addEventListener('click',function(){var p=state.board.pieces[state.sel];if(!p)return;boardDesignChange('Piece straightened.',function(){delete p.rot})});
   $('scut').addEventListener('click',function(){
     if(state.cutIdx>=0){endCut();return}
     if(state.sel<0)return;
     state.cutIdx=state.sel;paintCutBtn();toast('Draw around the item with your mouse or finger. Release to finish.');
   });
   $('scutreset').addEventListener('click',function(){var p=state.board.pieces[state.sel];if(!p)return;boardDesignChange('Cut-out reset to the original photo shape.',function(){delete p.clip})});
+  bd.addEventListener('keydown',boardKeyboard);
   bd.addEventListener('keydown',function(e){
     if(e.key==='Escape'&&state.cutIdx>=0){state.endCut();return}
   });

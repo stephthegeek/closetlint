@@ -88,3 +88,10 @@ assert.equal(browserData.get('closetlint.display.v1'),storedBeforeFailure);
 assert.match(node('display-prefs-status').textContent,/for this visit/);
 assert.equal(resetNotices.length,1);
 console.log('Display reset: defaults, preserved fit reference and unrelated data, reload, and storage-failure feedback passed.');
+
+// Browser-restored form values must not disagree with the theme currently rendered.
+Object.assign(ctx,{renderCategorySettings(){},fillWardrobeSettings(){},laundryFillSettings(){}});
+node('root').getAttribute=k=>node('root').attrs[k];node('displayprefs').showModal=()=>{};node('site-theme').focus=()=>{};
+vm.runInContext(source.match(/function openDisplayPrefs\(\)\{[^\n]+/)[0],ctx);
+node('root').attrs['data-skin']='editorial';node('site-theme').value='workshop';ctx.openDisplayPrefs();assert.equal(node('site-theme').value,'editorial','opening settings reflects the visible Night Bloom theme');
+console.log('Settings theme selection resynchronizes with the rendered theme on open.');

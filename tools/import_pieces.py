@@ -39,7 +39,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.schema:
-            result = {'format': 'closet-lint-import/v1', 'batchId': 'choose-a-stable-batch-id', 'pieces': [{'name': 'Example tee', 'category': 'Tops', 'subcategory': 'Tees', 'status': 'wishlist', 'size': '', 'retailer': '', 'url': '', 'price': None, 'productPhotoRequested': False, 'photoNote': '', 'colors': [], 'images': [{'file': 'photos/tee.jpg', 'kind': 'isolated', 'sourceUrl': ''}]}], 'imageKinds': KINDS, 'layering': LAYER, 'vocabulary': VOCAB}
+            result = {'format': 'closet-lint-import/v1', 'batchId': 'choose-a-stable-batch-id', 'pieces': [{'name': 'Example tee', 'category': 'Tops', 'subcategory': 'Tees', 'status': 'wishlist', 'size': '', 'retailer': '', 'url': '', 'price': None, 'date': '', 'dateApproximate': False, 'productPhotoRequested': False, 'photoNote': '', 'colors': [], 'images': [{'file': 'photos/tee.jpg', 'kind': 'isolated', 'sourceUrl': ''}]}], 'imageKinds': KINDS, 'layering': LAYER, 'vocabulary': VOCAB}
         else:
             if not args.data or (not args.file and args.part is None and not (args.check or args.status or args.finish_request)):
                 raise ValueError('Use --data EXISTING_FOLDER --file IMPORT.json, or --schema')

@@ -28,10 +28,4 @@ console.log('Trip navigation: unchanged exits, edited drafts warn, stay preserve
 const scrolls=[];ctx.window={scrollTo:p=>scrolls.push(p)};ctx.memoRun=()=>{};ctx.tripRenderInner=()=>{};ctx.tripRenderedDraft=null;ctx.tripRenderedStep=null;vm.runInContext(fn('tripRender'),ctx);
 ctx.state.trip=fresh();ctx.state.trip.step=1;ctx.tripRender();assert.equal(scrolls.length,1);ctx.tripRender();assert.equal(scrolls.length,1,'same-step edits preserve scroll');ctx.state.trip.step=2;ctx.tripRender();assert.equal(scrolls.length,2);assert.equal(scrolls[1].top,0,'step navigation starts at page top');ctx.state.trip=null;ctx.tripRender();assert.equal(scrolls.length,3,'back to trip list starts at top');
 
-{
- const nodes=[];let opened=null,deleted=null;
- const c={state:{trips:{one:{name:'Weekend',settings:{start:'2026-11-01',transport:'train',bag:'carry'}}}},todayStr:()=> '2026-10-25',TRIP_BAGS:[['carry','Carry-on']],tripOpen:id=>opened=id,askConfirm:(m,l,go)=>go(),deleteSavedDocument:(kind,id)=>deleted=id,tripRender(){},el:(tag,attrs,...children)=>{const n={tag,...attrs,children,appendChild(x){this.children.push(x)}};nodes.push(n);return n},routeAnchor:(route,attrs,action,child)=>({tag:'a',route,...attrs,action,children:[child]})};
- vm.createContext(c);vm.runInContext(fn('tripHome'),c);c.tripHome(c.el('div',{}));
- const card=nodes.find(n=>n.class==='tripcard trip-plan-card'),link=card.children.find(n=>n.tag==='a');assert.equal(link.route.id,'one');link.action();assert.equal(opened,'one');opened=null;card.children.find(n=>n.text==='Delete').onclick();assert.equal(deleted,'one');assert.equal(opened,null);
- console.log('Trips: full-card link and independent delete action pass.');
-}
+// Overview links and independent actions are exercised in trips-events.js.

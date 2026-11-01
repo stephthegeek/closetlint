@@ -389,7 +389,7 @@ function syncTxtTools(){
 function textPointer(e,pe,bd){
   var owner=state.board;
   var i=+pe.dataset.t,t=(state.board.texts||[])[i];if(!t)return;
-  if(e.target.classList.contains('del')){boardDel('t',i);e.preventDefault();return}
+  if(e.target.closest&&e.target.closest('.piece .del'))return;
   selectText(i);
   var before=JSON.stringify(t);
   var rect=bd.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,o={x:t.x,y:t.y,s:t.s};
@@ -419,7 +419,7 @@ function wireBoardStyle(){
     var b=state.board,map=byIdA(),items=[];
     b.pieces.forEach(function(p){var it=map[p.id];if(it)items.push(it)});
     if(!items.length){toast('Add a few pieces first');return}
-    var ACC=['Jewelry','Hair accessories','Footwear','Bags','Hats','Glasses','Other accessories'];
+    var ACC=['Jewelry','Hair accessories','Footwear','Bags','Hats','Glasses','Watches','Other accessories'];
     var core=items.filter(function(it){return ACC.indexOf(it.meta)<0});
     var o=labOutfitFromIds(core.map(function(x){return x.id}),map);
     if(!o){
@@ -486,7 +486,7 @@ function tidyRole(it){
   var m=it.meta;
   if(m==='Bottoms')return 'low';
   if(m==='Footwear')return 'shoe';
-  if(['Tops','Outerwear','One-pieces','Loungewear','Activewear','Swimwear','Costumes','Lingerie','Underwear'].indexOf(m)>=0)return 'up';
+  if(['Tops','Outerwear','One-pieces','Loungewear','Activewear','Swimwear','Costumes','Lingerie','Underwear','Workwear & uniforms','Cultural & traditional garments'].indexOf(m)>=0)return 'up';
   return 'acc';
 }
 function tidyBoard(approved){
@@ -549,7 +549,7 @@ function renderStylePanel(){
   function addCol(h,t,thr){if(!cols.some(function(c){return similarSuggestion(c[0],h)||cdist(c[0],h)<thr}))cols.push([h,t])}
   pal.forEach(function(h){addCol(h,palLabel(),40)});
   pal.forEach(function(h){addCol(mixHex(h,'#FFFFFF',.72),'Soft tint',60)});
-  if(s.cc&&!cols.some(function(c){return c[0].toLowerCase()===s.cc.toLowerCase()}))cols.push([s.cc,'Your color']);
+  if(s.cc&&!cols.some(function(c){return c[0].toLowerCase()===s.cc.toLowerCase()}))cols.push([s.cc,'My color']);
   if(bg&&bg.c&&!cols.some(function(c){return c[0].toLowerCase()===bg.c.toLowerCase()}))cols.push([bg.c,'Current background']);
   cols.forEach(function(c){r2.appendChild(sw(c[0],!!bg&&bg.c.toLowerCase()===c[0].toLowerCase(),function(){setBg(c[0])},c[1]))});
   r2.appendChild(custom('Pick any color',s.cc||(bg&&bg.c),function(v){setBg(v,{cc:v})}));
@@ -566,7 +566,7 @@ function renderStylePanel(){
     var r5=el('div',{class:'swrow'});p.appendChild(r5);
     var fc=frameColor(),fcs=[['#FFFFFF','White'],['#14272F','Ink']];
     pal.forEach(function(h){if(!fcs.some(function(c){return similarSuggestion(c[0],h)||cdist(c[0],h)<40}))fcs.push([h,palLabel()])});
-    if(s.bcc&&!fcs.some(function(c){return c[0].toLowerCase()===s.bcc.toLowerCase()}))fcs.push([s.bcc,'Your color']);
+    if(s.bcc&&!fcs.some(function(c){return c[0].toLowerCase()===s.bcc.toLowerCase()}))fcs.push([s.bcc,'My color']);
     fcs.forEach(function(c){r5.appendChild(sw(c[0],fc.toLowerCase()===c[0].toLowerCase(),function(){setSt({bdc:c[0]})},c[1]))});
     r5.appendChild(custom('Pick any color',s.bcc||fc,function(v){setSt({bdc:v,bcc:v})}));
   }
@@ -596,7 +596,7 @@ function renderStylePanel(){
   sec('Colors');
   (function(){
     var cp=curPalette(),prev=el('div',{class:'bpalprev',style:'display:flex;gap:4px;margin:6px 0 2px'});
-    pickRow('Palette',[['','From the outfit']].concat(PALETTES.map(function(q){return [q[0],q[1]]})),s.pn||'',function(v){setSt({pn:v||null,bdc:null,bcc:null})});
+    pickRow('Palette',[['','From outfit']].concat(PALETTES.map(function(q){return [q[0],q[1]]})),s.pn||'',function(v){setSt({pn:v||null,bdc:null,bcc:null})});
     (cp?cp[2]:boardPal()).forEach(function(h){prev.appendChild(el('i',{style:'display:block;width:26px;height:18px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);background:'+h}))});
     p.appendChild(prev);
     if(cp)p.appendChild(el('p',{class:'fine',text:'Backgrounds, frames, washi tape and the color strip all draw from this palette.'}));

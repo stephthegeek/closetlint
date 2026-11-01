@@ -6,9 +6,11 @@
   var cache = {}, listeners = {}, tail = Promise.resolve(), busy = 0, failed = false;
   var board = config.board, boardDirty = false, boardTimer = null, restoring = false;
   var boardRetries = 0, boardError = false, boardFlight = null;
+  var recordVersions = {}, boardVersion = config.boardVersion;
+  var wearRequests = new WeakMap();
   var saveListeners = [], boardStatus = {phase: 'saved', error: ''}, failedRecords = {};
-  function boardState(phase, error) {
-    boardStatus = {phase: phase, error: error || ''};
+  function boardState(phase, error, conflict) {
+    boardStatus = {phase: phase, error: error || '', conflict: !!conflict};
     saveListeners.slice().forEach(function (fn) { try { fn(copy(boardStatus)); } catch (e) {} });
   }
   function hasFailedWrites() { return failed || Object.keys(failedRecords).length > 0; }
@@ -43,8 +45,19 @@
       return response.json().catch(function () { return {}; }).then(function (data) { var error = new Error(data.error || 'Local storage request failed'); error.status = response.status; throw error; });
     });
   }
-  function jsonRequest(path, method, value) {
-    return request(path, {method: method, headers: {'Content-Type': 'application/json'}, body: value === undefined ? undefined : JSON.stringify(value)}).then(function (r) { return r.json(); });
+  function jsonRequest(path, method, value, headers) {
+    return request(path, {method: method, headers: Object.assign({'Content-Type': 'application/json'}, headers), body: value === undefined ? undefined : JSON.stringify(value)}).then(function (r) { return r.json(); });
+  }
+  function writeHeaders(version) {
+    if (config.writeProtocol !== 1 || !version) {
+      var error = new Error('Refresh Closet Lint before saving. Your edits are still here; keep this tab open and copy them into a fresh tab.');
+      error.status = 428;
+      throw error;
+    }
+    return {'If-Match': '"' + version + '"'};
+  }
+  function recordVersion(col, id) {
+    return recordVersions[col] && recordVersions[col][id] || (cache[col][id] === undefined ? config.missingVersion : null);
   }
   function sourcePath(batch) { return '/api/import/sources?instance=' + encodeURIComponent(config.instance) + '&batch=' + encodeURIComponent(batch); }
   function importSourceRequest(path, options, blob) {
@@ -73,7 +86,25 @@
     var docs = Object.keys(cache[col] || {}).map(function (id) { var value = copy(cache[col][id]); return {id: id, data: function () { return copy(value); }}; });
     (listeners[col] || []).forEach(function (fn) { fn({docs: docs}); });
   }
-  var db = {collection: function (col) {
+  var db = {commitWear: function (changes) {
+    var records = wearRequests.get(changes);
+    if (!records) {
+      records = copy(changes);
+      records.forEach(function (record) { record.expected = recordVersion(record.collection, record.id); });
+      wearRequests.set(changes, records);
+    }
+    return write(function () {
+      if (!config.atomicWear) throw new Error('Refresh Closet Lint before logging this outfit. Keep this tab open to preserve your work.');
+      records.forEach(function (record) { writeHeaders(record.expected); });
+      return jsonRequest('/api/wear', 'POST', records).then(function (result) {
+        result.versions.forEach(function (record) { (recordVersions[record.collection] = recordVersions[record.collection] || {})[record.id] = record.version; });
+        var changed = {};
+        records.forEach(function (record) { cache[record.collection][record.id] = copy(record.value); changed[record.collection] = true; });
+        wearRequests.delete(changes);
+        Object.keys(changed).forEach(emit);
+      });
+    }, true, '/api/wear/' + records.map(function (record) { return record.collection + ':' + record.id; }).sort().join('|'));
+  }, collection: function (col) {
     if (!Object.prototype.hasOwnProperty.call(cache, col)) throw new Error('Unknown collection');
     return {
       onSnapshot: function (fn, error) {
@@ -85,11 +116,17 @@
         var path = '/api/doc/' + encodeURIComponent(col) + '/' + encodeURIComponent(id);
         return {
           set: function (value) {
-            var record = copy(value);
-            return write(function () { return jsonRequest(path, 'PUT', record).then(function () { cache[col][id] = record; emit(col); }); }, false, path);
+            var record = copy(value), expected = recordVersion(col, id);
+            return write(function () { return jsonRequest(path, 'PUT', record, writeHeaders(expected)).then(function (result) {
+              (recordVersions[col] = recordVersions[col] || {})[id] = result.version;
+              cache[col][id] = record; emit(col);
+            }); }, col === 'profile' && id === 'daily-card', col === 'profile' && id === 'daily-card' ? null : path);
           },
           delete: function () {
-            return write(function () { return jsonRequest(path, 'DELETE').then(function () { delete cache[col][id]; emit(col); }); }, false, path);
+            var expected = recordVersion(col, id);
+            return write(function () { return jsonRequest(path, 'DELETE', undefined, writeHeaders(expected)).then(function () {
+              delete cache[col][id]; if (recordVersions[col]) delete recordVersions[col][id]; emit(col);
+            }); }, false, path);
           }
         };
       }
@@ -105,14 +142,15 @@
     clearTimeout(boardTimer);
     if (boardFlight) return boardFlight;
     if (!boardDirty) return tail;
-    var value = copy(board); boardDirty = false;
+    var value = copy(board), expected = boardVersion; boardDirty = false;
     boardState('saving');
-    boardFlight = write(function () { return jsonRequest('/api/board', 'PUT', value); }, true).then(function () {
+    boardFlight = write(function () { return jsonRequest('/api/board', 'PUT', value, writeHeaders(expected)); }, true).then(function (result) {
+      boardVersion = result.version;
       boardRetries = 0;
       if (boardError && !boardDirty) { boardError = false; notify('Board autosave recovered.'); }
       boardState(boardDirty ? 'pending' : 'saved');
     }).catch(function (error) {
-      boardDirty = true; boardError = true; boardState('error', error.message || 'The local service is unavailable.');
+      boardDirty = true; boardError = true; boardState('error', error.message || 'The local service is unavailable.', error.status === 409 || error.status === 428);
       throw error;
     }).finally(function () {
       boardFlight = null;
@@ -126,6 +164,7 @@
       if (restoring || boardFlight) return;
       boardWrite().catch(function (error) {
         boardError = true;
+        if (error.status === 409 || error.status === 428) { notify(error.message); return; }
         var retry = (!error.status || error.status >= 500) && boardRetries < 2;
         notify('Board not saved yet. ' + (error.message || 'The local service is unavailable.') + ' Keep this tab open.' + (retry ? ' Retrying…' : ' Use Retry draft save on the board.'));
         if (retry) { boardRetries++; boardState('retrying', error.message); saveBoardSoon(boardRetries * 1500); }
@@ -164,8 +203,37 @@
     },
     boardSaveStatus: function () { return copy(boardStatus); },
     watchBoardSave: function (fn) { saveListeners.push(fn); try { fn(copy(boardStatus)); } catch (e) {} return function () { saveListeners = saveListeners.filter(function (f) { return f !== fn; }); }; },
-    retryBoardSave: function () { if (!boardDirty || restoring || boardFlight) return; boardRetries = 0; boardState('retrying'); saveBoardSoon(0); },
+    retryBoardSave: function () { if (!boardDirty || restoring || boardFlight || boardStatus.conflict) return; boardRetries = 0; boardState('retrying'); saveBoardSoon(0); },
     flush: flush,
+    photoPrepare: function (action, values) {
+      var job = function () { return jsonRequest('/api/photos/prepare', 'POST', Object.assign({}, values, {action: action, instance: config.instance})); };
+      return ready.then(flush).then(function () {
+        if (action !== 'save') return job();
+        // Serialize with ordinary piece saves, then refresh snapshots without a page reload.
+        return write(function () { return job().then(function (receipt) {
+          return request('/api/state').then(function (r) { return r.json(); }).then(function (data) {
+            if (data.instance !== config.instance) throw new Error('The wardrobe changed. Return to your original wardrobe.');
+            ['custom', 'edits'].forEach(function (col) { cache[col] = copy(data.collections[col]); recordVersions[col] = data.writeVersions && data.writeVersions.collections[col] || {}; emit(col); });
+            return receipt;
+          });
+        }); }, true);
+      });
+    },
+    photoPrepareRead: function (id, options) {
+      var path = '/api/photos/prepare?instance=' + encodeURIComponent(config.instance) + '&request=' + encodeURIComponent(id);
+      Object.keys(options || {}).forEach(function (key) { path += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(options[key]); });
+      return request(path).then(function (r) { return options ? r.blob() : r.json(); });
+    },
+    photoPrepareUpload: function (id, file) { return request('/api/photos/prepare/upload?instance=' + encodeURIComponent(config.instance) + '&request=' + encodeURIComponent(id), {method: 'POST', body: file}).then(function (r) { return r.json(); }); },
+    oracleAccess: function () { return importRead('/api/oracle/access?instance=' + encodeURIComponent(config.instance)); },
+    oraclePrepare: function (values) {
+      var controller = new AbortController(), timer = setTimeout(function () { controller.abort(); }, 40000);
+      return request('/api/oracle/prepare', {method: 'POST', signal: controller.signal, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(Object.assign({}, values, {instance: config.instance}))}).then(function (r) { return r.json(); }).catch(function (error) {
+        if (error.name === 'AbortError') throw new Error('Preparing the Oracle request timed out. Retry or download a summary.');
+        if (error.status === 404) throw new Error('Restart Closet Lint to enable local Oracle requests, or download a summary.');
+        throw error;
+      }).finally(function () { clearTimeout(timer); });
+    },
     importSetup: function (batch) { return importRead('/api/import/setup?batch=' + encodeURIComponent(batch)).then(function (data) { if (data.instance !== config.instance) throw new Error('The local wardrobe changed. Reopen the original installation before importing.'); return data; }); },
     importStatus: function (batch) { return importRead('/api/import/status?instance=' + encodeURIComponent(config.instance) + '&batch=' + encodeURIComponent(batch)); },
     importSources: function (batch) { return importSourceRequest(sourcePath(batch)); },
@@ -220,13 +288,16 @@
       actions.append(cancel, apply); dialog.append(title, note, file, status, actions); document.body.appendChild(dialog); dialog.showModal(); file.focus();
     }
   };
-  var ready = request('/api/state').then(function (r) { return r.json(); }).then(function (state) { cache = state.collections; }).catch(function (error) {
+  var ready = request('/api/state').then(function (r) { return r.json(); }).then(function (state) {
+    cache = state.collections;
+    recordVersions = state.writeVersions && state.writeVersions.collections || {};
+  }).catch(function (error) {
     runtime.error = 'Local storage could not be loaded. Reload after checking the local service. Edits are not being saved.';
     throw error;
   });
   // Capabilities attach their rejection handlers immediately when the app boots.
   ready.catch(function () {});
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') boardWrite().catch(function () {}); });
-  window.addEventListener('online', function () { if (boardDirty && !restoring) { boardRetries = 0; saveBoardSoon(200); } });
+  window.addEventListener('online', function () { if (boardDirty && !restoring && !boardStatus.conflict) { boardRetries = 0; saveBoardSoon(200); } });
   window.addEventListener('beforeunload', function (event) { if (busy || boardDirty || hasFailedWrites()) { event.preventDefault(); event.returnValue = ''; } });
 })();

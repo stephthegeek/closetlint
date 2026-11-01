@@ -29,5 +29,14 @@ let fail=false,writes=[];const ctx={state:{profile:{},tab:'all',db:{collection:(
  ctx.editCollection(null,[seed.id],id=>createdId=id);find(dialog,n=>n['aria-label']==='Collection name').value='Seeded editor';assert.equal(find(dialog,n=>n['aria-label']==='Include Seeded piece').checked,true);
  const submit=find(dialog,n=>n.text==='Save collection');fail=true;submit.onclick();await new Promise(setImmediate);assert.equal(createdId,undefined);assert.equal(dialog.open,true);assert.equal(submit.disabled,false,'failed creation is retryable with entered name/selection intact');
  fail=false;submit.onclick();await new Promise(setImmediate);assert(createdId);assert.equal(dialog.open,false);assert.equal(redirects,0,'custom completion keeps the piece page instead of opening the collection');assert.deepEqual(Array.from(ctx.state.profile[createdId].ids),[seed.id]);
+ // The card and editor share removal, including failed saves and failed Undo recovery.
+ let confirmRemoval,undoAction,removedError='',returned=0;
+ ctx.askConfirm=(message,label,fn)=>confirmRemoval=fn;ctx.toast=()=>{};ctx.toastAct=(message,label,fn)=>undoAction={label,fn};ctx.openCollections=()=>returned++;
+ const saved=ctx.collectionList().find(c=>c.id===createdId),savedIds=Array.from(saved.ids);
+ ctx.collectionRemove(saved,null,e=>removedError=e.message);assert.equal(ctx.state.profile[createdId].deleted,false,'opening confirmation leaves collection intact');
+ fail=true;confirmRemoval();await new Promise(setImmediate);assert.match(removedError,/storage failed/);assert.equal(ctx.state.profile[createdId].deleted,false);assert.equal(undoAction,undefined);
+ fail=false;confirmRemoval();await new Promise(setImmediate);assert.equal(ctx.state.profile[createdId].deleted,true);assert.equal(undoAction.label,'Undo');assert.deepEqual(Array.from(ctx.state.profile[createdId].ids),savedIds);
+ fail=true;await undoAction.fn();assert.equal(undoAction.label,'Retry');assert.equal(ctx.state.profile[createdId].deleted,true);
+ fail=false;await undoAction.fn();assert.equal(ctx.state.profile[createdId].deleted,false);assert.deepEqual(Array.from(ctx.state.profile[createdId].ids),savedIds);assert.equal(returned,2);
  console.log('Collections: overlapping membership, OR filters, independent copies, reversible removal, failed-save preservation, and packing export passed.');
 })().catch(e=>{console.error(e);process.exit(1)});

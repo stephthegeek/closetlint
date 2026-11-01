@@ -113,7 +113,7 @@ vm.runInContext(source.slice(source.indexOf('function labTaste(o,'),source.index
 const learned=Array.from({length:30},(_,i)=>({key:'old-'+i,record:{r:1,t:30-i},features:['p:top-0','l:cozy'],outfit:{top:tops[0],bottom:{id:'previous-'+i}}}));
 const counts={};let last=null,consecutive=0;
 for(let i=0;i<60;i++){
- const o=diversity.labGenerate({},null,null,{},learned);assert(o);assert.equal(o.algorithmVersion,'2.1.0');
+ const o=diversity.labGenerate({},null,null,{},learned);assert(o);assert.equal(o.algorithmVersion,'2.2.0');
  counts[o.top.id]=(counts[o.top.id]||0)+1;if(last===o.top.id)consecutive++;last=o.top.id;
  diversity.state.lab.hist.push({o});if(diversity.state.lab.hist.length>25)diversity.state.lab.hist.shift();diversity.state.ratings[o.sig]={r:1};
 }

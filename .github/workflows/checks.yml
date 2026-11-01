@@ -41,6 +41,12 @@ jobs:
         run: pip-audit -r runtime/requirements-import.txt -r runtime/requirements-background.txt
       - name: Run synthetic tests without a browser
         run: npm test
+      - name: Install Chromium for accessibility checks
+        run: npx playwright install --with-deps chromium
+      - name: Check packing PDF pagination
+        run: npm run test:print
+      - name: Check accessibility regressions across themes and viewports
+        run: npm run test:a11y
       - name: Check public source boundaries
         run: python tools/check_public_source.py
       - name: Scan source history for secrets with verified Gitleaks

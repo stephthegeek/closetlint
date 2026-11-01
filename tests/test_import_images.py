@@ -21,6 +21,7 @@ class ImportImageTests(unittest.TestCase):
                       'photos': [{'photoId': isolated, 'kind': 'isolated'}, {'photoId': model, 'kind': 'model'}],
                       'imageSources': [{'url': 'https://img.example.com/model.jpg', 'kind': 'model'}]}
             source.set_record('custom', 'demo', record)
+            record = source.state()['collections']['custom']['demo']
             source.export(root / 'backup.zip')
             restored = Store(root / 'restored')
             with contextlib.closing(Archive(root / 'backup.zip')) as archive:

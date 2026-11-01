@@ -49,3 +49,13 @@ assert.equal(o.acc.shoes,originalShoe);assert.equal(shoeCalls,callsBefore,'only 
 assert.equal(o.acc.socks.id,'sock');assert.equal(o.acc.jewelry[0].id,'necklace');
 o={};ctx.labAccessorize(o,{});assert.equal(o.acc.shoes.id,'shoe','missing shoes still get a suggestion');
 console.log('Accessorize preserves suggested shoes, adds extras, and supplies shoes when absent.');
+
+assert.equal(ctx.layerNeed({meta:'Tops',sub:'Sweaters',kind:'vest'}),'under','sweater vests get a shirt by default');
+assert.equal(ctx.layerNeed({meta:'Tops',sub:'Sweaters',kind:'vest',labAs:'top'}),'none','standalone role is honored');
+assert.equal(ctx.layerNeed({meta:'Tops',sub:'Sweaters',kind:'vest',layerNeed:'none'}),'none','explicit no-layer choice is honored');
+assert.equal(ctx.layerNeed({meta:'Tops',sub:'Sweaters'}),'none','unclassified sweaters do not acquire vest requirements');
+
+ctx.catMetas=(meta)=>[meta];vm.runInContext(fn('labRole')+'\n'+fn('labTopish'),ctx);
+for(const meta of ['Workwear & uniforms','Cultural & traditional garments']){assert.equal(ctx.labRole({meta,sub:'Tops'}),'top');assert.equal(ctx.labRole({meta,sub:'Bottoms'}),'bottom');assert.equal(ctx.labRole({meta,sub:'One-pieces'}),'one');assert.equal(ctx.labRole({meta,sub:'Sets'}),'');assert.equal(ctx.labRole({meta,sub:'Tops',labAs:'under'}),'');assert(ctx.labTopish({meta,sub:'Tops'}));}
+
+o={top:{id:'knit-vest',meta:'Tops',sub:'Sweaters',kind:'vest'}};assert(ctx.labCompleteLayers(o,{top:[tee],under:[]}));assert.equal(o.under.id,'tee','the vest default adds a real compatible underlayer');

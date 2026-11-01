@@ -146,6 +146,24 @@ for(let i=0;i<100;i++){
 }
 assert.equal(daily.eligible({tab:'offduty',sort:'new'},false),false);
 for(const tab of ['all','clothing','jewelry','accessories'])assert(daily.eligible({tab,sort:'new'},false));
+// Intimates are excluded even in Accessories, Tops, or legacy categories.
+const intimatePieces=[
+ ...['Bras','Panties','Shapewear','Slips & crinolines','Intimates','Other'].map((sub,i)=>item('underwear-'+i,{meta:'Underwear',sub,section:'accessories',colors:['orange']})),
+ ...['Sets','Bras','Teddies & bodysuits','Other'].map((sub,i)=>item('lingerie-'+i,{meta:'Lingerie',sub,section:'accessories',colors:['orange']})),
+ item('bralette',{meta:'Tops',sub:'Bralettes',colors:['orange']}),
+ item('legacy-intimate',{meta:'Other accessories',sub:'Intimates',colors:['orange']}),
+ item('legacy-panties',{meta:'Other accessories',sub:'Panties & thongs',colors:['orange']})
+];
+for(let i=0;i<100;i++){
+ const seed={...opts,instance:'intimates-check-'+i};
+ assert.deepEqual(daily.generate({...seed,items:opts.items.concat(intimatePieces),outfits:[intimatePieces.map(p=>p.id)]}),daily.generate({...seed,outfits:[]}), 'intimates cannot drive reminders, color counts, or saved-outfit color pairs');
+ const onlyIntimates=daily.generate({...seed,items:intimatePieces});
+ assert.equal(onlyIntimates.pieceId,null);
+ assert.deepEqual(onlyIntimates.colors,[]);
+}
+assert(daily.isActivePiece(item('socks',{meta:'Legwear',sub:'Socks'})),'ordinary legwear stays eligible');
+console.log('Daily fortune: all underwear/lingerie subtypes, bralettes, and legacy intimates excluded.');
+
 // Replace an already saved off-duty suggestion without waiting for tomorrow.
 const cachedContext={...context,state:{...state,profile:{'daily-card':{version:1,instance:opts.instance,card:{day:clock,type:'do',text:'Try the swimsuit.',pieceId:'off-0',colors:[]},history:[]}}},allItems:()=>opts.items.concat(offDutyPieces),anyFilter:()=>false};
 vm.createContext(cachedContext);
@@ -156,7 +174,7 @@ assert.notEqual(cachedContext.state.profile['daily-card'].card.pieceId,'off-0','
 console.log('Daily fortune: off-duty exclusions, color isolation, eligible sections, and cached suggestion replacement passed.');
 
 // A day's cached reminder must stop referring to pieces that leave its eligible pool.
-for(const flags of [{hidden:true},{removed:true},{gone:true},{donate:true},{wish:true},{stored:true},null]){
+for(const flags of [{meta:'Underwear',sub:'Panties'},{meta:'Lingerie',sub:'Sets'},{meta:'Tops',sub:'Bralettes'},{hidden:true},{removed:true},{gone:true},{donate:true},{wish:true},{stored:true},null]){
  const removed=flags===null,changed=removed?[]:[item('a',flags)];
  const cached={version:1,instance:opts.instance,card:{day:clock,type:'do',text:'Cached reminder for an unavailable piece.',pieceId:'a',colors:[]},revealed:true,dismissed:true,slots:{},history:[]};
  const c={...context,state:{...state,profile:{'daily-card':cached}},allItems:()=>changed,anyFilter:()=>false};

@@ -8,8 +8,8 @@ import re
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-DOCS = ['INSTALL.md','ASSISTANT-IMPORT.md','PHOTOS.md','LOCAL-RUNTIME.md',
-        'ORACLE.md','BOARD-EDITOR.md','WISHLIST-ANALYSIS.md','RELEASE-NOTES.md','ONBOARDING.md','NAVIGATION.md','THEMES.md','TESTING.md','UPDATING.md','THIRD-PARTY.md','SECURITY-REVIEW.md']
+DOCS = ['GETTING-STARTED.md','USING-CLOSET-LINT.md','AI-ASSISTANT.md','WEB-HOSTING.md',
+        'RELEASE-NOTES.md','THIRD-PARTY.md','archive/DEVELOPMENT-RECORDS.md']
 ART = ['linty-logo-original.png','linty-side-peek-sock.png','linty-favicon-face-1024.png','README.md']
 DEMO = ['01-black-tee.jpg','02-burgundy-top.jpg','03-black-trousers.jpg',
         '04-blue-jeans.jpg','05-beige-skirt.jpg','06-black-dress.jpg',
@@ -21,9 +21,11 @@ TYPES = {'app':{'.html','.css','.js','.svg'},'runtime':{'.py','.js','.json','.tx
 
 
 def selected_files(root=ROOT):
-    paths = [root / 'README.md', root / 'package.json', root / '.gitignore', root / 'package-lock.json', root / 'SECURITY.md', root / 'AI-USE-AND-SECURITY.md']
+    paths = [root / 'README.md', root / 'CONTRIBUTING.md', root / 'package.json', root / '.gitignore', root / 'package-lock.json', root / 'SECURITY.md', root / 'AI-USE-AND-SECURITY.md']
     paths += [p for p in (root / '.github').rglob('*.yml') if p.is_file()]
     paths += [root / 'docs' / n for n in DOCS]
+    paths += [root / 'deploy/siteground' / n for n in ('README.md','build_package.py','gateway.cjs','rehearse_update.py','start.py')]
+    paths += [root / 'docs/images/closet-lint-preview.jpg']
     paths += [root / 'app/assets/linty' / n for n in ART]
     paths += [root / 'app/assets/demo' / n for n in DEMO]
     paths += [root / 'app/assets/social/sky-opengraph.png']
@@ -87,7 +89,7 @@ def main():
     result={'file':str(args.out),'sha256':hashlib.sha256(args.out.read_bytes()).hexdigest(),
             'files':len(files),'version':args.version,'candidate':args.candidate,
             'embeddedData':'empty','sensitivePatternScan':'no matches; not proof of exhaustive secret detection',
-            'excluded':'private data, database files, models, virtual environments, bytecode, planning/handoff docs, and outputs'}
+            'excluded':'private data, database files, models, virtual environments, bytecode, and local outputs'}
     print(json.dumps(result,indent=2))
 
 

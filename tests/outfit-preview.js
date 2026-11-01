@@ -34,6 +34,6 @@ function fixture(){
  f.state.boardKey='active';f.state.previousBoardKey='older';f.state.boardDrafts=[{key:'older',board:{name:'Weekend',pieces:[]}},{key:'recent',board:{name:'Dinner',pieces:[]}}];
  let opened;f.ctx.returnWorkspace=key=>opened=key;f.ctx.paintWorkspaceRecovery();
  const recovery=nodes['board-recovery'];assert.equal(recovery.children.length,1);const menu=recovery.children[0];assert.equal(menu.tag,'details');assert.equal(menu.children[0].text,'Other drafts (2)');
- menu.children[1].onclick();assert.equal(opened,'recent');menu.children[2].onclick();assert.equal(opened,'older');
+ menu.children[1].children[0].onclick();assert.equal(opened,'recent');menu.children[1].children[1].onclick();assert.equal(opened,'older');
  f.state.boardDrafts=[];f.ctx.paintWorkspaceRecovery();assert.equal(recovery.children.length,0,'no draft control when there is nothing to resume');
 }

@@ -14,7 +14,7 @@ function fixture(){
  return {c,state,items,writes,messages,nodes,get action(){return action},set fail(v){fail=v}};
 }
 (async()=>{
- const f=fixture();assert.equal(f.c.laundryEnabled(),false);assert.equal(f.c.laundryPlanningOnly(),false);
+ const f=fixture();for(const meta of ['Tops','Outerwear','Underwear','Legwear','Loungewear','Swimwear','Workwear & uniforms','Cultural & traditional garments'])assert.equal(f.c.laundryClothing({meta}),true);for(const meta of ['Jewelry','Bags','Glasses','Watches','Footwear','Hats','Hair accessories','Other accessories']){assert.equal(f.c.laundryClothing({meta}),false);assert.equal(f.c.laundryPieceUI({meta}),null);assert.equal(f.c.laundryCareForm({meta}),null)}assert.equal(f.c.laundryEnabled(),false);assert.equal(f.c.laundryPlanningOnly(),false);
  assert.equal(f.c.laundryEmptyMessage(f.c.allItems()),'Nothing needs cleaning with these filters.','dirty pieces outside the visible filters prevent a whole-wardrobe empty claim');
  assert.equal(f.c.laundryEmptyMessage([{id:'ready',laundry:false}]),'Nothing needs cleaning. The hamper is appeased.');
  assert.equal(f.c.laundryEmptyMessage([]),'Nothing needs cleaning. The hamper is appeased.');
@@ -24,7 +24,7 @@ function fixture(){
  assert.equal(f.c.labOK(f.items.b),false);f.state.fantasy=true;assert.equal(f.c.labOK(f.items.b),false,'Fantasy never overrides explicit ready-only filtering');f.state.lab.readyOnly=false;assert.equal(f.c.labOK(f.items.b),true);f.state.lab.readyOnly=true;
  assert.equal(f.c.labPool({}).bottom.length,0);assert.equal(f.c.labPool({includeLaundry:true}).bottom.length,1,'wishlist and skipped-count evidence can explicitly include laundry');
  assert.equal(f.c.labPool({}).top.length,1);assert.equal(f.c.labOK(f.items.c),false,'accessories obey availability too');
- const form=f.c.laundryCareForm({id:'a',care:{wash:'Hand wash cold',dry:'Lay flat to dry',note:'Retain saved note'},photo:'legacy'},()=>{});
+ const form=f.c.laundryCareForm({id:'a',meta:'Tops',care:{wash:'Hand wash cold',dry:'Lay flat to dry',note:'Retain saved note'},photo:'legacy'},()=>{});
  assert.equal(form.read().note,'Retain saved note','textarea loads saved text, not just its value attribute');assert.equal(form.read().wash,'Hand wash cold');
  f.state.edits.b.care={note:'Keep care'};await f.c.toggleWornToday(f.c.byId().b);assert.equal(f.state.edits.b.laundry,true,'wear logging never clears laundry status');assert.equal(f.state.edits.b.care.note,'Keep care');
  const before=clone(f.state.edits.a);assert(await f.c.laundrySet(f.c.byId().a,true));assert.equal(f.state.edits.a.laundry,true);assert.equal(f.state.edits.a.notes,before.notes);assert.equal(f.action.label,'Undo');f.state.edits.a.notes='Later note';await f.action.callback();assert.equal(f.state.edits.a.laundry,undefined);assert.equal(f.state.edits.a.notes,'Later note');assert.equal(f.c.labPool({}).top.length,1,'Undo makes a clean piece eligible again');
@@ -41,7 +41,7 @@ function fixture(){
  assert.equal(noChange.updated,0);assert.equal(batch.writes.length,writesBefore);assert.equal(batch.messages.at(-1),'Nothing changed.');
  const upload=fixture();upload.state.assets={};let finishUpload,uploadCalls=0,photoRefreshes=0;
  upload.c.laundryUploadLabel=()=>{uploadCalls++;return new Promise(resolve=>{finishUpload=resolve})};
- const careForm=upload.c.laundryCareForm({id:'a',photo:'legacy',care:{note:'Keep this entry'}},()=>photoRefreshes++);
+ const careForm=upload.c.laundryCareForm({id:'a',meta:'Tops',photo:'legacy',care:{note:'Keep this entry'}},()=>photoRefreshes++);
  const careBody=careForm.node.children[1],uploadButton=careBody.children.find(n=>n.tag==='button'),file=careBody.children.find(n=>n.type==='file');
  const washing=careBody.children[0].children[1],uploadStatus=careBody.children.find(n=>n.role==='status');
  file.files=[{name:'synthetic-label.png'}];const firstUpload=file.events.change();

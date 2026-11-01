@@ -18,13 +18,15 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, unquote, urlsplit
 import zipfile
 
-from storage import Archive, Folder, MAX_ARCHIVE, Store, encode, decode
+from storage import Archive, Folder, MAX_ARCHIVE, Store, encode, decode, WriteConflict, write_version, write_versions
 import import_sources
+import photo_preparation
 from background_removal import settings as background_settings, remove_background
 from thumbnails import ThumbnailCache
 from catalog_photos import CatalogPhotos
 from places import lookup as lookup_places
 from weather import lookup as lookup_weather
+import oracle_context
 from assistant_import import setup_info as import_setup_info, saved_status as import_saved_status, readiness as import_readiness
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,7 +62,8 @@ def render_app(store, token, *, thumbnails=False, catalog=None):
         html, count = re.subn(pattern, lambda m: m[1] + safe_json(value) + m[2], html, count=1, flags=re.S)
         if count != 1:
             raise ValueError('App is missing its data boundary')
-    config = {'token': token, 'board': state['board'], 'instance': state['instance'], 'demo': state['collections']['profile'].get('demo', {}).get('synthetic') is True, 'thumbnails': thumbnails}
+    config = {'token': token, 'board': state['board'], 'instance': state['instance'], 'demo': state['collections']['profile'].get('demo', {}).get('synthetic') is True, 'thumbnails': thumbnails, 'hosted': bool(os.environ.get('CLOSETLINT_ORIGIN'))}
+    config.update(writeProtocol=1, atomicWear=True, missingVersion=write_version(None), boardVersion=write_version(state['board']))
     if photo_urls is not None:
         config['catalogPhotos'] = photo_urls
     return html.replace('</head>', '<script>window.ClosetLintLocal=' + safe_json(config) + ';</script><script src="/runtime.js"></script></head>')
@@ -70,7 +73,7 @@ class LocalServer(ThreadingHTTPServer):
     daemon_threads = True
     request_queue_size = 32
 
-    def __init__(self, port, store, host="127.0.0.1"):
+    def __init__(self, port, store, host="127.0.0.1", *, bind_and_activate=True):
         self.host = host
         self.store = store
         self.token = secrets.token_urlsafe(32)
@@ -78,7 +81,7 @@ class LocalServer(ThreadingHTTPServer):
         self.mutation_lock = threading.RLock()
         self.slots = threading.BoundedSemaphore(8)
         self.pending = threading.BoundedSemaphore(32)
-        super().__init__((host, port), Handler)
+        super().__init__((host, port), Handler, bind_and_activate=bind_and_activate)
         self.catalog = CatalogPhotos(store)
         try:
             self.catalog.refresh(store.state()['base']['bundles'])
@@ -224,6 +227,17 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_data(200, (ROOT / 'runtime/browser.js').read_bytes(), 'text/javascript; charset=utf-8')
             elif path == '/api/photos/background-status':
                 self.send_data(200, {'available': background_settings(self.server.store.folder) is not None})
+            elif path == '/api/photos/prepare':
+                query = parse_qs(urlsplit(self.path).query)
+                args = (self.server.store, query.get('instance', [''])[0], query.get('request', [''])[0])
+                with self.server.mutation_lock:
+                    if query.get('download'):
+                        self.send_data(200, photo_preparation.source_zip(*args), 'application/zip', {'Content-Disposition': 'attachment; filename="closetlint-photo-sources.zip"'})
+                    elif query.get('piece'):
+                        mime, data = photo_preparation.image(*args, query['piece'][0], query.get('prepared') == ['1'])
+                        self.send_data(200, data, mime)
+                    else:
+                        self.send_data(200, photo_preparation.info(*args))
             elif path == '/api/import/sources':
                 query = parse_qs(urlsplit(self.path).query)
                 with self.server.mutation_lock:
@@ -236,6 +250,9 @@ class Handler(BaseHTTPRequestHandler):
                             self.send_data(200, import_sources.get(*args))
                     except ValueError as error:
                         self.send_data(400, {'error': str(error)})
+            elif path == '/api/oracle/access':
+                query = parse_qs(urlsplit(self.path).query)
+                self.send_data(200, oracle_context.access_info(self.server.store.folder, query.get('instance', [''])[0]))
             elif path == '/api/import/setup':
                 query = parse_qs(urlsplit(self.path).query)
                 self.send_data(200, import_setup_info(self.server.store, query.get('batch', [''])[0]))
@@ -267,6 +284,7 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_data(502, {'error': 'Weather lookup is unavailable. You can enter temperatures yourself.'})
             elif path == '/api/state':
                 state = self.server.store.state()
+                state['writeVersions'] = write_versions(state)
                 state.pop('base')
                 self.send_data(200, state)
             elif path == '/api/backup':
@@ -295,8 +313,9 @@ class Handler(BaseHTTPRequestHandler):
                 else:
                     cache = getattr(self.server, 'thumbnails', None)
                     if thumb and cache and preview is None:
-                        read_preview = getattr(cache, 'wait_for', cache.get)
-                        preview = read_preview(('catalog-' if legacy else '') + asset_id, asset)
+                        key = ('catalog-' if legacy else '') + asset_id
+                        preview = (cache.wait_for(key, asset, timeout=getattr(self.server, 'thumbnail_wait', 0.9))
+                                   if hasattr(cache, 'wait_for') else cache.get(key, asset))
                         if preview is not None:
                             asset = ('image/webp', preview)
                     # Revalidate private browser copies: a restore can replace
@@ -333,7 +352,31 @@ class Handler(BaseHTTPRequestHandler):
             with self.server.mutation_lock:
                 self.expire_tickets()
                 match = re.fullmatch(r'/api/doc/([^/]+)/([^/]+)', path)
-                if path == '/api/import/sources':
+                if path == '/api/oracle/prepare' and method == 'POST':
+                    data = decode(self.body(9 * 1024 * 1024))
+                    if not isinstance(data, dict):
+                        raise ValueError('Prepare a scoped Oracle summary.')
+                    self.send_data(200, oracle_context.prepare(self.server.store, data.get('instance', ''), data))
+                elif path == '/api/photos/prepare' and method == 'POST':
+                    data = decode(self.body(256 * 1024))
+                    if not isinstance(data, dict):
+                        raise ValueError('Choose existing pieces for a photo request.')
+                    args = (self.server.store, data.get('instance', ''), data.get('request', ''))
+                    action = data.get('action')
+                    if action == 'create':
+                        result = photo_preparation.create(*args, data.get('ids'), data.get('notes'))
+                    elif action == 'check':
+                        result = photo_preparation.review(*args)
+                    elif action == 'save':
+                        result = photo_preparation.apply(*args, data.get('token'), data.get('ids'))
+                    else:
+                        raise ValueError('Unknown photo action.')
+                    self.send_data(200, result)
+                elif path == '/api/photos/prepare/upload' and method == 'POST':
+                    query = parse_qs(urlsplit(self.path).query)
+                    args = (self.server.store, query.get('instance', [''])[0], query.get('request', [''])[0])
+                    self.send_data(200, photo_preparation.receive(*args, self.body(photo_preparation.MAX_ZIP)))
+                elif path == '/api/import/sources':
                     query = parse_qs(urlsplit(self.path).query)
                     args = (self.server.store, query.get('instance', [''])[0], query.get('batch', [''])[0])
                     if method == 'POST':
@@ -343,16 +386,30 @@ class Handler(BaseHTTPRequestHandler):
                     elif method == 'DELETE':
                         result = import_sources.remove(*args, query.get('id', [''])[0])
                     self.send_data(200, result)
+                elif path == '/api/wear' and method == 'POST':
+                    versions = self.server.store.commit_wear(decode(self.body(16 * 1024 * 1024)))
+                    self.send_data(200, {'ok': True, 'versions': versions})
                 elif match and method in ('PUT', 'DELETE'):
                     col, record_id = map(unquote, match.groups())
+                    expected = self.headers.get('If-Match', '')
+                    if not re.fullmatch(r'"[0-9a-f]{64}"', expected):
+                        self.send_data(428, {'error': 'Refresh Closet Lint before saving. Keep this tab open '
+                                                    'and copy any edits you want to keep into a fresh tab.'})
+                        return
+                    expected = expected[1:-1]
                     if method == 'PUT':
-                        self.server.store.set_record(col, record_id, decode(self.body(2 * 1024 * 1024)))
+                        version = self.server.store.set_record(col, record_id, decode(self.body(2 * 1024 * 1024)), expected=expected)
                     else:
-                        self.server.store.delete_record(col, record_id)
-                    self.send_data(200, {'ok': True})
+                        version = self.server.store.delete_record(col, record_id, expected=expected)
+                    self.send_data(200, {'ok': True, 'version': version})
                 elif path == '/api/board' and method == 'PUT':
-                    self.server.store.set_board(decode(self.body(4 * 1024 * 1024)))
-                    self.send_data(200, {'ok': True})
+                    expected = self.headers.get('If-Match', '')
+                    if not re.fullmatch(r'"[0-9a-f]{64}"', expected):
+                        self.send_data(428, {'error': 'Refresh Closet Lint before saving. Keep this tab open '
+                                                    'to preserve your unsaved board.'})
+                        return
+                    version = self.server.store.set_board(decode(self.body(4 * 1024 * 1024)), expected=expected[1:-1])
+                    self.send_data(200, {'ok': True, 'version': version})
                 elif path == '/api/assets' and method == 'POST':
                     asset_id = self.server.store.upload(self.body(32 * 1024 * 1024))
                     cache = getattr(self.server, 'thumbnails', None)
@@ -425,6 +482,8 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_data(200, {'ok': True})
                 else:
                     self.send_data(404, {'error': 'Not found'})
+        except WriteConflict as error:
+            self.send_data(409, {'error': str(error), 'code': 'stale-edit'})
         except (ValueError, KeyError, zipfile.BadZipFile, UnicodeError) as error:
             # Validation messages are authored by this service, never record contents.
             message = str(error) if isinstance(error, ValueError) and not isinstance(error, (json.JSONDecodeError, UnicodeError)) else 'Invalid backup or request data'

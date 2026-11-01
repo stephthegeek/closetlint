@@ -22,6 +22,28 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @unittest.skipUnless(Image, "Install runtime/requirements-import.txt for photo-import checks")
 class PieceImportTests(unittest.TestCase):
+    def test_expanded_categories_and_eyewear_alias(self):
+        from piece_import import record
+        for category, sub in [('Bottoms', 'Skorts'), ('Underwear', 'Boxer briefs'),
+                              ('Activewear', 'Dancewear'), ('Swimwear', 'Wetsuits'), ('Watches', 'Watches')]:
+            value = record({'name': 'Test piece', 'category': category, 'subcategory': sub, 'status': 'owned'}, [])
+            self.assertEqual((value['meta'], value['sub']), (category, sub))
+        value = record({'name': 'Test sunglasses', 'category': 'Eyewear', 'subcategory': 'Sunglasses', 'status': 'owned'}, [])
+        self.assertEqual(value['meta'], 'Glasses')
+        from piece_import import size_value
+        self.assertEqual(size_value('glasses', 'Computer'), 'Intermediate')
+        self.assertEqual(size_value('glasses', 'Intermediate'), 'Intermediate')
+
+    def test_metal_tones_and_finishes_preserve_material_tags(self):
+        from piece_import import record
+        tags = ['sterling silver', 'rose gold', 'bronze', 'copper', 'gunmetal', 'antiqued', 'blackened', 'brushed', 'hammered']
+        for category, sub in [('Jewelry', 'Necklaces'), ('Watches', 'Watches'), ('Bags', 'Crossbody bags')]:
+            notices = []
+            value = record({'name': 'Test metal details', 'category': category, 'status': 'owned', 'jmetal': tags}, notices)
+            self.assertEqual(value['jmetal'], tags)
+            self.assertEqual(value['colors'], [], 'metal tones do not require duplicate broad colors')
+            self.assertEqual(notices, [])
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
@@ -144,7 +166,7 @@ class PieceImportTests(unittest.TestCase):
         self.assertEqual(len(self.store.state()['collections']['custom']), 1)
         self.assertEqual(len(self.store.state()['collections']['edits']), 1)
 
-    def test_wishlist_promotion_changes_ownership_only(self):
+    def test_wishlist_promotion_preserves_pieces_and_records_unknown_acquisition(self):
         self.store.set_record('custom', 'old', {'name': self.piece['name'], 'size': 'XXL', 'wish': True, 'price': 9, 'wears': ['2026-01-01'], 'fav': True, 'photoId': 'a' * 32})
         self.store.set_record('edits', 'c-old', {'source': 'Keep me'})
         self.piece['status'] = 'owned'
@@ -153,7 +175,25 @@ class PieceImportTests(unittest.TestCase):
         self.assertEqual((report['promoted'], report['added'], report['photosSaved']), (1, 0, 0))
         after = self.store.state()
         self.assertEqual(after['collections']['custom']['old'], before)
-        self.assertEqual(after['collections']['edits']['c-old'], {'source': 'Keep me', 'wish': False})
+        self.assertEqual(after['collections']['edits']['c-old'], {'source': 'Keep me', 'wish': False, 'acquiredDate': '', 'acquiredApproximate': False, 'acquisitionSource': 'unknown'})
+
+    def test_same_product_variant_matches_after_color_tag_edit(self):
+        self.store.set_record('custom', 'old', {
+            'name': 'Earlier necklace name', 'url': 'https://www.temu.com/goods.html?goods_id=123',
+            'variant': 'Style1', 'size': '', 'colors': ['black', 'silver', 'green', 'white'], 'wish': True})
+        self.store.set_record('edits', 'c-old', {'colors': ['black', 'silver', 'green']})
+        incoming = {**self.piece, 'name': 'New necklace name', 'size': '', 'variant': 'Style1',
+                    'colors': ['black', 'silver', 'green', 'white'], 'status': 'owned'}
+        before = self.store.state()
+        report = import_batch(self.store, *self.prepare([incoming]), apply=True, promote_wishlist=True)
+        self.assertEqual((report['promoted'], report['added'], report['photosSaved']), (1, 0, 0))
+        after = self.store.state()
+        self.assertEqual(after['collections']['custom'], before['collections']['custom'])
+        self.assertEqual(after['collections']['edits']['c-old'], {'colors': ['black', 'silver', 'green'], 'wish': False, 'acquiredDate': '', 'acquiredApproximate': False, 'acquisitionSource': 'unknown'})
+        self.assertFalse(matches(incoming, {**incoming, 'variant': 'Style2'}))
+        self.assertFalse(matches(incoming, {**incoming, 'size': 'M', 'variant': 'Style2'}))
+        self.assertFalse(matches({**incoming, 'size': 'L'}, {**incoming, 'size': 'M'}))
+        self.assertFalse(matches({**incoming, 'variant': ''}, {**incoming, 'variant': '', 'colors': ['blue']}))
 
     def test_validation_failure_and_commit_failure_leave_no_partial_records_or_photos(self):
         before = self.store.state()

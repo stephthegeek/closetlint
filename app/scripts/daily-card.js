@@ -8,7 +8,8 @@ var ClosetLintDaily=(function(){
  function daysSince(date,day){var delta=(stamp(day)-stamp(date))/DAY;return Number.isFinite(delta)?Math.max(0,Math.floor(delta)):null}
  function latest(p,day){return (p.wears||[]).filter(function(d){return Number.isFinite(stamp(d))&&d<=day}).sort().pop()||p.date||''}
  function isOffDuty(p){return !!p&&(['Swimwear','Loungewear','Activewear','Costumes','Lingerie'].indexOf(p.meta)>=0||p.section==='offduty'||p.section==='sexy')}
- function active(p){return !!p&&typeof p.id==='string'&&!p.wish&&!p.hidden&&!p.removed&&!p.gone&&!p.donate&&!isOffDuty(p)}
+ function isIntimate(p){return !!p&&(['Underwear','Lingerie'].indexOf(p.meta)>=0||['Bras','Panties','Panties & thongs','Shapewear','Slips & crinolines','Intimates','Bralettes','Teddies & bodysuits'].indexOf(p.sub)>=0)}
+ function active(p){return !!p&&typeof p.id==='string'&&!p.wish&&!p.hidden&&!p.removed&&!p.gone&&!p.donate&&!isOffDuty(p)&&!isIntimate(p)}
  function speak(p){
   if(typeof p.nickname==='string'&&p.nickname.trim())return p.nickname.trim().slice(0,70);
   var colors=(p.colors||[]).filter(function(c){return c!=='multicolor'&&c!=='clear'}),details=['velvet','lace','botanical','floral','striped','plaid','celestial','animal','graphic','ribbed'];

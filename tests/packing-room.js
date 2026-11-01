@@ -16,5 +16,5 @@ assert.equal(c.tripBasicCount('bras',2,'Bras'),'2 bras');
 assert.equal(c.tripBasicCount('bras',0,'Bras'),'0 bras');
 assert.equal(c.tripBasicCount('socks',1,'Socks'),'1 pair of socks');
 assert.equal(c.tripBasicCount('tights',2,'Tights'),'2 pairs of tights');
-assert.equal(c.tripBasicCount('underwear',1,'Underwear'),'1 underwear');
+assert.equal(c.tripBasicCount('underwear',1,'Underwear'),'1 pair of underwear');
 console.log('Packing basics: singular bras and paired legwear pass.');
