@@ -75,10 +75,12 @@ var oracleSession=null;
 function oraclePieces(s){return ClosetLintOracle.scope(allItems(),s.scope,s.selected,collectionList().find(function(c){return c.id===s.collection}),s.wishlist,s.excludeOffDuty)}
 function oracleStorageKey(){return 'closetlint.oracle-handoff.v1'}
 function oracleLast(){try{var r=JSON.parse(localStorage.getItem(oracleStorageKey())||'null');return r&&/^\d{4}-\d{2}-\d{2}$/.test(r.date)&&Number.isSafeInteger(r.count)&&r.count>=0&&r.scope&&['all','selected','collection'].includes(r.scope.kind)?{date:r.date,count:r.count,scope:{kind:r.scope.kind,collectionId:typeof r.scope.collectionId==='string'?r.scope.collectionId:''}}:null}catch(e){return null}}
+function oracleRouteKey(){var local=window.ClosetLintLocal||{};return 'closetlint.oracle-route.v1.'+(local.instance||'local')+'.'+(local.hosted?'hosted':'local')}
+function oracleRoutePreference(){try{var route=localStorage.getItem(oracleRouteKey());return route==='local'||route==='chat'?route:''}catch(e){return ''}}
 function oracleStart(options){
   options=options||{};
-  if(!oracleSession){var picked=options.ids||Object.keys(state.picked||{}).filter(function(id){return state.picked[id]});
-    oracleSession={step:'ask',scope:options.collection?'collection':options.ids?'selected':'all',selected:picked.slice(),collection:options.collection||'',wishlist:false,excludeOffDuty:true,question:'',extras:{},extrasOpen:false,largeText:false,route:'chat',photos:false,photoIds:[],localPhotos:false,last:oracleLast(),message:'',busy:false,shared:false,downloaded:false};
+  if(!oracleSession){var preferredRoute=oracleRoutePreference(),picked=options.ids||Object.keys(state.picked||{}).filter(function(id){return state.picked[id]});
+    oracleSession={step:'ask',scope:options.collection?'collection':options.ids?'selected':'all',selected:picked.slice(),collection:options.collection||'',wishlist:false,excludeOffDuty:true,question:'',extras:{},extrasOpen:false,largeText:false,route:preferredRoute||'chat',routeTouched:!!preferredRoute,photos:false,photoIds:[],localPhotos:false,last:oracleLast(),message:'',busy:false,shared:false,downloaded:false};
   }else if(options.collection||options.ids){oracleSession.scope=options.collection?'collection':'selected';oracleSession.collection=options.collection||'';if(options.ids)oracleSession.selected=options.ids.slice();oracleSession.step='ask';oracleSession.largeText=false;}
 }
 function openOracle(options){oracleStart(options);return setTab('oracle')}
@@ -105,7 +107,7 @@ function drawOracle(keepFocus){
   var s=oracleSession,d=$('closet-oracle');if(!s||!d)return;
   var old=d.querySelector('.setup-body'),scroll=window.scrollY||0,active=document.activeElement,focusId=keepFocus&&active&&active.id;
   d.textContent='';var shell=el('div',{class:'setup-shell'}),body=el('div',{class:'setup-body'}),actions=el('footer',{class:'setup-actions'});
-  var title=s.step==='ask'?'What would you like help with?':s.step==='guide'?'Which option should I use?':'Your Oracle request';
+  var title=s.step==='ask'?'What would you like help with?':s.step==='guide'?'Which option should I use?':'My Oracle request';
   shell.appendChild(el('header',{class:'setup-head'},el('div',null,el('p',{class:'setup-eyebrow',text:'🔮 CLOSET ORACLE'+(s.step==='guide'?'':' · '+(s.step==='ask'?'1':'2')+' OF 2')}),el('h2',{id:'oracle-title',tabindex:'-1',text:title}))));
   body.appendChild(el('p',{id:'oracle-live',class:'setup-live',role:'status','aria-live':'polite',text:s.message||''}));
   if(s.step==='guide')oracleGuide(body,actions);
@@ -121,7 +123,7 @@ function oracleAsk(body,actions){
   if(!owned.length){body.append(el('h3',{text:'Add some owned pieces first'}),el('p',{text:'The Oracle needs clothes you own to compare against. Add or import a few pieces, then come back.'}),el('div',{class:'oracle-inline'},oracleButton('Import pieces',function(){oracleClose();openImport()}),oracleButton('Add a piece',function(){oracleClose();openAdd()})));actions.appendChild(oracleButton('Close',oracleClose));return}
   if(s.last)body.appendChild(el('aside',{class:'setup-note'},el('p',{text:'Last prepared: '+s.last.date+' · '+s.last.count+' pieces. If you’re continuing a chat that used an older wardrobe summary, prepare a new one to include later closet edits.'}),oracleButton('Prepare an updated summary',function(){var old=s.last.scope;s.scope=old.kind==='collection'&&collectionList().some(function(c){return c.id===old.collectionId})?'collection':old.kind==='selected'&&s.selected.length?'selected':'all';s.collection=old.collectionId;s.largeText=false;s.message='Choose which pieces to share again. For individual pieces, use your current browse selection; the earlier selection was not saved.';drawOracle();$('oracle-question').focus()})));
   var question=el('textarea',{id:'oracle-question',rows:'4',placeholder:'What kind of brown skirt would work well with the clothes I already own?',oninput:function(){s.question=question.value;s.shared=false}});question.value=s.question;
-  body.appendChild(el('section',{class:'oracle-question'},el('label',{class:'setup-field',for:'oracle-question'},el('strong',{text:'💬 Your question'}),question),el('p',{class:'fine',text:'Optional. Leave it empty and your assistant will ask what you’d like help with.'})));
+  body.appendChild(el('section',{class:'oracle-question'},el('label',{class:'setup-field',for:'oracle-question'},el('strong',{text:'💬 My question'}),question),el('p',{class:'fine',text:'Optional. Leave it empty and your assistant will ask what you’d like help with.'})));
   var starters=el('details',null,el('summary',{text:'Or start from an idea'}),el('div',{class:'oracle-starters'}));
   ['What could I wear with this piece?','Which of these possible purchases works best with what I own?','Help me use pieces I keep overlooking.','What gaps or repeated purchases do you notice?','Help me narrow a capsule or outfit for a specific situation.'].forEach(function(text){starters.lastChild.appendChild(oracleButton(text,function(){s.question+=(s.question?'\n':'')+text;question.value=s.question;question.focus();question.setSelectionRange(question.value.length,question.value.length)}))});body.appendChild(starters);
   var scopes=el('fieldset',{class:'oracle-fieldset'},el('legend',{text:'Which pieces should your assistant see?'}));
@@ -192,7 +194,7 @@ async function oracleLoadAccess(){
 }
 function oracleRoutes(body){
   var s=oracleSession,local=setupStorage().direct,route=el('fieldset',{class:'oracle-fieldset oracle-routes'},el('legend',{text:'How would you like to continue?'}));if(!local)s.route='chat';
-  function choice(value,label,help){var radio=oracleRadio('oracle-route-'+value,'oracle-route',label,s.route===value,function(){s.route=value;s.routeTouched=true;s.message='';drawOracle(true)});radio.classList.add('oracle-route-choice');radio.lastChild.appendChild(el('span',{class:'oracle-route-help',text:help}));return radio}
+  function choice(value,label,help){var radio=oracleRadio('oracle-route-'+value,'oracle-route',label,s.route===value,function(){s.route=value;s.routeTouched=true;try{localStorage.setItem(oracleRouteKey(),value)}catch(e){}s.message='';drawOracle(true)});radio.classList.add('oracle-route-choice');radio.lastChild.appendChild(el('span',{class:'oracle-route-help',text:help}));return radio}
   if(local){
     route.appendChild(choice('local',oracleHosted(s)?'Use an assistant with server access':'Use my local assistant',oracleHosted(s)?'Requires an assistant with approved SSH access to this hosting server.':'Read the chosen context with one request in your local assistant conversation.'));
     route.appendChild(el('p',{class:'fine oracle-access',role:'status',text:oracleAccessStatus(s)}));
@@ -224,7 +226,7 @@ function oracleHandoff(body,actions){
   var routeDetails=el('details',{class:'oracle-change-route'},el('summary',{text:(s.route==='local'?(oracleHosted(s)?'Using an assistant with server access':'Using my local assistant'):'Download for an AI chat')+' · Change'}));oracleRoutes(routeDetails);body.appendChild(routeDetails);
   if(s.route==='local')body.appendChild(el('p',{class:'fine',role:'status',text:oracleAccessStatus(s)}));
   var summary=el('section',{class:'setup-note oracle-summary'},el('h3',{text:'Review what you’ll share'}));
-  [['Your question',snap.question||'Your assistant will ask what you’d like help with.'],['Pieces',oracleScopeSummary(snap.pieces.map(function(p){return {wish:p.status!=='owned'}}))],['Extra details',snap.shared.join(', ')||'None selected'],['Prepared',snap.date+'. If you change your closet later, prepare a new summary.']].forEach(function(row){summary.append(el('strong',{text:row[0]}),el('p',{text:row[1]}))});
+  [['My question',snap.question||'Your assistant will ask what you’d like help with.'],['Pieces',oracleScopeSummary(snap.pieces.map(function(p){return {wish:p.status!=='owned'}}))],['Extra details',snap.shared.join(', ')||'None selected'],['Prepared',snap.date+'. If you change your closet later, prepare a new summary.']].forEach(function(row){summary.append(el('strong',{text:row[0]}),el('p',{text:row[1]}))});
   summary.appendChild(el('details',null,el('summary',{text:'See the '+snap.pieces.length+' included pieces'}),el('ul',null,...snap.pieces.map(function(p){return el('li',{text:p.id+' · '+p.title+(p.status==='owned'?'':' · wishlist, not owned')})}))));body.appendChild(summary);
   if(s.route==='local'){
     body.appendChild(oracleCheck('oracle-local-photos','Include main photos of up to 12 pieces',s.localPhotos,function(v){s.localPhotos=v;s.prepared=null;drawOracle(true)},s.largeText||!s.photoOptions.length||s.localBusy));

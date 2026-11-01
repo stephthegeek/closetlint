@@ -49,3 +49,31 @@ assert.equal(firstImage(ctx.ofMini({...outfit,lay:{n:1}},map)).src,'/_thumb/'+'a
 const board=new PreviewNode('div');ctx.collBuild(board,outfit.pieces,map,{n:1},1,0,{pal:[],bgc:'#fff',live:true});assert.equal(firstImage(board).src,original,'the working board retains full-resolution photos');
 assert.equal(firstImage(ctx.labTile(map.p)).src,'/_thumb/'+'a'.repeat(32),'Lab and taste tiles use previews');
 console.log('Saved outfits and Lab: miniature collages and tiles use previews; working boards retain originals.');
+
+vm.runInContext(['histPreviewRole','histPreviewPieces','histMore'].map(appFn).join('\n'),ctx);
+const p=(id,meta,sub,extra={})=>({id,meta,sub,photo:'photo-'+id,...extra});
+const picked=rows=>Array.from(ctx.histPreviewPieces(rows),x=>x.id);
+const mixed=[p('ring-a','Jewelry','Rings'),p('ring-b','Jewelry','Rings'),p('ring-c','Jewelry','Rings'),p('dress','One-pieces','Dresses'),p('shoes','Footwear','Heels')];
+assert.deepEqual(picked(mixed),['dress','shoes','ring-a','ring-b'],'the dress and shoes represent the day ahead of repeated rings');
+const layered=[p('necklace','Jewelry','Necklaces'),p('top-b','Tops','Tees'),p('coat','Outerwear','Coats'),p('top-a','Tops','Tees'),p('pants','Bottoms','Pants'),p('shoes','Footwear','Boots')];
+assert.deepEqual(picked(layered),['top-a','pants','coat','shoes'],'another top cannot crowd out the bottom, layer, or shoes');
+assert.deepEqual(picked([p('cardigan','Tops','Sweaters',{kind:'cardigan'}),p('top','Tops','Tees'),p('bottom','Bottoms','Jeans'),p('shoe','Footwear','Sneakers'),p('ring','Jewelry','Rings')]),['top','bottom','cardigan','shoe']);
+const accessories=[p('ring-c','Jewelry','Rings'),p('ring-a','Jewelry','Rings'),p('ring-b','Jewelry','Rings'),p('earrings','Jewelry','Earrings'),p('glasses','Glasses','Glasses')];
+assert.deepEqual(picked(accessories),['earrings','glasses','ring-a','ring-b'],'accessory-only days remain populated, with distinct types before repeated rings');
+assert.deepEqual(picked(accessories.slice(0,3)),['ring-a','ring-b','ring-c'],'a rings-only day still uses all its available thumbnails');
+for(const rows of [mixed,layered,accessories]){
+ const original=JSON.stringify(rows),expected=picked(rows);assert.deepEqual(picked(rows.slice().reverse()),expected,'catalog reordering does not shuffle the day');assert.equal(JSON.stringify(rows),original,'selection never changes records or input order');
+}
+for(const [meta,sub,role] of [['Activewear','Tops','top'],['Activewear','Bottoms','bottom'],['Swimwear','One-pieces','one'],['Swimwear','Trunks & shorts','bottom'],['Loungewear','Nightgowns','one'],['Loungewear','Robes','layer'],['Workwear & uniforms','Sets','one'],['Cultural & traditional garments','Bottoms','bottom'],['One-pieces','Bodysuits','top'],['Underwear','Bras','under']])assert.equal(ctx.histPreviewRole(p('test',meta,sub)),role);
+assert.deepEqual(picked([]),[]);assert.deepEqual(picked([mixed[0]]),['ring-a']);
+for(const [n,kind,label] of [[1,'piece','1 more piece'],[3,'piece','3 more pieces'],[1,'outfit','1 more outfit'],[2,'outfit','2 more outfits']]){const badge=ctx.histMore(n,kind);assert.equal(badge.text,'+'+n);assert.equal(badge.title,label);assert.equal(badge['aria-label'],label)}
+// Exercise the actual calendar renderer: saved compositions stay intact, while
+// individually logged days use representative pieces and truthful + labels.
+ctx.state={histMonth:'2026-10'};ctx.byIdA=()=>({});ctx.histWorn=()=>({'2026-10-15':[{id:'look1',name:'First look'},{id:'look2',name:'Second look'}]});ctx.histPieces=()=>({'2026-10-14':mixed});ctx.histPlanned=()=>({'2026-10-16':[{id:'event',kind:'event',name:'Dinner',outfits:[{id:'planned1'},{id:'planned2'}]}]});ctx.todayStr=()=> '2026-10-30';ctx.histNice=d=>d;ctx.ofMini=o=>new PreviewNode('div',{savedOutfit:o.id});
+vm.runInContext(appFn('histDraw'),ctx);ctx.histDraw();
+function descendants(n){return [n,...(n.children||[]).filter(x=>typeof x==='object').flatMap(descendants)]}
+const cells=descendants(nodes.ofbody).filter(n=>n.tag==='button'&&n.class?.startsWith('hday'));
+const individual=descendants(cells.find(n=>n['aria-label'].startsWith('2026-10-14')));assert.deepEqual(individual.filter(n=>n.tag==='img').map(n=>n.src),['photo-dress','photo-shoes','photo-ring-a','photo-ring-b']);assert.equal(individual.find(n=>n.class==='hmore').title,'1 more piece');
+const worn=descendants(cells.find(n=>n['aria-label'].startsWith('2026-10-15')));assert.equal(worn.find(n=>n.savedOutfit).savedOutfit,'look1');assert.equal(worn.find(n=>n.class==='hmore').title,'1 more outfit');
+const planned=descendants(cells.find(n=>n['aria-label'].startsWith('2026-10-16')));assert.equal(planned.find(n=>n.savedOutfit).savedOutfit,'planned1');assert.equal(planned.find(n=>n.class==='hmore').title,'1 more outfit');
+console.log('Calendar previews: outfit foundations, layers, accessory variety, specialty clothing, stable selection, intact saved compositions, and explicit + labels pass.');

@@ -389,7 +389,7 @@ function syncTxtTools(){
 function textPointer(e,pe,bd){
   var owner=state.board;
   var i=+pe.dataset.t,t=(state.board.texts||[])[i];if(!t)return;
-  if(e.target.classList.contains('del')){boardDel('t',i);e.preventDefault();return}
+  if(e.target.closest&&e.target.closest('.piece .del'))return;
   selectText(i);
   var before=JSON.stringify(t);
   var rect=bd.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,o={x:t.x,y:t.y,s:t.s};
@@ -549,7 +549,7 @@ function renderStylePanel(){
   function addCol(h,t,thr){if(!cols.some(function(c){return similarSuggestion(c[0],h)||cdist(c[0],h)<thr}))cols.push([h,t])}
   pal.forEach(function(h){addCol(h,palLabel(),40)});
   pal.forEach(function(h){addCol(mixHex(h,'#FFFFFF',.72),'Soft tint',60)});
-  if(s.cc&&!cols.some(function(c){return c[0].toLowerCase()===s.cc.toLowerCase()}))cols.push([s.cc,'Your color']);
+  if(s.cc&&!cols.some(function(c){return c[0].toLowerCase()===s.cc.toLowerCase()}))cols.push([s.cc,'My color']);
   if(bg&&bg.c&&!cols.some(function(c){return c[0].toLowerCase()===bg.c.toLowerCase()}))cols.push([bg.c,'Current background']);
   cols.forEach(function(c){r2.appendChild(sw(c[0],!!bg&&bg.c.toLowerCase()===c[0].toLowerCase(),function(){setBg(c[0])},c[1]))});
   r2.appendChild(custom('Pick any color',s.cc||(bg&&bg.c),function(v){setBg(v,{cc:v})}));
@@ -566,7 +566,7 @@ function renderStylePanel(){
     var r5=el('div',{class:'swrow'});p.appendChild(r5);
     var fc=frameColor(),fcs=[['#FFFFFF','White'],['#14272F','Ink']];
     pal.forEach(function(h){if(!fcs.some(function(c){return similarSuggestion(c[0],h)||cdist(c[0],h)<40}))fcs.push([h,palLabel()])});
-    if(s.bcc&&!fcs.some(function(c){return c[0].toLowerCase()===s.bcc.toLowerCase()}))fcs.push([s.bcc,'Your color']);
+    if(s.bcc&&!fcs.some(function(c){return c[0].toLowerCase()===s.bcc.toLowerCase()}))fcs.push([s.bcc,'My color']);
     fcs.forEach(function(c){r5.appendChild(sw(c[0],fc.toLowerCase()===c[0].toLowerCase(),function(){setSt({bdc:c[0]})},c[1]))});
     r5.appendChild(custom('Pick any color',s.bcc||fc,function(v){setSt({bdc:v,bcc:v})}));
   }

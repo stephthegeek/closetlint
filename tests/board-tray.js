@@ -42,3 +42,15 @@ function fixture(observe=true){
  f.state.trayReady=true;f.state.laundryOn=false;f.ctx.renderTrayGrid();assert.equal(f.cells()[0]['aria-label'],'Add '+f.items[999].name+' to the board');assert.equal(f.items[999].laundry,true,'disabling tracking keeps status');
 }
 console.log('Board tray: bounded initial mount, complete search/filtering, stable item actions, incremental/manual loading, and stale-observer cleanup pass.');
+
+// Initial placement must leave tall/wide pieces and resize handles inside every board shape.
+for(const ar of [4/3,1,4/5,9/16])for(const width of [260,390,800])for(const photoAR of [.05,.25,.5,1,4,20,0,-1,NaN])for(const populated of [false,true]){
+ const existing={id:'existing',x:12,y:18,w:25,z:1},state={board:{pieces:populated?[{...existing}]:[]}},saved=[];
+ const ctx={state,DEFAULT_W:{Bottoms:26},Number,Math,$:()=>({clientWidth:width}),boardAR:()=>ar,clamp:(v,a,b)=>Math.min(b,Math.max(a,v)),byIdA:()=>({existing:{ar:.5}}),nextZ:()=>2,persistBoard:()=>saved.push(JSON.stringify(state.board)),renderBoard(){},selectPiece:i=>{ctx.selected=i},collAdd(){throw Error('Unexpected collage path')}};
+ vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('function addPiece('),source.indexOf('var boardBackgroundPending=')),ctx);ctx.addPiece({id:'pants',meta:'Bottoms',ar:photoAR});
+ const p=state.board.pieces.at(-1),ratio=Number.isFinite(photoAR)&&photoAR>0?photoAR:1,h=p.w*ar/ratio;
+ assert(p.w>0&&Number.isFinite(p.w));assert(p.x*width/100>=15.9);assert(p.y*width/ar/100>=15.9);
+ assert((100-p.x-p.w)*width/100>=15.9,'right resize handle stays inside');assert((100-p.y-h)*width/ar/100>=15.9,'bottom resize handle stays inside');
+ assert.equal(saved.length,1);assert.equal(ctx.selected,state.board.pieces.length-1);if(populated)assert.deepEqual(state.board.pieces[0],existing,'adding does not move existing pieces');
+}
+console.log('Board initial placement: tall/wide photos, every shape, narrow/wide boards, populated boards, and invalid aspect fallback stay within bounds with reachable resize handles.');

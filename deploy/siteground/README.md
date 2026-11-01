@@ -5,7 +5,7 @@ Node listener. Python uses private pipes; it does not open another listening por
 This is an experimental deployment adapter, not a generally supported hosting
 option or a managed-hosting service.
 
-See [private hosting](../../docs/HOSTING.md) for setup, password protection,
+See [private web hosting](../../docs/WEB-HOSTING.md) for setup, password protection,
 backups, update rehearsal, and known limits. SiteGround support explicitly says
 Python child processes are unsupported on its Node hosting. The tested
 installation is therefore outside its supported configuration. Confirm provider
@@ -34,7 +34,7 @@ storage. The standard photo installer currently targets Python 3.11–3.13; a
 different hosted interpreter needs explicit package/import and real-image checks.
 
 Before migration, use test pieces to check file import, direct import,
-duplicates/retries, photo-only updates, background removal, backup/restore,
+duplicates/retries, photo only updates, background removal, backup/restore,
 phone layouts, and update persistence. Keep the existing installation as the
 main wardrobe until these checks pass. Then pause edits, take a fresh full
 backup, restore it on the host, and verify the records and photos before

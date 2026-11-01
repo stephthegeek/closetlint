@@ -23,7 +23,7 @@ function collectionBrowse(c){
 function collectionToBoard(c){
   var map=byId(),ids=collectionIds(c.ids).filter(function(id){return map[id]&&!onBoard(id)});
   if(state.board.lay&&state.board.pieces.length+ids.length>COLL_MAX){toast('This collage holds '+COLL_MAX+' pieces. Switch the board to free layout first, then add the collection.');return;}
-  function go(){state.collRep=null;ids.forEach(function(id){addPiece(map[id])});$('collections-dialog').close();setTab('outfits');toast(ids.length+' pieces added. Existing board pieces stayed put.');}
+  function go(){state.collRep=null;ids.forEach(function(id){addPiece(map[id])});$('collections-dialog').close();setTab('outfits');toast('Added '+ids.length+' pieces to the board. Pieces already on the board weren’t added again.');}
   if(state.tab==='trip'&&state.trip)tripLeave(go);else go();
 }
 function collectionTripIds(T,P,V){
@@ -70,7 +70,7 @@ function collectionContext(count){
     var row=el('div',{class:'collection-actions'});
     if(groups.length===1)row.appendChild(el('button',{class:'btn',type:'button',text:'Edit collection',onclick:function(){editCollection(groups[0])}}));
     row.appendChild(el('button',{class:'btn',type:'button',text:'Add all to board',onclick:function(){collectionToBoard(merged)}}));
-    row.appendChild(el('button',{class:'btn',type:'button',text:'🔮 Ask questions',onclick:function(){openOracle(groups.length===1?{collection:groups[0].id}:{ids:merged.ids})}}));
+    row.appendChild(el('button',{class:'btn collection-oracle',type:'button',text:'🔮 Talk to Oracle',onclick:function(){openOracle(groups.length===1?{collection:groups[0].id}:{ids:merged.ids})}}));
     if(state.trip)row.appendChild(el('button',{class:'btn',type:'button',text:'Add to Bringing for sure',onclick:function(){collectionAddToTrip(merged,state.trip)}}));return row;
   }
   top.appendChild(actions());if(count>12)bottom.appendChild(actions());
@@ -106,7 +106,7 @@ function editCollection(c,initial,onSaved){
 }
 
 function collectionTripExtrasEditor(T){
-  var box=el('section',{class:'tripcard trip-packing-extras'},el('h3',{text:'Your packing extras'}),el('p',{class:'fine',text:'Bring a whole little pile. These exact pieces stay on the checklist, even if they are not used in a suggested outfit.'})),map=byId(),row=el('div',{class:'chips'});
+  var box=el('section',{class:'tripcard trip-packing-extras'},el('h3',{text:'My packing extras'}),el('p',{class:'fine',text:'Bring a whole little pile. These exact pieces stay on the checklist, even if they are not used in a suggested outfit.'})),map=byId(),row=el('div',{class:'chips'});
   (T.packedExtras||[]).forEach(function(id){var it=map[id];row.appendChild(el('span',{class:'chip'},it?it.name:'Unavailable piece',el('button',{class:'viewdel',type:'button',text:'×','aria-label':'Remove packing extra '+(it?it.name:id),onclick:function(){T.packedExtras=T.packedExtras.filter(function(k){return k!==id});tripRender()}})))});
   box.append(row,el('button',{class:'btn',type:'button',text:'📖 Add a collection',onclick:function(){openCollections(function(c){collectionAddToTrip(c,T)})}}));return box;
 }

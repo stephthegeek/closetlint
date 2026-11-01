@@ -109,7 +109,7 @@ button.setup-option{cursor:pointer}button.setup-option:hover{border-color:var(--
 .setup-welcome-steps{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 20px}
 .setup-welcome-steps .btn{margin:0;min-height:44px;padding:8px 12px;display:inline-flex;align-items:center;justify-content:center;line-height:1.4;white-space:normal}
 .setup-welcome-steps .btn[aria-current=step]{background:var(--selbg);border-color:var(--sel);color:var(--ink)}
-@media(max-width:600px){.setup-welcome-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.setup-welcome-steps .btn{font-size:13px}}
+@media(max-width:600px){.setup-welcome-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.setup-welcome-steps .btn{font-size:13px;padding-inline:8px}}
 .setup-body .setup-photo-tools{padding:16px;min-width:0;box-sizing:border-box}
 .setup-photo-tools>p:last-child{margin-bottom:0}
 .setup-field>select{width:auto;justify-self:start;max-width:100%}
@@ -162,3 +162,13 @@ button.setup-option{cursor:pointer}button.setup-option:hover{border-color:var(--
 }
 
 .batch-workspace button.chip{min-height:44px}
+
+/* Match Soft Hardware selects without changing the other themes' type. */
+:root[data-skin=workshop] :is(#setup-wizard,#view-import) select{font:13px/1.4 var(--mono)}
+/* One quiet photo-tools surface, with no nested filled rectangle. */
+.setup-body .setup-photo-tools{padding:0 16px;border:1px solid var(--line);border-radius:8px;background:transparent}
+.setup-body .setup-photo-tools>summary{margin-inline:-16px;padding:12px 16px;background:transparent}
+.setup-body .setup-photo-tools[open]{padding-bottom:16px}
+.setup-body #setup-category-settings{margin:20px 0 0;padding:18px 16px;min-width:0;gap:18px}
+.setup-body #setup-category-settings>legend{padding-inline:6px}
+.setup-body #setup-category-settings>.category-chooser{margin-top:4px}

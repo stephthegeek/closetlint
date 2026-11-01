@@ -38,7 +38,7 @@ const context={Path2D:class{constructor(path){this.path=path}},getComputedStyle:
 vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/control-icons.js','utf8'),context);vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/sky-ui.js','utf8'),context);
 const ui=context.ClosetLintSkyUI;catalog.searchLinks=require('../app/content/sky/search-links.json');
 const findButton=(root,text)=>root.querySelectorAll('button').find(n=>n.textContent===text||(['Sun','Moon','Rising'].includes(text)&&n.textContent.endsWith(' '+text)));
-ui.render();assert.ok(host.textContent.includes('Your Style Sky'));assert.ok(host.textContent.includes('Romantic goth'));assert.equal(host.querySelectorAll('.sky-sign').length,3);
+ui.render();assert.ok(host.textContent.includes('My Style Sky'));assert.ok(host.textContent.includes('Romantic goth'));assert.equal(host.querySelectorAll('.sky-sign').length,3);
 assert(host.querySelectorAll('.sky-sign-icon').every(n=>n.querySelector('svg')));assert.equal(host.querySelectorAll('.sky-sign-icon').length,3);assert.equal(host.querySelectorAll('.sky-chart').length,1,'the chart is distinct from utility and sign icons');assert.equal(JSON.stringify(state.board),boardBefore);
 host.querySelector('[data-constellation="romantic-goth"]').click();assert.ok(doc.body.querySelector('.sky-detail').textContent.includes('Romantic goth'));findButton(doc.body.querySelector('.sky-detail'),'×').click();
 host.querySelector('[data-star="retro"]').click();assert.ok(doc.body.querySelector('.sky-detail').textContent.includes('Retro'),'overview stars open the same detail tray');let away=doc.body.querySelector('.sky-detail');away.events.click[0]({target:away,clientX:20,clientY:20});assert.equal(doc.body.querySelector('.sky-detail'),null,'clicking outside the tray dismisses it');
@@ -195,7 +195,7 @@ const broadSnapshot=JSON.parse(JSON.stringify(ui.model()));for(const key of ['su
 // The full catalog is read-only, and every definition remains discoverable.
 state.skyCatalog=true;ui.render();assert.equal(host.querySelectorAll('.sky-house-card').length,6);
 assert.equal(host.querySelectorAll('.sky-catalog-row').length+host.querySelectorAll('.sky-dim-chip').length,catalog.constellations.length);
-findButton(host,'← Back to your sky').click();assert.equal(state.skyCatalog,false);
+findButton(host,'← Back to my sky').click();assert.equal(state.skyCatalog,false);
 ui.openDetail('constellation','romantic-goth');let searches=doc.body.querySelector('.sky-detail');findButton(searches,'black lace corset top').click();let search=doc.body.querySelector('.sky-search');assert.ok(search.open);
 assert.equal(search.querySelectorAll('a').length,5);for(const link of search.querySelectorAll('a')){assert.equal(link.attrs.target,'_blank');assert.equal(link.attrs.rel,'noopener noreferrer');assert.ok(link.attrs.href.startsWith('https://'))}
 findButton(search,'×').click();assert.equal(doc.body.querySelector('.sky-search'),null);

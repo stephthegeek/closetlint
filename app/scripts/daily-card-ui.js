@@ -57,7 +57,7 @@ var ClosetLintDailyUI=(function(){
   frontFace.appendChild(el('span',{class:'daily-line',text:card.text}));frontFace.appendChild(el('span',{class:'daily-signature',text:'— Linty'}));
   var flip=el('button',{type:'button',class:'daily-flip',onclick:function(){r.revealed=!r.revealed;persist(r);paint()}},el('span',{class:'daily-turn'},backFace,frontFace));
   var dismiss=el('button',{type:'button',class:'daily-dismiss','aria-label':'Dismiss Linty’s fortune until tomorrow',text:'×',onclick:function(){r.dismissed=true;persist(r);renderGrid()}});
-  function paint(){frame.classList.toggle('revealed',r.revealed);flip.setAttribute('aria-pressed',r.revealed?'true':'false');flip.setAttribute('aria-label',r.revealed?names[card.type]+': '+card.text+' — Linty. Turn card over.':'Linty’s daily fortune for '+dateText+'. Tap to reveal.');frontFace.setAttribute('aria-hidden',r.revealed?'false':'true');backFace.setAttribute('aria-hidden',r.revealed?'true':'false');dismiss.hidden=!r.revealed}
+  function paint(){frame.classList.toggle('revealed',r.revealed);flip.setAttribute('aria-pressed',r.revealed?'true':'false');flip.setAttribute('aria-description',r.revealed?'Turn card over.':'Linty’s daily fortune.');frontFace.setAttribute('aria-hidden',r.revealed?'false':'true');backFace.setAttribute('aria-hidden',r.revealed?'true':'false');dismiss.hidden=!r.revealed}
   frame.appendChild(flip);frame.appendChild(dismiss);li.appendChild(frame);paint();
   // Measure real cards once, then preserve this day's position for that screen size.
   (typeof requestAnimationFrame==='function'?requestAnimationFrame:function(fn){fn()})(function(){

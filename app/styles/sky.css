@@ -1,5 +1,5 @@
 /* Your Sky: observatory layouts, using the active app theme's type and accents. */
-.sky-page,.sky-full,.sky-detail,.sky-share{--sky-bg:#f4efdf;--sky-panel:#e9e6d8;--sky-ink:#343e36;--sky-muted:#647166;--sky-line:#b9bdae;--sky-star:#454b3e;--sky-accent:#68557f;--sky-label-ink:#406d57;--sky-faint:#929b8d;background:var(--sky-bg);color:var(--sky-ink)}
+.sky-page,.sky-full,.sky-detail,.sky-share{--sky-bg:#f4efdf;--sky-panel:#e9e6d8;--sky-ink:#343e36;--sky-muted:#505d52;--sky-line:#b9bdae;--sky-star:#454b3e;--sky-accent:#68557f;--sky-label-ink:#406d57;--sky-faint:#929b8d;background:var(--sky-bg);color:var(--sky-ink)}
 :root[data-theme=dark] :is(.sky-page,.sky-full,.sky-detail,.sky-share){--sky-bg:#101611;--sky-panel:#202a22;--sky-ink:#e8e7d9;--sky-muted:#a0ad9f;--sky-line:#435548;--sky-star:#e6e1c3;--sky-accent:#c7acee;--sky-label-ink:#b3d6ba;--sky-faint:#718071}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) :is(.sky-page,.sky-full,.sky-detail,.sky-share){--sky-bg:#101611;--sky-panel:#202a22;--sky-ink:#e8e7d9;--sky-muted:#a0ad9f;--sky-line:#435548;--sky-star:#e6e1c3;--sky-accent:#c7acee;--sky-label-ink:#b3d6ba;--sky-faint:#718071}}
 /* Soft Hardware keeps the original observatory palette above. Other skins
@@ -8,7 +8,7 @@
  --sky-bg:var(--bg);
  --sky-panel:var(--panel);
  --sky-ink:var(--ink);
- --sky-muted:var(--ink2);
+ --sky-muted:color-mix(in srgb,var(--ink2) 75%,var(--ink) 25%);
  --sky-line:var(--line);
  --sky-star:var(--ink);
  --sky-accent:var(--sel);
@@ -75,7 +75,12 @@
 .sky-full-body>div{min-width:0;max-width:100%}.sky-map-frame,.sky-viewport{width:100%;max-width:100%}.sky-full{box-sizing:border-box;overflow-x:hidden}
 .sky-overview{grid-template-areas:"preview signs" "catalog signs"}.sky-overview>.sky-preview{grid-area:preview}.sky-overview>aside{grid-area:signs;min-width:0}.sky-overview>.sky-catalog{grid-area:catalog;margin-top:0}
 @media(max-width:820px){
- .sky-overview{grid-template-areas:"preview" "signs" "catalog";grid-template-columns:minmax(0,1fr)}
+ .sky-overview{grid-template-areas:"preview" "bigthree" "readings" "note" "catalog" "help";grid-template-columns:minmax(0,1fr)}
+ .sky-overview>aside{display:contents}
+ .sky-overview>aside>.sky-big-three-label{grid-area:bigthree;margin-bottom:0}
+ .sky-overview>aside>.sky-signs{grid-area:readings}
+ .sky-overview>aside>.sky-note{grid-area:note;margin:0}
+ .sky-overview>aside>.sky-help{grid-area:help;margin-top:0}
  .sky-full-body{grid-template-columns:minmax(0,1fr)}
  .sky-full-head{display:grid;grid-template-columns:32px minmax(0,1fr) 44px;gap:12px 10px;align-items:center}
  .sky-full-head>.sky-mark{grid-column:1;grid-row:1;width:32px;height:32px}
@@ -179,5 +184,6 @@
 :root[data-skin] :is(.sky-mode-symbol,.sky-sign-icon,.sky-sign-badge,.sky-footer-symbol)>.control-svg{width:1em;height:1em;flex-basis:1em}
 .sky-house-head h3{display:flex;align-items:center;gap:8px}
 
-.sky-perspective{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px 16px;margin-left:auto;max-width:100%;min-width:0}.sky-perspective-hint{color:var(--sky-muted);font:12px/1.5 var(--body);text-align:right}.sky-perspective .sky-modes{justify-content:flex-end}
-@media(max-width:600px){.sky-perspective{width:100%}.sky-perspective-hint{flex-basis:100%}}
+.sky-perspective{display:flex;align-items:center;justify-content:flex-end;flex-wrap:nowrap;gap:16px;margin-left:auto;max-width:100%;min-width:0}.sky-perspective-hint{flex:0 1 auto;min-width:0;color:var(--sky-muted);font:12px/1.5 var(--body);text-align:right;text-wrap:balance}.sky-perspective .sky-modes{flex:none;flex-wrap:nowrap;justify-content:flex-end}
+@media(max-width:600px){.sky-perspective{width:100%;gap:10px}.sky-perspective .sky-modes button{padding-inline:6px;gap:4px}.sky-perspective .sky-mode-symbol{width:22px;font-size:22px}}
+@media(max-width:360px){.sky-perspective .sky-modes button{flex-direction:column;gap:2px}}

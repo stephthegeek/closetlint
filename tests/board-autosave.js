@@ -46,7 +46,7 @@ function saved(f,label,action,check){const count=f.writes.length;action();assert
  for(const id of ['sflipx','sflipy','sframe','sfront','sback'])saved(f,id,()=>nodes[id].fire('click'));
  saved(f,'name',()=>nodes.oname.fire('input',{target:{value:'Changed'}}),b=>assert.equal(b.name,'Changed'));
  saved(f,'favorite',()=>nodes.ofav.fire('click'),b=>assert.equal(b.fav,true));
- for(const id of ['srotreset','scutreset']){const p=state.board.pieces[0];p.rot=20;p.clip=[[0,0],[80,0],[80,80]];saved(f,id,()=>nodes[id].fire('click'));saved(f,id+' Undo',()=>ctx.undo());state.sel=0;}
+ for(const id of ['scutreset']){const p=state.board.pieces[0];p.rot=20;p.clip=[[0,0],[80,0],[80,80]];saved(f,id,()=>nodes[id].fire('click'));saved(f,id+' Undo',()=>ctx.undo());state.sel=0;}
  saved(f,'delete toolbar',()=>nodes.sremove.fire('click'),b=>assert.equal(b.pieces.length,0));
  saved(f,'delete keyboard Undo',()=>f.nodeDoc.fire('keydown',{ctrlKey:true,key:'z'}),b=>assert.equal(b.pieces.length,1));state.sel=0;
  saved(f,'keyboard delete',()=>f.nodeDoc.fire('keydown',{key:'Delete'}));saved(f,'delete toast Undo',()=>ctx.undo());
@@ -149,3 +149,16 @@ console.log('Board autosave: paint/recovery isolation; edit, toolbar, keyboard, 
   assert.match(rule,/touch-action:none/,selector+' retains editing gestures');
  }
 }
+
+// Clicking/tapping nested Remove icons must not capture a drag or suppress native activation.
+for(const kind of ['piece','text'])for(const detail of [0,1]){
+ const f=fixture(),{ctx,state,nodes,node,map}=f;ctx.addPiece(map.a);state.board.texts=[{t:'Label',x:10,y:10,s:6}];
+ const pe=node();pe.dataset=kind==='piece'?{i:'0',pieceId:'a'}:{t:'0'};const button=node();button.closest=()=>pe;
+ const icon={closest:s=>s==='.piece .del'?button:s==='.piece'?pe:null,classList:{contains:()=>false}};
+ let prevented=false;const count=f.writes.length;state.cutIdx=0;
+ nodes.board.fire('pointerdown',{target:icon,pointerId:11,preventDefault(){prevented=true}});
+ assert.equal(prevented,false,'Remove does not suppress its own native click');assert.equal(f.writes.length,count,'pointerdown alone does not delete');
+ nodes.board.fire('click',{target:icon,detail});assert.equal(state.cutIdx,-1,'Remove ends any active lasso before changing indexes');assert.equal(kind==='piece'?state.board.pieces.length:state.board.texts.length,0);assert.equal(f.writes.length,count+1,'one activation makes one removal');
+ ctx.boardUndoDel();assert.equal(kind==='piece'?state.board.pieces.length:state.board.texts.length,1,'Undo restores the removed object');
+}
+console.log('Board Remove: nested mouse/touch icon and keyboard activation remove pieces/text once, with Undo and no pointer capture.');

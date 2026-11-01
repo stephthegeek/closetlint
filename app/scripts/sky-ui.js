@@ -88,10 +88,10 @@ var ClosetLintSkyUI=(function(){
   function signCard(key){var sign=model().readings[key].sign;return el('button',{type:'button',class:'sky-sign',onclick:function(){reading=sign.basis||key;if(sign.id)openDetail(sign.kind==='constellation'||sign.kind==='wardrobe-estimate'&&definition(sign.id)?'constellation':'star',sign.id);else openFull()}},el('span',{class:'sky-sign-icon','aria-hidden':'true'},ClosetLintIcons.node(symbols[key])),el('span',null,el('span',{class:'sky-label',text:key+' · '+labels[key]}),el('strong',{text:sign.name}),el('small',{class:'sky-sign-kind',text:signInfo(sign).label}),sign.note?el('small',{text:sign.note}):null,sign.influences.length?el('small',{text:'With '+sign.influences.join(' and ')+' influences.'}):null))}
   function render(){
     var host=$('view-sky');if(!host)return;var result=model();host.textContent='';if(state.skyCatalog){renderCatalog(host);return}
-    host.appendChild(el('div',{class:'sky-heading page-heading'},mark(),heading('Your Style Sky'),button('Share my sky',openShare,'btn sky-share-heading')));
+    host.appendChild(el('div',{class:'sky-heading page-heading'},mark(),heading('My Style Sky'),button('Share my sky',openShare,'btn sky-share-heading')));
     var previewMap=el('div',{class:'sky-preview-map'},chart(false));
     var preview=el('div',{class:'sky-preview'},el('span',{class:'sky-label',text:'Tonight’s sky · '+reading}),button('Share',openShare,'btn small sky-share-map'),previewMap,el('button',{type:'button',class:'btn sky-look','aria-label':'Open the full sky',onclick:openFull},el('span',{'aria-hidden':'true',text:'⛶'})));
-    var side=el('aside',null,el('div',{class:'sky-label sky-big-three-label',text:'Your Big Three'}),el('div',{class:'sky-signs'},signCard('sun'),signCard('moon'),signCard('rising')),el('div',{class:'sky-note'},el('p',{text:'Your closet has layers. So does its sky.'})),el('div',{class:'sky-help'},el('div',{class:'sky-label',text:'How to read your sky'}),el('p',{text:'Stars are your style tags. Constellations connect them when your pieces tell a more specific story. Your Sun reads what you own, your Moon what you love or wish for, and your Rising what you wear.'}),el('p',{text:'A sign can be a constellation or a broader style star. Early readings have limited evidence; provisional estimates use what you own until there’s enough evidence for that sign.'})));
+    var side=el('aside',null,el('div',{class:'sky-label sky-big-three-label',text:'My Big Three'}),el('div',{class:'sky-signs'},signCard('sun'),signCard('moon'),signCard('rising')),el('div',{class:'sky-note'},el('p',{text:'Your closet has layers. So does its sky.'})),el('div',{class:'sky-help'},el('div',{class:'sky-label',text:'How to read your sky'}),el('p',{text:'Stars are your style tags. Constellations connect them when your pieces tell a more specific story. Your Sun reads what you own, your Moon what you love or wish for, and your Rising what you wear.'}),el('p',{text:'A sign can be a constellation or a broader style star. Early readings have limited evidence; provisional estimates use what you own until there’s enough evidence for that sign.'})));
     host.appendChild(el('div',{class:'sky-overview'},preview,side,catalogTree()));
     if(result.omittedSamples)host.appendChild(el('p',{class:'sky-omitted',text:'Practice collection omitted from this sky.'}));
     host.appendChild(el('p',{class:'sky-meta',text:catalog().stars.length+' stars · '+catalog().constellations.length+' constellations · formula '+result.scoringVersion}));
@@ -109,7 +109,7 @@ var ClosetLintSkyUI=(function(){
     return el('section',{class:'sky-catalog'},el('div',{class:'sky-catalog-head'},el('span',{class:'sky-label',text:'Observatory catalog'}),el('div',{class:'sky-perspective'},el('span',{class:'sky-perspective-hint',text:'Shift your perspective →'}),modes(render))),tree,button('All '+catalog().constellations.length+' constellations · '+catalog().stars.length+' stars →',function(){showCatalog(true)},'sky-link sky-catalog-more'));
   }
   function renderCatalog(host){
-    host.appendChild(el('div',{class:'sky-heading page-heading'},heading('All constellations'),el('div',{class:'page-actions'},button('← Back to your sky',function(){showCatalog(false)}),modes(render))));
+    host.appendChild(el('div',{class:'sky-heading page-heading'},heading('All constellations'),el('div',{class:'page-actions'},button('← Back to my sky',function(){showCatalog(false)}),modes(render))));
     var jump=el('nav',{class:'sky-house-jumps','aria-label':'Jump to a house'}),grid=el('div',{class:'sky-house-grid'}),glyphs={dark:'moon',romantic:'heart',scholar:'diamond',earth:'flower',bright:'sun',city:'city'};
     Object.keys(houses).forEach(function(house){
       var entries=ranked().filter(function(c){return definition(c.id).house===house}),lit=entries.filter(function(c){return c.complete}),dim=entries.filter(function(c){return !c.complete}),id='sky-house-'+house;
@@ -121,7 +121,7 @@ var ClosetLintSkyUI=(function(){
     });host.appendChild(jump);host.appendChild(grid);
   }
   function openFull(){
-    previousFocus=document.activeElement;full=el('dialog',{class:'sky-full','aria-label':'Your full sky'});document.body.appendChild(full);
+    previousFocus=document.activeElement;full=el('dialog',{class:'sky-full','aria-label':'My full sky'});document.body.appendChild(full);
     full.addEventListener('close',function(){full.remove();full=null;if(state.tab==='sky')render();if(previousFocus&&previousFocus.isConnected)previousFocus.focus()});
     drawFull();full.showModal();
   }
@@ -132,11 +132,11 @@ var ClosetLintSkyUI=(function(){
     var tools=el('div',{class:'sky-map-tools'},button(zoom?'Fit chart':'Zoom chart',function(){view.classList.toggle('zoomed');this&&this.blur&&this.blur();tools.firstChild.textContent=view.classList.contains('zoomed')?'Fit chart':'Zoom chart'}));
     var readout=el('aside',{class:'sky-readout',id:'sky-readout','aria-live':'polite'});
     var footer=el('div',{class:'sky-full-footer'});Object.keys(labels).forEach(function(k){footer.appendChild(el('button',{type:'button',onclick:function(){reading=k;selected=null;drawFull()}},el('small',{text:k+' · '+labels[k]}),el('small',{class:'sky-sign-kind',text:signInfo(model().readings[k].sign).label}),el('span',{class:'sky-footer-symbol','aria-hidden':'true'},ClosetLintIcons.node(symbols[k])),el('span',{text:model().readings[k].sign.name})))});
-    full.appendChild(el('div',{class:'sky-full-head'},mark(),heading('Your Style Sky'),modes(drawFull),button('×',closeFull,'btn sky-close')));full.querySelector('.sky-close').setAttribute('aria-label','Close full sky');
+    full.appendChild(el('div',{class:'sky-full-head'},mark(),heading('My Style Sky'),modes(drawFull),button('×',closeFull,'btn sky-close')));full.querySelector('.sky-close').setAttribute('aria-label','Close full sky');
     full.appendChild(el('div',{class:'sky-full-body'},el('div',null,tools,view),readout));full.appendChild(footer);drawReadout();attachMap(view);
   }
   function attachMap(view){
-    var mini=svgNode('svg',{viewBox:'0 0 1200 780',class:'sky-minimap',role:'img','aria-label':'Your position in the full sky'}),map=points();
+    var mini=svgNode('svg',{viewBox:'0 0 1200 780',class:'sky-minimap',role:'img','aria-label':'My position in the full sky'}),map=points();
     catalog().stars.forEach(function(s){mini.appendChild(svgNode('circle',{cx:map[s.id].x,cy:map[s.id].y,r:5}))});var frame=svgNode('rect',{class:'sky-minimap-frame',x:0,y:0,width:1200,height:780,rx:12});mini.appendChild(frame);
     var parent=view.parentNode;var hint=el('span',{class:'sky-pan-hint',text:'Drag to explore · pinch to zoom'}),wrap=el('div',{class:'sky-map-frame'},view,el('span',{class:'sky-pan-edge sky-pan-left','aria-hidden':'true',text:'‹'}),el('span',{class:'sky-pan-edge sky-pan-right','aria-hidden':'true',text:'›'}),hint);
     parent.appendChild(wrap);parent.appendChild(mini);

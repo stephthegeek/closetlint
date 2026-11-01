@@ -11,7 +11,7 @@ function fixture(hash='',install=true){
  const ctx={openImport(){state.importOpened=(state.importOpened||0)+1},openTidyPhotos(){state.tidyOpened=(state.tidyOpened||0)+1},releaseOutfitPreview(){},paintWorkspaceRecovery(){},skyRender(){},window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},renderOracle(){ctx.oracleSession=ctx.oracleSession||{question:''}},oracleLeave(){},oracleSession:null,labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
  openEdit(it){const d=node('dlg');d.fields=[{name:'name',type:'text',value:it.id,getAttribute(){return ''},closest(){return null}}];d.showModal()},openAdd(){const d=node('dlg');d.fields=[];d.images=[];d.showModal()},openOutfitDetails(){node('dlg').showModal()}};
  vm.createContext(ctx);
- vm.runInContext(['paintBoardSaveStatus','adoptBoard','copyBoardPieces','boardDocument','setTab','persistBoard','workspaceKey','workspaceSnapshot','ofOpen','outfitEditorDirty','boardNeedsProtection','boardHasContent','tripNew','tripSettings','tripHasUnsaved','tripCancelPending','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar'].map(fn).join('\n')+'\n'+routes,ctx);
+ vm.runInContext(['paintBoardSaveStatus','adoptBoard','copyBoardPieces','boardDocument','setTab','persistBoard','workspaceKey','workspaceSnapshot','ofOpen','outfitEditorDirty','boardNeedsProtection','boardHasContent','tripNew','tripSettings','tripHasUnsaved','tripCancelPending','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar','openHiddenView'].map(fn).join('\n')+'\n'+routes,ctx);
  if(install)ctx.installClosetRoutes();
  return {ctx,state,scratch,saved,writes,prompts,notices,win,hist,stack,node,setAllow:v=>allow=v,ready(){state.capsDone=true;['edits','custom','outfits','profile','trips'].forEach(k=>ctx.setupLoaded[k]=true);win.ClosetLintRoutes.ready()}};
 }
@@ -215,4 +215,10 @@ console.log('Startup: no provisional page, hydration gating, queued navigation, 
  ctx.openEdit({id:'a'});ctx.closeDlg();assert.equal(state.collectionFilter.c1,true,'piece return keeps its collection');
  ctx.setTab('all');assert.equal(Object.keys(state.collectionFilter).length,0,'All, Closet, and home leave the collection');assert.equal(state.q,'blue');assert.equal(state.fav,true);assert.equal(win.location.hash,'#/closet');
  hist.back();assert.equal(state.collectionFilter.c1,true,'browser Back restores the visited collection');hist.forward();assert.equal(Object.keys(state.collectionFilter).length,0);
+}
+
+{
+ const f=fixture('#/sky'),{ctx,state,win}=f;f.ready();
+ ctx.openHiddenView();assert.equal(state.tab,'all','Hidden leaves Sky for Closet');assert.equal(win.location.hash,'#/closet');assert.equal(state.showHidden,true);assert.equal(state.showStored,false);assert.equal(state.showDonate,false);
+ ctx.setTab('clothing');ctx.openHiddenView();assert.equal(state.tab,'clothing','Hidden keeps the current browse category');assert.equal(state.showHidden,true);
 }

@@ -9,10 +9,10 @@ const nodes=new Map(),calls=[];
 function node(id){if(!nodes.has(id)){const attrs={};nodes.set(id,{value:'',textContent:'',attrs,setAttribute(k,v){attrs[k]=v},removeAttribute(k){delete attrs[k]},classList:{toggle(){},add(){}},addEventListener(){}})}return nodes.get(id)}
 const ctx={releaseOutfitPreview(){},paintWorkspaceRecovery(){},state:{tab:'all',fantasy:false,wishOnly:false,picked:{}},$:node,localStorage:{getItem:()=>null,setItem(){}},document:{documentElement:node('root')},window:{scrollTo(){}},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,resetFilterState(){ctx.state.wishOnly=false;ctx.state.q=''},renderTabs(){},renderFilters(){},renderGrid(){calls.push('closet')},renderTray(){},renderBoard(){calls.push('board')},renderSaved(){calls.push('saved')},tripRender(){calls.push('trip')},wrRender(){calls.push('ranking')},labRender(){calls.push('lab')},toast(){}};
 vm.createContext(ctx);vm.runInContext(part+'\n'+setTabSource,ctx);
-for(const [route,destination,renderer] of [['all','closet','closet'],['clothing','closet','closet'],['accessories','closet','closet'],['jewelry','closet','closet'],['offduty','closet','closet'],['outfits','board','board'],['saved','saved','saved'],['lab','lab','lab'],['trip','trip','trip'],['wrank','closet','ranking']]){
+for(const [route,destination,renderer] of [['all','closet','closet'],['clothing','closet','closet'],['accessories','closet','closet'],['jewelry','closet','closet'],['offduty','closet','closet'],['outfits','board','board'],['saved','saved','saved'],['lab','lab','lab'],['trip','trip','trip'],['wrank',null,'ranking']]){
   ctx.setTab(route);assert.equal(calls.at(-1),renderer,route+' renders the right workflow');
-  assert.equal(node('go-'+destination).attrs['aria-current'],'page');
-  assert.equal(['closet','board','saved','lab','trip'].filter(key=>node('go-'+key).attrs['aria-current']==='page').length,1);
+  if(destination)assert.equal(node('go-'+destination).attrs['aria-current'],'page');
+  assert.equal(['closet','board','saved','lab','trip'].filter(key=>node('go-'+key).attrs['aria-current']==='page').length,destination?1:0,route+' marks only its own primary destination');
 }
 ctx.state.tab='all';ctx.state.fantasy=true;ctx.state.wishOnly=true;
 ctx.setTab('jewelry');assert.equal(ctx.state.wishOnly,true,'category switching preserves wishlist scope');

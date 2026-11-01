@@ -4,7 +4,7 @@ const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
 function fn(name){const a=html.indexOf('function '+name+'(');assert(a>=0,name);return html.slice(a,html.indexOf('\n}',a)+2)}
 const map={top:{id:'top',bulk:1},other:{id:'other',bulk:2},shoe:{id:'shoe',bulk:3}};
 let undo;const c={state:{outfits:{}},wearAny:()=>false,byId:()=>map,labParts:o=>o.top?[o.top]:[],labSig:o=>o.top.id,tripBulk:p=>p.bulk,collectionTripIds:(t,p,v)=>Object.keys(v.items),tripChanged(){},toast(){},toastAct:(m,l,f)=>undo=f,askConfirm:(m,l,f)=>f()};
-vm.createContext(c);vm.runInContext(['tripNew','tripDays','tripDayList','tripCalendarEvents','tripDayChoices','tripResultSlots','tripOutfitIds','tripIdeaValid','tripPrepareResults','tripSelectIdea','tripBringIds','tripBasicsBulk','tripView','tripResetChecks'].map(fn).join('\n'),c);
+vm.createContext(c);vm.runInContext(['tripIsSleepwear','tripNew','tripDays','tripDayList','tripCalendarEvents','tripDayChoices','tripResultSlots','tripOutfitIds','tripIdeaValid','tripPrepareResults','tripSelectIdea','tripBringIds','tripBasicsBulk','tripView','tripResetChecks'].map(fn).join('\n'),c);
 function trip(version){const t=c.tripNew();Object.assign(t,{packingVersion:version,start:'2026-11-01',end:'2026-11-04',dayPlans:{'2026-11-02':{style:'dressy',night:true}},plan:{outfits:[{top:map.top}],extras:[],outer:[],other:[],shoes:[],basics:{}}});return t}
 const old=trip(1);assert.equal(c.tripPrepareResults(old).length,5);assert.equal(old.plan.outfits[0].pin,true,'older all-packed selections stay confirmed');assert.equal(old.packingVersion,2);
 const fresh=trip(2);c.tripPrepareResults(fresh);assert(!fresh.plan.outfits[0].pin,'new suggestions are not silently pinned');assert.equal(c.tripView(fresh,fresh.plan).S.length,0,'zero pins means zero packed outfits');
@@ -18,3 +18,12 @@ const basics=trip(2);basics.plan.basics={socks:{label:'Socks',n:4,items:[map.oth
 let chosen=c.tripView(basics,basics.plan).basics.socks;assert.equal(chosen.n,1);assert.equal(chosen.items[0].id,'shoe','a basic choice controls which piece is packed');
 basics.excluded=['shoe'];assert.equal(c.tripView(basics,basics.plan).basics.socks.items.length,0,'an excluded piece cannot return through a saved basic choice');
 basics.basicChoices.socks.n=0;assert.equal(c.tripView(basics,basics.plan).basics.socks,undefined,'zero quantities do not become packed rows');assert(basics.plan.basics.socks,'the original group remains available to choose again');
+
+map.lounge={id:'lounge',meta:'Loungewear',sub:'Tops',name:'Soft lounge top',bulk:1};
+map.pajamas={id:'pajamas',meta:'Loungewear',sub:'Pajama sets',name:'Striped pajamas',bulk:1.5};
+map.wishPajamas={...map.pajamas,id:'wishPajamas',wish:true};
+const sleepTrip=trip(2);sleepTrip.plan.basics={lounge:{label:'Sleepwear',n:1,items:[],bulk:1.5}};
+sleepTrip.must=['lounge'];assert(c.tripView(sleepTrip,sleepTrip.plan).basics.lounge,'adding a lounge top does not hide the sleepwear reminder');
+sleepTrip.must=['pajamas'];assert.equal(c.tripView(sleepTrip,sleepTrip.plan).basics.lounge,undefined,'explicitly added pajamas avoid a duplicate sleepwear row');
+sleepTrip.must=['wishPajamas'];assert(c.tripView(sleepTrip,sleepTrip.plan).basics.lounge,'unowned sleepwear does not count as packed');
+console.log('Trip sleepwear packing: added lounge pieces retain the reminder; owned pajamas suppress duplication; wishlist pajamas do not.');

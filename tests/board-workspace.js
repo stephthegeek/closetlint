@@ -16,7 +16,7 @@ function fn(n){const a=source.indexOf('function '+n+'('),b=source.indexOf('\nfun
  await ctx.saveOutfit();await ctx.editSavedOutfit(saved.id);assert.equal(ctx.state.board.id,'saved');assert.notEqual(ctx.state.board.pieces[0],saved.pieces[0]);ctx.state.board.name='Revised';await ctx.saveOutfit();assert.equal(writes.at(-1).id,'saved');assert.deepEqual(writes.at(-1).doc.wearLog,[{d:'2026-10-01'}]);assert.equal(ctx.outfitEditorDirty(),false);
  const cleanSaved=ctx.state.board;ctx.startNewOutfit();assert.equal(ctx.state.board,cleanSaved,'New warns even when the saved outfit has no unsaved edits');assert.match(confirm.m,/saved outfit stays unchanged/);confirm.cb();assert(ctx.state.newOutfitUndo,'Undo new remains accessible after the toast');ctx.state.newOutfitUndo.undo();assert.equal(ctx.state.board,cleanSaved);assert.equal(ctx.state.newOutfitUndo,null);
  ctx.state.boardSaving=true;const before=ctx.state.board;ctx.startNewOutfit();assert.equal(ctx.state.board,before);assert.equal(await ctx.saveOutfit(),false);ctx.state.boardSaving=false;
- const badge=nodes.badge;ctx.paintBoardContext();assert.equal(badge.textContent,'1');assert.equal(nodes['go-board']['aria-label'],'Board (1 piece)');
+ const badge=nodes.badge;ctx.paintBoardContext();assert.equal(badge.textContent,'1');assert.equal(nodes['go-board'].title,'Board (1 piece)');
  // Successful writes must not erase a name typed while the save was in flight.
  release=true;const pending=ctx.saveOutfit();assert.equal(await ctx.saveOutfit(),false,'double Save during a pending write cannot create a duplicate');ctx.state.board.name='Typed during save';release();release=null;await pending;assert.equal(ctx.state.board.name,'Typed during save');assert.equal(ctx.outfitEditorDirty(),true);
  console.log('Board: repeat Save updates, copy isolation, linked reload, protected New/Undo, pending and failed saves, wear history, and explicit labels pass.');
@@ -46,7 +46,7 @@ function fn(n){const a=source.indexOf('function '+n+'('),b=source.indexOf('\nfun
  const same=state.board;c.setLay({s:6});state.board={id:null,name:'Different board',pieces:[]};action();assert.equal(state.board.name,'Different board','Undo cannot overwrite another board');state.board=same;
  c.setLay({s:7});state.boardSaving=true;action();assert.equal(state.board.lay.s,7,'Undo waits for pending saves');state.boardSaving=false;
  state.collRep=0;state.cvis=[0];const beforeReplace=clone(state.board.pieces);c.collAdd({id:'replacement'});assert.equal(state.board.pieces[0].id,'replacement');action();assert.deepEqual(state.board.pieces,beforeReplace,'replacement Undo restores crop, cut, rotation, and original piece');
- for(const id of ['creset','scutreset','srotreset']){
+ for(const id of ['creset','scutreset']){
   vm.runInContext(source.split('\n').find(line=>line.includes("$('"+id+"').addEventListener('click'")),c);
   state.sel=0;const before=clone(state.board.pieces);listeners[id]();action();assert.deepEqual(state.board.pieces,before,id+' offers a real restoration');
  }

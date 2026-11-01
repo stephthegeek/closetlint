@@ -616,7 +616,7 @@
     },
     {
       "key": "statement",
-      "label": "Statement",
+      "label": "Statement level",
       "multi": false,
       "vocab": [
         "plain",

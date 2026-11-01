@@ -52,6 +52,7 @@ function createClosetHistory(env){
   return {start:function(route){return transition(route,{replace:true,force:true})},go:transition,pop:pop,capture:function(){capture(true)},current:function(){return current},previous:function(){return current&&entries[current.index-1]}};
 }
 function installClosetRoutes(){
+  var skip=$('skip-content');if(skip&&skip.addEventListener)skip.addEventListener('click',function(e){e.preventDefault();var main=document.querySelector('main:not(.hide)');if(!main)return;if(typeof closeAppMenu==='function')closeAppMenu();if(typeof closeAddMenu==='function')closeAddMenu();main.tabIndex=-1;main.classList.add('skip-focus-target');var top=$('topbar');main.style.scrollMarginTop=((top?top.getBoundingClientRect().height:0)+12)+'px';main.focus({preventScroll:true});main.scrollIntoView({block:'start',behavior:'instant'})});
   if(!window.history||!window.history.pushState)return;
   window.history.scrollRestoration='manual';
   var applying=false,started=false,formTrack=null,formBase='',closing=false,extraForms=[],scrollRevision=0;
@@ -67,7 +68,7 @@ function installClosetRoutes(){
     else if(route.type==='pieces')name=(byId()[route.id]||{}).name||'Piece';
     else if(route.type==='outfits')name=route.id?(state.outfits[route.id]||{}).name||'Outfit':'Outfits';
     else if(route.type==='collections')name=route.id?(collectionList().find(function(c){return c.id===route.id})||{}).name||'Collection':'Collections';
-    else if(route.type==='sky')name=route.id==='catalog'?'All constellations':'Your Style Sky';
+    else if(route.type==='sky')name=route.id==='catalog'?'All constellations':'My Style Sky';
     else if(route.type==='trips')name=route.id&&route.id!=='new'?(state.trips[route.id]||{}).name||'Trip':route.id==='new'?'Plan a trip':'Trips & events';
     else name=({board:'Board',calendar:'Calendar',lab:'Outfit Lab','wishlist-ranking':'Wishlist','buy-check':'Buy check',oracle:'Closet Oracle',sky:'Style constellation',import:'Import pieces','tidy-photos':'Tidy photos'})[route.type]||'Closet';
     document.title=name+' · '+(state.profile&&state.profile.wardrobeIdentity&&String(state.profile.wardrobeIdentity.name||'').trim().slice(0,100)||'Closet Lint');

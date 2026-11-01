@@ -24,7 +24,7 @@ const route=source.slice(source.indexOf('function labSaveOrPlan(o){'),source.ind
 {
  class Node{
   constructor(tag,attrs,...children){this.tag=tag;Object.assign(this,attrs||{});this.children=children.flat(Infinity).filter(x=>x!=null)}
-  appendChild(n){if(n.tag==='fragment')this.children.push(...n.children);else this.children.push(n);return n}get isConnected(){return true}setAttribute(k,v){this[k]=v}
+  appendChild(n){if(n.tag==='fragment')this.children.push(...n.children);else this.children.push(n);return n}get isConnected(){return true}setAttribute(k,v){this[k]=v}removeAttribute(k){delete this[k]}
   set textContent(v){this.text=v;this.children=[]}get textContent(){return this.text||''}
   focus(options){this.focused=options}
  }
