@@ -72,7 +72,7 @@ You'll need Python 3.10 or newer (check with `python3 --version`, or `py -3 --ve
 
 Keep the terminal open while you use the app; closing it stops the server.
 
-Docker users can use the [Docker installation](docs/GETTING-STARTED.md#run-with-docker), which includes Python and photo libraries.
+Docker users can use the [Docker installation](docs/GETTING-STARTED.md#run-with-docker), which includes Python and photo libraries. The setup instructions also prepare background removal.
 
 The [Getting started guide](docs/GETTING-STARTED.md) covers setup, phone access on home Wi-Fi, a sample wardrobe, and updates. See [Using Closet Lint](docs/USING-CLOSET-LINT.md) for everyday features.
 
@@ -83,7 +83,7 @@ Time to give Linty something to rummage through.
 ## A few things to know
 
 - **Keep your installation private.** Closet Lint has no built-in login. Anyone who can reach an unprotected installation can view and edit its wardrobe. Use the local server only on your computer or a trusted home network; do not expose it directly to the internet or forward its port on your router. A hosted installation needs separate site-wide password protection, as described in the hosting notes. The public demos work differently: visitor changes stay in their own browser.
-- **Photo tools are optional and have their own setup.** Run `python3 tools/check_setup.py --data ../closet-lint` for readiness checks and next steps (on Windows, use `py -3`). Background removal needs additional setup. Fine details can get lost, and it won't remove a person wearing the garment. You choose which results to keep.
+- **Photo tools:** the Docker instructions include background removal setup. For a Python installation, run `python3 tools/check_setup.py --data ../closet-lint` for readiness checks and next steps (on Windows, use `py -3`). Fine details can get lost, and it won't remove a person wearing the garment. You choose which results to keep.
 - **Suggestions aren't guarantees.** Outfit combinations, fit labels, and packing lists still need your judgment.
 - **Back up before updating.** Choose **Menu → Utilities → Export backup**, and keep your wardrobe data folder separate from the app folder.
 

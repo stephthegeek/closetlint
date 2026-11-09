@@ -1,0 +1,21 @@
+name: closetlint-preview
+
+services:
+  closetlint:
+    image: ghcr.io/stephthegeek/closetlint:0.5.0-docker-preview.1
+    ports:
+      - "127.0.0.1:6684:6684"
+    volumes:
+      - wardrobe:/data
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  wardrobe:

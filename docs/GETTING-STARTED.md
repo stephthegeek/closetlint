@@ -4,23 +4,42 @@ This guide covers running Closet Lint on your computer and opening it in your we
 
 ## Run with Docker
 
+### Try the Docker preview
+
+The Docker preview runs Closet Lint 0.5.0 with experimental Docker packaging. You need Docker Desktop running, or Docker Engine with Compose. You do not need Python, Git, or the app source. Intel/AMD computers and Apple Silicon/ARM computers use the same file and commands.
+
+1. Create a folder named `closetlint-preview`.
+2. Download [the preview Compose file](https://raw.githubusercontent.com/stephthegeek/closetlint/codex/docker-preview-0.5.0.1/compose.preview.yaml) into that folder and name it **compose.yaml**. Make sure it is not saved as `compose.yaml.txt`.
+3. Open a terminal in that folder and run:
+
+   ```sh
+   docker compose pull
+   docker compose up -d --wait
+   docker compose exec closetlint python runtime/background_worker.py --prepare
+   ```
+
+4. Wait for the downloads to finish, then open **http://localhost:6684** and set up your closet. Background removal is ready to use.
+
+This first setup downloads the app image and background removal models. The models stay saved in your Docker volume, so you do not need to download them again each time you start the app.
+
+Stop the preview with `docker compose stop`. Start it again with `docker compose up -d`. Run these commands from the same folder. Your pieces and photos stay in a separate Docker volume when you stop or replace the container. Use **Export backup** to keep a copy outside Docker. Avoid `docker compose down -v`, which deletes the saved wardrobe.
+
+The preview opens only on this computer. If port 6684 is already in use, stop the other Closet Lint instance or change `127.0.0.1:6684:6684` to `127.0.0.1:6685:6684` in compose.yaml and open **http://localhost:6685** instead. For startup problems, run `docker compose logs --tail=100 closetlint`.
+
+### Build from source
+
 Docker is an alternative to installing Python and photo libraries yourself. Install [Docker Desktop](https://docs.docker.com/get-started/get-docker/) or Docker Engine with Compose, then run these commands from the Closet Lint source folder:
 
 ```sh
-docker compose up -d --build
-```
-
-Open **http://localhost:6684**. Docker runs the app in the background. Stop it with `docker compose stop`; start it again with `docker compose up -d`. To inspect startup problems, use `docker compose logs closetlint`.
-
-Your wardrobe, photos, unfinished assistant requests and downloaded models live in the separate `wardrobe` Docker volume. Recreating the container keeps that volume. Use **Export backup** and keep a copy outside Docker. To move an existing wardrobe, start with the new Docker volume and use **Restore backup**; keep your original data folder and stop the original app first. Do not run two instances against the same storage. Commands that delete volumes, including `docker compose down -v`, delete that saved storage.
-
-Photo libraries are included. Background removal models are optional and download only when you run:
-
-```sh
+docker compose up -d --build --wait
 docker compose exec closetlint python runtime/background_worker.py --prepare
 ```
 
-Models stay in the volume through app updates. The app and normal photo uploads work without them. Docker starts with access from this computer only; phone or public server access needs separate network and access protection configuration.
+Wait for the build and model downloads to finish, then open **http://localhost:6684**. Background removal is ready to use. Docker runs the app in the background. Stop it with `docker compose stop`; start it again with `docker compose up -d`. To inspect startup problems, use `docker compose logs closetlint`.
+
+Your wardrobe, photos, unfinished assistant requests and downloaded models live in the separate `wardrobe` Docker volume. Recreating the container keeps that volume. Use **Export backup** and keep a copy outside Docker. To move an existing wardrobe, start with the new Docker volume and use **Restore backup**; keep your original data folder and stop the original app first. Do not run two instances against the same storage. Commands that delete volumes, including `docker compose down -v`, delete that saved storage.
+
+Photo libraries are included, and the setup commands download the background removal models. Models stay in the volume through restarts and app updates. Docker starts with access from this computer only; phone or public server access needs separate network and access protection configuration.
 
 For AI assistant imports, the download/upload route works normally. Direct access requires your AI assistant to have explicitly authorized access to run commands inside this container. Paths such as `/data` are inside Docker. For example, an authorized assistant can run a command using `docker compose exec -T closetlint python tools/check_setup.py --data /data`; it must still verify the wardrobe and request identity. Docker does not give an AI assistant access automatically. See [AI assistant imports](AI-ASSISTANT.md).
 
