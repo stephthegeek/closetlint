@@ -26,7 +26,7 @@ def run(*args, **kwargs):
     return subprocess.run(args, check=True, capture_output=True, text=True, timeout=180, **kwargs).stdout.strip()
 
 
-def exercise(image=None):
+def exercise(image=None, models=False):
     ident = 'closetlint-test-' + uuid.uuid4().hex[:12]
     volume = ident + '-data'
     process = None
@@ -142,11 +142,21 @@ def exercise(image=None):
                 assert run('docker', 'exec', ident, 'id', '-u') == '10001'
                 assert run('docker', 'inspect', '--format', '{{.HostConfig.ReadonlyRootfs}}', ident) == 'true'
                 run('docker', 'exec', ident, 'python', 'deploy/docker/health.py')
+            if models:
+                assert image, 'Actual model preparation runs inside the image'
+                run('docker', 'exec', ident, 'python', 'runtime/background_worker.py', '--prepare')
+                for model in ('u2net', 'isnet-general-use'):
+                    run('docker', 'exec', ident, 'python', 'runtime/background_worker.py',
+                        'app/assets/demo/01-black-tee.jpg', '/tmp/' + model + '.png', model)
+                    result = command("from pathlib import Path;from PIL import Image;p=Path('/tmp/" + model + ".png');assert p.read_bytes().startswith(b'\\x89PNG\\r\\n\\x1a\\n');i=Image.open(p);assert i.mode=='RGBA';print('inference-ok')")
+                    assert result == 'inference-ok'
             stop()
             after = start()
             assert after['instance'] == before['instance']
             assert after['collections'] == before['collections'] and after['board'] == board
             assert request('/_blob/' + photo) == PNG
+            if models:
+                assert json.loads(request('/api/photos/background-status'))['available']
             # Exercise the ordinary restore confirmation into this disposable wardrobe.
             preview = json.loads(request('/api/restore/preview', backup, 'POST'))
             request('/api/restore/apply', {'ticket': preview['ticket'], 'confirm': 'replace-wardrobe'}, 'POST')
@@ -155,7 +165,7 @@ def exercise(image=None):
             assert restored['collections'] == before['collections'] and restored['board'] == board
             assert request('/_blob/' + photo) == PNG
             stop()
-            print(json.dumps({'passed': True, 'mode': 'docker' if image else 'local-wrapper',
+            print(json.dumps({'passed': True, 'mode': 'docker' if image else 'local-wrapper', 'modelsTested': models,
                               'checks': ['startup', 'request-protection', 'quiz-assets', 'photo-upload', 'versioned-save',
                                          'photo-tools', 'assistant-request-access', 'backup', 'container-replacement', 'restore', 'shutdown']}))
         finally:
@@ -171,4 +181,6 @@ def exercise(image=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--image', help='Build image first; omit to check the startup wrapper locally')
-    exercise(parser.parse_args().image)
+    parser.add_argument('--models', action='store_true', help='Explicitly prepare and exercise both models inside Docker')
+    args = parser.parse_args()
+    exercise(args.image, args.models)

@@ -1,7 +1,7 @@
 name: Docker checks
 on:
   push:
-    branches: [main, 'codex/**']
+    branches: [main]
   pull_request:
 permissions:
   contents: read
@@ -20,6 +20,6 @@ jobs:
       - name: Build image with CPU photo tools
         run: docker build --pull --tag closetlint:test .
       - name: Exercise the actual container and persistent volume
-        run: python3 deploy/docker/smoke.py --image closetlint:test
+        run: python3 deploy/docker/smoke.py --image closetlint:test --models
       - name: Check Compose configuration
         run: docker compose config --quiet

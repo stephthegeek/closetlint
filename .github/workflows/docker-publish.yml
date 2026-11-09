@@ -75,7 +75,7 @@ jobs:
           APP_VERSION: ${{ needs.release.outputs.version }}
         run: |
           docker build --pull --label "org.opencontainers.image.revision=$APP_REVISION" --label "org.opencontainers.image.version=$APP_VERSION" --label "io.closetlint.packaging=$GITHUB_SHA" --tag closetlint:release "$RUNNER_TEMP/docker-release"
-          python3 "$RUNNER_TEMP/docker-release/deploy/docker/smoke.py" --image closetlint:release
+          python3 "$RUNNER_TEMP/docker-release/deploy/docker/smoke.py" --image closetlint:release --models
       - name: Upload tested architecture for this run
         env:
           GH_TOKEN: ${{ github.token }}
