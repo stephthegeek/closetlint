@@ -40,6 +40,32 @@ def location(store, instance, request):
     return folder(store, instance, 'photos-' + identifier(request))
 
 
+def recent(store, instance):
+    # Read only saved request metadata; never process images or save photos here.
+    parent = location(store, instance, 'listing').parent
+    paths = [p for p in parent.glob('photos-*/request.json')
+             if not p.is_symlink() and not p.parent.is_symlink()]
+    paths.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    rows = []
+    unavailable = 0
+    for path in paths[:100]:
+        try:
+            value = read_json(path)
+            request = value['requestId']
+            if value['instance'] != instance or location(store, instance, request) != path.parent:
+                raise ValueError('Request identity mismatch')
+            value = info(store, instance, request)
+            rows.append({'requestId': request, 'instance': instance,
+                         'created': int(path.stat().st_mtime * 1000),
+                         'pieces': [{'id': p['id'], 'name': p['name']} for p in value['pieces']],
+                         'saved': bool(value.get('saved')),
+                         'hasResults': any((path.parent / name).is_file() and not (path.parent / name).is_symlink()
+                                           for name in ('results.json', 'review.json'))})
+        except (OSError, ValueError, KeyError, TypeError):
+            unavailable += 1
+    return {'requests': rows, 'unavailable': unavailable, 'hasMore': len(paths) > 100}
+
+
 def state_from(db, store):
     cols = {c: {} for c in ('custom', 'edits', 'profile')}
     for col, key, payload in db.execute("SELECT collection,id,payload FROM documents WHERE collection IN ('custom','edits','profile')"):
@@ -119,7 +145,10 @@ def create(store, instance, request, ids, notes=None):
 
 def info(store, instance, request):
     base = location(store, instance, request)
-    value = read_json(safe_file(base, 'request.json'))
+    request_path = safe_file(base, 'request.json')
+    if not request_path.exists():
+        raise ValueError('This photo request is no longer available here. Check the original link and closet.')
+    value = read_json(request_path)
     # Return only the small photo request; tags, history, and unrelated records stay private.
     with store.connect() as db:
         row = db.execute('SELECT payload FROM metadata WHERE key=?', ('photoPreparation:' + request,)).fetchone()

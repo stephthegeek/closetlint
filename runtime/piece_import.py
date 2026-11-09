@@ -16,7 +16,7 @@ VOCAB = json.loads(Path(__file__).with_name('import-vocabulary.json').read_text(
 KINDS = ('isolated', 'model', 'scene', 'flatlay', 'display', 'detail', 'unclassified', 'recast', 'carelabel')
 MAX_FILE = 32 * 1024 * 1024
 MAX_TOTAL = 192 * 1024 * 1024
-LAYER = {'labAs': ('top', 'layer', 'either', 'under'), 'layerNeed': ('none', 'under', 'over', 'either'), 'weight': ('thin', 'regular', 'thick')}
+LAYER = {'labAs': ('top', 'layer', 'either', 'under', 'topunder', 'underlayer', 'all'), 'layerNeed': ('none', 'under', 'over', 'either'), 'weight': ('thin', 'regular', 'thick')}
 TEXT = {'name': 180, 'size': 60, 'retailer': 120, 'variant': 180, 'priceNote': 300, 'originalTitle': 600, 'listingDetails': 6000, 'fitsLike': 60}
 
 
@@ -395,6 +395,8 @@ def import_batch(store, batch, fingerprint, prepared, *, apply=False, duplicates
                             raise ValueError('Photo ID collision; import cancelled')
                         if not old_asset:
                             db.execute('INSERT INTO assets VALUES (?,?,?)', (photo_id, mime, data));report['photosSaved'] += 1
+                    from deleted_pieces import guard_write
+                    guard_write(db, 'custom', key, item)
                     db.execute('INSERT INTO documents VALUES (?,?,?)', ('custom', key, encode(item)))
                 existing.append({**item, 'id': 'c-' + key})
             report['results'].append(result)

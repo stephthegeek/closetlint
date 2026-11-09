@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-SOURCES=[('BOARD SESSION','scripts/board-session.js'),('BOARD EDITOR','scripts/board-editor.js'),('BOARD COLLAGE','scripts/board-collage.js'),('BOARD DESIGN','scripts/board-design.js'),('BOARD STYLES','styles/board.css')]
+SOURCES=[('BOARD SESSION','scripts/board-session.js'),('BOARD EDITOR','scripts/board-editor.js'),('BOARD COLLAGE','scripts/board-collage.js'),('BOARD DESIGN','scripts/board-design.js'),('BOARD ADJUST','scripts/board-adjust.js'),('BOARD STYLES','styles/board.css')]
 def synced(text):
     for name,source in SOURCES:
         start=f'/* BEGIN {name} (source: app/{source}) */\n'

@@ -18,9 +18,12 @@ const buttons=(n)=>all(n,x=>x.tag==='button');const button=(n,t)=>buttons(n).fin
 const map={},board={pieces:[{id:'keep-board'}]},state={ratings:{},lab:{mode:'taste',cur:{keep:true}},tab:'lab',board};
 let renders=0,tiles=0;
 const panel=el('main',{},el('h2',{text:'Outfit Lab'})),header=el('span');
-const c={state,document,window:{scrollTo(){}},el,byId:()=>map,$:id=>id==='view-lab'?panel:header,COLORS:{black:'#111',red:'#c00',white:'#fff'},colLabel:x=>x,cap:x=>x,catLabel:p=>p.role,labParts:o=>[o.layer,o.one,o.top,o.under,o.bottom].filter(Boolean),labRole:p=>p.role,labEither:()=>false,labTopish:()=>false,isUnderCand:()=>false,labAccParts:o=>o.acc?.shoes?[o.acc.shoes]:[],labAccRestore(o,rec,m){if(rec.acc?.shoes&&m[rec.acc.shoes])o.acc={shoes:m[rec.acc.shoes]}},labTile:p=>{tiles++;return el('div',{class:'tile',piece:p.id})},labBlocksBox:v=>v.appendChild(el('section',{blocked:true})),labRender:()=>renders++,labBase:()=>1};
+const c={labPairBlocked:()=>false,state,document,window:{scrollTo(){}},el,byId:()=>map,$:id=>id==='view-lab'?panel:header,COLORS:{black:'#111',red:'#c00',white:'#fff'},colLabel:x=>x,cap:x=>x,catLabel:p=>p.role,labParts:o=>[o.layer,o.one,o.top,o.under,o.bottom].filter(Boolean),labRole:p=>p.role,labEither:()=>false,labTopish:()=>false,isUnderCand:()=>false,labAccParts:o=>o.acc?.shoes?[o.acc.shoes]:[],labAccRestore(o,rec,m){if(rec.acc?.shoes&&m[rec.acc.shoes])o.acc={shoes:m[rec.acc.shoes]}},labTile:p=>{tiles++;return el('div',{class:'tile',piece:p.id})},labBlocksBox:v=>v.appendChild(el('section',{blocked:true})),labRender:()=>renders++,labBase:()=>1};
 vm.createContext(c);
+vm.runInContext(source.slice(source.indexOf('function labComfortPiece('),source.indexOf('function labOK(')),c);
+vm.runInContext(source.slice(source.indexOf('function colorTagPaint('),source.indexOf('function clamp(',source.indexOf('function colorTagPaint('))),c);
 vm.runInContext(source.slice(source.indexOf('function labOutfitFromIds('),source.indexOf('/* ---------- accessories in the Outfit Lab')),c);
+c.LAB_NEUTRAL={black:1,white:1,gray:1,beige:1,brown:1};c.labPatterned=()=>false;vm.runInContext(source.slice(source.indexOf('function labPalettePair('),source.indexOf('function labPool(')),c);
 vm.runInContext(moduleSource,c);
 vm.runInContext(source.slice(source.indexOf('function labRefresh(){'),source.indexOf('function labRender(){')),c);
 function piece(id,role,colors=['black'],looks=['witchy']){return map[id]={id,name:id,role,colors,looks}}
@@ -108,12 +111,12 @@ const generatorMath=Object.create(Math);let seed=73471;generatorMath.random=()=>
 const diversity={Math:generatorMath,state:{tab:'lab',lab:{hist:[]},ratings:{}},labParts:o=>[o.top,o.bottom,o.one].filter(Boolean),labSig:o=>[o.top,o.bottom,o.one].filter(Boolean).map(p=>p.id).sort().join('+'),labFeat:o=>[o.top,o.bottom,o.one].filter(Boolean).flatMap(p=>['p:'+p.id,...(p.looks||[]).map(l=>'l:'+l)]),labStats:c.labStats,labRatingEntries:()=>[],labBase:o=>o.top?.bad?.5:.9};
 const tops=Array.from({length:12},(_,i)=>({id:'top-'+i,looks:[i<4?'cozy':'other']})),bottoms=Array.from({length:20},(_,i)=>({id:'bottom-'+i}));
 diversity.labDraw=(pool,anchorId)=>({top:anchorId?tops.find(p=>p.id===anchorId):tops[Math.floor(generatorMath.random()*tops.length)],bottom:bottoms[Math.floor(generatorMath.random()*bottoms.length)]});
-vm.createContext(diversity);
+diversity.labSuggestionOK=c.labSuggestionOK;vm.createContext(diversity);vm.runInContext(source.slice(source.indexOf('function labComfortPiece('),source.indexOf('function labOK(')),diversity);
 vm.runInContext(source.slice(source.indexOf('function labTaste(o,'),source.indexOf('/* ---------- accessories in the Outfit Lab')),diversity);
 const learned=Array.from({length:30},(_,i)=>({key:'old-'+i,record:{r:1,t:30-i},features:['p:top-0','l:cozy'],outfit:{top:tops[0],bottom:{id:'previous-'+i}}}));
 const counts={};let last=null,consecutive=0;
 for(let i=0;i<60;i++){
- const o=diversity.labGenerate({},null,null,{},learned);assert(o);assert.equal(o.algorithmVersion,'2.2.0');
+ const o=diversity.labGenerate({},null,null,{},learned);assert(o);assert.equal(o.algorithmVersion,'2.12.4');
  counts[o.top.id]=(counts[o.top.id]||0)+1;if(last===o.top.id)consecutive++;last=o.top.id;
  diversity.state.lab.hist.push({o});if(diversity.state.lab.hist.length>25)diversity.state.lab.hist.shift();diversity.state.ratings[o.sig]={r:1};
 }
@@ -138,3 +141,17 @@ ratingContext.labRate({sig:'versioned',top:tops[0],bottom:bottoms[0],algorithmVe
 assert.equal(ratingWrites[0].rec.algorithmVersion,'2.0.0');
 ratingContext.labRate({sig:'legacy',top:tops[1],bottom:bottoms[1]},0);
 assert.equal(ratingWrites[1].rec.algorithmVersion,undefined,'old/manual outfits remain unversioned');
+
+// Small milestones add personality without changing evidence or ratings.
+for(const [n,expected] of [[99,''],[100,'Linty is learning your taste.'],[499,'Linty is learning your taste.'],[500,'Quite the outfit experiment.'],[1000,'Wow, you’re dedicated!']]){
+ const entries=Array.from({length:n},(_,i)=>({record:{r:i<38?1:0}})),text=c.labCountText(entries);
+ assert(text.startsWith(n+' rated, 38 loved'));if(expected)assert(text.endsWith(expected));else assert.equal(text,n+' rated, 38 loved');
+}
+c.LAB_NEUTRAL={black:1,white:1};
+const reasonStart=source.indexOf('function labReasons(');vm.runInContext(source.slice(reasonStart,source.indexOf('\n}',reasonStart)+2),c);
+const verbose={name:'A very long imported product title that should not dominate the explanation',colors:['black'],statement:'plain'};
+const reasons=c.labReasons({top:verbose,bottom:verbose,under:verbose,layer:verbose,taste:.5});
+assert(reasons.includes('Base layer and outer layer included'));assert(!reasons.join(' ').includes(verbose.name));assert(reasons.every(x=>x.length<70));
+assert(!c.labReasons({}).includes('Neutral palette'),'empty outfits must not claim a palette');
+assert(c.labReasons({top:{...verbose,wish:true}})[0].includes('1 wishlist piece'));
+console.log('Lab copy: milestone boundaries, accurate counts, short layer descriptions, honest empty state, and concise wishlist context pass.');

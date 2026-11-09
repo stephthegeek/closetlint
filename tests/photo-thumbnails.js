@@ -40,15 +40,16 @@ assert.deepEqual(images.map(n=>n.src),['/_thumb/'+'a'.repeat(32),'/_catalog_thum
 console.log('Collection covers: uploaded and legacy photos use lazy, asynchronously decoded WebP previews.');
 
 function appFn(name){const a=html.indexOf('function '+name+'('),b=html.indexOf('\nfunction ',a+1);assert(a>=0);return html.slice(a,b)}
-Object.assign(ctx,{COLL_MAX:12,BOARD_AR:1,SHAPES:{},clamp:(v,a,b)=>Math.min(b,Math.max(a,v)),collLayout:()=>({deco:[],slots:[{x:0,y:0,w:100,h:100}]}),collRadius:()=>0,collImgStyle:()=>'',collPalFor:()=>[],miniTf:()=>'',clipCss:()=>'',labRole:()=>null,catLabel:()=> 'Top'});
+Object.assign(ctx,{COLL_MAX:12,BOARD_AR:1,SHAPES:{},clamp:(v,a,b)=>Math.min(b,Math.max(a,v)),collLayout:()=>({deco:[],slots:[{x:0,y:0,w:100,h:100}]}),collRadius:()=>0,collImgStyle:()=>'',collPalFor:()=>[],labRole:()=>null,catLabel:()=> 'Top'});
 vm.runInContext(['collBuild','ofMini','labTile'].map(appFn).join('\n'),ctx);
 const map={p:{id:'p',name:'Synthetic top',photo:original}},outfit={pieces:[{id:'p',x:0,y:0,w:100,z:0}],st:{}};
 function firstImage(node){if(node.tag==='img')return node;for(const child of node.children||[]){if(typeof child!=='object')continue;const found=firstImage(child);if(found)return found}}
-assert.equal(firstImage(ctx.ofMini(outfit,map)).src,'/_thumb/'+'a'.repeat(32));
-assert.equal(firstImage(ctx.ofMini({...outfit,lay:{n:1}},map)).src,'/_thumb/'+'a'.repeat(32),'collage-style saved outfits use previews too');
+let rendered;ctx.outfitMini=(doc,photos,fit)=>{rendered={doc,photos,fit};return new PreviewNode('div',{composition:true})};
+assert(ctx.ofMini(outfit,map,true).composition);assert.equal(rendered.doc,outfit);assert.equal(rendered.photos,map);assert.equal(rendered.fit,true);
+const collage={...outfit,lay:{n:1}};assert(ctx.ofMini(collage,map).composition);assert.equal(rendered.doc,collage,'collages use the same full composition path');
 const board=new PreviewNode('div');ctx.collBuild(board,outfit.pieces,map,{n:1},1,0,{pal:[],bgc:'#fff',live:true});assert.equal(firstImage(board).src,original,'the working board retains full-resolution photos');
 assert.equal(firstImage(ctx.labTile(map.p)).src,'/_thumb/'+'a'.repeat(32),'Lab and taste tiles use previews');
-console.log('Saved outfits and Lab: miniature collages and tiles use previews; working boards retain originals.');
+console.log('Saved outfits delegate full composition rendering; Lab tiles use previews and working boards retain originals.');
 
 vm.runInContext(['histPreviewRole','histPreviewPieces','histMore'].map(appFn).join('\n'),ctx);
 const p=(id,meta,sub,extra={})=>({id,meta,sub,photo:'photo-'+id,...extra});
@@ -70,7 +71,8 @@ for(const [n,kind,label] of [[1,'piece','1 more piece'],[3,'piece','3 more piece
 // Exercise the actual calendar renderer: saved compositions stay intact, while
 // individually logged days use representative pieces and truthful + labels.
 ctx.state={histMonth:'2026-10'};ctx.byIdA=()=>({});ctx.histWorn=()=>({'2026-10-15':[{id:'look1',name:'First look'},{id:'look2',name:'Second look'}]});ctx.histPieces=()=>({'2026-10-14':mixed});ctx.histPlanned=()=>({'2026-10-16':[{id:'event',kind:'event',name:'Dinner',outfits:[{id:'planned1'},{id:'planned2'}]}]});ctx.todayStr=()=> '2026-10-30';ctx.histNice=d=>d;ctx.ofMini=o=>new PreviewNode('div',{savedOutfit:o.id});
-vm.runInContext(appFn('histDraw'),ctx);ctx.histDraw();
+ctx.histMonthSelected=()=> '2026-10-30';ctx.histAgendaDay=()=>new PreviewNode('div');
+vm.runInContext(appFn('histMonthDraw'),ctx);ctx.histMonthDraw();
 function descendants(n){return [n,...(n.children||[]).filter(x=>typeof x==='object').flatMap(descendants)]}
 const cells=descendants(nodes.ofbody).filter(n=>n.tag==='button'&&n.class?.startsWith('hday'));
 const individual=descendants(cells.find(n=>n['aria-label'].startsWith('2026-10-14')));assert.deepEqual(individual.filter(n=>n.tag==='img').map(n=>n.src),['photo-dress','photo-shoes','photo-ring-a','photo-ring-b']);assert.equal(individual.find(n=>n.class==='hmore').title,'1 more piece');

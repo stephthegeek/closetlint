@@ -38,3 +38,41 @@ def _history(latitude, longitude, year):
         raise ValueError('Weather data is incomplete.')
     return {'daily': {key: daily[key] for key in fields},
             'years': [year - 2, year]}
+
+
+def forecast(latitude, longitude, day):
+    """Today's forecast in Fahrenheit; location only leaves the app."""
+    from datetime import datetime, timezone
+    latitude, longitude = float(latitude), float(longitude)
+    if not (math.isfinite(latitude) and math.isfinite(longitude)
+            and -90 <= latitude <= 90 and -180 <= longitude <= 180):
+        raise ValueError('Choose a valid city.')
+    requested = date.fromisoformat(day)
+    if abs((requested - datetime.now(timezone.utc).date()).days) > 1:
+        raise ValueError('Only today’s forecast is available.')
+    # Refresh hourly; bounded LRU avoids permanent caching of stale forecasts.
+    return _forecast(round(latitude, 4), round(longitude, 4), day,
+                     int(datetime.now(timezone.utc).timestamp() // 3600))
+
+
+@lru_cache(maxsize=64)
+def _forecast(latitude, longitude, day, hour):
+    query = {'latitude': latitude, 'longitude': longitude,
+             'daily': 'temperature_2m_max,weather_code',
+             'temperature_unit': 'fahrenheit', 'timezone': 'auto',
+             'start_date': day, 'end_date': day}
+    url = 'https://api.open-meteo.com/v1/forecast?' + urlencode(query)
+    with urlopen(url, timeout=10) as response:
+        raw = response.read(256 * 1024 + 1)
+    if len(raw) > 256 * 1024:
+        raise ValueError('Forecast is too large.')
+    payload = json.loads(raw)
+    daily = payload.get('daily', {})
+    if daily.get('time') != [day]:
+        raise ValueError('Forecast date is unavailable.')
+    high, code = daily['temperature_2m_max'][0], daily['weather_code'][0]
+    if (isinstance(high, bool) or not isinstance(high, (int, float))
+            or not math.isfinite(high) or not -150 <= high <= 160
+            or isinstance(code, bool) or not isinstance(code, int) or not 0 <= code <= 99):
+        raise ValueError('Forecast is incomplete.')
+    return {'date': day, 'high': high, 'code': code}

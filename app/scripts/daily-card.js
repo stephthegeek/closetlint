@@ -1,7 +1,7 @@
 /* Deterministic, local daily readings. No AI, network, or wardrobe mutations. */
 var ClosetLintDaily=(function(){
  'use strict';
- var version=1,DAY=86400000;
+ var version=2,DAY=86400000;
  function hash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
  function rng(seed){return function(){var t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
  function stamp(s){return /^\d{4}-\d{2}-\d{2}$/.test(s||'')?Date.parse(s+'T12:00:00Z'):NaN}
@@ -23,7 +23,8 @@ var ClosetLintDaily=(function(){
  function generate(options){
   var day=options.day;if(!Number.isFinite(stamp(day)))throw new Error('Daily card needs a local calendar date');
   var random=rng(hash(day+'|'+options.instance)),bank=options.lines,history=options.history||[],items=(options.items||[]).filter(active).slice().sort(function(a,b){return a.id.localeCompare(b.id)});
-  var tone=random()<.2?'gremlin':'mystic',used=history.map(function(h){return h.hash}),event=special(day);
+  var tone=random()<.2?'gremlin':'mystic',used=history.map(function(h){return h.hash}),event=special(day),previous=history.find(function(h){return h.day<day&&daysSince(h.day,day)===1}),avoid=previous&&previous.type;
+  if(avoid==='fortune')event=null;
   var available=items.filter(function(p){return !p.stored&&(!(p.seasons||[]).length||!options.season||p.seasons.indexOf(options.season)>=0)});
   var neglected=items.filter(function(p){var age=daysSince(latest(p,day),day);return p.fav&&age!==null&&age>=30&&!history.some(function(h){return h.pieceId===p.id&&h.type==='neglected'&&daysSince(h.day,day)<14})}).sort(function(a,b){return daysSince(latest(b,day),day)-daysSince(latest(a,day),day)||a.id.localeCompare(b.id)});
   var counts=Object.create(null),worn=Object.create(null),pairs=Object.create(null),seen=Object.create(null);
@@ -37,6 +38,7 @@ var ClosetLintDaily=(function(){
   if(event){type='fortune';lines=bank.almanac[event]}
   else for(var t=0;t<types.length;t++){
    type=types[(start+t)%types.length];
+   if(type===avoid)continue;
    if(type==='do'&&!available.length||type==='neglected'&&!neglected.length||type==='color'&&!rare.length&&!unmet.length)continue;
    lines=bank[type][tone];
    if(type==='do')piece=weighted(available,function(p){var last=(p.wears||[]).filter(function(d){return Number.isFinite(stamp(d))&&d<=day}).sort().pop(),age=daysSince(last,day);return (p.fav?2:1)*(age!==null&&age<=3?.2:age===null||age>=14?1.5:1)},random);
@@ -48,7 +50,7 @@ var ClosetLintDaily=(function(){
   var candidates=lines.map(function(line){return line.replace(/#(\w+)#/g,function(_,k){return vars[k]===undefined?'#'+k+'#':vars[k]})}).filter(function(s){return !/#\w+#/.test(s)});
   var fresh=candidates.filter(function(s){return used.indexOf(hash(s))<0});
   if(fresh.length)candidates=fresh;
-  else if(!event){var fallback=bank.fortune.mystic.concat(bank.fortune.gremlin).filter(function(s){return used.indexOf(hash(s))<0});if(fallback.length){candidates=fallback;type='fortune';piece=null;vars={}}}
+  else if(!event){var fallbackType=avoid==='fortune'?'dont':'fortune',fallback=bank[fallbackType].mystic.concat(bank[fallbackType].gremlin).filter(function(s){return used.indexOf(hash(s))<0});if(fallback.length){candidates=fallback;type=fallbackType;piece=null;vars={}}}
   var text=candidates[Math.floor(random()*candidates.length)]||bank.fortune.mystic[0];
   return {version:version,day:day,type:type,tone:tone,text:text,hash:hash(text),pieceId:piece?piece.id:null,colors:vars.color?[vars.color]:vars.colorA?[vars.colorA,vars.colorB]:[]};
  }

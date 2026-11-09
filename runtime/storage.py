@@ -99,7 +99,7 @@ def validate_piece(record):
         raise ValueError('Invalid laundry status')
     if 'care' in record:
         care = record['care']
-        if not isinstance(care, dict) or any(k in care and (not isinstance(care[k], str) or len(care[k]) > (1000 if k == 'note' else 100)) for k in ('wash', 'dry', 'note')):
+        if not isinstance(care, dict) or any(k in care and (not isinstance(care[k], str) or len(care[k]) > (1000 if k == 'note' else 100)) for k in ('wash', 'dry', 'wrinkleUpkeep', 'note')):
             raise ValueError('Invalid care instructions')
     if 'acquiredDate' in record:
         value = record['acquiredDate']
@@ -418,6 +418,8 @@ class Store:
         record = dict(record)
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
+            from deleted_pieces import guard_write
+            guard_write(db, col, record_id, record)
             previous = db.execute('SELECT payload FROM documents WHERE collection=? AND id=?', (col, record_id)).fetchone()
             current = json.loads(previous[0]) if previous else None
             if previous and col == 'custom':
@@ -466,6 +468,8 @@ class Store:
             db.execute('BEGIN IMMEDIATE')
             writes, versions = [], []
             for col, record_id, record, expected, data in prepared:
+                from deleted_pieces import guard_write
+                guard_write(db, col, record_id, record)
                 row = db.execute('SELECT payload FROM documents WHERE collection=? AND id=?', (col, record_id)).fetchone()
                 current = json.loads(row[0]) if row else None
                 if check_version(expected, current, record) and current != record:
@@ -482,6 +486,8 @@ class Store:
         doc_key(col, record_id)
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
+            from deleted_pieces import guard_write
+            guard_write(db, col, record_id, None)
             previous = db.execute('SELECT payload FROM documents WHERE collection=? AND id=?', (col, record_id)).fetchone()
             current = json.loads(previous[0]) if previous else None
             if not check_version(expected, current, None):
@@ -502,6 +508,8 @@ class Store:
             raise ValueError('Board is too large')
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
+            from deleted_pieces import guard_write
+            guard_write(db, 'board', '', board)
             if not check_version(expected, self.meta(db, 'board'), board):
                 return write_version(board)
             self.put_meta(db, 'board', board)

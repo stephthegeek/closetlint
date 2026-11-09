@@ -16,13 +16,13 @@ console.log('Control icon packs: owner choices, gendered people, dynamic control
 // Wishlist category controls retain semantic pack identities on repeated changes.
 {
  const vm=require('node:vm'),c={};vm.createContext(c);vm.runInContext(source.split('\n').find(l=>l.startsWith('function wrScopeIconKey(')),c);
- for(const group of ['clothing','shoes','jewelry','other']){
+ for(const group of ['clothing','accessories','jewelry']){
   const icon={textContent:'',attrs:{'data-control-icon':c.wrScopeIconKey(group)},getAttribute(k){return this.attrs[k]},setAttribute(k,v){this.attrs[k]=v}};
   const control={textContent:group,className:'chip',getAttribute:()=>group,querySelectorAll:()=>[icon]};
   for(const pack of ['femme','masc','other','femme']){icons.apply(control,pack);assert.equal(icon.textContent,icons.get(c.wrScopeIconKey(group),pack));assert(icon.textContent)}
  }
  assert.equal(c.wrScopeIconKey('legwear'),'','literal socks remain a shared garment symbol');
- assert.equal(icons.get(c.wrScopeIconKey('shoes'),'masc'),'👞');assert.equal(icons.get(c.wrScopeIconKey('other'),'masc'),'🎒');
+ assert.equal(icons.get(c.wrScopeIconKey('accessories'),'masc'),'👞');
  console.log('Wishlist filters: selected emoji packs and repeated switches preserve all category identities.');
 }
 
@@ -37,4 +37,23 @@ console.log('Control icon packs: owner choices, gendered people, dynamic control
   c.paintTab(id,glyph,label,13);assert.equal(tab.children[0].text,icons.get(key,pack),'data/count redraw retains the selected pack');
  }
  console.log('Browse category tabs: Masc/Femme/Other choices survive initial rendering, count redraws, and repeated pack switches.');
+}
+
+// Every configurable category has an emoji, with stable identity when packs change.
+{
+ const metas=JSON.parse(source.match(/var META=(\[[^;]+\]);/)[1].replace(/'/g,'"'));
+ for(const pack of ['femme','masc','other'])for(const meta of metas)assert(icons.category(meta,pack),meta+' '+pack);
+ for(const pack of ['femme','masc','other']){assert.equal(icons.category('Activewear',pack),'🎽');assert.equal(icons.category('Cultural & traditional garments',pack),'🌐')}
+ assert.equal(icons.category('One-pieces','masc'),'🧍');assert.equal(icons.category('Tops','masc'),'👕');
+ const icon={textContent:'',getAttribute:k=>k==='data-category-icon'?'One-pieces':null},control={textContent:'One-pieces',getAttribute:()=>'',querySelectorAll:()=>[icon]};
+ for(const pack of ['masc','femme','other','masc']){icons.apply(control,pack);assert.equal(icon.textContent,icons.category('One-pieces',pack))}
+ assert.equal(icons.category('unknown','femme'),'');
+ console.log('Optional category tabs: complete emoji coverage and repeated pack switches pass.');
+}
+{
+ const vm=require('node:vm');let pack='masc',enabled=true;
+ const c={ClosetLintIcons:icons,document:{documentElement:{getAttribute:k=>k==='data-icon-pack'?pack:k==='data-menu-emoji'?(enabled?'on':'off'):null}},metaLabel:m=>m==='Glasses'?'Eyewear':m};
+ vm.createContext(c);vm.runInContext(source.split('\n').find(l=>l.startsWith('function closetCategoryOptionLabel(')),c);
+ assert.equal(c.closetCategoryOptionLabel('One-pieces'),'🧍 One-pieces');pack='femme';assert.equal(c.closetCategoryOptionLabel('One-pieces'),'👗 One-pieces');enabled=false;assert.equal(c.closetCategoryOptionLabel('One-pieces'),'One-pieces');assert.equal(c.closetCategoryOptionLabel('Glasses'),'Eyewear');
+ assert(source.includes("id:'closet-add-tab','data-native-emoji':'true'"),'native dropdown option text is not converted into nested emoji spans');
 }

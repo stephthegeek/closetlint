@@ -1,0 +1,31 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
+let pieces=[],blocked=false;const messages=[],state={tab:'lab',fantasy:false};
+const c={state,document:{addEventListener(){}},Math:Object.assign(Object.create(Math),{random:()=>0}),Date,Set,BLANK:'blank',PLACEHOLDER:'placeholder',catMetas:m=>[m],allItems:()=>pieces,labRatingEntries:()=>[],wrFam:()=>({c:true,d:true}),labPairBlocked:()=>blocked,laundryPlanningOnly:()=>true,needsLaundry:p=>!!p.laundry,toast:s=>messages.push(s),labRender:()=>{},$:()=>({querySelector:()=>null})};
+vm.createContext(c);vm.runInContext(html.slice(html.indexOf('var LAB_NEUTRAL='),html.indexOf('/* ---------- Lab outfit titles:')),c);
+c.labFits=p=>p.fit!==false;c.labPush=(o,undo)=>(state.lab.hist||(state.lab.hist=[])).push({o,undo});
+const piece=(id,meta='Tops',extra={})=>({id,name:id,meta,sub:meta==='Bottoms'?'Pants':meta==='One-pieces'?'Dresses':'Blouses',photo:'photo:'+id,colors:['black'],styles:['casual'],seasons:['summer'],statement:'plain',material:[],...extra});
+const top=piece('top'),other=piece('other'),bottom=piece('bottom','Bottoms'),otherBottom=piece('other-bottom','Bottoms'),one=piece('dress','One-pieces'),otherOne=piece('other-dress','One-pieces'),layer=piece('layer','Tops',{labAs:'layer',kind:'cardigan',sub:'Sweaters',weight:'thin'}),otherLayer=piece('other-layer','Tops',{labAs:'layer',kind:'cardigan',sub:'Sweaters',weight:'thin'}),under=piece('under','Tops',{labAs:'under',sub:'Tanks',sleeve:'sleeveless',weight:'thin'}),otherUnder=piece('other-under','Tops',{labAs:'under',sub:'Tanks',sleeve:'sleeveless',weight:'thin'});
+const defaults=()=>({seasons:{summer:true},fits:true,fresh:false,occasion:'any',hist:[],seen:{}});
+function reset(items,o){pieces=items.filter(Boolean);blocked=false;state.fantasy=false;state.ratings={};state.lab=defaults();state.lab.cur=o;return state.lab}
+
+vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/comfort-zone.js','utf8'),c);
+const answer=value=>({version:1,status:'answered',value}),select=(selected,importance='only')=>({selected,importance});
+state.profile={};state.lab=defaults();
+assert.equal(c.labComfortPiece(top).score,0);assert(c.labComfortAllowed(top));assert.equal(c.labComfortRange().mix,.2);
+const lace=piece('lace','Tops',{material:['lace']}),cotton=piece('cotton','Tops',{material:['cotton']}),velvet=piece('velvet','Tops',{material:['velvet']});
+state.profile={'comfort-textures':answer({lace:'hard',velvet:'love'})};
+assert(!c.labOK(lace));assert(c.labOK(cotton));assert(c.labPickWeight(velvet)>c.labPickWeight(cotton));
+state.lab.anchor=lace.id;assert(c.labOK(lace),'explicit anchor remains available');assert(c.labComfortPiece(lace).reasons.some(r=>r.strength==='hard'));state.lab.anchor=null;
+state.fantasy=true;assert(!c.labOK(lace),'Fantasy does not override a hard no');state.fantasy=false;
+state.tab='trip';assert(c.labOK(lace));assert.equal(c.labComfortPiece(velvet).score,0);state.tab='lab';
+state.profile={'comfort-textures':answer({lace:'avoid'})};assert(c.labOK(lace));assert(c.labPickWeight(lace)<c.labPickWeight(cotton),'soft preference ranks without excluding');
+state.profile={'comfort-careeffort':answer({hand:'hard'})};assert(!c.labAccCandidate(piece('scarf','Legwear',{care:{wash:'Hand wash'}}),{top,bottom}));
+state.profile={'comfort-necklacelength':answer(select(['long']))};assert(!c.labAccCandidate(piece('necklace','Jewelry',{sub:'Necklaces',length:'choker'}),{top,bottom}));
+state.profile={'comfort-layerfit':answer(select(['streamlined']))};const roomy=piece('roomy','Outerwear',{fits:['oversized']}),close=piece('close','Tops',{fits:['fitted']});assert(c.labComfortOutfit({layer:roomy,top:close,bottom}).blocked);state.lab.anchor=roomy.id;assert(!c.labComfortOutfit({layer:roomy,top:close,bottom}).blocked);state.lab.anchor=null;
+state.profile={'comfort-patternamount':answer(select(['solid']))};assert(c.labComfortOutfit({top:{...top,pattern:['floral']},bottom:{...bottom,pattern:['solid']}}).blocked);assert(!c.labComfortOutfit({top,bottom}).blocked,'missing pattern neutral');
+state.profile={'comfort-patternamount':answer(select(['accent']))};assert(!c.labComfortOutfit({top:{...top,pattern:['solid']},bottom:{...bottom,pattern:['solid']}}).blocked,'accent may be supplied by accessories');
+state.profile={'comfort-rangeeveryday':answer('trusted')};assert.equal(c.labComfortRange().mix,.05);state.profile={'comfort-rangeeveryday':answer('new')};assert.equal(c.labComfortRange().mix,.35);
+state.profile={'comfort-room':answer('roomy')};assert(c.ClosetLintComfort.guidance(state.profile,roomy).score>0);assert(!c.ClosetLintComfort.guidance(state.profile,close).blocked);assert.equal(c.ClosetLintComfort.guidance(state.profile,{...top,fits:['fitted','oversized']}).score,0,'contradictory fit neutral');
+const unchanged=JSON.stringify(state.profile);c.labComfortOutfit({top,bottom});assert.equal(JSON.stringify(state.profile),unchanged);
+console.log('Comfort integration: automatic exclusions, soft weights, anchors, Fantasy, accessories, known combinations, unknown fields, Range, and read-only preferences pass.');

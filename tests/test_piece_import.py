@@ -10,7 +10,7 @@ import threading
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'runtime'))
-from piece_import import import_batch, matches, prepare_batch, product_key
+from piece_import import import_batch, matches, prepare_batch, product_key, record
 from storage import Archive, Store
 try:
     from PIL import Image
@@ -127,6 +127,14 @@ class PieceImportTests(unittest.TestCase):
             self.prepare([{**self.piece, 'images': images + [images[0]]}])
         with self.assertRaisesRegex(ValueError, 'at most 12'):
             self.prepare([{**self.piece, 'images': images, 'photoFile': 'model.jpg'}])
+
+    def test_wear_position_combinations(self):
+        for value in ('top', 'under', 'layer', 'either', 'topunder', 'underlayer', 'all'):
+            with self.subTest(value=value):
+                result = record({**self.piece, 'labAs': value}, [])
+                self.assertEqual(result['labAs'], value)
+                self.store.set_record('custom', 'role-check', result)
+                self.assertEqual(self.store.state()['collections']['custom']['role-check']['labAs'], value)
 
     def test_preview_apply_gallery_and_retry(self):
         prepared = self.prepare()

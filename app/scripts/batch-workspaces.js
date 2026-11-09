@@ -78,7 +78,7 @@ async function batchDraftCheckpoint(kind,read){
   await batchDraftSave(kind,read,true);
   if(batchDrafts[kind].error&&!batchDrafts[kind].memoryOnly)throw new Error('Could not keep the recovery draft. Retry keeping it, or explicitly continue without reload recovery.');
 }
-function batchWorkBusy(){return !!(typeof setupImportSession!=='undefined'&&setupImportSession&&(setupImportSession.busy||setupImportSession.sourceBusy||setupImportSession.sourcesLoading)||typeof tidyWorkspace!=='undefined'&&tidyWorkspace&&tidyWorkspace.queue&&tidyWorkspace.queue.saving)}
+function batchWorkBusy(){return !!(typeof tidyDetailsWorkspace!=='undefined'&&tidyDetailsWorkspace&&tidyDetailsWorkspace.busy||typeof setupImportSession!=='undefined'&&setupImportSession&&(setupImportSession.busy||setupImportSession.sourceBusy||setupImportSession.sourcesLoading)||typeof tidyWorkspace!=='undefined'&&tidyWorkspace&&tidyWorkspace.queue&&tidyWorkspace.queue.saving)}
 function batchWorkspaceReturn(){
   if(window.ClosetLintRoutes&&window.ClosetLintRoutes.leaveBatch)return window.ClosetLintRoutes.leaveBatch();
   setTab('all');

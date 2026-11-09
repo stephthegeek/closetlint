@@ -4,12 +4,13 @@ const moduleSource=fs.readFileSync(__dirname+'/../app/scripts/board-session.js',
 const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
 const start=html.indexOf('function paintOMeta('),end=html.indexOf('\nfunction ',start+1);
 const clone=x=>JSON.parse(JSON.stringify(x));
+const scheduleMessageSource=moduleSource.slice(moduleSource.indexOf('function outfitScheduledMessage('),moduleSource.indexOf('\n}',moduleSource.indexOf('function outfitScheduledMessage('))+2);
 function fixture(){
  const nodes={},server={},attempts=[],messages=[],visits=[];
  let snapshot,flushCount=0,failFlush=0,failWrite=false,lost=false,onWrite,failedRecord=false;
  const original={id:null,name:'My active board',pieces:[{id:'old',x:13,y:7,w:20,z:1}],texts:[{t:'Keep this'}],st:{bg:{c:'#abcdef'}}};
  const state={board:clone(original),outfits:{},capsDone:true,tab:'saved'};
- const c={state,console,needDb:()=>false,$:id=>nodes[id]||(nodes[id]={setAttribute(k,v){this[k]=v},classList:{toggle(){}}}),toast:m=>messages.push(m),toastAct:m=>messages.push(m),renderBoard(){c.paintOMeta()},setTab:t=>state.tab=t,paintBoardContext(){c.paintCalendarPlanning()},openCalendar:m=>{state.tab='saved';visits.push(m)},histDay:d=>visits.push(d),histNice:d=>d,window:{ClosetLintRuntime:{setBoard:b=>snapshot=clone(b),flush:async()=>{flushCount++;if(flushCount===failFlush)throw Error('Autosave unavailable');if(failedRecord)throw Error('An outfit write needs retry')}}}};
+ const c={state,console,needDb:()=>false,$:id=>nodes[id]||(nodes[id]={setAttribute(k,v){this[k]=v},classList:{toggle(){}}}),toast:m=>messages.push(m),toastAct:m=>messages.push(m),renderBoard(){c.paintOMeta()},setTab:t=>state.tab=t,renderSaved(){},paintBoardContext(){c.paintCalendarPlanning()},openCalendar:m=>{state.tab='saved';visits.push(m)},histDay:d=>visits.push(d),histNice:d=>d,window:{ClosetLintRuntime:{setBoard:b=>snapshot=clone(b),flush:async()=>{flushCount++;if(flushCount===failFlush)throw Error('Autosave unavailable');if(failedRecord)throw Error('An outfit write needs retry')}}}};
  state.db={collection:()=>({doc:id=>({set:async doc=>{attempts.push({id,doc:clone(doc)});if(onWrite)onWrite();if(!failWrite||lost)server[id]=clone(doc);if(failWrite){failedRecord=true;throw Error('Response unavailable')}failedRecord=false}})})};
  vm.createContext(c);vm.runInContext(moduleSource+'\n'+html.slice(start,end),c);
  return {c,state,original,nodes,server,attempts,messages,visits,resetFailures(){failedRecord=false},get snapshot(){return snapshot},get flushCount(){return flushCount},set failFlush(n){failFlush=n},set failWrite(v){failWrite=v},set lost(v){lost=v},set onWrite(v){onWrite=v}};
@@ -63,14 +64,14 @@ function fixture(){
  function el(tag,attrs,...children){const n={tag,...attrs,children:children.filter(Boolean),addEventListener(){},appendChild(x){this.children.push(x)},showModal(){this.open=true},close(){this.open=false}};nodes.push(n);return n}
  const dialog=el('dialog',{}),legacy={k:'old',d:'2026-11-02',name:'Dinner',loc:'Home',lo:50,hi:70,dress:'casual',rain:true};
  const c={window:{confirm:()=>{discardPrompts++;return false}},el,$:()=>dialog,needDb:()=>false,state:{outfits:{one:{name:'Favorite outfit',plans:[legacy]}}},todayStr:()=> '2026-10-27',histNice:d=>d,addClose(){},toast:m=>messages.push(m),toastAct:(m,label,action)=>messages.push({m,label,action}),returnCalendarDay:d=>visits.push(d),ofSave:async(id,value)=>{writes.push(JSON.parse(JSON.stringify(value)));if(fail)return false;c.state.outfits[id].plans=value.plans;return true}};
- vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function planOutfitDialog('),html.indexOf('function openWearOutfit(')),c);
+ vm.createContext(c);vm.runInContext(scheduleMessageSource+'\n'+html.slice(html.indexOf('function planOutfitDialog('),html.indexOf('function openWearOutfit(')),c);
  c.planOutfitDialog('one',null,null,legacy);
  const date=nodes.find(n=>n.type==='date'),name=nodes.find(n=>n['aria-label']==='Event name (optional)'),save=nodes.find(n=>n.text==='Save changes');
  assert.equal(nodes.filter(n=>n.tag==='input').length,2,'scheduling needs only date and optional name');
  date.value='2026-11-04';name.value='';await save.onclick();assert.equal(dialog.open,true);assert.equal(messages.length,0);assert.equal(save.disabled,false,'failed save remains retryable');
  dialog.oncancel({preventDefault(){}});assert.equal(discardPrompts,1);assert.equal(dialog.open,true,'canceling the discard warning keeps failed-save edits');
  fail=false;await save.onclick();assert.equal(dialog.open,false);assert.equal(c.state.outfits.one.plans.length,1);const plan=c.state.outfits.one.plans[0];assert.equal(plan.d,'2026-11-04');assert.equal(plan.name,undefined);for(const key of ['loc','lo','hi','dress','rain'])assert.equal(plan[key],legacy[key],'legacy '+key+' is retained');
- assert.equal(messages[0].label,'View calendar');messages[0].action();assert.deepEqual(visits,['2026-11-04']);
+ assert.equal(messages[0].label,'View schedule');messages[0].action();assert.deepEqual(visits,['2026-11-04']);
  nodes.length=0;c.planOutfitDialog('one','2026-11-05');await nodes.find(n=>n.text==='Schedule outfit').onclick();assert.equal(c.state.outfits.one.plans.length,2);const fresh=c.state.outfits.one.plans[1];assert.equal(fresh.loc,undefined,'new schedules do not silently inherit location/weather');
  console.log('Outfit scheduling: compact fields, retained legacy details, failed-save retry, and calendar toast pass.');
 })().catch(e=>{console.error(e);process.exitCode=1});
@@ -91,4 +92,27 @@ function fixture(){
  c.state.outfits.three={pieces:[{id:'manual'}],wearLog:[{d:'2026-10-27',ids:['manual'],added:[]}]};
  assert.equal(await c.unwearOutfit('two','2026-10-27'),true);assert.deepEqual(pieces.manual.wears,['2026-10-27'],'another outfit still using the date is preserved');
  console.log('Calendar wear transactions: complete saves/removals, duplicate taps, retries, provenance, independent dates, and shared dates pass.');
+})().catch(e=>{console.error(e);process.exitCode=1});
+
+// Copying a past wear is add-only, deduplicated, and retryable after a failed save.
+(async()=>{
+ const start=html.indexOf('function copyPieceWearToToday('),end=html.indexOf('\nfunction ',start+1);
+ const piece={id:'copy-piece',wears:['2026-10-20']},messages=[],writes=[];let succeed=false,release;
+ const c={state:{},byId:()=>({[piece.id]:piece}),todayStr:()=> '2026-11-01',toast:m=>messages.push(m),Promise,
+  patchEdit:async(it,patch)=>{writes.push(JSON.parse(JSON.stringify(patch)));if(release)await release;if(succeed)it.wears=patch.wears;return succeed}};
+ vm.createContext(c);vm.runInContext(html.slice(start,end),c);
+ assert.equal(await c.copyPieceWearToToday(piece),false);assert.deepEqual(piece.wears,['2026-10-20']);assert.equal(messages.length,0);
+ succeed=true;let finish;release=new Promise(r=>finish=r);
+ const first=c.copyPieceWearToToday(piece),second=c.copyPieceWearToToday(piece);assert.equal(first,second,'rapid repeat shares one save');finish();release=null;
+ assert.equal(await first,true);assert.deepEqual(Array.from(piece.wears),['2026-10-20','2026-11-01']);assert.equal(writes.length,2);
+ assert.equal(await c.copyPieceWearToToday(piece),true);assert.equal(writes.length,2,'already logged today does not write or toggle it off');assert.equal(messages.at(-1),'Already logged for today');
+ console.log('Copy to today: retains original date, retries failed writes, deduplicates rapid clicks, and never removes today.');
+})().catch(e=>{console.error(e);process.exitCode=1});
+
+(async()=>{
+ const a=html.indexOf('function planCalendarOutfit('),b=html.indexOf('\nfunction ',a+1);let succeed=false,writes=[];
+ const c={state:{outfits:{look:{name:'Sample',wearLog:[{d:'2026-10-28'}],plans:[{k:'existing',d:'2026-11-04',name:'Keep me'}]}}},needDb:()=>false,todayStr:()=> '2026-11-01',histNice:d=>d,toast(){},Promise,ofSave:async(id,patch)=>{writes.push(clone(patch));if(succeed)Object.assign(c.state.outfits[id],clone(patch));return succeed}};
+ vm.createContext(c);vm.runInContext(scheduleMessageSource+'\n'+html.slice(a,b),c);const before=clone(c.state.outfits.look);
+ assert.equal(await c.planCalendarOutfit('look','2026-11-02'),false);assert.deepEqual(c.state.outfits.look,before,'failed planning does not change records');succeed=true;assert.equal(await c.planCalendarOutfit('look','2026-11-02'),true);assert.deepEqual(writes[0],writes[1],'retry uses the same plan identity');assert.equal(c.state.outfits.look.plans.length,2);assert.equal(c.state.outfits.look.plans[1].name,'Keep me');assert.deepEqual(c.state.outfits.look.wearLog,before.wearLog,'planning never logs a wear');const n=writes.length;assert.equal(await c.planCalendarOutfit('look','2026-11-02'),true);assert.equal(writes.length,n,'repeated plans are not duplicated');assert.equal(await c.planCalendarOutfit('look','2026-11-01'),false);assert.equal(await c.planCalendarOutfit('missing','2026-11-02'),false);
+ console.log('Shared calendar planning: future-only, failure retention, stable retries, existing plans and wear isolation pass.');
 })().catch(e=>{console.error(e);process.exitCode=1});

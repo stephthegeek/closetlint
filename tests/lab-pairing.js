@@ -1,0 +1,23 @@
+const assert=require('node:assert/strict'),fs=require('fs'),vm=require('vm');
+const code=fs.readFileSync(__dirname+'/../app/scripts/lab-pairing.js','utf8'),html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
+const c={state:{tab:'lab',blocks:{},lab:{occasion:'any'}}};vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function labComfortPiece('),html.indexOf('function labOK(')),c);vm.runInContext(code,c);const P=c.ClosetLintPairing;
+const socks={id:'socks-a',meta:'Legwear',sub:'Socks',name:'Over the knee socks'},pants={id:'pants-a',meta:'Bottoms',sub:'Leggings',name:'Black jeggings'};
+const a=P.options(socks)[0],b=P.options(pants)[0],rule={kind:'similar',rule:{version:1,left:a,right:b}};
+assert.equal(a.sockType,'thigh high');assert.equal(b.titleCue,'jeggings');assert.equal(P.options({...socks,name:'Plain socks'})[0].sockType,undefined,'unknown heights are not inferred as ankle');
+assert.equal(P.options({...socks,sockType:'crew'})[0].sockType,'crew','explicit height takes precedence over title');
+assert.equal(P.signature(rule),P.signature({kind:'similar',rule:{version:1,left:b,right:a}}),'reversed groups are the same preference');
+assert(P.hits(socks,pants,rule));assert(P.hits({...pants,id:'new-pants'}, {...socks,id:'new-socks'},rule),'rule is symmetric and covers future pieces');
+assert(!P.hits({...socks,sockType:'crew'},pants,rule));assert(!P.hits(socks,{...pants,name:'Cotton leggings'},rule));
+assert(!P.hits(socks,{...pants,id:socks.id},rule));assert(!P.valid({...a,unknown:'field'}),'unknown constraints cannot disappear and silently widen a rule');assert(!P.isRule({kind:'similar',rule:{version:2,left:a,right:b}}));
+c.state.blocks.rule1=rule;assert(!c.labPairBlocked(socks,pants),'experimental broad rules are inactive');c.state.tab='trip';assert(!c.labPairBlocked(socks,pants),'broader preferences do not change Trip selection');c.state.tab='buy';assert(!c.labPairBlocked(socks,pants));
+c.state.blocks['pants-a+socks-a']={a:'pants-a',b:'socks-a'};assert(c.labPairBlocked(socks,pants),'legacy exact blocks remain effective');
+c.state.blocks={'pants-a+socks-a':{a:'pants-a',b:'socks-a'}};c.state.tab='lab';
+vm.runInContext(html.slice(html.indexOf('function labAccCandidate('),html.indexOf('function labPool(')),c);
+Object.assign(c,{labParts:o=>o.parts,labAccParts:()=>[],labOccasionPieceOK:()=>true,labPalettePair:()=>true});
+assert.equal(c.labAccCandidate(socks,{parts:[pants]}),false,'accessories cannot bypass an exact pair exclusion');assert.equal(c.labAccCandidate({...socks,id:'other-socks',sockType:'crew'},{parts:[pants]}),true);
+assert(!/state\.ratings/.test(code),'pair preference saves never train unrelated whole-outfit ratings');
+console.log('Pairing preferences: exact exclusions remain active, experimental rules stay readable but inactive, invalid rules are safe, and accessories respect exact exclusions.');
+
+vm.runInContext(html.slice(html.indexOf('function labPickShoes('),html.indexOf('function labPickHair(')),c);
+Object.assign(c,{allItems:()=>[{id:'bad',meta:'Footwear',sub:'Boots'},{id:'ok',meta:'Footwear',sub:'Boots'}],labOutSeasons:()=>['fall'],labAccOK:()=>true,labAccCandidate:p=>p.id==='ok',labShoeSeasons:()=>['fall'],labWPick:p=>p[0]});
+assert.equal(c.labPickShoes({acc:{}},{},'').id,'ok','shoe selection also enforces pairing preferences');

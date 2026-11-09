@@ -33,3 +33,26 @@ const descend=n=>[n,...n.children.filter(x=>x&&typeof x==='object').flatMap(desc
  const events={};let refreshed=0;c.window={addEventListener:(k,f)=>events[k]=f};c.document.addEventListener=(k,f)=>events[k]=f;c.setTimeout=(f,ms)=>{assert(ms>0);events.midnight=f};c.state.capsDone=true;c.isClosetTab=()=>true;c.renderFilters=()=>refreshed++;c.renderGrid=()=>{};c.wireRecentWearDay();events.focus();assert.equal(refreshed,0,'same-day focus does not redraw browsing');c.todayStr=()=> '2026-10-31';events.focus();assert.equal(refreshed,1,'returning after midnight refreshes the rolling window');events.focus();assert.equal(refreshed,1);
  console.log('Recent wears: 3/8 thresholds, rolling boundaries, DST/leap dates, deduplication, invalid/future dates, wishlist exclusion, safe Today toggle, rapid clicks, failed saves, and outfit-linked date protection pass.');
 })().catch(e=>{console.error(e);process.exitCode=1});
+
+// First outings happen only after acknowledgement, with one splash per action.
+(async()=>{
+ const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
+ function fn(n){const a=html.indexOf('function '+n+'('),b=html.indexOf('\nfunction ',a+1);return html.slice(a,b)}
+ const timers=[],messages=[],splashes=[],dialog={};let fail=false;
+ const state={edits:{},flash:{},outfits:{old:{wearLog:[{d:'2026-10-01'}]},fresh:{wearLog:[]}}};
+ const pieces={a:{id:'a',wears:[]},b:{id:'b',wears:['2026-10-01']}};
+ state.db={collection:()=>({doc:id=>({set:async v=>{if(fail)throw Error('failed');state.edits[id]=v}})}),commitWear:async()=>{if(fail)throw Error('lost acknowledgement')}};
+ const ctx={state,Promise,byIdA:()=>pieces,needDb:()=>false,flashIds(){},toast:m=>messages.push(m),setTimeout:f=>(timers.push(f),timers.length),celebratePurchase:host=>splashes.push(host),toastHost:()=>({parentNode:dialog})};
+ vm.createContext(ctx);vm.runInContext(source+'\n'+fn('patchEdit')+'\n'+fn('commitWearAction'),ctx);
+ const flush=()=>{timers.splice(0).forEach(f=>f())};
+ fail=true;assert.equal(await ctx.patchEdit(pieces.a,{wears:['2026-11-05']},true),false);flush();assert.equal(splashes.length,0);
+ fail=false;await ctx.patchEdit(pieces.a,{wears:['2026-11-05']},true);flush();assert.equal(splashes.length,1);assert.equal(messages.at(-1),'🎉 First outing!');assert.equal(splashes[0],dialog,'splash uses the current modal toast host');
+ await ctx.patchEdit(pieces.a,{wears:['2026-11-05','2026-11-06']},true);await ctx.patchEdit(pieces.a,{wears:[]},true);await ctx.patchEdit(pieces.a,{notes:'hello'},true);flush();assert.equal(splashes.length,1,'later wears, removal and ordinary edits do not celebrate');
+ let prepared=0;const changes=()=>{prepared++;return [{collection:'outfits',id:'fresh',value:{wearLog:[{d:'2026-11-05'}]}},{collection:'edits',id:'b',value:{wears:['2026-10-01','2026-11-05']}}]};
+ fail=true;assert.equal(await ctx.commitWearAction('outfit',changes,'Logged'),false);flush();assert.equal(splashes.length,1);
+ fail=false;assert.equal(await ctx.commitWearAction('outfit',changes,'Logged'),true);flush();assert.equal(prepared,1);assert.equal(splashes.length,2,'first outfit celebrates even when pieces have prior wears; retry celebrates once');
+ await ctx.commitWearAction('later',()=>[{collection:'outfits',id:'fresh',value:{wearLog:[{d:'2026-11-05'},{d:'2026-11-06'}]}}],'Logged');flush();assert.equal(splashes.length,2);
+ const firsts=[{collection:'edits',id:'c',value:{wears:['2026-10-20']}},{collection:'edits',id:'d',value:{wears:['2026-10-20']}}];await ctx.commitWearAction('batch',()=>firsts,'Logged');flush();assert.equal(splashes.length,3,'batch first wears and backdating use a single splash');
+ ctx.profileFirstWearToastPending=true;ctx.celebrateFirstOuting();flush();assert.equal(splashes.length,3,'first-ever Almanac day keeps its own celebration');ctx.profileFirstWearToastPending=false;ctx.celebrateFirstOuting();flush();assert.equal(splashes.length,4,'a later piece debut still celebrates');
+ console.log('First outing: piece/outfit first saves, modal hosting, batch coalescing, backdating, failures, retained retries, later wears, removals and first Almanac day priority pass.');
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -175,7 +175,7 @@ assert.equal(ring.readings.sun.stars.find(s=>s.id==='quirky').cueVotes,0);
 assert.ok(Math.abs(ring.readings.rising.stars.find(s=>s.id==='quirky').cueVotes-.05)<1e-12);
 const evidenceFixture=fill(repeat({name:'Velvet rose skirt',looks:['gothic','romantic'],fav:true}));
 const evidenced=v2(evidenceFixture);
-assert.equal(evidenced.readings.sun.sign.name,'Romantic goth');
+assert.equal(evidenced.readings.sun.sign.name,'Romantic Goth');
 assert.equal(evidenced.readings.sun.sign.emerging,true,'three-piece narrow constellation has an emerging note');
 assert.deepEqual(v2(evidenceFixture.slice().reverse()),evidenced);
 assert.equal(evidenced.readings.sun.sign.contributors.length,3);

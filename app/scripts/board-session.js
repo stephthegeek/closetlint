@@ -1,10 +1,57 @@
+function outfitScheduledMessage(date,celebrate){
+ var message='Scheduled for '+histNice(date)+'.';
+ if(celebrate&&Math.random()<.25){var delights=['A look to look forward to.','A little outfit magic.','Your next outfit moment, sorted.'];message+=' '+delights[Math.floor(Math.random()*delights.length)]}
+ return message;
+}
 /* Board session boundary: owns document copies, whole-board transitions, draft persistence,
    and saved-outfit writes. Rendering and pointer handlers edit the active board only.
    Keep this in the app closure; storage adapters never own the live editor object. */
 var OMETA=['fav','seasons','styles','looks','notes','rating','from','st','texts','lay'];
+/* Undo is transient editor state, never part of saved outfits or draft data. */
+var boardUndoHistories=new WeakMap();
+function boardUndoSnapshot(board){
+  var value={};['pieces','texts','st','lay'].forEach(function(key){if(key in board)value[key]=board[key]});
+  return JSON.parse(JSON.stringify(value));
+}
+function boardUndoFor(board){
+  var h=boardUndoHistories.get(board);
+  if(!h){h={current:boardUndoSnapshot(board),steps:[],depth:0,key:null,time:0};boardUndoHistories.set(board,h)}
+  return h;
+}
+function boardUndoInputKey(){
+  var n=typeof document!=='undefined'&&document.activeElement;if(!n||!n.tagName||!['INPUT','TEXTAREA'].includes(n.tagName))return null;
+  if(n.closest&&!n.closest('#view-outfits'))return null;
+  return [n.id||n.getAttribute&&n.getAttribute('aria-label')||n.type||n.tagName,state.sel,state.selT,state.cs].join('|');
+}
+function boardUndoRemember(board){
+  var h=boardUndoFor(board);if(h.depth)return;
+  var value=boardUndoSnapshot(board);if(JSON.stringify(value)===JSON.stringify(h.current))return;
+  var key=boardUndoInputKey(),now=Date.now();
+  if(!key||h.key!==key||now-h.time>750)h.steps.push(h.current);
+  h.current=value;h.key=key;h.time=now;
+  while(h.steps.length>50||(h.steps.length>1&&JSON.stringify(h.steps).length>4*1024*1024))h.steps.shift();
+  paintBoardUndo();
+}
+function paintBoardUndo(){
+  var button=$('oboardundo');if(!button)return;var h=boardUndoFor(state.board);
+  var outline=typeof boardOutlineDraft!=='undefined'&&boardOutlineDraft;button.disabled=!(outline?outline.history.length:h.steps.length)||!!state.boardSaving||!!state.workspaceBusy;
+}
+function boardUndoLast(){
+  if(typeof boardOutlineDraft!=='undefined'&&boardOutlineDraft&&typeof boardOutlineUndo==='function')return boardOutlineUndo();
+  if(state.boardSaving||state.workspaceBusy){toast('Wait for the outfit to finish saving.');return false}
+  var b=state.board,h=boardUndoFor(b);boardUndoRemember(b);var value=h.steps.pop();if(!value)return false;
+  if(state.endCut)state.endCut();if(typeof collCancel==='function')collCancel();
+  ['pieces','texts','st','lay'].forEach(function(key){delete b[key]});Object.assign(b,JSON.parse(JSON.stringify(value)));
+  h.current=boardUndoSnapshot(b);h.key=null;h.time=0;
+  state.sel=-1;state.selT=-1;state.selPal=false;state.cs=-1;state.cutIdx=-1;
+  persistBoard(b);renderBoard();paintBoardUndo();toast('Last board action undone.');return true;
+}
+if(state.board)boardUndoFor(state.board);
 function adoptBoard(board){
   if(state.boardSaving||state.workspaceBusy){toast('Wait for the outfit to finish saving.');return false}
-  state.board=board;state.boardKey=null;
+  if(typeof boardOutlineDraft!=='undefined')boardOutlineDraft=null;
+  if(typeof boardAdjustSession!=='undefined')boardAdjustSession={owner:null,key:'',open:false};
+  state.board=board;state.boardKey=null;boardUndoFor(board);
   state.outfitSave=state.outfitSaves&&state.outfitSaves.get(board)||null;
   state.editingOutfit=!!board.id;state.scratchBoard=null;
   state.sel=-1;state.selT=-1;state.selPal=false;state.cs=-1;state.cutIdx=-1;
@@ -30,6 +77,7 @@ function boardDocument(board){
    The runtime owns debouncing, retries, and flush; recovery is read-only. */
 function persistBoard(owner){
   if(owner&&owner!==state.board)return;
+  boardUndoRemember(state.board);
   var board=boardDocument(state.board);
   board.workspace=workspaceSnapshot();
   if(window.ClosetLintRuntime){if(state.capsDone&&state.db)window.ClosetLintRuntime.setBoard(board);paintBoardSaveStatus();return}
@@ -64,7 +112,7 @@ function startNewOutfit(piece,onStarted){
     };
     state.newOutfitUndo={b:created,undo:undoNew};renderBoard();if(onStarted)onStarted();toastAct('New outfit started. Your saved outfits are unchanged.','Undo',undoNew);
   }
-  if(boardHasContent()||state.board.name||state.board.id||state.board.st||state.board.lay)askConfirm('Start a new outfit? '+(boardNeedsProtection()?(state.board.id?'Your latest changes will be kept as a draft.':'Your current board will be kept in Other drafts.'):'The board will be cleared; your saved outfit stays unchanged.')+' Use Undo to bring the previous board back.','New outfit',start);else start();
+  if(boardHasContent()||state.board.name||state.board.id||state.board.st||state.board.lay)askConfirm('Start a new outfit? '+(boardNeedsProtection()?(state.board.id?'Your latest changes will be kept as a draft.':'Your current board will be kept in Drafts.'):'The board will be cleared; your saved outfit stays unchanged.')+' Use Undo to bring the previous board back.','New outfit',start);else start();
 }
 function boardNeedsProtection(){return state.board.id?outfitEditorDirty():boardHasContent()||!!state.board.name}
 function newBoardWith(it,fromAdded){startNewOutfit(it)}
@@ -129,7 +177,7 @@ function saveOutfit(asCopy){
       if(workspaceBoardSignature(b)!==workspaceBoardSignature(doc)){b.calendarPlan=planning;persistBoard(b);throw new Error('Newer edits are still here. Save & schedule again to include them.')}
     }
     pruneWorkspaceDrafts();setOutfitSave(operation,'saved');persistBoard(b);paintBoardContext();
-    if(planning){returnCalendarDay(planning.d);toast('Scheduled for '+histNice(planning.d));return true}
+    if(planning){returnCalendarDay(planning.d);toast(outfitScheduledMessage(planning.d,true));return true}
     toast((asCopy?'Saved a copy as "'+name+'". You’re editing the copy.':editing?'Updated outfit "'+name+'".':'Saved outfit "'+name+'". Further saves update this outfit.')+(renamed?' A unique name was added.':''));return true;
   }).catch(function(e){
     setOutfitSave(operation,'error',String(e&&e.message||e));
@@ -137,6 +185,7 @@ function saveOutfit(asCopy){
   }).finally(function(){paintOMeta();paintBoardSaveStatus()});
 }
 function paintBoardSaveStatus(){
+  if(typeof paintBoardUndo==='function')paintBoardUndo();
   var draft=$('board-draft-status'),outfit=$('board-outfit-status');if(!draft||!outfit)return;
   var runtime=window.ClosetLintRuntime,status=runtime&&runtime.boardSaveStatus?runtime.boardSaveStatus():state.draftSave;
   var phase=status&&status.phase;
@@ -233,7 +282,7 @@ function flushBoardCheckpoint(){
 function returnCalendarDay(date){
   if(state.boardSaving||state.workspaceBusy){toast('Wait for the current save to finish.');return false}
   if(openCalendar(date.slice(0,7))===false)return false;
-  histDay(date);return true;
+  state.histDate=date;state.histSelected=date;renderSaved();histDay(date);return true;
 }
 function leaveCalendarBoard(){
   if(state.boardSaving||state.workspaceBusy)return Promise.resolve(false);
@@ -266,7 +315,38 @@ function paintWorkspaceRecovery(){
   if(pruneWorkspaceDrafts())persistBoard();
   var drafts=(state.boardDrafts||[]).filter(function(d){return d.key!==workspaceKey()});
   if(!drafts.length)return;
-  var more=el('details',null,el('summary',{text:'Other drafts ('+drafts.length+')','aria-label':'Other drafts ('+drafts.length+')'}));
+  var more=el('details',{ontoggle:function(){
+    if(!more.open)return;
+    var summary=more.querySelector('summary'),r=summary.getBoundingClientRect(),scale=r.width/summary.offsetWidth||1,limit=window.innerHeight,nav=document.querySelector('.primary-nav');
+    if(nav&&getComputedStyle(nav).position==='fixed')limit=Math.min(limit,nav.getBoundingClientRect().top);
+    options.style.setProperty('--board-drafts-max-height',Math.max(44,(limit-r.bottom-14)/scale)+'px');
+  }},el('summary',{text:'Drafts ('+drafts.length+')','aria-label':'Drafts ('+drafts.length+')'}));
   var options=el('div',{class:'board-draft-options'});
   drafts.slice().reverse().forEach(function(d){options.appendChild(el('button',{class:'btn small',type:'button',text:'Resume '+(d.board.name||'Untitled draft'),onclick:function(){returnWorkspace(d.key)}}))});more.appendChild(options);box.appendChild(more);
+}
+
+/* Delete the active outfit, including its autosaved working copy. */
+function deleteBoardOutfit(){
+ if(state.boardSaving||state.workspaceBusy){toast('Wait for the current save to finish.');return}
+ var owner=state.board,signature=JSON.stringify(owner),key=workspaceKey(),id=owner.id,record=id&&state.outfits[id];
+ if(!boardHasContent()&&!owner.name&&!owner.st&&!owner.lay&&!record)return;
+ askConfirm('Delete '+(owner.name?'“'+owner.name+'”':'this outfit')+'? This removes the current board'+(record?' and the saved outfit':'')+'. Your pieces and recorded wears stay in your closet.','Delete outfit',async function(){
+  if(state.board!==owner||JSON.stringify(owner)!==signature){toast('The outfit changed. Review it before deleting.');return}
+  if(state.boardSaving||state.workspaceBusy)return;
+  var snapshot=JSON.parse(signature),removed=(state.boardDrafts||[]).filter(function(d){return d.key===key||(id&&d.board.id===id)}),empty=null,emptySignature='';
+  function restoreBoardChoice(){
+   if(state.board!==empty||JSON.stringify(empty)!==emptySignature){keepWorkspaceDraft(key,snapshot);persistBoard();renderBoard();toast('Outfit restored in Drafts. Your newer board work is still here.');return}
+   if(!adoptBoard(snapshot))return;state.boardKey=key;state.boardDrafts=(state.boardDrafts||[]).concat(removed.filter(function(d){return !(state.boardDrafts||[]).some(function(x){return x.key===d.key})}));persistBoard();renderBoard();
+  }
+  if(record){
+   state.boardSaving=true;paintOMeta();
+   var ok=await deleteSavedDocument('outfits',id,record,function(){if(state.outfits[id]&&empty)restoreBoardChoice()});
+   state.boardSaving=false;paintOMeta();if(!ok)return;
+  }
+  if(!freshBoard())return;
+  state.boardDrafts=(state.boardDrafts||[]).filter(function(d){return d.key!==key&&!(id&&d.board.id===id)});
+  if(!state.boardDrafts.some(function(d){return d.key===state.previousBoardKey}))state.previousBoardKey=null;
+  state.newOutfitUndo=null;empty=state.board;emptySignature=JSON.stringify(empty);persistBoard();renderBoard();
+  if(!record)toastAct('Outfit deleted.','Undo',function(){restoreBoardChoice()});
+ });
 }

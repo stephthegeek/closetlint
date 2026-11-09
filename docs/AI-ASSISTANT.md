@@ -1,8 +1,8 @@
 # AI assistant imports and Oracle
 
-Use your own AI assistant to import pieces, create individual photos from multipack images, and explore ideas for your closet. Normal Closet Lint use does not require AI.
+Use your own AI assistant, such as Claude or ChatGPT, to import pieces, tidy titles and tags, prepare product photos, and explore ideas for your closet. Normal Closet Lint use does not require AI.
 
-[Import pieces](#ai-assistant-imports) · [Prepare product photos](#prepare-individual-photos-for-existing-pieces) · [Ask the Oracle](#ask-the-oracle) · [Assistant command reference](#technical-reference-for-ai-assistants)
+[Import pieces](#ai-assistant-imports) · [Prepare product photos](#prepare-individual-photos-for-existing-pieces) · [Tidy titles & tags](#tidy-titles-and-tags) · [Ask the Oracle](#ask-the-oracle) · [Assistant command reference](#technical-reference-for-ai-assistants)
 
 ## AI assistant imports
 
@@ -12,13 +12,18 @@ AI is optional. You can also add pieces yourself.
 
 ## Choose an import route
 
-Choose a route based on your AI assistant’s access.
+Choose a route based on your AI assistant’s tools and access:
+
+- **Files, including with a free chat:** an assistant that accepts your sources and creates downloadable files can prepare results for you to upload into Closet Lint.
+- **Direct access for more automation:** an assistant with permission to read and write files and run commands on your computer or server can prepare and import results there. Paid subscriptions may provide additional tools and higher limits, but a subscription alone does not connect the assistant to your installation.
+
+Available tools and limits vary by app and plan. For current examples, see [Claude file creation](https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude), [OpenAI plans](https://learn.chatgpt.com/docs/pricing), and [Codex local file tools](https://learn.chatgpt.com/docs/codex/cli).
 
 **Bring back an import file** works with an AI chat that accepts your sources. Attach the sources in that conversation, even if you already uploaded them to Closet Lint. Bring the returned ZIP or JSON into Closet Lint, review the pieces, and save the ones you want. A ZIP can include the prepared photos. Missing photos can be attached during review or explicitly omitted.
 
 **Have my assistant add pieces** requires permission to read files and run commands on the computer running Closet Lint. For a hosted closet, it requires approved SSH access to that server. Use the setup request and commands supplied by the running installation. A website login or an ordinary cloud conversation does not grant this access.
 
-For direct import, complete **Set up direct import**, then **Check setup**. Setup checks the intended wardrobe and photo support; it does not import anything. Copy the import request into the assistant, review its permission requests, then use **Check import** to see saved results. Pause wardrobe edits during a direct import, and load the additions when it finishes.
+For direct import, complete **Set up direct import**, then **Check setup**. A green check marks verified installation setup, with connection details available to reopen. Your current AI assistant session still needs access to that installation. Copy the import request into the assistant, then use **Check for updates** to read saved progress; this button does not start or resume the assistant. Pause wardrobe edits during a direct import. You can download the request if copying is unavailable.
 
 If direct access is unavailable, choose the file route. Use the intended installation throughout; local and hosted copies do not synchronize.
 
@@ -48,6 +53,8 @@ For existing matches, choose whether to skip, update the existing piece, mark a 
 
 Larger requests can use several parts. Continue in the same AI assistant conversation; direct imports report saved progress, while file imports use **Load next file**. Check the draft notice before closing a browser review. Browser drafts stay in that browser and are separate from wardrobe backups. Direct import progress belongs to the installation. See [batch recovery](USING-CLOSET-LINT.md#batch-workspaces).
 
+**Review saved pieces** opens pieces already in your closet. Unfinished photo work is listed separately; use **Continue photo or import work (optional)** to send a continuation request to the same AI assistant conversation. **Finish reviewing** returns to Import pieces without removing saved pieces. **Previous import** keeps the earlier results available, and active requests can be resumed from the landing page.
+
 If a save fails, keep the review open and retry. If you must reload, use the recovered review or reload the file and recheck possible matches before adding pieces. Full backup restore is a separate replacement operation, not an import route.
 
 ## Oracle example questions
@@ -71,6 +78,14 @@ Your last workflow choice is remembered in this browser for this wardrobe. When 
 You can leave the dialog and reopen **Prepare product photos → Continue previous photo request** in the same browser to check an unfinished request. Review the results before saving. The new photos are saved to the existing pieces, with originals and wear history kept. If a piece’s photos change while the request is unfinished, prepare a fresh request.
 
 Image generation can alter details. For a clearer product shot, ask an editor to preserve the garment’s color, shape, texture, pattern, seams, and fastenings, and check the result against the real piece. Image editing depends on your assistant’s tools and permissions.
+
+## Tidy titles and tags
+
+Open **Menu → Utilities → Tidy titles & tags**, or select pieces in Browse and choose **Titles & tags**. Ask your AI assistant for shorter titles, missing tags, or both.
+
+For a file workflow, choose **Download for an AI chat**, download the request ZIP, and send it with the copied instructions. Upload the returned `results.json`. With direct installation access, copy the prepared request into your assistant conversation, then choose **Check suggestions** when it finishes.
+
+Review the suggested changes, edit titles, and uncheck anything you want to keep. Checked tag suggestions can replace existing tags. Choose **Save selected changes** to apply them, or **Prepare next batch** to continue after saving. Reopen the tool in the same browser and closet to return to an unfinished batch.
 
 ## Ask the Oracle
 
@@ -127,7 +142,7 @@ The import command finds the configured environment automatically; you don't nee
 
 Wizard generated commands always include `--expected-instance ID`. The importer verifies this identity inside the preview/save transaction, including receipt retries. A mismatch refuses the operation; it does not create or select another wardrobe. Existing manual commands without this flag remain supported, but assistants should always use the supplied destination guard.
 
-Run the supplied `tools/import_pieces.py --data FOLDER --expected-instance ID --check --batch-id BATCH` command to check local access and photo readiness. This writes only a setup-check marker in the wardrobe's profile; it does not import pieces. `--status --batch-id BATCH` with the same data folder and identity reads the saved receipt without changing anything. A successful setup marker is distinct from a committed import receipt. Setup markers and import receipts survive full backups; moving the app/data folders invalidates reusable setup verification.
+For setup verification, verify the supplied app and wardrobe folders and their required permissions. If either folder or its required access is unavailable, stop and explain what access is needed. The import working folder may not exist yet. Do not require or create it before running `--check`. Run the exact supplied `tools/import_pieces.py --data FOLDER --expected-instance ID --check --batch-id BATCH` command to check access and photo readiness. This writes only a setup-check marker in the wardrobe's profile; it does not import pieces. `--status --batch-id BATCH` with the same data folder and identity reads the saved receipt without changing anything. A successful setup marker is distinct from a committed import receipt. Setup markers and import receipts survive full backups; moving the app/data folders invalidates reusable setup verification.
 
 The setup/result endpoints use the local runtime's existing request authorization. Filesystem paths are supplied only to the local setup screen and copied direct request, not to public-demo pages or browser file requests. No access token is included in either request. Commands do not launch assistants, bypass their permissions, or expose a new remote import/write service. Batch working files remain local; the assistant copies authorized photos into that directory and leaves originals intact. Temporary working files are not the saved wardrobe photos, and can be removed after receipt verification when no retry is needed.
 
@@ -185,6 +200,8 @@ Each saved image is oriented correctly, capped at a 1600px longest edge without 
 
 Item fields include the usual tags plus `variant`, `priceNote`, `originalTitle`, `listingDetails`, `fitsLike`, `date` (YYYY, YYYY-MM, or YYYY-MM-DD) and `dateApproximate` (true for an estimate) and the upper body layering options shown by `--schema`. Unknown fields are omitted and reported. Unknown tags are omitted with warnings. Missing prices remain unknown; supplied prices must be confirmed nonnegative USD amounts with at most two decimals. Saved pieces start Unreviewed so tags can be refined later.
 
+For earring sizes, check the selected variant and listing specifications for post thickness: **1.2 mm = 16g, 1 mm = 18g, and 0.8 mm = 20g**. Save the gauge in `size` and retain the source measurement in `variant` or `listingDetails`. These are the only millimeter conversions to use. Do not confuse post thickness with hoop diameter, post length, or decoration size; leave ambiguous or conflicting sizes blank for review.
+
 ### Preview and save
 
 From the app source folder:
@@ -222,6 +239,8 @@ File route results may reuse uploaded originals with the request’s top-level `
 Browser review ZIP limits: one import JSON, 1–50 pieces, 1 MB JSON, 10 MB per photo, 50 MB compressed, and 100 MB unpacked. Referenced paths are relative to the JSON. ZIPs with unsafe paths, ambiguous files, encryption, or unsupported archive features are rejected. Full wardrobe backups use Restore full backup instead.
 
 ### Continuing imports and repeat checks
+
+For another recent purchase search, open **Repeat a recent order check** on the import page. Choose an optional store and date range to prepare a request for your AI assistant. This prepares the instructions; the assistant performs the source search.
 
 Direct requests save parts of up to 50 pieces. Use `--request-id REQUEST --part N`, `part-N.json`, and `batchId: REQUEST__part_N` as supplied. Preview, apply, and verify each part before proceeding. Keep committed content and options unchanged for retries. Each part is atomic; an unsuccessful later part does not erase earlier parts.
 

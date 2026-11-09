@@ -10,10 +10,11 @@ function collectionSave(id,data){
   return state.db.collection('profile').doc(key).set(record).then(function(){state.profile[key]=record;if(record.deleted&&state.collectionFilter)delete state.collectionFilter[key];renderFilters();if(isClosetTab(state.tab))renderGrid();return key});
 }
 function collectionFilterGroup(){
-  var box=el('section',{class:'collection-filter'},el('h3',{text:'Collections'})),row=el('div',{class:'chips'});state.collectionFilter=state.collectionFilter||{};
-  var groups=collectionList();groups.forEach(function(c,i){if(i>=5&&!state.collectionsExpanded&&!state.collectionFilter[c.id])return;row.appendChild(chip(c.name,!!state.collectionFilter[c.id],function(){state.collectionManager=false;state.collectionFilter[c.id]=!state.collectionFilter[c.id];renderFilters();renderGrid()},null,el('span',{class:'n',text:String(c.ids.length)})))});
+  var groups=collectionList();if(!groups.length)return null;
+  var box=el('details',{class:'collection-filter tagfield fgroup',open:state.collectionsFilterOpen!==false,ontoggle:function(){state.collectionsFilterOpen=box.open}},el('summary',{text:'Collections'})),row=el('div',{class:'chips'});state.collectionFilter=state.collectionFilter||{};
+  groups.forEach(function(c,i){if(i>=5&&!state.collectionsExpanded&&!state.collectionFilter[c.id])return;row.appendChild(chip(c.name,!!state.collectionFilter[c.id],function(){state.collectionManager=false;state.collectionFilter[c.id]=!state.collectionFilter[c.id];renderFilters();renderGrid()},null,el('span',{class:'n',text:String(c.ids.length)})))});
   if(groups.length>5)row.appendChild(el('button',{class:'btn small',type:'button',text:state.collectionsExpanded?'Show fewer':'Show all ('+groups.length+')',onclick:function(){state.collectionsExpanded=!state.collectionsExpanded;renderFilters()}}));
-  box.append(row,el('button',{class:'btn small',type:'button',text:'📚 Manage collections',onclick:function(){openCollections()}}));return box;
+  box.appendChild(el('div',{class:'collection-filter-body'},row,el('button',{class:'btn small',type:'button',text:'📚 Manage collections',onclick:function(){openCollections()}})));return box;
 }
 function collectionBrowse(c){
   $('collections-dialog').close();
@@ -40,17 +41,44 @@ function addPieceToCollection(it){
     return collectionSave(c.id,Object.assign({},current,{ids:current.ids.concat(it.id)})).then(function(){done(c.id,false);return true}).catch(function(e){toast(e.message||'Could not add this piece. Try again.');return false});
   },{title:'Add to collection',description:'',initialIds:[it.id],chooseLabel:'Add here',onCreated:function(id){done(id,true)}});
 }
+function collectionRemovePieces(id,ids){
+  var current=collectionList().find(function(c){return c.id===id});
+  if(!current)return Promise.reject(Error('That collection is no longer available.'));
+  var selected=new Set(ids),removed=current.ids.filter(function(id){return selected.has(id)});
+  if(!removed.length)return Promise.resolve([]);
+  return collectionSave(id,Object.assign({},current,{ids:current.ids.filter(function(id){return !selected.has(id)})})).then(function(){state.bulkActionsOpen=false;if(typeof renderSelBar==='function')renderSelBar();return removed});
+}
+function removeSelectedFromCollection(ids){
+  var groups=collectionList().filter(function(c){return c.ids.some(function(id){return ids.indexOf(id)>=0})});
+  var active=groups.filter(function(c){return state.collectionFilter&&state.collectionFilter[c.id]});if(active.length)groups=active;
+  function choose(c){
+    $('collections-dialog').close();
+    var count=c.ids.filter(function(id){return ids.indexOf(id)>=0}).length;
+    askConfirm('Remove '+count+(count===1?' piece':' pieces')+' from “'+c.name+'”? The pieces stay in your wardrobe and other collections.','Remove from collection',function(){
+      collectionRemovePieces(c.id,ids).then(function(removed){
+        toastAct('Removed '+removed.length+' from “'+c.name+'”.','Undo',function(){
+          var current=collectionList().find(function(x){return x.id===c.id});
+          if(!current){toast('That collection is no longer available.');return Promise.resolve()}
+          return collectionSave(c.id,Object.assign({},current,{ids:current.ids.concat(removed)})).then(function(){toast('Pieces restored to collection.')}).catch(function(e){toast('Could not restore pieces. '+e.message)});
+        });
+      }).catch(function(e){toast('Could not remove pieces from collection. '+e.message)});
+    });
+  }
+  if(groups.length===1)choose(groups[0]);
+  else if(groups.length)openCollections(choose,{title:'Remove from collection',description:'Choose the collection to remove these pieces from. The pieces stay in your wardrobe.',groups:groups,allowCreate:false,chooseLabel:'Remove here'});
+  else toast('These pieces are not in a collection.');
+}
 function openCollections(pick,options){
   options=options||{};
   if(!pick){$('collections-dialog').close();function go(){setTab('all');state.collectionManager=true;renderGrid()};if(state.tab==='trip'&&state.trip)tripLeave(go);else go();return;}
   var d=$('collections-dialog');d.oncancel=null;d.textContent='';var box=el('div',{class:'collections-shell'});
   box.appendChild(el('header',{class:'collection-head'},el('h2',{text:options.title||(pick?'Choose a collection':'Collections')}),el('button',{class:'btn',type:'button',text:'Close',onclick:function(){d.close()}})));
   var description=options.description===undefined?'Copies the pieces once. Later membership edits stay independent.':options.description;if(description)box.appendChild(el('p',{class:'fine',text:description}));
-  box.appendChild(el('button',{class:'btn primary collection-create',type:'button',text:'＋ New collection',onclick:function(){editCollection(null,options.initialIds||[],function(id){if(options.onCreated)options.onCreated(id);else if(pick)pick(collectionList().find(function(c){return c.id===id}));else showCollection(id)})}}));
-  var map=byId(),groups=collectionList(),grid=el('div',{class:'collection-list'});
+  if(options.allowCreate!==false)box.appendChild(el('button',{class:'btn primary collection-create',type:'button',text:'＋ New collection',onclick:function(){editCollection(null,options.initialIds||[],function(id){if(options.onCreated)options.onCreated(id);else if(pick)pick(collectionList().find(function(c){return c.id===id}));else showCollection(id)})}}));
+  var map=byId(),groups=options.groups||collectionList(),grid=el('div',{class:'collection-list'});
   groups.forEach(function(c){var tile=el('article',{class:'collection-summary'}),thumbs=el('div',{class:'collection-thumbs'});
     c.ids.map(function(id){return map[id]}).filter(Boolean).slice(0,4).forEach(function(it){thumbs.appendChild(el('img',{src:photoThumbnail(it.photo),alt:'',loading:'lazy',decoding:'async'}))});
-    tile.append(thumbs,el('h3',{text:c.name}),el('p',{class:'fine',text:c.ids.length+(c.ids.length===1?' piece':' pieces')+(c.description?' · '+c.description:'')}),el('button',{class:'btn',type:'button',text:options.initialIds&&options.initialIds.length&&options.initialIds.every(function(id){return c.ids.indexOf(id)>=0})?'Already added':options.chooseLabel||(pick?'Choose collection':'Open collection'),disabled:!!(options.initialIds&&options.initialIds.length&&options.initialIds.every(function(id){return c.ids.indexOf(id)>=0})),onclick:function(e){var result=pick?pick(c):showCollection(c.id);if(result&&typeof result.then==='function'){var b=e.currentTarget;b.disabled=true;Promise.resolve(result).finally(function(){if(b.isConnected)b.disabled=false})}}}));grid.appendChild(tile);
+    tile.append(thumbs,el('h3',{'data-user-content':'true',text:c.name}),el('p',{class:'fine',text:c.ids.length+(c.ids.length===1?' piece':' pieces')+(c.description?' · '+c.description:'')}),el('button',{class:'btn',type:'button',text:options.initialIds&&options.initialIds.length&&options.initialIds.every(function(id){return c.ids.indexOf(id)>=0})?'Already added':options.chooseLabel||(pick?'Choose collection':'Open collection'),disabled:!!(options.initialIds&&options.initialIds.length&&options.initialIds.every(function(id){return c.ids.indexOf(id)>=0})),onclick:function(e){var result=pick?pick(c):showCollection(c.id);if(result&&typeof result.then==='function'){var b=e.currentTarget;b.disabled=true;Promise.resolve(result).finally(function(){if(b.isConnected)b.disabled=false})}}}));grid.appendChild(tile);
   });
   if(!groups.length)grid.appendChild(el('p',{text:'No collections yet. Gather a few pieces and give the pile a name.'}));box.appendChild(grid);d.appendChild(box);if(!d.open)d.showModal();
 }
@@ -60,12 +88,12 @@ function collectionContext(count){
   top.textContent='';bottom.textContent='';$('grid').hidden=!!state.collectionManager;
   $('view-closet').classList.toggle('collections-overview',!!state.collectionManager);
   if(state.collectionManager){
-    var head=el('div',{class:'collection-actions page-heading'},el('h2',{text:'Collections'}),el('button',{class:'btn',type:'button',text:'＋ New collection',onclick:function(){editCollection(null,[])}}));top.appendChild(head);
-    var list=el('div',{class:'collection-list'}),map=byId();collectionList().forEach(function(c){var row=el('article',{class:'collection-summary'}),thumbs=el('div',{class:'collection-thumbs'});c.ids.slice(0,4).forEach(function(id){if(map[id])thumbs.appendChild(el('img',{src:photoThumbnail(map[id].photo),alt:'',loading:'lazy',decoding:'async'}))});row.append(routeAnchor({type:'collections',id:c.id},{class:'collection-card-link'},function(){collectionBrowse(c)},[thumbs,el('h3',{text:c.name}),el('p',{text:c.description}),el('span',{class:'fine',text:c.ids.length+' pieces'})]),el('div',{class:'collection-card-tools'},cardMenuButton(c.name,function(){var current=collectionList().find(function(x){return x.id===c.id})||c;return [{label:'🏷️ Edit collection',action:function(){editCollection(current)}},{label:'🗑️ Remove collection',danger:true,action:function(){collectionRemove(current)}}]})));list.appendChild(row)});top.appendChild(list);return;
+    var head=el('div',{class:'collection-actions page-heading'},el('h2',{text:'📚 Collections'}),el('button',{class:'btn',type:'button',text:'＋ New collection',onclick:function(){editCollection(null,[])}}));top.appendChild(head);
+    var list=el('div',{class:'collection-list'}),map=byId();collectionList().forEach(function(c){var row=el('article',{class:'collection-summary collection-browse-card'}),thumbs=el('div',{class:'collection-thumbs'});c.ids.slice(0,4).forEach(function(id){if(map[id])thumbs.appendChild(el('img',{src:photoThumbnail(map[id].photo),alt:'',loading:'lazy',decoding:'async'}))});row.append(routeAnchor({type:'collections',id:c.id},{class:'collection-card-link'},function(){collectionBrowse(c)},[thumbs,el('div',{class:'collection-card-copy'},el('h3',{'data-user-content':'true',text:c.name}),c.description?el('p',{text:c.description}):null,el('span',{class:'fine',text:c.ids.length+(c.ids.length===1?' piece':' pieces')}))]),el('div',{class:'collection-card-tools'},cardMenuButton(c.name,function(){var current=collectionList().find(function(x){return x.id===c.id})||c;return [{label:'🏷️ Edit collection',action:function(){editCollection(current)}},{label:'📄 Duplicate collection',action:function(){duplicateCollection(current)}},{label:'🗑️ Remove collection',danger:true,action:function(){collectionRemove(current)}}]})));list.appendChild(row)});top.appendChild(list);return;
   }
   var groups=collectionList().filter(function(c){return state.collectionFilter&&state.collectionFilter[c.id]});if(!groups.length)return;
   var merged={name:groups.map(function(c){return c.name}).join(' + '),ids:collectionIds(groups.flatMap(function(c){return c.ids}))};
-  top.appendChild(el('h2',{text:merged.name}));if(groups.length===1&&groups[0].description)top.appendChild(el('p',{class:'fine',text:groups[0].description}));
+  top.appendChild(el('h2',{'data-user-content':'true',text:merged.name}));if(groups.length===1&&groups[0].description)top.appendChild(el('p',{class:'fine',text:groups[0].description}));
   function actions(){
     var row=el('div',{class:'collection-actions'});
     if(groups.length===1)row.appendChild(el('button',{class:'btn',type:'button',text:'Edit collection',onclick:function(){editCollection(groups[0])}}));
@@ -83,8 +111,12 @@ function collectionRemove(c,done,onError){
     }).catch(function(e){if(onError)onError(e);else toast('Could not remove collection. '+e.message)});
   });
 }
-function editCollection(c,initial,onSaved){
-  var d=$('collections-dialog'),draft={name:c?c.name:'',description:c?c.description:'',ids:collectionIds(c?c.ids:initial)},box=el('div',{class:'collections-shell collection-editor'}),body=el('div',{class:'collection-editor-body'}),saving=false;
+function duplicateCollection(c){
+  var source=collectionList().find(function(x){return x.id===c.id});if(!source){toast('This collection is no longer available.');return}
+  editCollection(null,collectionIds(source.ids),null,{name:('Copy of '+source.name).slice(0,100),description:source.description||''});
+}
+function editCollection(c,initial,onSaved,seed){
+  var d=$('collections-dialog'),draft={name:c?c.name:seed&&seed.name||'',description:c?c.description:seed&&seed.description||'',ids:collectionIds(c?c.ids:initial)},box=el('div',{class:'collections-shell collection-editor'}),body=el('div',{class:'collection-editor-body'}),saving=false;
   function cancel(){if(saving)return;if(window.ClosetLintRoutes)window.ClosetLintRoutes.closeTrackedDialog(d);else if(signature()===baseline||window.confirm('Discard the unsaved changes to this collection?'))d.close()}
   d.textContent='';d.oncancel=function(e){e.preventDefault();cancel()};
   box.appendChild(el('header',{class:'collection-head collection-editor-head'},el('h2',{text:c?'Edit collection':'New collection'}),el('button',{class:'btn',type:'button',text:'Close','aria-label':'Close collection editor',onclick:cancel})));
@@ -97,16 +129,10 @@ function editCollection(c,initial,onSaved){
     if(items.length>limit)grid.appendChild(el('button',{class:'btn',type:'button',text:'Show more pieces',onclick:function(){limit+=80;draw()}}));
   }
   search.addEventListener('input',function(){limit=80;draw()});only.addEventListener('change',draw);draw();
-  var error=el('p',{role:'alert',class:'fine'}),save=el('button',{class:'btn primary',type:'button',text:'Save collection',onclick:function(){if(saving)return;saving=true;save.disabled=true;collectionSave(c&&c.id,{name:name.value,description:description.value,ids:draft.ids}).then(function(id){if(window.ClosetLintRoutes)window.ClosetLintRoutes.cleanDialog(d);if(onSaved){d.close();onSaved(id)}else{showCollection(id);toast('Collection saved. A very good little pile.')}}).catch(function(e){error.textContent=e.message;saving=false;save.disabled=false})}});
+  var error=el('p',{role:'alert',class:'fine'}),save=el('button',{class:'btn primary',type:'button',text:'Save collection',onclick:function(){if(saving)return;saving=true;save.disabled=true;save.textContent='Saving collection…';collectionSave(c&&c.id,{name:name.value,description:description.value,ids:draft.ids}).then(function(id){if(window.ClosetLintRoutes)window.ClosetLintRoutes.cleanDialog(d);if(onSaved){d.close();onSaved(id)}else{showCollection(id);toast('Collection saved. A very good little pile.')}}).catch(function(e){error.textContent=e.message;saving=false;save.disabled=false;save.textContent='Save collection'})}});
   var footer=el('footer',{class:'collection-editor-footer'},error,el('div',{class:'collection-actions'},el('button',{class:'btn',type:'button',text:'Cancel',onclick:cancel}),save));
   if(c)body.appendChild(el('button',{class:'btn',type:'button',text:'Remove collection',onclick:function(){if(saving)return;collectionRemove(c,function(){if(window.ClosetLintRoutes)window.ClosetLintRoutes.cleanDialog(d);openCollections()},function(e){error.textContent=e.message})}}));
   function signature(){return JSON.stringify([name.value,description.value,draft.ids])}var baseline=signature();
   box.append(body,footer);d.appendChild(box);if(!d.open)d.showModal();
   if(window.ClosetLintRoutes)window.ClosetLintRoutes.trackDialog(d,signature,function(){return saving});
-}
-
-function collectionTripExtrasEditor(T){
-  var box=el('section',{class:'tripcard trip-packing-extras'},el('h3',{text:'My packing extras'}),el('p',{class:'fine',text:'Bring a whole little pile. These exact pieces stay on the checklist, even if they are not used in a suggested outfit.'})),map=byId(),row=el('div',{class:'chips'});
-  (T.packedExtras||[]).forEach(function(id){var it=map[id];row.appendChild(el('span',{class:'chip'},it?it.name:'Unavailable piece',el('button',{class:'viewdel',type:'button',text:'×','aria-label':'Remove packing extra '+(it?it.name:id),onclick:function(){T.packedExtras=T.packedExtras.filter(function(k){return k!==id});tripRender()}})))});
-  box.append(row,el('button',{class:'btn',type:'button',text:'📖 Add a collection',onclick:function(){openCollections(function(c){collectionAddToTrip(c,T)})}}));return box;
 }

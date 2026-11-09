@@ -21,10 +21,11 @@ function fixture(){
   paintOMeta(){},paintBoardContext(){},renderTabs(){},renderPullBtn(){},setTab:t=>state.tab=t,exportImage(){},openOutfitDetails:(b,f)=>ctx.details=f};
  const nodeDoc=node();vm.createContext(ctx);
  for(const name of ['session','editor','collage','design'])vm.runInContext(fs.readFileSync(root+'app/scripts/board-'+name+'.js','utf8'),ctx);
+ vm.runInContext(fn('boardMoveBounds'),ctx); // Load the real shared geometry without initializing unrelated Adjust UI.
  const realRender=ctx.renderBoard;
  ctx.renderBoard=()=>{state.cvis=state.board.pieces.map((_,i)=>i)}; // No incidental write allowed.
  ctx.paintSel=()=>{};ctx.selectPiece=i=>state.sel=i;ctx.selectSlot=i=>state.cs=i;ctx.selectText=i=>state.selT=i;
- ctx.renderStylePanel=()=>{};ctx.paintCollBar=()=>{};
+ ctx.renderStylePanel=()=>{};ctx.paintCollBar=()=>{};ctx.boardSelectionControls=()=>{}; // Painting is isolated; real movement bounds remain loaded.
  ctx.wireBoard();
  return {ctx,state,nodes,writes,messages,timers,map,node,nodeDoc,realRender};
 }
@@ -56,10 +57,10 @@ function saved(f,label,action,check){const count=f.writes.length;action();assert
  saved(f,'font',()=>nodes.tfonts.children[1].fire('click'));
  saved(f,'alignment',()=>nodes.talign.children[1].fire('click'));
  for(const id of ['toutline','tshadow'])saved(f,id,()=>nodes[id].fire('click'));
- saved(f,'delete text',()=>nodes.tremove.fire('click'));saved(f,'text Undo',()=>nodes.odelundo.fire('click'));
+ saved(f,'delete text',()=>nodes.tremove.fire('click'));saved(f,'text Undo',()=>nodes.oboardundo.fire('click'));
  saved(f,'style',()=>ctx.setSt({bg:{c:'#abcdef'},pal:true}));saved(f,'style Undo',()=>ctx.undo());
  const count=f.writes.length;ctx.boardDesignChange('No change',()=>{});assert.equal(f.writes.length,count,'no-op design does not save');
- saved(f,'arrange',()=>ctx.tidyBoard(true));saved(f,'arrange Undo',()=>nodes.otidyundo.fire('click'));
+ saved(f,'arrange',()=>ctx.tidyBoard(true));saved(f,'arrange Undo',()=>nodes.oboardundo.fire('click'));
  ctx.labOutfitFromIds=()=>({});ctx.labRole=()=> 'top';ctx.ltTitle=()=> 'Suggested';
  saved(f,'suggest title',()=>nodes.otitle.fire('click'));saved(f,'title Undo',()=>ctx.undo());
  state.board.pieces=[];nodes.odetail.fire('click');saved(f,'draft details',()=>ctx.details({name:'Details',notes:'Test',seasons:['summer']}));
@@ -86,8 +87,8 @@ function saved(f,label,action,check){const count=f.writes.length;action();assert
  const f=fixture(),{ctx,state,map}=f;ctx.addPiece(map.a);ctx.addPiece(map.b);state.board.lay={k:'arches',n:5,g:2};
  const before=clone(state.board);saved(f,'collage delete with empty windows',()=>ctx.boardDel('p',0));
  saved(f,'collage delete Undo restores window count',()=>ctx.boardUndoDel(),b=>assert.deepEqual(clone(ctx.boardDocument(b)),before));
- ctx.boardDel('p',0);state.board.lay.n=7;ctx.boardUndoDel();assert.equal(state.board.lay.n,7,'later window-count edits survive deletion Undo');
- ctx.boardDel('p',0);state.board.lay={k:'bento',n:3,g:4};ctx.boardUndoDel();assert.equal(state.board.lay.n,3,'a later layout is not replaced by deletion Undo');
+ ctx.boardDel('p',0);state.board.lay.n=7;ctx.persistBoard();ctx.boardUndoLast();assert.equal(state.board.pieces.length,1,'first Undo reverses the later window-count edit');ctx.boardUndoLast();assert.equal(state.board.lay.n,5,'next Undo restores the removal and original windows');
+ ctx.boardDel('p',0);state.board.lay={k:'bento',n:3,g:4};ctx.persistBoard();ctx.boardUndoLast();assert.equal(state.board.lay.k,'arches','first Undo reverses the latest layout change');ctx.boardUndoLast();assert.equal(state.board.pieces.length,2,'next Undo restores the removed piece');
 }
 // Real event wiring for drag/resize/rotation, cancel, clicks, and stale callbacks.
 for(const kind of ['piece','text','palette','collage'])for(const handle of kind==='collage'?['move']:['move','resize','rotate']){
@@ -96,7 +97,7 @@ for(const kind of ['piece','text','palette','collage'])for(const handle of kind=
  const pe=node();pe.dataset={i:'0',t:'0',k:'0',sw:'100',sh:'100'};if(kind==='piece')delete pe.dataset.t;
  const image=node();image.offsetWidth=200;image.offsetHeight=200;pe.querySelector=()=>image;
  const classes={contains:c=>handle==='resize'&&(c==='handle'||c==='pres')||handle==='rotate'&&(c==='rot'||c==='prot')};
- const event={pointerId:7,clientX:90,clientY:40,target:{classList:classes,closest:s=>s==='.piece'?pe:null},preventDefault(){}};
+ const event={pointerId:7,clientX:90,clientY:40,target:{classList:classes,closest:s=>s==='.piece'?pe:s==='.handle'&&handle==='resize'?pe:s==='.rot'&&handle==='rotate'?pe:null},preventDefault(){}};
  function start(){if(kind==='piece')nodes.board.fire('pointerdown',event);else if(kind==='text')ctx.textPointer(event,pe,nodes.board);else if(kind==='palette')ctx.palPointer(event,pe,nodes.board);else ctx.collPointer(event,pe,nodes.board)}
  start();let count=f.writes.length;pe.fire('pointerup',{pointerId:7});assert.equal(f.writes.length,count,kind+' selection alone does not save');
  start();pe.fire('pointermove',{pointerId:7,clientX:110,clientY:80});assert.equal(f.writes.length,count,'pointer motion is not a network write');saved(f,kind+' '+handle,()=>pe.fire('pointerup',{pointerId:7}));
@@ -153,8 +154,8 @@ console.log('Board autosave: paint/recovery isolation; edit, toolbar, keyboard, 
 // Clicking/tapping nested Remove icons must not capture a drag or suppress native activation.
 for(const kind of ['piece','text'])for(const detail of [0,1]){
  const f=fixture(),{ctx,state,nodes,node,map}=f;ctx.addPiece(map.a);state.board.texts=[{t:'Label',x:10,y:10,s:6}];
- const pe=node();pe.dataset=kind==='piece'?{i:'0',pieceId:'a'}:{t:'0'};const button=node();button.closest=()=>pe;
- const icon={closest:s=>s==='.piece .del'?button:s==='.piece'?pe:null,classList:{contains:()=>false}};
+ const pe=node();pe.dataset=kind==='piece'?{i:'0',pieceId:'a'}:{t:'0'};const button=node();button.closest=s=>s==='.piece'?pe:null;
+ const icon={closest:s=>s==='.piece .del,.board-selection-controls .del'?button:s==='.piece'?pe:null,classList:{contains:()=>false}};
  let prevented=false;const count=f.writes.length;state.cutIdx=0;
  nodes.board.fire('pointerdown',{target:icon,pointerId:11,preventDefault(){prevented=true}});
  assert.equal(prevented,false,'Remove does not suppress its own native click');assert.equal(f.writes.length,count,'pointerdown alone does not delete');
@@ -162,3 +163,58 @@ for(const kind of ['piece','text'])for(const detail of [0,1]){
  ctx.boardUndoDel();assert.equal(kind==='piece'?state.board.pieces.length:state.board.texts.length,1,'Undo restores the removed object');
 }
 console.log('Board Remove: nested mouse/touch icon and keyboard activation remove pieces/text once, with Undo and no pointer capture.');
+
+// One history traverses moves, resizing, rotation, text, style, and deletion in order.
+{
+ const f=fixture(),{ctx,state,map,nodes}=f;ctx.addPiece(map.a);const b=state.board,versions=[clone(ctx.boardUndoSnapshot(b))];
+ const edit=fn=>{fn();ctx.persistBoard();versions.push(clone(ctx.boardUndoSnapshot(b)))};
+ edit(()=>b.pieces[0].x+=5);edit(()=>b.pieces[0].w=19);edit(()=>b.pieces[0].rot=37);
+ edit(()=>b.texts=[{t:'Canvas text',x:10,y:10,s:8}]);edit(()=>b.st={bg:{c:'#fedcba'}});
+ ctx.boardDel('p',0);versions.push(clone(ctx.boardUndoSnapshot(b)));
+ for(let i=versions.length-2;i>=0;i--){assert.equal(ctx.boardUndoLast(),true);assert.deepEqual(clone(ctx.boardUndoSnapshot(b)),versions[i],'chronological Undo step '+i);assert.deepEqual(f.writes.at(-1),clone(Object.assign(ctx.boardDocument(b),{workspace:ctx.workspaceSnapshot()})),'each Undo autosaves the current draft')}
+ assert.equal(ctx.boardUndoLast(),true,'adding the original piece is also undoable');assert.equal(b.pieces.length,0);assert.equal(ctx.boardUndoLast(),false);assert.equal(nodes.oboardundo.disabled,true);
+ assert.equal(Object.hasOwn(f.writes.at(-1),'undo'),false,'history is not serialized into the draft');
+ ctx.addPiece(map.a);const linked=state.board;linked.id='saved';linked.name='Saved title';state.outfits.saved={name:'Saved title',pieces:[{id:'a',x:50,y:40,w:20,z:1}]};const original=clone(state.outfits.saved);
+ linked.pieces[0].x=44;ctx.persistBoard();ctx.boardUndoLast();assert.equal(linked.id,'saved');assert.equal(linked.name,'Saved title');assert.deepEqual(state.outfits.saved,original,'Undo never writes a saved outfit');
+ state.boardSaving=true;assert.equal(ctx.boardUndoLast(),false);state.boardSaving=false;
+ ctx.adoptBoard({id:null,name:'Different board',pieces:[]});assert.equal(ctx.boardUndoLast(),false,'a replacement board has its own history');
+}
+{
+ const f=fixture(),{ctx,state,map,nodes}=f;ctx.addPiece(map.a);state.board.texts=[{t:'Before',x:10,y:10,s:8}];ctx.persistBoard();
+ const field={tagName:'INPUT',id:'ttext',closest:()=>true};ctx.document.activeElement=field;
+ state.board.texts[0].t='After';ctx.persistBoard();state.board.texts[0].t='After typing';ctx.persistBoard();ctx.document.activeElement=null;
+ ctx.boardUndoLast();assert.equal(state.board.texts[0].t,'Before','a burst of text edits is one action');
+ for(let i=0;i<75;i++){state.board.pieces[0].x=i;ctx.persistBoard()}assert(ctx.boardUndoFor(state.board).steps.length<=50,'history remains bounded');
+}
+console.log('Unified Undo: chronological edits, saved-record isolation, autosave, blocked saves, per-board history, grouped typing, and bounded memory pass.');
+
+// Pointer-selected pieces and text use the same keyboard movement and Undo path.
+{
+ const f=fixture(),{ctx,state,nodes,writes,node}=f;ctx.addPiece(f.map.a);state.sel=0;state.selT=-1;
+ const p=state.board.pieces[0],pe=node();pe.dataset={i:'0',pieceId:'a'};pe.closest=()=>pe;
+ nodes.board.querySelector=()=>pe;
+ function key(key,extra={}){let prevented=false;ctx.boardKeyboard({key,target:nodes.board,preventDefault(){prevented=true},...extra});return prevented}
+ const untouched=JSON.stringify(state.board);assert.equal(key('ArrowRight',{target:{tagName:'BUTTON',closest:()=>null}}),false,'toolbar arrows do not move the selection');assert.equal(key('ArrowRight',{target:{tagName:'BODY',closest:()=>null}}),false,'body arrows do not move the selection');assert.equal(JSON.stringify(state.board),untouched);
+ const x=p.x,y=p.y;assert(key('ArrowRight'));assert.equal(p.x,x+1);assert(key('ArrowDown',{shiftKey:true}));assert.equal(p.y,y+5);
+ assert(ctx.boardUndoLast());assert.equal(state.board.pieces[0].y,y,'nudge participates in chronological Undo');
+ const before=JSON.stringify(state.board);assert.equal(key('ArrowLeft',{target:{tagName:'INPUT'}}),false);assert.equal(key('ArrowLeft',{ctrlKey:true}),false);assert.equal(JSON.stringify(state.board),before,'native inputs and modifier shortcuts are untouched');
+ state.board.texts=[{t:'Canvas text',x:30,y:20,s:6}];state.sel=-1;state.selT=0;const tx=node();nodes.board.querySelector=()=>tx;ctx.boardUndoRemember(state.board);
+ assert(key('ArrowLeft'));assert.equal(state.board.texts[0].x,29);assert(key('ArrowUp',{shiftKey:true}));assert.equal(state.board.texts[0].y,15);assert(ctx.boardUndoLast());assert.equal(state.board.texts[0].y,20);
+ state.selT=0;state.board.texts[0].x=-50; // A 100px item on a 100px board reaches its center bound here.
+const n=writes.length;assert(key('ArrowLeft'));assert.equal(writes.length,n,'clamped movement does not autosave a no-op');
+ state.cutIdx=0;assert.equal(key('ArrowRight'),false);state.cutIdx=-1;nodes.board.offsetParent=null;assert.equal(key('ArrowRight'),false,'hidden boards do not intercept other page navigation');
+ console.log('Board nudging: pointer selection, text, Shift, bounds, native inputs, hidden boards, autosave and Undo pass.');
+}
+
+// Document listeners share one event: deletion must not run again after focus moves.
+{
+ const f=fixture(),{ctx,state,nodes,nodeDoc}=f;ctx.addPiece(f.map.a);ctx.addPiece(f.map.b);ctx.addPiece({id:'c',meta:'Tops',ar:1});
+ state.sel=1;state.selT=-1;const piece={tagName:'DIV',dataset:{i:'1',pieceId:'b'},closest(){return this}};ctx.document.activeElement=piece;
+ ctx.focusBoardPiece=i=>{state.sel=Math.min(i,state.board.pieces.length-1);ctx.document.activeElement={tagName:'DIV'}};
+ function dispatch(key,extra={}){const event={key,target:piece,preventDefault(){this.defaultPrevented=true},stopPropagation(){},...extra};for(const listener of nodeDoc.events.keydown)listener(event);return event}
+ assert(dispatch('Delete').defaultPrevented);assert.deepEqual(Array.from(state.board.pieces,p=>p.id),['a','c'],'one event removes one item, even after focus selects its neighbor');
+ dispatch('Delete',{repeat:true,target:{tagName:'DIV',closest:()=>null}});assert.equal(state.board.pieces.length,2,'held keys cannot remove the newly selected piece');
+ dispatch('Backspace',{ctrlKey:true,target:{tagName:'DIV',closest:()=>null}});assert.equal(state.board.pieces.length,2,'modified text/navigation shortcuts do not remove a board piece');
+ assert(ctx.boardUndoLast());assert.deepEqual(Array.from(state.board.pieces,p=>p.id),['a','b','c']);
+ console.log('Board Delete: shared-event guard, one-piece removal, held-key safety, modified shortcuts and Undo pass.');
+}

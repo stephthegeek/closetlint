@@ -90,6 +90,20 @@ class RuntimeTests(unittest.TestCase):
             restored.restore(source)
         self.assertEqual(restored.state()['collections']['trips']['partial-trip'], record)
 
+    def test_pairing_preferences_survive_reopen_and_backup(self):
+        rule = {'kind': 'similar', 'a': 'gone-socks', 'b': 'gone-pants', 't': 12,
+                'rule': {'version': 1, 'left': {'meta': 'Legwear', 'sub': 'Socks', 'sockType': 'thigh high'},
+                         'right': {'meta': 'Bottoms', 'sub': 'Leggings', 'titleCue': 'jeggings'}}}
+        self.store.set_record('blocks', 'similar-test', rule)
+        self.assertEqual(Store(self.root / 'store').state()['collections']['blocks']['similar-test'], rule)
+        target = self.root / 'pairing.zip'
+        self.store.export(target)
+        restored = Store(self.root / 'pairing-restored')
+        with contextlib.closing(Archive(target)) as source:
+            restored.restore(source)
+        self.assertEqual(restored.state()['collections']['blocks']['similar-test'], rule)
+        self.assertEqual(restored.state()['collections']['ratings'], self.store.state()['collections']['ratings'])
+
     def test_category_preferences_and_classifications_survive_backup(self):
         preferences = {'version': 1, 'choices': {'Activewear|Dancewear': False, 'Underwear|Thermals': True}}
         piece = {'name': 'Test dance piece', 'meta': 'Activewear', 'sub': 'Dancewear', 'noPhoto': True,
@@ -290,6 +304,29 @@ class RuntimeTests(unittest.TestCase):
         head, data = bytes(connection.output).split(b'\r\n\r\n', 1)
         self.response_headers = dict(line.split(': ', 1) for line in head.decode().split('\r\n')[1:])
         return int(head.split()[1]), data
+
+    def test_quiz_photos_are_separate_allowlisted_cacheable_assets(self):
+        import hashlib
+        from server import quiz_photo_files
+        name, file = next(iter(quiz_photo_files().items()))
+        data = file.read_bytes()
+        digest = hashlib.sha256(data).hexdigest()[:16]
+        path = '/assets/quiz-photos/' + name + '?v=' + digest
+        self.assertEqual(self.call('GET', path), (200, data))
+        self.assertEqual(self.response_headers['Content-Type'], 'image/webp')
+        self.assertIn('immutable', self.response_headers['Cache-Control'])
+        etag = self.response_headers['ETag']
+        self.assertEqual(self.call('GET', path, headers={'If-None-Match': etag}), (304, b''))
+        self.assertEqual(self.call('GET', '/assets/quiz-photos/' + name)[0], 200)
+        self.assertEqual(self.response_headers['Cache-Control'], 'private, no-cache')
+        for suffix in ('manifest.json', '../manifest.json', '%2e%2e/manifest.json', 'missing.webp', name + '/extra'):
+            self.assertEqual(self.call('GET', '/assets/quiz-photos/' + suffix)[0], 404)
+        self.assertEqual(self.call('GET', path, headers={'Origin': 'https://example.invalid'})[0], 403)
+        page = render_app(self.store, 'test-token')
+        photos = json.loads(__import__('re').search(r'var ClosetLintQuizPhotos=(.*?);\n', page).group(1))
+        self.assertTrue(photos)
+        self.assertTrue(all(sheet['src'].startswith('assets/quiz-photos/') for sheet in photos.values()))
+        self.assertLess(len(page.encode()), 4 * 1024 * 1024)
 
     def test_weather_lookup_requires_local_token_and_recovers(self):
         with patch('server.lookup_weather', return_value={'daily': {}, 'years': [2023, 2025]}) as lookup:

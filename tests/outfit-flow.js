@@ -27,15 +27,16 @@ const route=source.slice(source.indexOf('function labSaveOrPlan(o){'),source.ind
   appendChild(n){if(n.tag==='fragment')this.children.push(...n.children);else this.children.push(n);return n}get isConnected(){return true}setAttribute(k,v){this[k]=v}removeAttribute(k){delete this[k]}
   set textContent(v){this.text=v;this.children=[]}get textContent(){return this.text||''}
   focus(options){this.focused=options}
+  querySelector(selector){const m=selector.match(/aria-label="([^"]+)"/);return all(this,n=>n.tag==='select'&&m&&n['aria-label']===m[1])[0]}
  }
  const all=(n,p)=>[...(p(n)?[n]:[]),...(n.children||[]).filter(x=>typeof x==='object').flatMap(x=>all(x,p))];
  const view=new Node('main'),find=id=>all(view,n=>n.id===id)[0],buttons=()=>all(view,n=>n.tag==='button');
  const state={tab:'saved',outfits:{a:{name:'Blue look',fav:true,updatedAt:2,pieces:[]},b:{name:'Red look',updatedAt:1,pieces:[]}},ratings:{},db:{}};
  let infoCalls=0;
  const c={releaseOutfitPreview(){},photoState:{loaded:0},memoRun:(fn,self,args)=>fn.apply(self,args),document:{createDocumentFragment:()=>new Node('fragment')},state,$:id=>id==='view-saved'?view:find(id),el:(...args)=>new Node(...args),byId:()=>({}),byIdA:()=>({}),
-  chip:(text,on,onclick)=>new Node('button',{text,onclick,'aria-pressed':String(!!on)}),wearAny:()=>false,
+  chip:(text,on,onclick)=>new Node('button',{text,onclick,'aria-pressed':String(!!on),class:'chip'}),wearAny:()=>false,
   ofInfo:o=>{infoCalls++;return ({nWorn:o.name==='Blue look'?3:0,colors:{},sizes:{},items:[],ids:[],last:'',rating:null})},ofMatch:(o,i,S)=>(!S.fav||o.fav)&&(!S.q||o.name.toLowerCase().includes(S.q.toLowerCase())),ofScore:()=>0,
-  ofCard:o=>new Node('article',{outfit:o.name}),curSeason:()=> 'fall',histDraw:()=>{c.historyDrawn=true},COLORS:{},SEASONS:[],STYLES:[],LOOKS:[]};
+  ofCard:o=>new Node('article',{outfit:o.name}),cap:s=>s[0].toUpperCase()+s.slice(1),curSeason:()=> 'fall',histDraw:()=>{c.historyDrawn=true},COLORS:{},SEASONS:[],STYLES:[],LOOKS:[]};
  vm.createContext(c);vm.runInContext(source.slice(source.indexOf('function ofState(){'),source.indexOf('function ofInfo('))+'\n'+source.slice(source.indexOf('var _ofDerived='),source.indexOf('function loadImg(')),c);
  c.renderSaved();assert.equal(find('of-total').textContent,'2');const search=find('ofq');assert(search);assert.equal(all(view,n=>n.text==='Open outfit board').length,0);
  const getSort=()=>all(view,n=>n['aria-label']==='Sort outfits')[0];
@@ -44,19 +45,27 @@ const route=source.slice(source.indexOf('function labSaveOrPlan(o){'),source.ind
  getSort().onchange({target:{value:'worn'}});assert.equal(state.of.sort,'worn');assert.equal(state.of.q,'Blue');
  find('of-filter-toggle').onclick();assert.equal(state.of.open,true);assert.equal(find('of-filter-toggle')['aria-expanded'],'true');assert(find('of-filter-options'));assert(find('of-filter-toggle').focused.preventScroll);
  buttons().find(n=>n.text.startsWith('♡ Favorites')).onclick();assert.equal(state.of.fav,true);assert.equal(find('of-filter-toggle')['aria-pressed'],'true','expanded filter panel retains active styling without selected panel filters');
- assert.equal(all(find('of-filter-toggle'),n=>n.class==='of-filter-count').length,0,'quick filters do not count as panel filters');
- find('of-filter-toggle').onclick();assert.equal(find('of-filter-toggle')['aria-pressed'],'false','closing an empty panel clears its active styling');find('of-filter-toggle').onclick();
- buttons().find(n=>n.text==='Needs tags').onclick();assert.equal(state.of.untagged,true);assert.equal(find('of-filter-toggle')['aria-pressed'],'true');assert.equal(all(find('of-filter-toggle'),n=>n.class==='of-filter-count')[0].text,'1');
+ assert.equal(all(find('of-filter-toggle'),n=>n.class==='of-filter-count')[0].text,'1','Favorites counts as an active panel filter');
+ find('of-filter-toggle').onclick();assert.equal(find('of-filter-toggle')['aria-pressed'],'true','closed panel retains its active Favorites indicator');find('of-filter-toggle').onclick();
+ buttons().find(n=>n.text==='Needs tags').onclick();assert.equal(state.of.untagged,true);assert.equal(find('of-filter-toggle')['aria-pressed'],'true');assert.equal(all(find('of-filter-toggle'),n=>n.class==='of-filter-count')[0].text,'2');
  buttons().find(n=>n.text==='Clear filters').onclick();assert.equal(state.of.q,'');assert.equal(state.of.fav,false);assert.equal(state.of.sort,'worn');assert.equal(state.of.open,true);assert.equal(search.value,'');
  for(const [sort,expected] of [['old','Red look'],['new','Blue look'],['most','Blue look'],['least','Red look'],['name','Blue look']]){getSort().onchange({target:{value:sort}});assert.equal(all(view,n=>n.tag==='article')[0].outfit,expected,sort+' uses the expected outfit order')}
  let created=false,navigated=false;c.startNewOutfit=(piece,done)=>{assert.equal(piece,null);created=true;done()};c.setTab=tab=>{assert.equal(tab,'outfits');navigated=true};buttons().find(n=>n.text==='＋ New outfit').onclick();assert(created&&navigated,'New outfit uses the protected board action before navigation');
  state.ofView='history';c.renderSaved();assert(c.historyDrawn);assert.equal(find('ofq'),undefined,'Calendar does not render outfit search/filter controls');
  console.log('Saved-outfit toolbar: retained search input, sort/filter actions, disclosure focus, safe clear, and Calendar separation pass.');
  state.ofView='outfits';c.renderSaved();
- assert.equal(infoCalls,2,'search and sorting reuse derived outfit metadata');
- state.outfits.a.name='Changed look';c.ofDraw();assert.equal(infoCalls,4,'in-place outfit edits invalidate the cache');
- state.profile={wear:{tops:['M']}};c.ofDraw();assert.equal(infoCalls,6,'fit changes invalidate the cache');
- state.ratings.changed={r:1};c.ofDraw();assert.equal(infoCalls,8,'rating changes invalidate the cache');
+ state.of.open=true;c.STYLES=['casual','formal'];c.LOOKS=['gothic','cozy'];state.outfits.a.styles=['casual','formal'];state.outfits.a.looks=['gothic','cozy'];c.ofDraw();const filterInfoCalls=infoCalls;
+ const dropdown=label=>all(view,n=>n.tag==='select'&&n['aria-label']===label)[0];
+ dropdown('Occasion').onchange({target:{value:'formal'}});assert.deepEqual(Object.keys(state.of.styles),['formal']);
+ dropdown('Occasion').onchange({target:{value:'casual'}});assert.deepEqual(Object.keys(state.of.styles),['casual'],'occasion replaces rather than accumulates');
+ dropdown('Aesthetic').onchange({target:{value:'cozy'}});assert.deepEqual(Object.keys(state.of.looks),['cozy']);
+ dropdown('Aesthetic').onchange({target:{value:''}});assert.deepEqual(Object.keys(state.of.looks),[],'Any clears aesthetic');
+ state.of.styles={casual:true,formal:true};state.of.colors={red:true,blue:true};c.ofState();assert.deepEqual(Object.keys(state.of.styles),['casual']);assert.equal(Object.keys(state.of.colors).length,2,'color choices remain multiple');
+ assert.equal(infoCalls,filterInfoCalls,'filter choices reuse derived outfit metadata');state.of.styles={};state.of.colors={};
+ const callsBefore=infoCalls;
+ state.outfits.a.name='Changed look';c.ofDraw();assert.equal(infoCalls,callsBefore+2,'in-place outfit edits invalidate the cache');
+ state.profile={wear:{tops:['M']}};c.ofDraw();assert.equal(infoCalls,callsBefore+4,'fit changes invalidate the cache');
+ state.ratings.changed={r:1};c.ofDraw();assert.equal(infoCalls,callsBefore+6,'rating changes invalidate the cache');
  state.of.q='';state.of.open=false;state.outfits=Object.fromEntries(Array.from({length:105},(_,i)=>['o'+i,{name:'Look '+i,pieces:[],updatedAt:i}]));c.ofDraw();
  assert.equal(all(view,n=>n.tag==='article').length,40,'first draw mounts a bounded batch');
  let more=buttons().find(b=>b.text==='Load more outfits');more.onclick();assert.equal(all(view,n=>n.tag==='article').length,80);more.onclick();assert.equal(all(view,n=>n.tag==='article').length,105);assert.equal(more.hidden,true);
@@ -71,4 +80,12 @@ const route=source.slice(source.indexOf('function labSaveOrPlan(o){'),source.ind
  assert.equal(c.oRating({pieces:[{id:'a'},{id:'b'}]},map),1,'exact outfit ratings retain precedence');
  delete c.state.ratings['a+b'];assert.equal(c.oRating({pieces:[{id:'a'},{id:'b'}]},map),0,'legacy role-only ratings retain their fallback');
  c.state.ratings={};assert.equal(c.oRating({pieces:[{id:'a'}],rating:-1},map),-1,'stored outfit ratings remain available');
+}
+
+// The removed single-piece size filter cannot remain active invisibly.
+{
+ const c={state:{of:{q:'',colors:{},seasons:{},styles:{},looks:{},sizes:{L:true}}},setHas:x=>Object.keys(x||{}).some(k=>x[k]),wearAny:()=>true};vm.createContext(c);
+ const fn=name=>{const a=source.indexOf('function '+name+'('),b=source.indexOf('\nfunction ',a+1);return source.slice(a,b)};vm.runInContext(fn('ofState')+'\n'+fn('ofMatch'),c);
+ const settings=c.ofState();assert.equal(Object.keys(settings.sizes).length,0);settings.sizes={L:true};const info={colors:{},sizes:{S:'S'},ids:[],items:[],notfit:1};assert(c.ofMatch({},info,settings));settings.fitsMe=true;assert(!c.ofMatch({},info,settings));info.notfit=0;assert(c.ofMatch({},info,settings));
+ console.log('Outfit filters: stale individual-size choices are cleared; Fits me still checks the whole outfit.');
 }

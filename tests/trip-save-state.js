@@ -13,6 +13,21 @@ function fixture(){
 }
 const settle=()=>new Promise(setImmediate);
 (async()=>{
+
+ {
+  const f=fixture();f.state.trip=null;const original=f.state.trips.one;original.settings.start='2026-11-10';original.settings.dayPlans={'2026-11-10':{night:true}};original.checked={shoe:1};original.plan.outfits=[{ids:['piece-a'],pin:1,fors:'d:2026-11-10'}];
+  const before=JSON.stringify(original);f.c.tripDuplicate('one');const copy=f.state.trip;
+  assert.equal(copy.id,null);assert.equal(copy.name,'Copy of Synthetic trip');assert.equal(copy.step,1);assert.equal(Object.keys(copy.checked).length,0);assert.equal(copy.plan.outfits[0].fors,'d:2026-11-10');assert.equal(f.jobs.length,0,'opening a duplicate never writes');
+  copy.need.dressy=7;copy.must.push('piece-b');copy.dayPlans['2026-11-10'].night=false;copy.plan.outfits[0].ids.push('piece-b');assert.equal(JSON.stringify(original),before,'all nested choices are independent');
+  const failed=f.c.tripSave();assert.notEqual(f.jobs[0].id,'one');const id=f.jobs[0].id;f.jobs[0].fail();await failed;assert.equal(copy.id,null);assert.equal(JSON.stringify(original),before);
+  const retry=f.c.tripSave();assert.equal(f.jobs[1].id,id,'retry keeps a single new identity');f.jobs[1].ok();await retry;assert.equal(copy.id,id);assert.equal(Object.keys(f.state.trips).length,2);assert.equal(JSON.stringify(original),before);
+ }
+ {
+  const f=fixture();f.state.trip=null;f.state.trips.legacy={name:'Festival wardrobe',settings:{kind:'event',multi:false,start:'2026-11-01',end:'2026-11-01'},plan:{outfits:[{ids:['piece-a'],pin:true}]},checked:{'piece-a':1}};
+  const before=clone(f.state.trips.legacy);f.c.tripOpen('legacy');assert.deepEqual(f.state.trips.legacy,before);assert.equal(f.jobs.length,0);assert.equal(f.c.tripHasUnsaved(f.state.trip),false,'opening an older event wardrobe does not silently convert it');
+  f.state.trip.name='Renamed festival wardrobe';const saved=f.c.tripSave();assert.equal(f.jobs[0].record.settings.kind,'event');assert.deepEqual(f.jobs[0].record.plan,before.plan);assert.deepEqual(f.jobs[0].record.checked,before.checked);f.jobs[0].ok();await saved;
+ }
+
  {
   const f=fixture(),T=f.state.trip;T.packingVersion=2;T.basicChoices={socks:{n:2,ids:['piece-a']}};T.excluded=['piece-b'];
   const save=f.c.tripPersist(T,true);assert.equal(f.jobs[0].record.settings.basicChoices.socks.n,2);assert.equal(f.jobs[0].record.settings.excluded[0],'piece-b');f.jobs[0].ok();await save;

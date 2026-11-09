@@ -117,7 +117,7 @@ Keep browser reviews bounded and use a separate test wardrobe. Use only accounts
 
 ## Recurring UI layout review
 
-For each UI change, inspect the whole affected section, including what comes immediately before and after it. An isolated control screenshot is not enough. For layout and control changes, visually check the affected states at 390px, 768px, and a laptop width. Shared style changes need all three themes in light and dark appearances.
+For each UI change, inspect the whole affected section, including what comes immediately before and after it. An isolated control screenshot is not enough. Batch visual checks after a meaningful set of interface changes or a requested review. At that checkpoint, check affected states at 390px, 768px, and a laptop width; shared style changes need all three themes in light and dark appearances. Routine copy or spacing edits need source and synchronization checks, without repeating the browser matrix. Keep immediate checks focused when a specific functional concern requires one.
 
 Use this same checklist each time:
 
@@ -137,8 +137,12 @@ The served HTML contains embedded copies of several maintained source files. Aft
 - `app/styles/themes.css`: `python3 tools/sync_theme_styles.py`
 - `app/scripts/categories.js`: `python3 tools/sync_categories.py`
 - `app/scripts/setup.js`: `python3 tools/sync_setup.py`
+- `app/scripts/tidy-details.js` and `app/styles/tidy-details.css`: `python3 tools/sync_tidy_details.py`
+- `app/scripts/lab-pairing.js`: `python3 tools/sync_pairing.py`
 - Collections and navigation modules: use the corresponding `tools/sync_*.py` helper.
 - Import categories and tag vocabulary: `node tools/sync_import_vocab.js`
+- Quiz photos: `python3 tools/sync_quiz_photos.py`, then `python3 tools/sync_profile.py` to synchronize image URLs/crop metadata and quiz source. Image bytes stay in the manifest’s referenced WebP files and load only when the corresponding quiz renders them. Release and static demo builds must include those files; do not embed them as base64.
+- Lab season rules: `python3 tools/sync_lab_seasons.py`.
 
 The existing tests check relevant synchronization and source invariants.
 
@@ -161,48 +165,60 @@ The [accessibility records](docs/archive/DEVELOPMENT-RECORDS.md#accessibility-re
 
 Keep “AI assistant” on first mention in each user-facing document or section. Use “My” for labels naming the user’s things and “you/your” in helper sentences. Keep user upgrade instructions brief. Update all links, generated assistant instructions, and the package allowlist when moving a guide.
 
+### README feature overview
+
+Keep each entry focused on a substantial feature and its main appeal to someone discovering the app. Use a short sentence; leave routine interactions such as skipping, editing, saving, duplicating, and changing selections to the user guide. Avoid small utility functions, control details, and lists of recent fixes. Group related capabilities, and give distinctive experiences such as the Almanac color calendar room to stand out. The README describes the product; release notes explain what changed. Group all features that use an external AI assistant under “Optional: Bring Your Own AI Assistant”, after the main features.
+
+### Release note format
+
+Write for someone deciding what the release adds to their everyday use:
+
+- Open with one short sentence about the main benefits.
+- Give the standout new feature its own opening section when it deserves one. Explain its appeal, including what a visualization shows or makes easier to notice.
+- Clearly distinguish completely new features from improvements to existing features. A useful default is “New: [main feature]”, “More new features”, and “Improvements to everyday use”; adapt the headings to the release.
+- Use short feature bullets with concrete benefits. Include meaningful improvements to forms and everyday interactions, rather than listing only major features.
+- Select the most interesting changes. Omit minor implementation details, exhaustive field lists, and fixes to unreleased issues readers probably never encountered. Keep detailed fixes and verification evidence in contributor records.
+- Keep optional extras brief and approachable. Short quizzes can be described as fun while explaining how their answers help; a release note does not need a tutorial.
+- Keep upgrade instructions brief while there are no external users. Clearly label unreleased notes, and preserve the historical notes for published versions.
+
 ## Release preparation
 
-### Current 0.4 scope · 31 October 2026
+### Current 0.5 scope
 
-Feature work is frozen for release preparation. Resolve reported defects, reconcile documentation, and verify the final candidate. Source changes, private installations, and demos do not by themselves establish a published release.
+The current source includes My almanac and Profile, Comfort zone quizzes, Wishlist preference evidence, seasonal Lab and coverage improvements, outfit naming styles, faithful outfit previews, board editing controls, scheduling, closet tabs, and import/photo workflow improvements. [Draft release notes](docs/RELEASE-NOTES.md) summarize the changes for users.
 
-Implemented in the current source:
+The latest published release is [0.4.0](https://github.com/stephthegeek/closetlint/releases/tag/v0.4.0). Local implementation, private hosted deployment, owner acceptance, and public release are separate states. Trello holds the working task status; dated verification records belong in the [development archive](docs/archive/DEVELOPMENT-RECORDS.md).
 
-- **Trips and events:** unfinished trip saving, daily outfit planning and pinned choices, packing quantities, reminders, and print/PDF/Markdown exports with optional photos and outfit combinations.
-- **Categories and pieces:** expanded searchable categories and setup choices, populated category visibility, pullover/cardigan/vest types and layering defaults, Eyewear with Glasses/Sunglasses subcategories, optional fabric weight, approximate acquisition dates, and recent wear indicators. The strip shows ten days; heat thresholds are three/eight logged days in thirty days.
-- **Metal & finish:** optional grouped material, metal tone, and finish tags for jewelry, watches, and bags. The universal color palette is unchanged.
-- **Imports, photos, and Oracle:** batch import and Tidy photos pages with review recovery, photo only preparation for existing pieces, scoped Oracle context/photos, explicit local/SSH/download workflows, and remembered route choices. Direct access still requires a configured, approved connection in the AI assistant session; the app does not establish SSH access.
-- **Controls and reliability:** representative calendar thumbnails and clearer day details, card menus, category first browsing, predictable collection clearing, board photo refresh/removal/initial sizing fixes, steadier save feedback, and a maximum of three outfit columns. Stale tab protection and atomic outfit wear logging remain in place.
-- **Bounded accessibility improvements:** keyboard controls, focus visibility, contrast, labels, reduced motion, and regression checks. The [accessibility review](CONTRIBUTING.md#accessibility) records the limits; mobile targets remain unchanged by request.
+### Verification status
 
-Trello holds working task status. This document records scope and release gates; it is not automatically synchronized with Trello.
+The 8 November candidate checks passed 112 JavaScript and source synchronization commands, 236 tests with supported Python and photo dependencies, fresh installation/import/retry, an isolated update from published 0.4, restart, and full backup/restore with photos. Dependency audits found no known vulnerabilities. The completed accessibility corrections cover 276 theme, appearance, viewport, and interface states with no remaining findings or scan errors in that review; keyboard, onboarding, scheduling, and Wishlist browser regressions also pass. Broader physical-device and manual assistive-technology coverage, and Windows/macOS installation, remain unverified.
 
-### Release verification
+The Wishlist performance correction passed the full source/runtime checks and a large synthetic wardrobe browser review. The checked update is deployed to the private review installation with verified record/photo preservation, access protection, backups, and an outside copy. That deployment is separate from public release. The earlier public audit archive predates this correction and is superseded by the final 0.5 package preparation.
 
-Owner review has produced substantial Trips, outfit, board, category, photo, and mobile feedback. The hosted photo only workflow has been exercised, and the category cleanup is complete. Tablet and narrow mobile browser reviews are recorded in [testing](CONTRIBUTING.md#testing). 
-
-Stephanie confirmed her focused browser and phone review complete on 1 November 2026. The remaining reported defect was a blank final packing PDF page. A further print fix suppresses anonymous text outside the sheet; browser regression coverage checks photos, outfit appendices, Letter/A4, and print scaling. The final candidate passed 81 JavaScript checks, 171 supported Python tests, browser pagination, accessibility regression, fresh installation/import, and hosted update/recovery rehearsals. Stephanie approved publication on 1 November 2026. Windows/macOS installation and broader physical device or assistive technology acceptance retain their documented limits.
-
-### Trip defaults retained for 0.4
-
-Automatic underwear, bra, sock, and sleepwear groups use owned catalog presence. Underwear types share one quantity; generic loungewear does not imply sleepwear. Explicit choices remain recoverable, and activity requests can still show reminders for uncataloged swimming/exercise needs. Stored and filtered pieces use catalog scoped reminders. Suggestions are starting points, not evidence of everything a person owns or guarantees of comfort, dress code, weather protection, or laundry timing. See [Trips](docs/USING-CLOSET-LINT.md#trips-and-packing) for user guidance.
+Release scope is closed except for confirmed blockers. Final preparation reconciles version metadata, rebuilds and verifies the exact data-free archives, completes the isolated hosted update/rollback check, and runs GitHub CI on the release branch. Keep the release notes marked Unreleased until publication is explicitly approved. Reuse checks only when the relevant source bytes and dependencies are unchanged; record any narrow follow-up checks with their provenance.
 
 ### Deferred work
 
-- Unified chronological board Undo, alternate piece photos per board, board edge movement and toolbar investigations, and a shared Closet/Outfits long list review.
-- Cold wear status, expanded wishlist ranking/decision evidence, and broader fashion/resale integrations.
-- Deeper [accessibility acceptance](https://trello.com/c/JlvOXsQJ), [non-drag alternatives](https://trello.com/c/N1aAh0xU), and [mobile scroll edge review](https://trello.com/c/zAVHA49v). The owner considers the bounded 0.4 accessibility pass complete; these are follow-ups rather than new release gates.
-- General hosted assistant connection setup and broader hosting provider support. Hosting remains experimental.
-
-Almanac remains after 0.4. Its latest implementation is preserved separately and has been removed from the 0.4 source, together with its Profile routes, menu, city/forecast, and bundled astronomy integration. Existing settings and measurements dialogs remain. Other backlog items are not promises for a particular release.
+Tailored quiz helper text, improved board browsing on mobile, and discovery of larger original photos are planned for 0.6. Broader manual accessibility review remains deferred; continue fixing concrete regressions. Affiliate work is separate from the software release. Hosting remains experimental. Other backlog items are not promises for a particular release.
 
 ### Before publication
 
-1. Freeze the exact source candidate and review its final diff, including the latest fixes. Align the user guides and release notes with that package.
-2. Run the complete current regression, supported Python, accessibility, dependency, and security checks. Record the exact candidate and any limits; previous checkpoints do not replace this final run.
-3. Build and inspect a data-free package and manifest. Confirm fresh installation/import, supported update behavior, and full backup/restore. Hosted candidates also need isolated update/rollback and access protection checks.
-4. Confirm the focused owner/physical-phone pass and resolve any blocking defects. Windows/macOS installation and comprehensive accessibility conformance remain unverified unless tested.
-5. Review CI and approve publication. Demo updates are separate actions; app updates remain manual unless explicitly authorized for a particular installation.
+1. Settle the candidate scope, review its complete diff, and reconcile the remaining owner review items. Preserve unrelated development work.
+2. Run the complete current regression, supported Python, accessibility regression, dependency, and security checks. Record the exact candidate and any limits; earlier checkpoints do not replace this final run.
+3. Build and inspect a package without wardrobe data and verify its manifest. Check fresh installation/import, a synthetic update from 0.4, and full backup/restore with photos. Hosted candidates also need isolated update/rollback and access protection checks.
+4. Align the version metadata, user guides, release notes, and known limits with that package. Verify final CI and obtain publication approval. Keep user upgrade guidance to backup, code replacement while retaining data, and verification.
+5. Verify any requested hosted deployment and demo update separately. Use the existing protected destinations and preserve their data and configuration.
 
-[Board guide](https://trello.com/c/HCtQ2ZVE) · [Release record](https://trello.com/c/n1dRmgpz) · [Next shortlist](https://trello.com/c/UW6aznwV)
+The [published 0.4 release record](https://trello.com/c/UW6aznwV) and [development archive](docs/archive/DEVELOPMENT-RECORDS.md) retain earlier release history.
+
+### Emoji color styling
+
+App-owned decorative emoji follow the selected theme and emoji color preference. Mark standalone or mixed decorative UI text with `data-ui-emoji` so it uses the shared glyph wrapper without becoming an SVG utility. Keep user-entered names and text unchanged (`data-user-content`), and keep native-color exceptions explicit (`data-native-emoji`), including emoji pack previews, full-screen celebrations, and Almanac weather. Filter only the emoji wrapper, never a whole card, photo, field, or colored surface. Check headings, menus, Wishlist evidence/statuses, and all quiz states at a meaningful visual review checkpoint.
+
+### Wishlist gap evidence
+
+Gap counts compare the relevant category (necklace traits use necklaces), include stored and hidden owned pieces, and exclude wishlist, removed, gone, donated, and synthetic pieces. Quiz gaps require a positive answer and recorded matching details. At least 80% of comparable pieces must have relevant details; unknown pieces count as possible matches when qualifying a gap. Zero or one match qualifies directly. Relative gaps require at least 20 comparable pieces, fewer than 10% matching, and at most five matches. A grouped gap chip replaces those traits in ordinary rating chips.
+
+Style expansion requires an established owned Sky reading, an explicit aesthetic tag on the candidate, a curated connection to an owned star with at least three contributors and strength of 0.25, and at least two independent signature evidence families on the candidate. A style already well represented elsewhere in the closet does not qualify. The best quiz gap contributes at most three ranking points; style expansion contributes at most 0.75, with a combined cap of three. A negative quiz signal, missing required layer, or size conflict suppresses the bonus. Saved personal boosts and intentions are unchanged. Run `node tests/wishlist-gaps.js` for boundary, evidence, grouping, and preservation checks.
+
+Wishlist chip selection and display use the same `wrChipPriority` order: up to four available chips, plus a fifth only when its priority is at least 60. This presentation score is separate from purchase ranking. Positive clothing lengths, fit/stretch, sole flexibility, care, and ordinary buttons/zips/slip-on fastenings rank lower; negative utility evidence keeps its warning priority. A mixed group inherits its most interesting trait and shows that trait first. Pockets use the ordinary quiz preference tier, like prints and textures, without a dedicated boost. Lab outfit evidence distinguishes loved (88) from liked (86); mixed counts share one chip, with each distinct combination counted once. Utility-only gap chips do not bypass these rules; explicit top three picks retain extra priority.

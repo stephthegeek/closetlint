@@ -46,6 +46,25 @@ class PhotoPreparationTests(unittest.TestCase):
     def save(self, token, ids=None):
         return photos.apply(self.store, self.instance, 'test-photos', token, ids or ['c-blue', 'c-pink'])
 
+    def test_recent_requests_are_read_only_and_identity_scoped(self):
+        before = self.store.state()
+        rows = photos.recent(self.store, self.instance)['requests']
+        self.assertEqual([r['requestId'] for r in rows], ['test-photos'])
+        self.assertFalse(rows[0]['saved'])
+        self.assertFalse(rows[0]['hasResults'])
+        self.assertNotIn('folder', rows[0])
+        self.prepared()
+        self.assertTrue(photos.recent(self.store, self.instance)['requests'][0]['hasResults'])
+        self.assertEqual(self.store.state(), before)
+        with self.assertRaises(ValueError):
+            photos.recent(self.store, 'another-closet')
+        broken = self.base.parent / 'photos-broken'
+        broken.mkdir()
+        (broken / 'request.json').write_text('{bad')
+        result = photos.recent(self.store, self.instance)
+        self.assertEqual(len(result['requests']), 1)
+        self.assertEqual(result['unavailable'], 1)
+
     def test_request_is_repeatable_and_source_zip_has_no_host_paths(self):
         before = self.store.state()
         self.assertEqual(photos.create(self.store, self.instance, 'test-photos', ['c-blue', 'c-pink']), self.request)

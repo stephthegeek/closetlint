@@ -1,0 +1,42 @@
+const assert=require('node:assert/strict'),fs=require('fs'),vm=require('vm');
+const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
+const code=html.slice(html.indexOf('function labPalettePair('),html.indexOf('function labPool('));
+const c={labPairBlocked:()=>false,state:{tab:'lab',lab:{occasion:'any'}},LAB_NEUTRAL:{black:1,white:1,gray:1,brown:1,beige:1,silver:1,gold:1,clear:1},labParts:o=>[o.top,o.bottom,o.one,o.layer,o.under].filter(Boolean),labAccParts:o=>Object.values(o.acc||{}).flat().filter(Boolean),labPatterned:p=>(p.pattern||[]).some(x=>x!=='solid')};vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function labComfortPiece('),html.indexOf('function labOK(')),c);vm.runInContext(code,c);
+const piece=(color,more={})=>({id:color,colors:[color],styles:['casual'],statement:'plain',...more});
+for(const [a,b] of [['hot pink','red'],['hot pink','burgundy'],['pink','orange'],['blue','yellow'],['purple','orange'],['green','yellow'],['teal','burgundy'],['blue','teal'],['teal','green'],['white','cream']])assert.equal(c.labPalettePair(piece(a),piece(b)),false,a+' / '+b);
+for(const [a,b] of [['red','burgundy'],['light pink','hot pink'],['black','yellow'],['brown','blue']])assert.equal(c.labPalettePair(piece(a),piece(b)),true,a+' / '+b);
+assert.equal(c.labPalettePair(piece('blue'),{colors:[]}),true,'missing color evidence is not a ban');
+assert.equal(c.labPalettePair(piece('blue'),{colors:['blue','orange','multicolor'],pattern:['floral']}),true,'a print can bridge colors recorded on it');
+const o={top:piece('red'),bottom:piece('black'),layer:piece('blue')};assert.equal(c.labOutfitPaletteOK(o),false,'a neutral cannot hide a clashing layer');
+assert.equal(c.labAccCandidate(piece('hot pink',{meta:'Legwear',sub:'Tights'}),{top:piece('burgundy'),bottom:piece('black')}),false,'accessories check more than the nearest neutral');
+assert.equal(c.labOutfitOccasionOK({top:piece('black',{styles:['formal']}),bottom:piece('gray')},'formal'),true,'neutral casual basics support an explicitly tagged occasion');
+assert.equal(c.labOutfitOccasionOK({top:piece('black'),bottom:piece('gray')},'formal'),false,'all basics cannot invent occasion evidence');
+assert.equal(c.labOutfitOccasionOK({top:piece('black',{styles:['formal']}),bottom:piece('black',{styles:['workout']})},'formal'),false,'an incompatible garment cannot be hidden by an occasion match');
+assert.equal(c.labOutfitOccasionOK({one:piece('pink',{styles:['festival']})},'festival'),true);
+assert.equal(c.labOutfitOccasionOK(o,'any'),true,'Any adds no occasion restriction');
+c.state.lab.occasion='formal';assert.equal(c.labAccCandidate(piece('black',{styles:['sleep']}),{one:piece('black',{styles:['formal']})}),false);
+c.state.tab='trip';assert.equal(c.labAccCandidate(piece('hot pink'),o),true,'Trip selection is unchanged by these Lab controls');
+console.log('Lab: conservative whole outfit palettes, printed overlap, accessory conflicts, occasion evidence, neutral basics, and Trip isolation pass.');
+
+const fn=html.slice(html.indexOf('function labGenerate('),html.indexOf('/* ---------- accessories in the Outfit Lab'));
+Object.assign(c,{Math,LAB_ALGORITHM_VERSION:'2.3.0',labRatingEntries:()=>[],labStats:()=>({}),labRecentUse:()=>({}),labSig:()=> 'candidate',labBase:()=>1,labTaste:()=>100,labRepeatPenalty:()=>0});c.state={tab:'lab',lab:{occasion:'any'},ratings:{}};c.labDraw=()=>o;vm.runInContext(fn,c);assert.equal(c.labGenerate({},{}),null,'a perfect style and taste score cannot override a clashing core palette');
+c.labDraw=()=>({one:piece('black',{styles:['casual']})});c.state.lab.occasion='formal';assert.equal(c.labGenerate({},{}),null,'generation never falls back to Any for a chosen occasion');
+c.labDraw=()=>({one:piece('black',{styles:['formal']})});assert(c.labGenerate({},{}),'an explicitly appropriate neutral outfit remains eligible');
+
+assert.equal(c.labPalettePair(piece('white',{name:'White blouse'}),piece('white',{name:'Cream skirt'})),false,'cream in a descriptive name refines the broad white tag');
+assert.equal(c.labPalettePair(piece('white',{name:'White top'}),piece('beige',{name:'Ivory trousers'})),false);
+assert.equal(c.labPalettePair(piece('white'),piece('beige',{name:'Beige trousers'})),true,'beige is not guessed to be cream');
+assert.equal(c.labPalettePair(piece('burgundy'),piece('brown')),true);
+assert.equal(c.labPalettePair(piece('purple'),piece('brown')),true);
+assert.equal(c.labPalettePair(piece('blue',{name:'Navy cardigan'}),piece('orange')),true,'explicit navy is a neutral');
+assert.equal(c.labPalettePair(piece('blue',{name:'Denim jeans'}),piece('yellow')),true,'explicit denim is a neutral');
+assert.equal(c.labPalettePair({colors:['black','blue']},{colors:['black','orange']}),false,'shared black cannot hide conflicting strong colors');
+assert.equal(c.labPalettePair({colors:['multicolor']},piece('orange')),false,'multicolor without recorded colors is not permission for a bright pairing');
+assert.equal(c.labPalettePair({colors:['multicolor','blue','black'],pattern:['floral']},piece('orange')),false,'multicolor does not license arbitrary bright colors');
+assert.equal(c.labPalettePair({colors:['black','gold'],meta:'Bags'},piece('purple')),true,'small metals remain neutral accents');
+
+vm.runInContext(html.slice(html.indexOf('function labPickHair('),html.indexOf('/* glasses:',html.indexOf('function labPickHair('))),c);
+const hair={id:'new-hair',meta:'Hair accessories',statement:'loud',colors:['black']};Object.assign(c,{allItems:()=>[hair],labAccOK:()=>true,labWPick:xs=>xs[0]||null,labColor:()=>1,labLook:()=>1});c.state.tab='lab';c.state.lab.occasion='any';
+assert.equal(c.labPickHair({top:piece('black',{statement:'loud'})}),null,'skip optional statement hair when an outfit already has a statement');
+assert.equal(c.labPickHair({top:piece('black'),acc:{hair:{id:'old-hair',meta:'Hair accessories',statement:'loud'}}},'old-hair').id,'new-hair','the previous hair accessory does not prevent an intentional replacement');
+c.state.tab='trip';assert.equal(c.labPickHair({top:piece('black',{statement:'loud'})}).id,'new-hair','Trip hair selection remains unchanged');

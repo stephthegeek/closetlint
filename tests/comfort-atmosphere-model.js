@@ -1,0 +1,24 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx={};vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/comfort-zone.js','utf8'),ctx);
+const C=ctx.ClosetLintComfort,model=ctx.comfortAtmosphereModel;
+const profile=values=>Object.fromEntries(Object.entries(values).map(([k,value])=>['comfort-'+k,{version:1,status:'answered',value}]));
+const close=model(profile({room:'close',drape:'crisp',stretch:'none',dressfastenings:{buckles:'hard',zips:'avoid'},rangeeveryday:'trusted',patternamount:['solid']}));
+const roomy=model(profile({room:'roomy',drape:'soft',stretch:'lots',dressfastenings:{buckles:'fine',zips:'fine'},rangeeveryday:'new',patternamount:['mixed']}));
+assert(close.room<roomy.room);assert(close.structure>roomy.structure);assert(close.stretch<roomy.stretch);assert(close.detail<roomy.detail);assert(close.range<roomy.range);assert(close.pattern<roomy.pattern);
+const blank=model({}),neutral=model(profile({room:'any',drape:'unsure',stretch:'depends',rangeeveryday:'day'}));
+for(const k of ['room','structure','stretch','range'])assert.equal(blank[k],neutral[k],'neutral answers do not imply a direction');
+assert.equal(model({'comfort-room':{version:1,status:'skipped'}}).rows('shape').length,0);
+assert.equal(model(profile({room:'invented'})).rows('shape').length,0);
+assert.equal(model(profile({layerfit:['streamlined','loose']})).room,.5,'mixed fits preserve both ends');
+assert.notDeepEqual(Array.from(model(profile({palette:['earthy']})).colors),Array.from(model(profile({palette:['pastel']})).colors));
+const original=profile({room:'close',textures:{velvet:'love',lace:'hard'},dressfastenings:{buckles:'fine'},rangeeveryday:'trusted'}),before=JSON.stringify(original),a=model(original),b=model({...original,...profile({rangeeveryday:'new'})});
+for(const k of ['room','structure','stretch','texture','detail','care','pattern','printSize'])assert.equal(a[k],b[k],'unrelated answers leave the other dimensions stable');
+assert.equal(JSON.stringify(original),before);
+const text=(id,v)=>ctx.comfortAtmosphereSummary({q:C.question(id),r:C.read(profile({[id]:v}),id)},false);
+assert.equal(text('room','close'),'You like clothes close to your body.');
+assert.match(text('dressfastenings',{buckles:'fine'}),/fine with buckles/);assert(!text('dressfastenings',{buckles:'fine'}).includes('love'));
+assert.match(text('textures',{velvet:'love',lace:'hard'}),/You love velvet.*hard no for you: lace/);
+assert.match(text('careeffort',{hand:'occasion'}),/worth it occasionally/);
+assert.match(text('room','unsure'),/not sure yet/);
+for(const q of C.questions){let v=q.type==='heel'?2:q.type==='ratings'?{[q.options[0][0]]:'fine'}:q.type==='limits'?'none':q.type==='visual'?[q.options[0][0]]:q.options[0][0];let s=text(q.id,v);assert(s&&!s.includes('undefined'),q.id+' has a readable personal result')}
+console.log('Atmosphere: contrasting profiles, mixed/neutral/missing answers, independent dimensions, palette differences, literal summaries for all 41 questions, and no profile mutations pass.');

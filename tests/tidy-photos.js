@@ -8,9 +8,18 @@ const tick=()=>new Promise(setImmediate);
 (async()=>{
  const items=Array.from({length:25},(_,i)=>({id:'p'+i,name:'Synthetic '+i,photoId:'photo'+i,photos:[{photoId:'photo'+i,kind:'model'}]}));
  const input=JSON.stringify(items);let prepared=0,writes=0,attempts=0,failSave=true;const skipped=[];
+ const dated=[{...items[0],date:'2026-01-01'},{...items[1],date:'2026-11-06'},{...items[2],date:'2026-06-01'},{...items[3]}];
+ assert.equal(c.tidyPhotoCandidates(c.tidyPhotoOrder(dated,'recent'),null,true).map(r=>r.itemId).join(','),'p1,p2,p0,p3','recent batches start with newest dated pieces; undated pieces stay last');
+ assert.equal(c.tidyPhotoCandidates(c.tidyPhotoOrder(dated,'oldest'),null,true).map(r=>r.itemId).join(','),'p0,p2,p1,p3','oldest reverses dated pieces without moving undated pieces ahead');
+ assert.equal(dated.map(r=>r.id).join(','),'p0,p1,p2,p3','photo ordering does not mutate the closet input');
  const candidates=c.tidyPhotoCandidates(items,null,true);
- const q=c.createTidyQueue(candidates,{change(){},remove:async()=>{prepared++;return {size:10}},save:async(row,main)=>{attempts++;if(row.itemId==='p1'&&failSave)throw Error('Synthetic save failure');writes++;assert.equal(main,true,'chosen cutouts become the main photo')},skip:async row=>{skipped.push(row.itemId)}});
- await q.next();assert.equal(prepared,12);assert.equal(writes,0,'preparing a batch never writes');assert.equal(q.page.length,12);
+ const q=c.createTidyQueue(candidates,{change(){},remove:async(photoId,pieceId)=>{assert.equal(photoId,'photo'+pieceId.slice(1));prepared++;return {size:10,processing:'rembg-isnet-general-use-mask'}},save:async(row,main)=>{attempts++;if(row.itemId==='p1'&&failSave)throw Error('Synthetic save failure');writes++;assert.equal(main,true,'chosen cutouts become the main photo')},skip:async row=>{skipped.push(row.itemId)}});
+ await q.next();assert.equal(q.page[0].processing,'rembg-isnet-general-use-mask');assert.equal(JSON.parse(JSON.stringify(q.page[0])).processing,'rembg-isnet-general-use-mask');assert.equal(prepared,12);assert.equal(writes,0,'preparing a batch never writes');assert.equal(q.page.length,12);
+ // Private alternate retries use the same original and preserve previews on failure.
+ const oldPreview=q.page[0].blob,oldRemove=prepared;
+ await q.retry(q.page[0],'isnet-general-use');assert.equal(prepared,oldRemove+1);assert.equal(writes,0);assert.equal(q.page[0].checked,false);prepared--;
+ let requestModel;const retryQueue=c.createTidyQueue([{itemId:'ring',source:{photoId:'retained-original'}}],{change(){},remove:async(source,piece,model)=>{requestModel=model;if(model)throw Error('Synthetic alternate failure');return {size:10,processing:'rembg-u2net-mask'}},save(){throw Error('Retry must not save')},skip(){}});
+ await retryQueue.next();const previous=retryQueue.page[0].blob;await retryQueue.retry(retryQueue.page[0],'isnet-general-use');assert.equal(requestModel,'isnet-general-use');assert.equal(retryQueue.page[0].blob,previous);assert.equal(retryQueue.page[0].status,'ready');assert.match(retryQueue.page[0].error,/alternate failure/);
  q.selectReady();assert.equal(q.page.filter(x=>x.checked).length,12,'bulk selection chooses every ready cutout without saving');assert.equal(writes,0);
  q.page.forEach(x=>{x.checked=false});
  q.page[0].checked=q.page[1].checked=true;let result=await q.keep();assert.equal(result.failed,1);
@@ -28,7 +37,10 @@ const tick=()=>new Promise(setImmediate);
  assert.equal(c.tidyPhotoCandidates([{...oldRejected,photoId:'new-upload'}],null,true)[0].source.photoId,'new-upload','a new main photo can be reviewed');
  const oldCutout={...withCutout,photoId:'cutout',photos:[...withCutout.photos,{photoId:'new-upload'}]};
  assert.equal(c.tidyPhotoCandidates([oldCutout],null,true).length,0,'an accepted main cutout does not fall back to another gallery photo');
- assert.equal(c.tidyPhotoCandidates([oldCutout],null,false).length,0,'including processed sources still never falls back from the main cutout');
+ assert.equal(c.tidyPhotoCandidates([oldCutout],null,false)[0].source.photoId,'photo0','explicit retry uses the linked original, not another gallery image');
+ assert.equal(c.tidyPhotoCandidates([oldCutout],null,false)[0].mainPhotoId,'cutout');
+ assert.equal(c.tidyPhotoCandidates([{...oldCutout,photos:oldCutout.photos.filter(p=>p.photoId!=='photo0')}],null,false).length,0,'missing original does not fall back to another photo');
+ assert.equal(c.tidyPhotoCandidates([{...oldCutout,photos:oldCutout.photos.map(p=>p.photoId==='photo0'?{...p,tidySkipped:true}:p)}],null,false).length,0,'explicit retries respect rejected sources');
  const twiceSkipped={...oldRejected,tidySkippedSourcePhotoId:'new-upload',photos:oldRejected.photos.map(p=>({...p,tidySkipped:true}))};
  assert.equal(c.tidyPhotoCandidates([twiceSkipped],null,true).length,0,'earlier rejected originals do not reappear after reviewing a second photo');
  assert.equal(c.tidyPhotoCandidates([{...twiceSkipped,photoId:'new-main'}],null,true)[0].source.photoId,'new-main','a replacement main missing from legacy gallery metadata remains eligible');
@@ -65,6 +77,7 @@ async function checkDialogFlow(){
   get options(){const out=[];function visit(n){if(n.tag==='option')out.push(n);(n.children||[]).forEach(x=>{if(typeof x==='object')visit(x)})}visit(this);return out}
   append(...children){children.flat().filter(x=>x!=null).forEach(x=>this.appendChild(x))}
   appendChild(child){this.children.push(child);if(this.tag==='select'&&this.value===undefined&&child.tag==='option')this.value=child.value;return child}
+  setAttribute(name,value){this[name]=String(value)}
   addEventListener(name,fn){this.events[name]=fn}showModal(){this.open=true}close(){this.open=false;this.events.close?.()}remove(){this.removed=true}
  }
  function find(node,predicate){if(node&&predicate(node))return node;for(const child of node.children||[]){if(typeof child==='object'){const match=find(child,predicate);if(match)return match}}}
@@ -81,6 +94,7 @@ async function checkDialogFlow(){
   document:{body:{appendChild(d){dialog=d}}},window:{scrollTo(){},addEventListener(){},removeEventListener(){},confirm(){confirms++;return true},ClosetLintRuntime:{backgroundStatus:async()=>({available:true}),removeBackground:async id=>{processed.push(id);prepared++;return {size:10}}}}};
  vm.createContext(ctx);vm.runInContext(src.match(/function metaLabel\(m\)\{[^}]+\}/)[0],ctx);const helper=fs.readFileSync(__dirname+'/../app/scripts/batch-workspaces.js','utf8');vm.runInContext(helper.slice(helper.indexOf('function batchDraftCopy('),helper.indexOf('function batchDraftSave(')),ctx);vm.runInContext(src.slice(src.indexOf('function photoWorkIndicator('),src.indexOf('function openBackgroundPreview(')),ctx);vm.runInContext(src.slice(src.indexOf('function tidyPhotoCandidates('),src.indexOf('\nfunction openEdit(',src.indexOf('function openTidyPhotos('))),ctx);
  const button=text=>find(dialog,n=>n.tag==='button'&&n.text===text);
+ ctx.openTidyPhotos();await tick();let order=find(dialog,n=>n.tag==='select'&&n['aria-label']==='Photo order');assert.equal(order.value,'recent');order.value='oldest';order.events.change();assert.equal(draft.settings.sort,'oldest','photo order is retained in the workspace draft');ctx.tidyWorkspace=null;ctx.openTidyPhotos();await tick();order=find(dialog,n=>n.tag==='select'&&n['aria-label']==='Photo order');assert.equal(order.value,'oldest','photo order restores after reopening');
  const begin=async()=>{ctx.openTidyPhotos();await tick();dialog.open=true;assert(find(dialog,n=>n.tag==='option'&&n.value==='category:Tops'&&n.text==='All Tops'),'whole-category option is selectable');assert(find(dialog,n=>n.tag==='option'&&n.value==='section:clothing'),'broad closet section is selectable');assert(find(dialog,n=>n.tag==='option'&&n.value==='type:Tops|Tees'),'narrower type remains available');dialog.scrollTop=700;click(button('Prepare first 12'));await tick();assert.equal(dialog.scrollTop,0,'first review starts at the top')};
  await begin();assert.equal(prepared,12);dialog.scrollTop=700;
  click(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Test 0'));
@@ -91,7 +105,7 @@ async function checkDialogFlow(){
  assert.equal(prepared,12,'restoring after reload does not regenerate ready cutouts');assert.equal(ctx.tidyWorkspace.queue.page[0].checked,true,'restored review retains selected cutouts');
 
  const footer=find(dialog,n=>n.class==='tidy-bottom');assert.equal(footer.children.filter(n=>n.tag==='button').map(n=>n.text).join('|'),'Save and return|Save and continue','close precedes continue in keyboard and visual order');assert.equal(find(dialog,n=>n.id==='tidy-save-count').text,'1 cutout to save','shared count describes both actions');
- failSave=true;await click(button('Save and return'));
+ failSave=true;const pendingSave=click(button('Save and return'));assert.equal(find(dialog,n=>n.id==='tidy-save-count').text,'Saving cutout 1 of 1…','real save count appears beside the locked actions');assert.equal(find(dialog,n=>n.tag==='progress')['aria-label'],'Choices saved in this batch');await pendingSave;assert.equal(ctx.tidyWorkspace.queue.activity,null,'failure clears transient loading progress');
  assert.equal(dialog.open,true,'save failure keeps the review open');assert.equal(saved,0);assert.equal(skipped,0,'failed saves do not discard the remaining review');assert.equal(dialog.scrollTop,0,'save failure exposes its status message');
  failSave=false;failSkip=true;await click(button('Save and return'));assert.equal(saved,1);assert.equal(dialog.open,true,'failure remembering original choices also keeps review open');
  failSkip=false;await click(button('Save and return'));
@@ -133,5 +147,18 @@ async function checkDialogFlow(){
  click(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Changed main'));
  const beforeChanged=saved;changed.photos.push({photoId:'replacement-main',src:'/_blob/replacement-main'});changed.photoId='replacement-main';await click(button('Save and return'));
  assert.equal(saved,beforeChanged,'a queued cutout cannot overwrite a new main photo');assert.equal(changed.photoId,'replacement-main');assert.equal(dialog.open,true);assert(find(dialog,n=>typeof n.text==='string'&&n.text.includes('The main photo changed')));click(button('← Back'));
+ // Retry an existing main cutout from its original, while keeping the current choice until saved.
+ ctx.tidyWorkspace=null;draft=null;ctx.state.picked={retry:true};
+ const retry={id:'retry',name:'Retry glasses',meta:'Glasses',sub:'Glasses',photoId:'old-cutout',photos:[{photoId:'original-glasses',src:'/_blob/original-glasses'},{photoId:'old-cutout',src:'/_blob/old-cutout',cutout:true,sourcePhotoId:'original-glasses'}]};pieces.push(retry);
+ ctx.window.ClosetLintRuntime.removeBackground=async id=>{processed.push(id);return {size:10}};
+ async function retryBatch(){ctx.tidyWorkspace=null;draft={settings:{scope:'selected',only:false}};ctx.openTidyPhotos();await tick();dialog.open=true;click(button('Prepare first 12'));await tick()}
+ await retryBatch();assert.equal(processed.at(-1),'original-glasses');assert.equal(retry.photoId,'old-cutout','preview retains existing main');
+ assert.equal(button('Try other model'),undefined,'ordinary installations have no experimental retry link');
+ ctx.window.ClosetLintLocal={alternateBackgroundModel:true};let alternateRequest;
+ ctx.window.ClosetLintRuntime.removeBackground=async(photo,piece,model)=>{alternateRequest=[photo,piece,model];return {size:10,processing:model==='u2net'?'rembg-u2net-mask':'rembg-isnet-general-use-mask'}};
+ await retryBatch();ctx.tidyWorkspace.paint();const beforeRetrySave=saved;await click(button('Try other model'));assert.deepEqual(alternateRequest,['original-glasses','retry','u2net']);assert.equal(saved,beforeRetrySave,'alternate preview does not save');assert.equal(retry.photoId,'old-cutout');
+ const keep=find(dialog,n=>n['aria-label']==='Keep current main photo for Retry glasses');assert.equal(find(keep,n=>n.tag==='img').src,'/_blob/old-cutout','review shows actual current main');
+ click(find(dialog,n=>n['aria-label']==='Save cutout as main photo for Retry glasses'));await click(button('Save and return'));assert.notEqual(retry.photoId,'old-cutout');assert(retry.photos.some(p=>p.photoId==='old-cutout'));assert(retry.photos.some(p=>p.photoId==='original-glasses'));
+ await retryBatch();const keptMain=retry.photoId;await click(button('Save and return'));assert.equal(retry.photoId,keptMain,'declining retry retains current cutout');assert.equal(retry.tidySkippedSourcePhotoId,'original-glasses');
  console.log('Tidy dialog: batch scroll reset, stable selection scroll, save-and-close, retry safety, and untouched later photos pass.');
 }

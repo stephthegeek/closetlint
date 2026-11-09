@@ -25,10 +25,19 @@ def selected_files(root=ROOT):
     paths += [p for p in (root / '.github').rglob('*.yml') if p.is_file()]
     paths += [root / 'docs' / n for n in DOCS]
     paths += [root / 'deploy/siteground' / n for n in ('README.md','build_package.py','gateway.cjs','rehearse_update.py','start.py')]
-    paths += [root / 'docs/images/closet-lint-preview.jpg']
+    paths += [root / 'docs/images/closet-lint-preview.png']
     paths += [root / 'app/assets/linty' / n for n in ART]
     paths += [root / 'app/assets/demo' / n for n in DEMO]
     paths += [root / 'app/assets/social/sky-opengraph.png']
+    # Only ship generated quiz sheets referenced by the public manifest.
+    quiz = root / 'app/assets/quiz-photos'
+    manifest = quiz / 'manifest.json'
+    paths.append(manifest)
+    for sheet in json.loads(manifest.read_text()).values():
+        name = sheet['file']
+        if not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_-]+\.webp', name):
+            raise ValueError('Invalid quiz photo sheet filename')
+        paths.append(quiz / name)
     paths += [root / 'app/content/sky' / n for n in ('stars.json', 'constellations.json', 'scoring.json', 'search-links.json', 'share-copy.json')]
     paths += [root / 'app/content/linty/daily-lines.json']
     for folder, types in TYPES.items():
@@ -51,7 +60,7 @@ def inspect(paths):
     forbidden=re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{30,}')
     for p in paths:
         if p.name=='build_release.py':continue # contains the scanner's own signatures
-        if p.suffix in ('.png', '.jpg'):continue # Explicit mascot/demo allowlists above; no arbitrary wardrobe photos.
+        if p.suffix in ('.png', '.jpg', '.webp'):continue # Explicit mascot/demo/quiz allowlists above; no arbitrary wardrobe photos.
         text=p.read_text(encoding='utf-8')
         if re.search(r'/home/[^/\s]+/',text.replace('/home/yourname/', '/example-user/')):problems.append('Machine-specific path: '+str(p.relative_to(ROOT)))
         if forbidden.search(text):problems.append('Potential credential: '+str(p.relative_to(ROOT)))

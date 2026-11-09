@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const profile=fs.readFileSync(__dirname+'/../app/scripts/profile.js','utf8'),html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8');
+const init=html.slice(html.indexOf('function labInit(){'),html.indexOf('\nfunction labRefresh(){'));
+const open=profile.slice(profile.indexOf('function profileOpenLove('),profile.indexOf('\nfunction profileSkyAction('));
+const outfit={ids:['top','skirt']},ctx={state:{lab:null},localStorage:{getItem:()=>null},labSeason:()=> 'fall',LAB_GL_MODES:['Distance'],glType:x=>x,wearAny:()=>true,byId:()=>({}),labOutfitFromIds:()=>outfit,labBase:()=>42,labTaste:()=>7,toast:()=>{},setTab(tab){assert.equal(tab,'lab');assert.equal(ctx.state.lab.seasons.fall,true);assert.deepEqual(Object.keys(ctx.state.lab.seen),[]);}};
+vm.createContext(ctx);vm.runInContext(init+'\n'+open,ctx);
+ctx.profileOpenLove(outfit.ids);
+assert.equal(ctx.state.lab.cur,outfit);assert.equal(outfit.base,42);assert.equal(outfit.taste,7);assert.equal(ctx.state.lab.mode,'rate');
+const original=ctx.state.lab;ctx.profileOpenLove(outfit.ids);assert.equal(ctx.state.lab,original,'preserve existing Lab preferences');
+ctx.labOutfitFromIds=()=>null;let warned=false;ctx.toast=()=>{warned=true};ctx.setTab=()=>assert.fail('missing outfit must not navigate');ctx.profileOpenLove(['deleted']);assert.equal(warned,true);
+ctx.state.lab=null;let explore;ctx.el=()=>({appendChild(){},setAttribute(){}});ctx.profileCardHeader=(title,label,fn)=>{explore=fn};ctx.labRatingEntries=()=>[];ctx.profileTaste();ctx.setTab=tab=>{assert.equal(tab,'lab');assert.equal(ctx.state.lab.mode,'taste');assert.equal(ctx.state.lab.seasons.fall,true)};explore();
+console.log('Profile navigation: first-entry loved outfit and My taste initialize Lab, preserve preferences, and guard missing pieces.');

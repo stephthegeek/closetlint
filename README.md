@@ -2,31 +2,52 @@
 
 **A wardrobe goblin who lives in your closet and knows where everything is.**
 
-Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. Organize your pieces, put outfits together, and plan what to wear, all in your browser. Settle wishlist battles, discover your wardrobe’s personality through your Style Sky, and see which pieces you wear most. It’s free, with no account or subscription.
+Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. Organize your pieces, put outfits together, and plan what to wear, all in your browser. See your month of outfits in color, settle wishlist battles, and discover your wardrobe’s personality through your Style Sky. It’s free, with no account or subscription.
 
-![Closet Lint showing wardrobe photos, filters, and collections in a dark theme.](docs/images/closet-lint-preview.jpg)
+![Closet Lint showing wardrobe photos and season, color, and aesthetic filters in the Soft Hardware dark theme.](docs/images/closet-lint-preview.png)
 
 > **Latest release: [Closet Lint 0.4.0](https://github.com/stephthegeek/closetlint/releases/tag/v0.4.0).** See the [release notes](docs/RELEASE-NOTES.md).
 
 ## What's included
 
-- 👚 **My closet:** pieces and wishlist finds, with photos, tags, filters, and collections.
-- 🪞 **Outfit board:** arrange pieces, save outfits, and return to unfinished drafts.
-- 👗 **Outfits and calendar:** log what you wore, schedule saved outfits, or build an outfit for a future date.
-- 🧑‍🔬 **Outfit Lab:** rate combinations, save favorites, and explore the patterns behind My taste.
-- 🌌 **Your Style Sky:** wardrobe constellations, Sun, Moon, and Rising readings, and shareable chart images.
-- 🪬 **Linty’s daily fortune card:** optional daily readings, wardrobe nudges, and color omens.
-- 🏆 **Wishlist ranking:** keep your own order, with compatibility and similarity evidence from your closet, Lab ratings, and wear history.
-- 🧳 **Trips:** plan daily outfits, save unfinished trips, track packing, and export a checklist. See [trips and packing](docs/USING-CLOSET-LINT.md#trips-and-packing).
-- 🧺 **Laundry and care:** manually mark pieces that need cleaning, save care instructions, and keep photos of care labels.
-- 🗄️ **Storage:** organize stored pieces, print bin labels, and make pull lists.
-- 🤖 **Bring Your Own AI Assistant:** use your own AI assistant to prepare pieces from order emails, links, documents, or photos. Review a prepared import file, or use direct import with an assistant that can access your installation. See [AI assistant imports](docs/AI-ASSISTANT.md#ai-assistant-imports).
-- 🔮 **Ask the Oracle:** take a wardrobe summary, question, and optional photos to your own AI assistant.
-- 📷 **Photo tools:** multiple views, cropping, optional background removal, and individual photos created from multipack images with your AI assistant, with originals kept and results reviewed before saving.
-- 💾 **Backup and restore:** keep your wardrobe data and photos together.
-- 🎨 **Themes:** three themes, each with light and dark modes.
+The features below describe the current source, including changes being prepared for 0.5. The latest published download is 0.4.0.
 
-AI is optional: you can add pieces and use the core app without an AI assistant. For AI help, start with **Add → Bulk import pieces**. Closet Lint does not connect to your email or AI account; your assistant handles any access it needs.
+### Organize your wardrobe
+
+- 👚 **My closet:** a searchable wardrobe of pieces and wishlist finds, organized with photos, tags, and collections.
+- 🧺 **Laundry and care:** track what needs cleaning and keep care instructions with each piece.
+- 🗄️ **Storage:** find what’s packed away with bin labels and pull lists.
+- 📷 **Photo tools:** multiple views, cropping, and optional background removal.
+
+### Put outfits together and plan ahead
+
+- 🪞 **Outfit board:** style your own pieces into outfit collages, from everyday looks to elaborate moodboards.
+- 🧑‍🔬 **Outfit Lab:** experiment with fresh combinations and unexpected pairings from your closet, suited to your taste, season, and occasion.
+- 👗 **Outfits and schedule:** a calendar for what you wore and what you plan to wear.
+- 🧳 **Trips:** daily outfit planning and packing checklists built from your wardrobe.
+- 🏆 **Wishlist ranking:** evidence-based comparisons of potential purchases, drawing on your preferences, wear history, and what works with your closet.
+
+### Explore what feels like you
+
+- 📖 **My almanac:** see your month in color through a beautiful calendar of the outfits you wore, with wardrobe highlights, upcoming plans, and optional local sky and weather.
+- 😶‍🌫️ **Comfort zone:** eight fun, short quizzes that help shape wishlist rankings and Outfit Lab ideas around your preferences.
+- 🌌 **Your Style Sky:** wardrobe constellations, Sun, Moon, and Rising readings, and shareable charts. Explore styles related to your own closet.
+- 🪬 **Linty’s daily fortune card:** daily readings, wardrobe nudges, and color omens.
+
+### Make it your own
+
+- 🎨 **Themes:** three distinct looks, each with light and dark modes.
+
+### Optional: Bring Your Own AI Assistant
+
+Use an AI assistant such as Claude or ChatGPT. Free chats with file support can generate files for you to upload into Closet Lint. For more automation, use an assistant with approved access to your computer or server; paid subscriptions can provide additional tools and higher usage limits.
+
+- 📥 **Bulk imports:** turn order emails, links, documents, or photos into wardrobe entries.
+- 🔮 **Ask the Oracle:** explore outfit ideas, shopping decisions, and style questions using context from your closet.
+- 🏷️ **Tidy titles & tags:** get help naming and categorizing your pieces.
+- 📷 **Product photos:** create individual product photos, including separate images for pieces in multipacks.
+
+See [AI assistant imports](docs/AI-ASSISTANT.md#ai-assistant-imports) and [Ask the Oracle](docs/AI-ASSISTANT.md#ask-the-oracle). Closet Lint does not connect to your email or AI account; your assistant handles any access it needs.
 
 ## Get started
 

@@ -121,10 +121,10 @@ function collBuild(host,pieces,map,lay,ar,bd,o){
     var pi=k<vis.length?vis[k]:-1;
     if(pi>=0){
       var p=pieces[pi],it=map[p.id];
-      par.appendChild(el('div',{class:'cslot'+(inW?' inw':'')+(o.live&&k===state.cs?' csel':''),'data-k':String(k),'data-i':String(pi),'data-sw':s.w.toFixed(4),'data-sh':s.h.toFixed(4),style:st+(it.bg?';background:'+it.bg:'')},
-        el('img',{class:'cimg',src:o.preview?photoThumbnail(it.photo):it.photo,alt:it.name,loading:o.preview?'lazy':'eager',decoding:'async',style:collImgStyle(it,p,s.w,s.h)})));
+      par.appendChild(el('div',{class:'cslot'+(inW?' inw':'')+(o.live&&k===state.cs?' csel':''),'data-k':String(k),'data-i':String(pi),'data-sw':s.w.toFixed(4),'data-sh':s.h.toFixed(4),...(o.live?{role:'button',tabindex:'0','aria-label':'Window '+(k+1)+': '+it.name,'aria-pressed':String(k===state.cs),'aria-describedby':'board-keyboard-help'}:{}),style:st+(it.bg?';background:'+it.bg:'')},
+        el('img',{class:'cimg',src:o.preview?photoThumbnail(it.photo):it.photo,alt:o.live?'':it.name,loading:o.preview?'lazy':'eager',decoding:'async',style:collImgStyle(it,p,s.w,s.h)})));
     }else if(o.empty){
-      par.appendChild(el('div',{class:'cslot cempty'+(inW?' inw':''),'data-k':String(k),'data-e':'1',style:st},el('span',{text:'+'})));
+      par.appendChild(el('div',{class:'cslot cempty'+(inW?' inw':''),'data-k':String(k),'data-e':'1',...(o.live?{role:'button',tabindex:'0','aria-label':'Empty window '+(k+1)+': add a piece'}:{}),style:st},el('span',{text:'+'})));
     }
   });
   return vis;
@@ -135,7 +135,7 @@ function selectSlot(k){
   state.cs=k;state.sel=-1;state.selT=-1;state.selPal=false;
   var bd=$('board'),pl=bd.querySelector('.bpal');if(pl)pl.classList.remove('psel');
   bd.querySelectorAll('.piece').forEach(function(n){n.classList.remove('sel')});
-  bd.querySelectorAll('.cslot').forEach(function(n){n.classList.toggle('csel',+n.dataset.k===k&&!n.dataset.e)});
+  bd.querySelectorAll('.cslot').forEach(function(n){n.classList.toggle('csel',+n.dataset.k===k&&!n.dataset.e);if(n.getAttribute('role'))n.setAttribute('aria-pressed',String(+n.dataset.k===k&&!n.dataset.e))});
   paintSel();
 }
 function collCancel(){state.swapFrom=null;state.collRep=null;var bd=$('board');if(bd)bd.classList.remove('cswap');paintCollBar()}
@@ -143,7 +143,7 @@ function paintCollBar(){
   var m=$('collmsg');if(!m)return;m.textContent='';
   var t=state.swapFrom!=null?'Swapping window '+(state.swapFrom+1)+': tap the window you want to swap it with.':state.collRep!=null?'Replacing window '+(state.collRep+1)+': pick a piece from the list.':'';
   m.classList.toggle('hide',!t||!isColl());
-  if(t){m.appendChild(document.createTextNode(t+' '));m.appendChild(el('button',{class:'linkbtn',type:'button',text:'Cancel',onclick:collCancel}))}
+  if(t){m.appendChild(document.createTextNode(t+' '));if(state.swapFrom!=null){var choices=el('select',{'aria-label':'Window to swap with'});(state.cvis||[]).forEach(function(i,k){if(k===state.swapFrom)return;var it=byIdA()[state.board.pieces[i].id];choices.appendChild(el('option',{value:String(k),text:'Window '+(k+1)+': '+(it?it.name:'Piece')}))});m.appendChild(el('label',null,'With ',choices));m.appendChild(el('button',{class:'btn small',type:'button',text:'Swap',onclick:function(){if(typeof boardCollActivate==='function')boardCollActivate(+choices.value,false);$('cswap').focus({preventScroll:true})}}))}m.appendChild(el('button',{class:'linkbtn',type:'button',text:'Cancel',onclick:function(){collCancel();$('cswap').focus({preventScroll:true})}}))}
 }
 function collSwap(k1,k2){
   var v=state.cvis||[],i1=v[k1],i2=v[k2],P=state.board.pieces;
@@ -162,29 +162,17 @@ function collAdd(it){
   b.pieces.push({id:it.id,x:30,y:14,w:24,z:nextZ(),c:1});
   persistBoard();renderBoard();selectSlot((state.cvis||[]).length-1);
 }
-function boardDesignSnapshot(b){
-  var out={};['pieces','lay','texts','st'].forEach(function(k){if(k in b)out[k]=b[k]});return JSON.parse(JSON.stringify(out));
-}
 function boardDesignChange(message,change){
-  var b=state.board,before=boardDesignSnapshot(b);change();
-  var after=JSON.stringify(boardDesignSnapshot(b));if(after===JSON.stringify(before)){renderBoard();return}
-  var entry={b:b};
-  function restore(){
-    ['pieces','lay','texts','st'].forEach(function(k){delete b[k]});Object.assign(b,JSON.parse(JSON.stringify(before)));
-    if(state.designUndo===entry)state.designUndo=null;
-    state.sel=-1;state.selT=-1;state.cs=-1;state.cutIdx=-1;state.tidyUndo=null;collCancel();persistBoard();renderBoard();toast('Design change undone.');
-  }
-  entry.undo=function(){
-    if(state.board!==b){toast('Return to the same board before undoing this design change.');return}
-    if(state.boardSaving){toast('Wait for the outfit to finish saving.');return}
-    if(JSON.stringify(boardDesignSnapshot(b))!==after)askConfirm('Undo this design change? Later board design edits will also be replaced. The outfit name, saved outfits, and wardrobe pieces stay unchanged.','Undo design change',restore);else restore();
-  };
-  state.designUndo=entry;persistBoard();renderBoard();after=JSON.stringify(boardDesignSnapshot(b));toastAct(message,'Undo',entry.undo);
+  var b=state.board;boardUndoRemember(b);var h=boardUndoFor(b),before=JSON.stringify(boardUndoSnapshot(b));h.depth++;
+  try{change()}finally{h.depth--}
+  if(JSON.stringify(boardUndoSnapshot(b))===before){renderBoard();return}
+  persistBoard(b);renderBoard();toastAct(message,'Undo',boardUndoLast);
 }
+
 function collOn(approved){
   var b=state.board;
   if(b.pieces.length>COLL_MAX){toast('Collages hold up to '+COLL_MAX+' pieces. Remove a few first.');return}
-  if(approved!==true){askConfirm('Switch to Collage? The pieces will be displayed in fitted windows instead of your freehand arrangement. Your original photos are unchanged. Undo design restores this board.','Switch to Collage',function(){collOn(true)});return}
+  if(approved!==true){askConfirm('Switch to Collage? The pieces will be displayed in fitted windows instead of your freehand arrangement. Your original photos are unchanged. Undo restores this board.','Switch to Collage',function(){collOn(true)});return}
   boardDesignChange('Switched to Collage.',function(){var n=Math.max(1,b.pieces.length);b.lay={k:n>=6?'bento':'arches',n:n,g:2.2,s:0};state.sel=-1;state.cs=-1;state.selT=-1});
 }
 function collOff(approved){
@@ -236,11 +224,12 @@ function collPanel(p){
     el('button',{class:'btn small',type:'button','aria-label':'More windows',title:'More windows',text:'+',disabled:n>=COLL_MAX?'disabled':false,onclick:function(){setLay({n:n+1})}}),
     b.lay.k==='bento'?el('button',{class:'btn small',type:'button',title:'Try a different bento arrangement',text:'\uD83D\uDD00 Shuffle',onclick:function(){setLay({s:(b.lay.s||0)+1})}}):null));
   var gv=b.lay.g!=null?b.lay.g:2.2;
-  p.appendChild(el('label',{class:'srow'},el('span',{text:'Gutter'}),el('input',{type:'range',id:'cgut',min:'0.4',max:'6',step:'0.1',value:String(gv),'aria-label':'Gutter between windows',oninput:function(e){b.lay.g=+e.target.value;state.keepPanel=true;persistBoard(b);renderBoard()}})));
+  function gutter(delta){if(state.board!==b||!b.lay)return;var v=round2(clamp((b.lay.g==null?2.2:b.lay.g)+delta,.4,6));if(v===b.lay.g)return;b.lay.g=v;state.keepPanel=true;persistBoard(b);renderBoard();if($('cgut'))$('cgut').value=v}
+  p.appendChild(el('label',{class:'srow'},el('span',{text:'Gutter'}),el('span',{class:'board-gutter-stepper'},el('button',{class:'btn small',type:'button','aria-label':'Decrease gutter',text:'−',onclick:function(){gutter(-.1)}}),el('input',{type:'range',id:'cgut',min:'0.4',max:'6',step:'0.1',value:String(gv),'aria-label':'Gutter between windows',oninput:function(e){b.lay.g=+e.target.value;state.keepPanel=true;persistBoard(b);renderBoard()}}),el('button',{class:'btn small',type:'button','aria-label':'Increase gutter',text:'+',onclick:function(){gutter(.1)}}))));
 }
 function collPointer(e,cs,bd){
   var owner=state.board;
-  var k=+cs.dataset.k,empty=cs.dataset.e==='1';
+  var k=+cs.dataset.k,empty=cs.dataset.e==='1';if(cs.focus)cs.focus({preventScroll:true});
   if(state.swapFrom!=null){
     var from=state.swapFrom;state.swapFrom=null;bd.classList.remove('cswap');
     if(empty)toast('Pick a window that has a piece in it');else if(from!==k)collSwap(from,k);
@@ -318,9 +307,9 @@ function wireColl(){
   $('board').addEventListener('dblclick',function(e){var n=e.target.closest&&e.target.closest('.cslot');if(n&&n.dataset.i!==undefined){var p=state.board.pieces[+n.dataset.i],it=p&&byIdA()[p.id];if(it)openEdit(it)}});
 }
 /* saved image of a collage: same geometry as the board */
-function collDraw(g,W,H,map,board){
-  var b=board||state.board,lay=b.lay,s=bst(b),ar=boardAR(b),pal=boardPal(b),bgc=boardBgc(b),vis=[];
-  b.pieces.forEach(function(p,i){var it=map[p.id];if(it&&!((it.wish||it.stored)&&!state.fantasy))vis.push(i)});
+function collDraw(g,W,H,map,board,options){
+  options=options||{};var b=board||state.board,lay=b.lay,s=bst(b),ar=boardAR(b),pal=boardPal(b),bgc=boardBgc(b),vis=[];
+  b.pieces.forEach(function(p,i){var it=map[p.id];if(it&&(options.includeAll||!((it.wish||it.stored)&&!state.fantasy)))vis.push(i)});
   vis=vis.slice(0,COLL_MAX);
   var n=clamp(Math.max(lay.n||1,vis.length),1,COLL_MAX),ars=vis.map(function(i){var it=map[b.pieces[i].id];return it&&it.ar>0?it.ar:1}),L=collLayout(lay,n,ar,s.bd,ars),fd=collFrameDims(lay),fc=wfColor(b),sc=W/100,chain=Promise.resolve();
   function frame(sh){
@@ -337,7 +326,7 @@ function collDraw(g,W,H,map,board){
   L.slots.forEach(function(sl,k){
     if(k>=vis.length)return;
     var p=b.pieces[vis[k]],it=map[p.id];
-    chain=chain.then(function(){return loadImg(it.photo)}).then(function(im){
+    chain=chain.then(function(){return options.load?options.load(it):loadImg(it.photo)}).then(function(im){
       var G=collImgGeom(it,p,sl.w,sl.h);
       g.save();g.scale(sc,sc);
       if(!sl.inWin)frame(sl);

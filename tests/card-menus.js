@@ -34,3 +34,6 @@ inModal.click();menu.children[1].click();assert.equal(menu.parent,document.body)
 inModal.click();modal.events.close();assert.equal(menu.parent,document.body);assert.equal(inModal['aria-expanded'],'false');
 trigger.click();assert.equal(menu.parent,document.body,'browse menu still works after closing a modal');ctx.closeXMenu();
 console.log('Dialog menus: top-layer hosting, Escape focus, action dispatch, dialog-close cleanup, and later browse reuse pass.');
+
+ctx.window.innerWidth=1200;trigger.getBoundingClientRect=()=>({left:850,right:894,top:100,bottom:144});trigger.click();assert.equal(menu.style.left,'674px','right-aligned menu opens inward from its trigger');ctx.closeXMenu();
+console.log('Desktop card menu aligns its right edge inward with the trigger.');

@@ -1,0 +1,29 @@
+/* Shared form patterns are opt-in; quizzes and ordinary selection boxes keep their own treatment. */
+:root[data-skin] .form-choice{display:inline-flex;align-items:stretch;flex-wrap:wrap;gap:3px;padding:3px;border:1px solid var(--line);border-radius:8px;background:var(--card);max-width:100%;box-sizing:border-box;min-width:0}
+:root[data-skin] .form-choice>button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:44px;padding:7px 12px;margin:0;border:1px solid transparent;border-radius:5px;background:transparent;color:var(--ink);box-shadow:none;font:400 16px/1.35 var(--body);cursor:pointer;white-space:normal}
+:root[data-skin] .form-choice>button[aria-checked=true]{background:var(--selbg);color:var(--ink);border-color:var(--sel);font-weight:600}
+:root[data-skin] .form-choice>button:is(:hover,:focus-visible){border-color:var(--sel)}
+:root[data-skin] .form-choice>button:focus-visible{outline:2px solid var(--sel);outline-offset:2px;z-index:1}
+:root[data-skin] .form-choice>button:disabled{opacity:.55;cursor:default}
+:root[data-skin] .form-choice:is(.form-choice-themes,.form-choice-packs){padding:0;border:0;background:transparent;gap:10px}
+:root[data-skin] .form-choice-themes>button{flex:1 1 145px;flex-direction:column;padding:8px 12px;gap:8px;min-width:145px;max-width:175px;white-space:nowrap;border-color:var(--line);font-size:15px}
+.form-theme-sample{position:relative;display:grid;place-items:center;width:64px;height:48px;background:#202820;color:#ecebdc;border:1px solid #526356;box-sizing:border-box;font:28px/1 'Pixelify Sans',monospace}
+.form-theme-sample i{position:absolute;right:6px;bottom:6px;width:9px;height:9px;background:#c4a7ed;border-radius:50%}
+[data-choice-value=fieldnotes] .form-theme-sample{background:#f6efdf;color:#3c4234;border-color:#d6cbb4;font-family:Fraunces,Georgia,serif}
+[data-choice-value=fieldnotes] .form-theme-sample i{background:#526347}
+[data-choice-value=editorial] .form-theme-sample{background:#28212c;color:#f3e9e0;border-color:#655267;font-family:Newsreader,Georgia,serif}
+[data-choice-value=editorial] .form-theme-sample i{background:#debfdb}
+:root[data-skin] .form-choice-packs>button{flex:1 1 180px;justify-content:space-between;border-color:var(--line);padding:10px 12px}
+@media(max-width:700px){:root[data-skin] .form-choice-packs>button{flex:0 1 calc(50% - 5px);min-width:0;box-sizing:border-box;flex-wrap:wrap}}
+.form-pack-sample{font:22px/1.3 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;white-space:nowrap}
+.form-color-dot{width:14px;height:14px;background:#f6f3ee;border:1px solid #999;border-radius:50%;flex:none}
+:root[data-skin] input.form-switch,:root[data-skin] #displayprefs input.form-switch{appearance:none!important;display:inline-block;position:relative;flex:0 0 44px;width:44px!important;min-width:44px!important;max-width:44px!important;height:26px!important;min-height:26px!important;max-height:26px!important;padding:0!important;margin:9px 0!important;border:1px solid var(--ink2);border-radius:20px;background:var(--card);cursor:pointer;vertical-align:middle;box-shadow:none}
+:root[data-skin] input.form-switch::before{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:var(--ink2);border-radius:50%;transition:transform .15s}
+:root[data-skin] input.form-switch:checked,:root[data-skin] #displayprefs input.form-switch:checked{background:var(--sel);border-color:var(--sel)}
+:root[data-skin] input.form-switch:checked::before{transform:translateX(18px);background:var(--bg)}
+:root[data-skin] input.form-switch:focus-visible{outline:2px solid var(--sel);outline-offset:3px}
+:root[data-skin] input.form-switch:disabled{opacity:.55;cursor:default}
+:root[data-skin=workshop] .form-choice,:root[data-skin=workshop] .form-choice>button{border-radius:0}
+@media(prefers-reduced-motion:reduce){:root[data-skin] input.form-switch::before{transition:none}}
+
+.form-choice>[hidden]{display:none!important}

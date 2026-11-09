@@ -4,7 +4,7 @@ function fn(n){const a=source.indexOf('function '+n+'('),b=source.indexOf('\nfun
 (async()=>{
  const draft={id:null,name:'Dinner',pieces:[{id:'a',x:1,y:2,w:30,z:1}]},saved={id:'saved',name:'Other outfit',pieces:[{id:'b',x:5,y:6,w:40,z:1}],wearLog:[{d:'2026-10-01'}]},writes=[],nodes={},messages=[];let confirm,undo,fail=false,release;
  const ctx={paintWorkspaceRecovery(){},state:{board:draft,capsDone:true,outfits:{saved},db:{collection:()=>({doc:id=>({set:async doc=>{if(release)await new Promise(r=>release=r);if(fail)throw Error('Synthetic save failure');writes.push({id,doc:JSON.parse(JSON.stringify(doc))})}})})}},$:id=>nodes[id]||(nodes[id]={setAttribute(k,v){this[k]=v},classList:{toggle(){}},querySelector(){return nodes.badge||(nodes.badge={})},getAttribute(k){return this[k]}}),oMetaFrom:o=>o.notes?{notes:o.notes}:{},boardSig:b=>JSON.stringify(b.pieces),persistBoard(){ctx.persisted=JSON.parse(JSON.stringify(ctx.state.board))},setTab:t=>{ctx.state.tab=t},askConfirm:(m,l,cb)=>{confirm={m,l,cb}},needDb:()=>false,toast:m=>messages.push(m),toastAct:(m,l,cb)=>{messages.push(m);undo=cb},uniqOutfitName:(n,id)=>Object.keys(ctx.state.outfits).some(k=>k!==id&&ctx.state.outfits[k].name===n)?n+' (2)':n,round2:n=>n,Date,localStorage:{getItem(){return JSON.stringify(ctx.persisted)}},window:{},boardHasContent:()=>ctx.state.board.pieces.length>0,addPiece(p){ctx.state.board.pieces.push({id:p.id});ctx.persistBoard();ctx.renderBoard()},renderBoard(){ctx.paintOMeta();ctx.paintBoardContext()}};
- vm.createContext(ctx);vm.runInContext(['setOutfitSave','paintBoardSaveStatus','adoptBoard','copyBoardPieces','boardDocument','mapPiecesForDoc','ofOpen','outfitEditorDirty','saveOutfit','flushBoardCheckpoint','paintOMeta','paintCalendarPlanning','paintBoardContext','freshBoard','startNewOutfit','boardNeedsProtection','restoreBoard','workspaceKey','workspaceSnapshot','restoreWorkspace','workspaceBoardSignature','boardMatchesSaved','pruneWorkspaceDrafts','keepWorkspaceDraft','switchWorkspace','editSavedOutfit','returnWorkspace'].map(fn).join('\n'),ctx);
+ vm.createContext(ctx);vm.runInContext('var boardUndoHistories=new WeakMap();\n'+['boardUndoSnapshot','boardUndoFor','setOutfitSave','paintBoardSaveStatus','adoptBoard','copyBoardPieces','boardDocument','mapPiecesForDoc','ofOpen','outfitEditorDirty','saveOutfit','flushBoardCheckpoint','paintOMeta','paintCalendarPlanning','paintBoardContext','freshBoard','startNewOutfit','boardNeedsProtection','restoreBoard','workspaceKey','workspaceSnapshot','restoreWorkspace','workspaceBoardSignature','boardMatchesSaved','pruneWorkspaceDrafts','keepWorkspaceDraft','switchWorkspace','editSavedOutfit','returnWorkspace'].map(fn).join('\n'),ctx);
  assert.equal(await ctx.saveOutfit(),true);const id=draft.id;assert.ok(id);assert.equal(ctx.state.board,draft);assert.equal(writes.length,1);assert.match(messages.at(-1),/Further saves update/);
  draft.pieces[0].x=55;await ctx.saveOutfit();assert.equal(writes.length,2);assert.equal(writes[1].id,id,'second Save updates the same outfit');assert.equal(Object.keys(ctx.state.outfits).length,2);assert.match(messages.at(-1),/Updated outfit/);
  ctx.restoreBoard();assert.equal(ctx.state.board.id,id,'reload retains the linked outfit');await ctx.saveOutfit();assert.equal(writes.at(-1).id,id);
@@ -36,12 +36,13 @@ function fn(n){const a=source.indexOf('function '+n+'('),b=source.indexOf('\nfun
  const original={id:'saved-board',name:'Keep my title',pieces:[{id:'a',x:7,y:11,w:30,z:1,rot:17,clip:[[0,0],[90,0],[90,90]],zm:2,px:.1,py:.2}],st:{bg:{c:'#ffddcc'}},texts:[{t:'Keep text'}]};
  const clone=x=>JSON.parse(JSON.stringify(x)),state={board:clone(original),sel:0,outfits:{saved:clone(original)}};let confirmation,action;const listeners={},messages=[];
  const c={state,JSON,Object,Math,Set,COLL_MAX:12,clamp:(n,a,b)=>Math.min(b,Math.max(a,n)),collN:()=>state.board.lay.n,collFamOk:()=>true,collCancel:()=>{},renderBoard:()=>{},persistBoard:()=>{c.persisted=clone(state.board)},toast:m=>messages.push(m),toastAct:(m,l,cb)=>{messages.push(m);action=cb},askConfirm:(m,l,cb)=>confirmation={m,l,cb},$:id=>({addEventListener:(event,cb)=>listeners[id]=cb}),csPiece:()=>state.board.pieces[0],selectSlot:()=>{},paintCollBar:()=>{},byIdA:()=>({a:{ar:1}}),boardAR:()=>1,bst:()=>state.board.st||{},decorInset:()=>0,tidyRole:()=> 'up',round2:n=>n};
- vm.createContext(c);vm.runInContext(['boardDesignSnapshot','boardDesignChange','collOn','collOff','setLay','collAdd','collSwap','setSt','tidyBoard'].map(fn).join('\n'),c);
+ vm.createContext(c);vm.runInContext('var boardUndoHistories=new WeakMap();\n'+['boardUndoSnapshot','boardUndoFor','boardUndoInputKey','boardUndoRemember','paintBoardUndo','boardUndoLast'].map(fn).join('\n'),c);c.persistBoard=()=>{c.boardUndoRemember(state.board);c.persisted=clone(state.board)};
+ vm.runInContext(['boardDesignChange','collOn','collOff','setLay','collAdd','collSwap','setSt','tidyBoard'].map(fn).join('\n'),c);
  c.collOn();assert.equal(state.board.lay,undefined,'Collage does not change anything before confirmation');confirmation.cb();assert(state.board.lay);action();assert.deepEqual(state.board,original,'Undo restores the complete prior layout');
  c.collOn(true);c.setLay({k:'bento'});assert.equal(state.board.lay.k,'arches');confirmation.cb();assert.equal(state.board.lay.k,'bento');action();assert.equal(state.board.lay.k,'arches');
  const collage=clone(state.board);c.collOff();assert(state.board.lay);confirmation.cb();assert.equal(state.board.lay,undefined);action();assert.deepEqual(state.board,collage);
  state.board.pieces[0].c=1;c.collOff(true);assert.equal(state.board.lay,undefined);assert.equal(state.board.pieces[0].rot,undefined);action();assert.equal(state.board.lay.k,'arches');assert.equal(state.board.pieces[0].rot,17,'Undo restores the layout before an automatic Freehand rearrangement');
- c.setLay({s:4});const undoDesign=action;state.board.pieces[0].x=99;undoDesign();assert.equal(state.board.pieces[0].x,99,'later changes require confirmation before Undo replaces them');confirmation.cb();assert.equal(state.board.pieces[0].x,7);
+ c.setLay({s:4});const undoDesign=action;state.board.pieces[0].x=99;c.persistBoard();undoDesign();assert.equal(state.board.pieces[0].x,7,'Undo reverses the latest move first');assert.equal(state.board.lay.s,4,'earlier style change remains');undoDesign();
  c.setLay({s:5});state.board.name='Title changed later';state.board.id='new-saved-id';action();assert.equal(state.board.name,'Title changed later');assert.equal(state.board.id,'new-saved-id','design Undo never rewrites saved-outfit identity');
  const same=state.board;c.setLay({s:6});state.board={id:null,name:'Different board',pieces:[]};action();assert.equal(state.board.name,'Different board','Undo cannot overwrite another board');state.board=same;
  c.setLay({s:7});state.boardSaving=true;action();assert.equal(state.board.lay.s,7,'Undo waits for pending saves');state.boardSaving=false;
@@ -52,9 +53,8 @@ function fn(n){const a=source.indexOf('function '+n+'('),b=source.indexOf('\nfun
  }
  state.board=clone(original);c.setSt({ar:'1:1',bg:{c:'#ffffff'}});assert.equal(state.board.st.ar,'1:1');action();assert.deepEqual(state.board.st,original.st,'style and aspect-ratio changes can be undone');
  state.board.pieces.push({id:'b',x:9,y:9,w:20,z:2});state.cvis=[0,1];const beforeSwap=clone(state.board.pieces);c.collSwap(0,1);assert.equal(state.board.pieces[0].id,'b');action();assert.deepEqual(state.board.pieces,beforeSwap);
- state.board=clone(original);c.tidyBoard();assert.equal(state.board.pieces[0].rot,17,'Arrange pieces waits for confirmation');confirmation.cb();assert.equal(state.board.pieces[0].rot,undefined);assert.equal(state.tidyUndo.j,JSON.stringify(original.pieces));
- const undoStart=source.indexOf("  $('otidyundo').addEventListener('click'");const undoEnd=source.indexOf("  var fb=$('tfonts');",undoStart);vm.runInContext(source.slice(undoStart,undoEnd),c);
- state.board.pieces[0].x=42;listeners.otidyundo();assert.equal(state.board.pieces[0].x,42);confirmation.cb();assert.deepEqual(state.board.pieces,original.pieces,'Undo arrange warns about later changes, then restores the layout');
+ state.board=clone(original);c.boardUndoFor(state.board);c.tidyBoard();assert.equal(state.board.pieces[0].rot,17,'Arrange pieces waits for confirmation');confirmation.cb();assert.equal(state.board.pieces[0].rot,undefined);
+ state.board.pieces[0].x=42;c.persistBoard();c.boardUndoLast();assert.notEqual(state.board.pieces[0].x,42,'Undo reverses the latest move before arrangement');c.boardUndoLast();assert.deepEqual(state.board.pieces,original.pieces,'next Undo restores the arrangement');
  assert.deepEqual(state.outfits.saved,original,'board recovery never changes saved records');
  console.log('Board safety: layout confirmation, complete recovery, later-edit guards, replacements, crops/cuts, saved identity, and arrangement Undo pass.');
 }
@@ -67,3 +67,14 @@ function fn(n){const a=source.indexOf('function '+n+'('),b=source.indexOf('\nfun
  const suggestions=Array.from(c.distinctPick(saved,6,85));assert.equal(suggestions.filter(h=>c.similarSuggestion(h,'#FFFFFF')).length,1);assert(suggestions.includes('#D8343A'));assert(suggestions.includes('#2E6FD1'));assert.deepEqual(saved,original);
  console.log('Palette: similar whites consolidate, distinct hues survive, and saved colors stay intact.');
 }
+
+// Empty-board guidance remains readable independently of the selected app theme.
+{
+ const c={};vm.createContext(c);vm.runInContext(fn('boardEmptyInk'),c);
+ function luminance(hex){const v=hex.slice(1).match(/../g).map(n=>{const x=parseInt(n,16)/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4});return .2126*v[0]+.7152*v[1]+.0722*v[2]}
+ assert.equal(c.boardEmptyInk('#FFFFFF'),'#707070');
+ for(let n=0;n<=255;n++){const bg='#'+n.toString(16).padStart(2,'0').repeat(3),a=luminance(bg),b=luminance(c.boardEmptyInk(bg));assert((Math.max(a,b)+.05)/(Math.min(a,b)+.05)>=4.5,bg)}
+ console.log('Empty board guidance: darker gray on white and 4.5:1 contrast across custom gray backgrounds pass.');
+}
+
+require('./swatch-cache');

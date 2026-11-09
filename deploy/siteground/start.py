@@ -1,5 +1,7 @@
 """Serve the existing HTTP handler over private process pipes, without a listener."""
 import argparse
+import faulthandler
+import time
 import io
 import json
 import os
@@ -66,6 +68,10 @@ class ResponseConnection:
             status = int(lines[0].split(' ', 2)[1])
             headers = dict(line.split(': ', 1) for line in lines[1:])
             length = int(headers.get('Content-Length', 0))
+            # An early error can make a browser stop sending the remaining body.
+            # Drain first, while it is still uploading, so the next request cannot
+            # be stranded behind unread bytes on our shared private pipe.
+            self.request.drain()
             self.output.write(json.dumps({'type': 'response', 'status': status, 'headers': headers, 'length': length}).encode() + b'\n')
             self.head.clear()
             self.started = True
@@ -98,8 +104,22 @@ def main():
             headers = frame['headers']
             prefix = (frame['method'] + ' ' + frame['path'] + ' HTTP/1.1\r\n' + ''.join(k + ': ' + v + '\r\n' for k, v in headers.items()) + '\r\n').encode('latin-1')
             request = RequestInput(prefix, source, length)
-            Handler(ResponseConnection(request, output), ('127.0.0.1', 0), server)
-            request.drain()  # Rejected request bodies cannot become the next request.
+            method, path = frame['method'], frame['path'].split('?', 1)[0][:180]
+            report = method in ('POST', 'PUT', 'DELETE')
+            started = time.monotonic()
+            if report:
+                print(f'Request started: {method} {path} ({length} bytes)', file=sys.stderr, flush=True)
+            # A stuck upload otherwise freezes every request sharing this pipe.
+            # Keep a stack in the private startup log without logging bodies or tokens.
+            faulthandler.dump_traceback_later(45, file=sys.stderr)
+            try:
+                Handler(ResponseConnection(request, output), ('127.0.0.1', 0), server)
+                request.drain()  # Rejected request bodies cannot become the next request.
+            finally:
+                faulthandler.cancel_dump_traceback_later()
+                elapsed = time.monotonic() - started
+                if report or elapsed >= 5:
+                    print(f'Request finished: {method} {path} ({elapsed:.2f}s)', file=sys.stderr, flush=True)
     finally:
         server.server_close()
 

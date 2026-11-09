@@ -21,15 +21,32 @@ import zipfile
 from storage import Archive, Folder, MAX_ARCHIVE, Store, encode, decode, WriteConflict, write_version, write_versions
 import import_sources
 import photo_preparation
-from background_removal import settings as background_settings, remove_background
+import detail_preparation
+import deleted_pieces
+from background_removal import settings as background_settings, remove_background, alternate_model_enabled
 from thumbnails import ThumbnailCache
 from catalog_photos import CatalogPhotos
 from places import lookup as lookup_places
-from weather import lookup as lookup_weather
+from weather import lookup as lookup_weather, forecast as lookup_sky_weather
 import oracle_context
 from assistant_import import setup_info as import_setup_info, saved_status as import_saved_status, readiness as import_readiness
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def quiz_photo_files():
+    folder = ROOT / 'app/assets/quiz-photos'
+    sheets = json.loads((folder / 'manifest.json').read_text(encoding='utf-8'))
+    files = {}
+    for sheet in sheets.values():
+        name = sheet['file']
+        if not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_-]+\.webp', name):
+            raise ValueError('Invalid quiz photo sheet filename')
+        path = folder / name
+        if not path.is_file() or path.is_symlink():
+            raise ValueError('Missing quiz photo sheet')
+        files[name] = path
+    return files
 
 
 def safe_json(value):
@@ -63,7 +80,8 @@ def render_app(store, token, *, thumbnails=False, catalog=None):
         if count != 1:
             raise ValueError('App is missing its data boundary')
     config = {'token': token, 'board': state['board'], 'instance': state['instance'], 'demo': state['collections']['profile'].get('demo', {}).get('synthetic') is True, 'thumbnails': thumbnails, 'hosted': bool(os.environ.get('CLOSETLINT_ORIGIN'))}
-    config.update(writeProtocol=1, atomicWear=True, missingVersion=write_version(None), boardVersion=write_version(state['board']))
+    config['alternateBackgroundModel'] = alternate_model_enabled(store.folder)
+    config.update(writeProtocol=1, atomicWear=True, permanentDeletion=True, missingVersion=write_version(None), boardVersion=write_version(state['board']))
     if photo_urls is not None:
         config['catalogPhotos'] = photo_urls
     return html.replace('</head>', '<script>window.ClosetLintLocal=' + safe_json(config) + ';</script><script src="/runtime.js"></script></head>')
@@ -79,6 +97,7 @@ class LocalServer(ThreadingHTTPServer):
         self.token = secrets.token_urlsafe(32)
         self.tickets = {}
         self.mutation_lock = threading.RLock()
+        self.background_slot = threading.BoundedSemaphore(1)
         self.slots = threading.BoundedSemaphore(8)
         self.pending = threading.BoundedSemaphore(32)
         super().__init__((host, port), Handler, bind_and_activate=bind_and_activate)
@@ -225,19 +244,49 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_data(200, render_app(self.server.store, self.server.token, thumbnails=bool(cache and cache.enabled), catalog=getattr(self.server, 'catalog', None)), 'text/html; charset=utf-8')
             elif path == '/runtime.js':
                 self.send_data(200, (ROOT / 'runtime/browser.js').read_bytes(), 'text/javascript; charset=utf-8')
+            elif path.startswith('/assets/quiz-photos/'):
+                photo = quiz_photo_files().get(path[len('/assets/quiz-photos/'):])
+                if photo is None:
+                    self.send_data(404, {'error': 'Not found'})
+                    return
+                data = photo.read_bytes()
+                digest = hashlib.sha256(data).hexdigest()
+                etag = '"quiz-' + digest + '"'
+                candidates = [v.strip().removeprefix('W/') for v in self.headers.get('If-None-Match', '').split(',')]
+                unchanged = etag in candidates or '*' in candidates
+                version = parse_qs(urlsplit(self.path).query).get('v')
+                cache = 'private, max-age=31536000, immutable' if version == [digest[:16]] else 'private, no-cache'
+                self.send_data(304 if unchanged else 200, b'' if unchanged else data,
+                               'image/webp', {'ETag': etag}, cache_control=cache)
             elif path == '/api/photos/background-status':
-                self.send_data(200, {'available': background_settings(self.server.store.folder) is not None})
+                self.send_data(200, {'available': background_settings(self.server.store.folder) is not None, 'alternateModel': alternate_model_enabled(self.server.store.folder)})
+            elif path == '/api/details/prepare':
+                query = parse_qs(urlsplit(self.path).query)
+                args = (self.server.store, query.get('instance', [''])[0], query.get('request', [''])[0])
+                with self.server.mutation_lock:
+                    try:
+                        self.send_data(200, detail_preparation.check(*args) if query.get('check') == ['1'] else detail_preparation.info(*args))
+                    except ValueError as error:
+                        self.send_data(400, {'error': str(error)})
             elif path == '/api/photos/prepare':
                 query = parse_qs(urlsplit(self.path).query)
                 args = (self.server.store, query.get('instance', [''])[0], query.get('request', [''])[0])
                 with self.server.mutation_lock:
-                    if query.get('download'):
+                    if query.get('list') == ['1']:
+                        try:
+                            self.send_data(200, photo_preparation.recent(self.server.store, args[1]))
+                        except ValueError as error:
+                            self.send_data(400, {'error': str(error)})
+                    elif query.get('download'):
                         self.send_data(200, photo_preparation.source_zip(*args), 'application/zip', {'Content-Disposition': 'attachment; filename="closetlint-photo-sources.zip"'})
                     elif query.get('piece'):
                         mime, data = photo_preparation.image(*args, query['piece'][0], query.get('prepared') == ['1'])
                         self.send_data(200, data, mime)
                     else:
-                        self.send_data(200, photo_preparation.info(*args))
+                        try:
+                            self.send_data(200, photo_preparation.info(*args))
+                        except ValueError as error:
+                            self.send_data(400, {'error': str(error)})
             elif path == '/api/import/sources':
                 query = parse_qs(urlsplit(self.path).query)
                 with self.server.mutation_lock:
@@ -274,6 +323,14 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_data(400, {'error': 'Enter a city or region, using 3 to 100 characters.'})
                 except Exception:
                     self.send_data(502, {'error': 'City suggestions are unavailable. You can enter any destination.'})
+            elif path == '/api/sky-weather':
+                query = parse_qs(urlsplit(self.path).query)
+                try:
+                    self.send_data(200, lookup_sky_weather(query.get('latitude', [''])[0], query.get('longitude', [''])[0], query.get('date', [''])[0]))
+                except (ValueError, TypeError):
+                    self.send_data(400, {'error': 'Choose a valid city and today’s date.'})
+                except Exception:
+                    self.send_data(502, {'error': 'Today’s weather is unavailable. Try again later.'})
             elif path == '/api/weather':
                 query = parse_qs(urlsplit(self.path).query)
                 try:
@@ -349,14 +406,45 @@ class Handler(BaseHTTPRequestHandler):
             return
         path = urlsplit(self.path).path
         try:
+            if path == '/api/photos/remove-background' and method == 'POST':
+                self.background_preview()
+                return
             with self.server.mutation_lock:
                 self.expire_tickets()
                 match = re.fullmatch(r'/api/doc/([^/]+)/([^/]+)', path)
-                if path == '/api/oracle/prepare' and method == 'POST':
+                if path == '/api/deleted-pieces' and method == 'POST':
+                    data = decode(self.body(128 * 1024))
+                    if not isinstance(data, dict):
+                        raise ValueError('Review Deleted pieces first.')
+                    action = data.get('action')
+                    args = (self.server.store, data.get('instance', ''))
+                    if action == 'inventory':
+                        result = deleted_pieces.inventory(*args)
+                    elif action == 'preview':
+                        result = deleted_pieces.preview(*args, data.get('ids'))
+                    elif action == 'delete':
+                        result = deleted_pieces.apply(*args, data.get('ids'), data.get('token'), data.get('request'), data.get('confirm'))
+                        cache = getattr(self.server, 'thumbnails', None)
+                        if cache and hasattr(cache, 'discard'):
+                            cache.discard(result['cacheIds'])
+                        catalog = getattr(self.server, 'catalog', None)
+                        if catalog:
+                            catalog.invalidate()
+                            with self.server.store.connect() as db:
+                                catalog.refresh(self.server.store.meta(db, 'base')['bundles'])
+                    else:
+                        raise ValueError('Unknown deleted-piece action.')
+                    self.send_data(200, result)
+                elif path == '/api/oracle/prepare' and method == 'POST':
                     data = decode(self.body(9 * 1024 * 1024))
                     if not isinstance(data, dict):
                         raise ValueError('Prepare a scoped Oracle summary.')
                     self.send_data(200, oracle_context.prepare(self.server.store, data.get('instance', ''), data))
+                elif path == '/api/details/prepare' and method == 'POST':
+                    data = decode(self.body(1024 * 1024))
+                    if not isinstance(data, dict):
+                        raise ValueError('Choose existing pieces for title and tag suggestions.')
+                    self.send_data(200, detail_preparation.create(self.server.store, data.get('instance', ''), data.get('request', ''), data.get('mode'), data.get('pieces')))
                 elif path == '/api/photos/prepare' and method == 'POST':
                     data = decode(self.body(256 * 1024))
                     if not isinstance(data, dict):
@@ -416,17 +504,6 @@ class Handler(BaseHTTPRequestHandler):
                     if cache and hasattr(cache, 'enqueue'):
                         cache.enqueue(asset_id)
                     self.send_data(200, {'id': asset_id})
-                elif path == '/api/photos/remove-background' and method == 'POST':
-                    data = decode(self.body(4096))
-                    if not isinstance(data, dict):
-                        raise ValueError('Choose a saved photo first.')
-                    photo_id = data.get('photoId')
-                    if not isinstance(photo_id, str):
-                        raise ValueError('Choose a saved photo first.')
-                    asset = self.server.store.asset(photo_id)
-                    if not asset or not asset[0].startswith('image/'):
-                        raise ValueError('Photo not found. Your original is unchanged.')
-                    self.send_data(200, remove_background(self.server.store.folder, asset[1]), 'image/png')
                 elif path == '/api/restore/preview' and method == 'POST':
                     # Two previews maximum; discard the oldest before accepting another.
                     while len(self.server.tickets) >= 2:
@@ -490,6 +567,57 @@ class Handler(BaseHTTPRequestHandler):
             self.send_data(400, {'error': message})
         except Exception:
             self.send_data(500, {'error': 'The local storage operation failed. Existing records were not partially restored.'})
+
+    def background_preview(self):
+        # Reading a request, running inference, and sending its result must not
+        # hold the wardrobe write lock. Only one model may run at a time.
+        data = decode(self.body(4096))
+        if not isinstance(data, dict):
+            raise ValueError('Choose a saved photo first.')
+        if not self.server.background_slot.acquire(blocking=False):
+            self.send_data(429, {'error': 'Background removal is already running. Wait for it to finish, then try again.'},
+                           extra={'Retry-After': '1'})
+            return
+        try:
+            with self.server.mutation_lock:
+                asset, model = self.background_source(data)
+            result = remove_background(self.server.store.folder, asset[1], model)
+            with self.server.mutation_lock:
+                current, current_model = self.background_source(data)
+                if current != asset or current_model != model:
+                    raise ValueError('The source photo changed while background removal was running. Review it and try again.')
+        finally:
+            self.server.background_slot.release()
+        self.send_data(200, result, 'image/png', extra={'X-ClosetLint-Background-Model': model})
+
+    def background_source(self, data):
+        photo_id = data.get('photoId')
+        if not isinstance(photo_id, str):
+            raise ValueError('Choose a saved photo first.')
+        asset = self.server.store.asset(photo_id)
+        if not asset or not asset[0].startswith('image/'):
+            raise ValueError('Photo not found. Your original is unchanged.')
+        model = 'u2net'
+        piece_id = data.get('pieceId')
+        if piece_id is not None:
+            if not isinstance(piece_id, str) or not piece_id or len(piece_id) > 200:
+                raise ValueError('Choose an existing piece first.')
+            item = photo_preparation.piece(self.server.store.state(), piece_id)
+            photos = item.get('photos', [])
+            if photo_id != item.get('photoId') and not any(p.get('photoId') == photo_id for p in photos):
+                raise ValueError('This photo no longer belongs to the selected piece.')
+            if any(p.get('photoId') == photo_id and p.get('kind') == 'carelabel' for p in photos):
+                raise ValueError('Choose a product photo, not a care label.')
+            if item.get('meta') in ('Jewelry', 'Glasses', 'Eyewear'):
+                model = 'isnet-general-use'
+        requested_model = data.get('model')
+        if requested_model is not None:
+            if not alternate_model_enabled(self.server.store.folder):
+                raise ValueError('Alternate model retry is not enabled on this installation.')
+            if requested_model not in ('u2net', 'isnet-general-use') or not piece_id:
+                raise ValueError('Choose a supported background removal model and an existing piece.')
+            model = requested_model
+        return asset, model
 
     def expire_tickets(self):
         for ticket, (filename, created) in list(self.server.tickets.items()):

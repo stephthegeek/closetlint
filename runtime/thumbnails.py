@@ -30,6 +30,7 @@ class ThumbnailCache:
         self.rescan = threading.Event()
         self.previews = {}
         self.generation = 0
+        self.removed = set()
 
     def path(self, asset_id, data):
         return self.folder / (asset_id + '-' + hashlib.sha256(data).hexdigest() + '.webp')
@@ -37,13 +38,23 @@ class ThumbnailCache:
     def get(self, asset_id, asset):
         if not self.enabled or not asset[0].startswith('image/'):
             return None
+        with self.lock:
+            generation = self.generation
+        return self.read_preview(asset_id, asset, self.path(asset_id, asset[1]), generation)
+
+    def read_preview(self, asset_id, asset, target, generation):
+        with self.lock:
+            if generation != self.generation or asset_id in self.removed:
+                return None
         try:
-            path = self.path(asset_id, asset[1])
-            with path.open('rb') as source:
+            with target.open('rb') as source:
                 data = source.read(4 * 1024 * 1024 + 1)
             if len(data) <= 4 * 1024 * 1024 and data[:4] == b'RIFF' and data[8:12] == b'WEBP':
+                with self.lock:
+                    if generation != self.generation or asset_id in self.removed:
+                        return None
                 return data if len(data) < len(asset[1]) else None
-            path.unlink()  # Rebuild an incomplete/corrupt disposable cache entry.
+            target.unlink(missing_ok=True)  # Rebuild a corrupt disposable entry.
         except OSError:
             pass
         self.enqueue(asset_id)
@@ -58,6 +69,8 @@ class ThumbnailCache:
         if not self.enabled:
             return None
         with self.lock:
+            if asset_id in self.removed:
+                return None
             entry = self.previews.get(asset_id)
         if entry is None:
             return None
@@ -67,7 +80,7 @@ class ThumbnailCache:
                 data = source.read(4 * 1024 * 1024 + 1)
             if len(data) <= 4 * 1024 * 1024 and data[:4] == b'RIFF' and data[8:12] == b'WEBP':
                 with self.lock:
-                    if generation != self.generation:
+                    if generation != self.generation or asset_id in self.removed:
                         return None
                 return data if len(data) < original_size else None
             target.unlink()
@@ -81,7 +94,9 @@ class ThumbnailCache:
 
     def index(self, asset_id, target, original_size, generation):
         with self.lock:
-            if generation == self.generation:
+            if asset_id in self.removed:
+                target.unlink(missing_ok=True)
+            elif generation == self.generation:
                 self.previews[asset_id] = (target, original_size, generation)
 
     def enqueue(self, asset_id):
@@ -89,7 +104,7 @@ class ThumbnailCache:
         if not self.enabled or self.stopped.is_set():
             return
         with self.lock:
-            if len(self.pending) < 64 and asset_id not in self.queued:
+            if len(self.pending) < 64 and asset_id not in self.queued and asset_id not in self.removed:
                 self.pending.append(asset_id)
                 self.queued.add(asset_id)
 
@@ -98,19 +113,40 @@ class ThumbnailCache:
         with self.lock:
             self.generation += 1
             self.previews.clear()
+            self.removed.clear()
         self.rescan.set()
+
+    def discard(self, asset_ids):
+        # Suppress an already-running worker as well as queued/indexed previews.
+        ids = set(asset_ids)
+        with self.lock:
+            self.removed.update(ids)
+            self.pending = deque(key for key in self.pending if key not in ids)
+            self.queued.difference_update(ids)
+            for key in ids:
+                self.previews.pop(key, None)
+        for key in ids:
+            for target in self.folder.glob(key + '-*.webp'):
+                try:
+                    target.unlink(missing_ok=True)
+                except OSError:
+                    pass  # A stale file is never served through the removed index.
 
     def wait_for(self, asset_id, asset, timeout=0.9):
         """Give a requested cold preview a brief chance before sending the original."""
-        if not asset[0].startswith('image/'):
+        if not self.enabled or not asset[0].startswith('image/'):
             return None
+        with self.lock:
+            generation = self.generation
         deadline = time.monotonic() + min(0.9, max(0, timeout))
         target = self.path(asset_id, asset[1])
         while True:
-            preview = self.get(asset_id, asset)
-            if (preview is not None or not self.enabled or not self.running
+            preview = self.read_preview(asset_id, asset, target, generation)
+            with self.lock:
+                stale = generation != self.generation or asset_id in self.removed
+            if (preview is not None or stale or not self.enabled or not self.running
                     or self.stopped.is_set() or target.is_file() or target.name in self.failed):
-                return preview
+                return preview if not stale else None
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 return None
@@ -120,6 +156,8 @@ class ThumbnailCache:
 
     def prepare(self, asset_id):
         with self.lock:
+            if asset_id in self.removed:
+                return
             generation = self.generation
         asset = self.catalog.asset(asset_id[8:]) if asset_id.startswith('catalog-') and self.catalog else self.store.asset(asset_id)
         if not asset or not asset[0].startswith('image/'):

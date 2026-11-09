@@ -33,5 +33,13 @@ def lookup(name):
                         and math.isfinite(lat) and math.isfinite(lon)
                         and -90 <= lat <= 90 and -180 <= lon <= 180):
                     place.update(latitude=lat, longitude=lon)
+                    zone = result.get('timezone')
+                    if isinstance(zone, str) and len(zone) <= 100:
+                        from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+                        try:
+                            ZoneInfo(zone)
+                            place['timezone'] = zone
+                        except (ZoneInfoNotFoundError, ValueError):
+                            pass
                 places.append(place)
     return {'places': places}

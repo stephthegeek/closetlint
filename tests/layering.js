@@ -1,8 +1,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync(require('node:path').join(__dirname,'../app/closet-lint.html'),'utf8');
 function fn(name){const start=source.indexOf('function '+name+'('),end=source.indexOf('\nfunction ',start+1);return source.slice(start,end<0?undefined:end)}
-const ctx={Math:Object.assign(Object.create(Math),{random:()=>0.1}),labTopish:x=>x.meta==='Tops',itemWeight:x=>x.weight||'regular',labParts:o=>[o.one,o.top,o.bottom,o.layer,o.under].filter(Boolean),labUnder:pool=>pool.under[0]||null};vm.createContext(ctx);
-vm.runInContext(['layerNeed','needsLayer','labThinTop','labPullover','labCanCover','labBareTop','labOrdinaryShirt','labUnderFits','labCompleteLayers','isSheer','isUnderCand'].map(fn).join('\n'),ctx);
+const ctx={labPairBlocked:()=>false,state:{tab:'trip'},labAccParts:o=>Object.values(o.acc||{}).flat().filter(Boolean),LAB_NEUTRAL:{black:1,white:1,gray:1,beige:1,brown:1},labPatterned:p=>(p.pattern||[]).some(x=>x!=='solid'),Math:Object.assign(Object.create(Math),{random:()=>0.1}),labTopish:x=>x.meta==='Tops',itemWeight:x=>x.weight||'regular',labParts:o=>[o.one,o.top,o.bottom,o.layer,o.under].filter(Boolean),labUnder:pool=>pool.under[0]||null};vm.createContext(ctx);
+vm.runInContext(['labQuietSupport','labSupportPool','labRequiredUnder','layerNeed','needsLayer','labThinTop','labPullover','labCanCover','labBareTop','labCompactBase','labOrdinaryShirt','labFoundationUnder','labUnderFits','labCompleteLayers','isSheer','isUnderCand'].map(fn).join('\n'),ctx);
 const tee={id:'tee',meta:'Tops',sub:'Tees',material:[]},vest={id:'vest',meta:'Tops',sub:'Sweaters',kind:'vest',weight:'regular',labAs:'either',material:[]},pinafore={id:'pinafore',meta:'One-pieces',needsUnder:true,material:[]},coat={id:'coat',meta:'Outerwear',sub:'Coats'},cardigan={id:'cardi',meta:'Tops',sub:'Sweaters',kind:'cardigan'},sweater={id:'sweater',meta:'Tops',sub:'Sweaters',kind:'pullover',weight:'thick'};
 let o={one:pinafore};assert.equal(ctx.labCompleteLayers(o,{top:[tee],under:[]}),true);assert.equal(o.under.id,'tee');
 assert.equal(ctx.labCompleteLayers({one:pinafore},{top:[],under:[]}),false);
@@ -38,7 +38,7 @@ assert.equal(ctx.labDraw(pool,null,{}, {layerP:1}),null,'generator rejects the t
 pool.under=[tank];
 o=ctx.labDraw(pool,null,{}, {layerP:1});assert.ok(o);assert.equal(o.under.id,'tank');assert.equal(o.layer.id,'stripe');
 let shoeCalls=0,sockCalls=0;Object.assign(ctx,{labPickShoes:()=>{shoeCalls++;return {id:'shoe',socksRequired:true}},labPickSocks:()=>{sockCalls++;return {id:'sock'}},labSockOK:()=>true,labNeedTights:()=>false,labAccessorize:()=>{throw Error('optional extras should stay off')}});
-vm.runInContext(fn('labEnsureSocks')+'\n'+fn('labEnsureAcc'),ctx);o={one:{id:'dress'}};ctx.labEnsureAcc(o,{accAuto:false});ctx.labEnsureAcc(o,{accAuto:false});assert.equal(shoeCalls,1);assert.equal(sockCalls,1);assert.equal(o.acc.shoes.id,'shoe');assert.equal(o.acc.socks.id,'sock');
+vm.runInContext(fn('labHosieryMeetsShoe')+'\n'+fn('labEnsureSocks')+'\n'+fn('labEnsureAcc'),ctx);o={one:{id:'dress'}};ctx.labEnsureAcc(o,{accAuto:false});ctx.labEnsureAcc(o,{accAuto:false});assert.equal(shoeCalls,1);assert.equal(sockCalls,1);assert.equal(o.acc.shoes.id,'shoe');assert.equal(o.acc.socks.id,'sock');
 console.log('Layering: upper-body requirements, sweater exclusions, vest combinations, manual overrides, shoes and required socks pass.');
 // Accessorizing adds extras without silently replacing the shoes already shown.
 Object.assign(ctx,{labSockP:()=>0,labPickJewelry:()=>[{id:'necklace'}],labPickHair:()=>null,labPickGlasses:()=>null});
@@ -59,3 +59,55 @@ ctx.catMetas=(meta)=>[meta];vm.runInContext(fn('labRole')+'\n'+fn('labTopish'),c
 for(const meta of ['Workwear & uniforms','Cultural & traditional garments']){assert.equal(ctx.labRole({meta,sub:'Tops'}),'top');assert.equal(ctx.labRole({meta,sub:'Bottoms'}),'bottom');assert.equal(ctx.labRole({meta,sub:'One-pieces'}),'one');assert.equal(ctx.labRole({meta,sub:'Sets'}),'');assert.equal(ctx.labRole({meta,sub:'Tops',labAs:'under'}),'');assert(ctx.labTopish({meta,sub:'Tops'}));}
 
 o={top:{id:'knit-vest',meta:'Tops',sub:'Sweaters',kind:'vest'}};assert(ctx.labCompleteLayers(o,{top:[tee],under:[]}));assert.equal(o.under.id,'tee','the vest default adds a real compatible underlayer');
+
+// Each selected wear position controls Lab and trip pool membership.
+vm.runInContext(['wearRoleCode','wearRoleChoices','labEither','labPool','tripPool'].map(fn).join('\n'),ctx);
+ctx.labOK=()=>true;ctx.tripOK=()=>true;ctx.tripSeasonOK=()=>true;
+for(const [value,roles] of Object.entries({top:['top'],under:['under'],layer:['layer'],either:['top','layer'],topunder:['top','under'],underlayer:['under','layer'],all:['top','under','layer']})){
+ const piece={...tee,labAs:value};ctx.allItems=()=>[piece];
+ assert.equal(ctx.wearRoleCode(roles),value);assert.deepEqual(Array.from(ctx.wearRoleChoices(piece)).sort(),roles.slice().sort());
+ for(const pool of [ctx.labPool({}),ctx.tripPool({})])for(const role of ['top','under','layer'])assert.equal(pool[role].some(x=>x.id===piece.id),roles.includes(role),value+' '+role);
+ assert.equal(ctx.labUnderFits(piece,sweater),roles.includes('under'),value+' underlayer permission');
+}
+assert.deepEqual(Array.from(ctx.wearRoleChoices({labAs:'topmost'})),['top','layer'],'legacy combination is retained');
+console.log('Wear position combinations: all seven selections, main/under/over pool membership, explicit exclusions, and legacy values pass.');
+
+// Required support can use quiet basics, while optional extras and Trip rules stay unchanged.
+{
+ const notices=[],ps=[],c={state:{tab:'lab',lab:{occasion:'any'}},LAB_NEUTRAL:{black:1,white:1,gray:1,beige:1},Math,
+  labParts:o=>[o.top,o.one,o.bottom,o.layer,o.under].filter(Boolean),labAccParts:o=>Object.values(o.acc||{}).flat().filter(Boolean),
+  labPatterned:p=>(p.pattern||[]).some(x=>x!=='solid'),allItems:()=>ps,labAccOK:p=>p.available!==false,labAccCandidate:p=>p.compatible!==false,
+  labSockOK:p=>p.fits!==false,labBareLegs:()=>true,isBasicSock:p=>p.functional===true,labWPick:p=>p[0]||null,
+  labColor:()=>1,labLook:()=>1,toast:m=>notices.push(m),labRender(){c.renders=(c.renders||0)+1},
+  labSockFix(o){if(!o.acc.shoes)o.acc.socks=null},needsLayer:()=>true};
+ vm.createContext(c);vm.runInContext(['labQuietSupport','labSupportPool','labRequiredUnder','labPickSocks','labHosieryMeetsShoe','labLeaveOut'].map(fn).join('\n'),c);
+ const loud={id:'statement',statement:'loud'},shoe={id:'shoe',socksRequired:true};
+ const fancy={id:'fancy',meta:'Legwear',sub:'Socks',colors:['black'],pattern:['lace'],statement:'loud'},basic={id:'basic',meta:'Legwear',sub:'Socks',colors:['black'],pattern:['solid'],functional:true};
+ let o={one:loud,acc:{shoes:shoe}};ps.push(fancy,basic);assert.equal(c.labPickSocks(o,{}).id,'basic','required socks prefer eligible quiet basics around a statement');
+ basic.compatible=false;assert.equal(c.labPickSocks(o,{}).id,'fancy','color/occasion compatibility is never relaxed to get a basic');delete basic.compatible;
+ basic.fits=false;assert.equal(c.labPickSocks(o,{}).id,'fancy','physical shoe compatibility still wins');delete basic.fits;
+ basic.available=false;assert.equal(c.labPickSocks(o,{}).id,'fancy','unavailable basics are excluded');delete basic.available;
+ o.acc.shoes={id:'optional-shoe'};assert.equal(c.labPickSocks(o,{}).id,'fancy','optional socks keep the everyday-basic exclusion');
+ o.acc.shoes=shoe;o.one={id:'quiet',statement:'plain'};assert.equal(c.labPickSocks(o,{}).id,'fancy','a quiet outfit does not force basics');
+ o.one=loud;c.state.tab='trip';assert.equal(c.labPickSocks(o,{}).id,'fancy','Trip selection remains unchanged');c.state.tab='lab';
+ o.acc.socks=basic;assert.equal(c.labLeaveOut(o,'socks'),false);assert.equal(o.acc.socks,basic);assert.equal(c.renders,undefined,'blocked removal never refreshes/replaces the piece');assert.match(notices.at(-1),/shoes.*require socks/);
+ o.acc.shoes={id:'optional-shoe'};assert.equal(c.labLeaveOut(o,'socks'),true);assert.equal(o.acc.socks,null);assert.equal(c.renders,1);
+ o.acc={shoes:shoe,socks:basic};c.labLeaveOut(o,'shoes');assert.equal(o.acc.socks,null);assert.match(notices.at(-1),/left out too/);
+ o.bottom={id:'bottom'};o.acc.slip={id:'slip'};assert.equal(c.labLeaveOut(o,'slip'),false);assert.equal(o.acc.slip.id,'slip');assert.match(notices.at(-1),/needs a layer underneath/);
+ assert.equal(c.labRequiredUnder({functional:true,meta:'Tops',sub:'Tanks'}),true);assert.equal(c.labRequiredUnder({functional:true,meta:'Tops',sub:'Tanks',labAs:'top'}),false,'manual role excludes underwear use');
+ console.log('Lab support: quiet required basics, compatibility/availability precedence, optional and Trip isolation, explanatory removal, and dependent cleanup pass.');
+}
+{
+ Object.assign(ctx,{state:{tab:'lab',lab:{occasion:'any'}},labOccasionPieceOK:()=>true,labPalettePair:p=>p.compatible!==false});
+ const base={...tee,id:'statement-sheer',material:['sheer'],layerNeed:'under',statement:'loud',colors:['burgundy']};
+ const quiet={id:'quiet-tank',meta:'Tops',sub:'Tanks',functional:true,statement:'plain',colors:['black'],material:[],weight:'thin',sleeve:'sleeveless',layerNeed:'none'};
+ const fancy={...quiet,id:'statement-tank',functional:false,statement:'loud',pattern:['lace']};
+ let outfit={top:base,under:fancy,bottom:{id:'bottom',meta:'Bottoms',colors:['black']}};
+ assert(ctx.labCompleteLayers(outfit,{under:[fancy,quiet],top:[]}));assert.equal(outfit.under.id,'quiet-tank','a functional tank can satisfy required support and replace a competing statement underlayer');
+ outfit={top:base};assert(ctx.labCompleteLayers(outfit,{under:[{...quiet,compatible:false},fancy],top:[]}));assert.equal(outfit.under.id,'statement-tank','a compatible statement beats an incompatible basic');
+ assert.equal(ctx.labUnderFits({...quiet,labAs:'top'},base,true),false,'Main top only remains respected');
+ assert.equal(ctx.labUnderFits({...quiet,material:['sheer']},base,true),false,'required basics still must supply actual coverage');
+ assert.equal(ctx.labUnderFits(quiet,base,false),false,'functional items remain excluded from optional underlayers');
+ ctx.state.tab='trip';assert.equal(ctx.labUnderFits(quiet,base,true),false,'functional underlayer exception does not change Trip behavior');
+ console.log('Required tanks: quiet functional support, palette precedence, explicit roles, opacity, optional exclusion, and Trip isolation pass.');
+}

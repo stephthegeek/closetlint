@@ -6,3 +6,40 @@ dialog.photo-preparation-complete{height:fit-content;width:min(540px,calc(100vw 
 .photo-preparation .setup-field{margin-block:12px}.photo-preparation select{width:auto;max-width:100%}.photo-preparation input[type=file]{width:100%;max-width:100%;box-sizing:border-box}.photo-preparation input[type=text]{width:100%;box-sizing:border-box}.photo-preparation .actions{display:flex;gap:12px;flex-wrap:wrap;margin-block:16px}.photo-preparation-step{margin-top:24px!important}
 .photo-preparation-item{display:grid;grid-template-columns:72px minmax(0,1fr);gap:16px;align-items:start;margin-block:20px}.photo-preparation-thumb{width:72px;height:96px;object-fit:contain;background:var(--panel)}.photo-preparation strong{overflow-wrap:anywhere}.photo-preparation-review{padding-block:20px;border-top:1px solid var(--line)}.photo-preparation-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:14px}.photo-preparation-pair figure{margin:0;min-width:0}.photo-preparation-pair img{display:block;width:100%;height:250px;object-fit:contain;background:var(--panel)}.photo-preparation-pair figcaption{font-size:13px;color:var(--ink2);margin-top:8px}.photo-preparation-choice{display:flex;align-items:center;gap:10px;min-height:44px;margin-top:12px;cursor:pointer}.photo-preparation-choice:hover{color:var(--sel)}.photo-preparation-status{padding:12px;border:1px solid var(--line)}
 @media(max-width:600px){.photo-preparation .setup-head{padding:18px 16px;gap:12px}.photo-preparation .setup-head h2{font-size:24px}.photo-preparation .setup-body{padding:16px}.photo-preparation-item{gap:12px;grid-template-columns:56px minmax(0,1fr)}.photo-preparation-thumb{width:56px;height:78px}.photo-preparation-pair{gap:10px}.photo-preparation-pair img{height:190px}.photo-preparation .actions .btn{flex:1 1 150px}}
+
+/* Split review uses one dialog surface and the existing photo workflow. */
+dialog.split-review{width:min(620px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);box-sizing:border-box;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.split-body{display:grid;gap:20px;max-width:100%;min-width:0}.split-body h2,.split-body p{margin:0}.split-body label{display:grid;gap:6px;font:15px/1.4 var(--body);min-width:0}.split-body .search{width:100%;min-width:0;margin:0;box-sizing:border-box;background:var(--control,var(--card));color:var(--ink);border:1px solid var(--line);min-height:44px}.split-rows{display:grid;gap:16px}.split-variant{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 16px;border-top:1px solid var(--line);padding-top:16px}.split-variant>b{grid-column:1/-1;font:600 16px/1.4 var(--body)}.split-photo-choice{margin:0;padding:0;border:0;background:none;min-width:0}.split-photo-choice legend{font:600 16px/1.4 var(--body);margin-bottom:8px;padding:0}.split-photo-choice .photo-preparation-choice{display:flex;align-items:center;gap:10px;margin:0;min-height:44px}.split-photo-choice input{flex:none}.split-body .actions{display:flex;flex-wrap:wrap;gap:12px;margin:0}.split-body .btn{min-height:44px;white-space:normal}.split-body .fine{font-size:15px}
+@media(max-width:480px){.split-variant{grid-template-columns:minmax(0,1fr)}.split-body .actions .btn{flex:1 1 140px}}
+
+/* Installation checks stay inline and never redraw the editable photo fields. */
+.photo-preparation-access{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;margin-block:12px 18px;min-width:0}
+.photo-preparation-access .setup-connection{margin:0;font-size:15px}
+.photo-preparation-access .btn{margin:0;min-height:40px}
+.photo-preparation-access .setup-confirmed.setup-unavailable{background:#f7dedb;color:#8b2f32}
+.photo-preparation-access .setup-confirmed.setup-pending{background:var(--panel);color:var(--ink2)}
+
+.assistant-request-shelf{margin:0 0 24px;padding:0 0 20px;border-bottom:1px solid var(--line)}
+.assistant-request-shelf h3{margin:0 0 12px}
+.assistant-request-row{display:flex;align-items:flex-start;gap:14px;padding:12px 0}
+.assistant-request-info{min-width:0;flex:1}
+.assistant-request-info strong{font-size:16px}
+.assistant-request-info p{margin:5px 0;font-size:14px;line-height:1.5}
+.assistant-request-names{overflow-wrap:anywhere;color:var(--muted)}
+.assistant-request-info .actions{margin-top:10px;gap:8px;flex-wrap:wrap}
+.assistant-request-info .btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px}
+.assistant-request-thumbs{display:grid;grid-template-columns:repeat(2,32px);gap:4px;flex:none}
+.assistant-request-thumbs img{width:32px;height:40px;object-fit:contain;border-radius:4px;background:var(--card)}
+.assistant-request-shelf details{padding:0;background:transparent;border:0;margin-top:8px}
+.assistant-request-shelf details>summary{padding:8px 0;background:transparent;border:0;font-size:15px}
+.assistant-request-shelf details .assistant-request-row+.assistant-request-row{border-top:1px solid var(--line)}
+@media(max-width:480px){.assistant-request-row{gap:10px}.assistant-request-thumbs{grid-template-columns:repeat(2,28px)}.assistant-request-thumbs img{width:28px;height:36px}}
+.setup-body .assistant-request-info .actions{justify-content:flex-start;margin:10px 0 0;padding:0}
+.setup-body .assistant-request-shelf{display:block}
+
+/* Import history is a compact disclosure, rather than a full request section. */
+.setup-body .assistant-request-shelf-compact{margin:0 0 14px;padding:0;border:0;min-height:0}
+.setup-body .assistant-request-shelf-compact>p{margin:0 0 8px}
+.setup-body .assistant-request-shelf-compact>p[hidden]{display:none}
+.setup-body .assistant-request-shelf-compact details{margin:0;padding:0}
+.setup-body .assistant-request-shelf-compact details>summary{padding:8px 0;min-height:44px;box-sizing:border-box}

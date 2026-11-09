@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/../app/scripts/profile.js','utf8'),taste=fs.readFileSync(__dirname+'/../app/scripts/taste.js','utf8');
+const c={Date,labInit:()=>{c.state.lab={}},state:{},setTab:tab=>{c.tab=tab},labTasteExamples:(feature,launcher)=>{c.opened={feature,launcher}}};
+vm.createContext(c);vm.runInContext(source.slice(source.indexOf('function profileTasteDaily('),source.indexOf('function profileTasteInsight(')),c);
+const cards=[{kind:'positive',feature:'c:red'},{kind:'piece',feature:'p:coat'},{kind:'passed',feature:'lay:y'}],love={record:{ids:['coat']}},before=JSON.stringify({cards,love}),dates=[];
+for(let d=2;d<=17;d++)dates.push('2026-11-'+String(d).padStart(2,'0'));
+const picks=dates.map(date=>c.profileTasteDaily(love,cards,date));assert(picks.every((p,i)=>i===0||p.kind==='love'!== (picks[i-1].kind==='love')),'love and insights alternate on consecutive calendar days');
+const insights=picks.filter(p=>p.kind!=='love');for(let i=1;i<insights.length;i++)assert.equal(cards.indexOf(insights[i]),(cards.indexOf(insights[i-1])+1)%cards.length,'advance once on each insight day');
+assert.equal(c.profileTasteDaily(love,cards,dates[0]),picks[0],'same day/reload stable');assert.equal(c.profileTasteDaily(love,[],'2026-11-02').love,love);assert.equal(c.profileTasteDaily(null,[],'2026-11-02'),null);
+assert.notEqual(c.profileTasteDaily(null,cards,'2026-11-02'),c.profileTasteDaily(null,cards,'2026-11-03'),'without a Love, advance insight every day');assert.notEqual(c.profileTasteDaily(love,cards,'2026-10-31').kind==='love',c.profileTasteDaily(love,cards,'2026-11-01').kind==='love','DST boundary is a calendar day');assert.equal(JSON.stringify({cards,love}),before);
+c.profileOpenTaste('c:red');assert.equal(c.tab,'lab');assert.equal(c.state.lab.mode,'taste');assert.equal(c.opened.feature,'c:red');assert.equal(c.opened.launcher,null);
+const stats={'c:red':{n:4,loved:3,liked:1,passed:0},'p:coat':{n:5,loved:2,liked:2,passed:1},'lay:y':{n:4,loved:0,liked:0,passed:4}},ctx={labStats:()=>stats,labTastePatterns:(s,positive)=>positive?['c:red']:['lay:y']};vm.createContext(ctx);vm.runInContext(taste.slice(taste.indexOf('function labTasteCards('),taste.indexOf('var _labTasteEvidenceRefresh=')),ctx);
+assert.equal(ctx.labTasteCards(Array(7).fill({})).length,0,'same eight-rating threshold as Lab');const available=ctx.labTasteCards(Array(8).fill({}));assert.deepEqual(Array.from(available,x=>x.feature),['c:red','p:coat','lay:y']);assert(available.every(x=>x.stats===stats[x.feature]),'exact Lab stats, not new inferences');
+console.log('Profile taste: shared Lab card pool/threshold/counts, alternating local dates, daily stability, advancing insights, DST, sparse-data fallbacks, evidence navigation, and no record changes pass.');

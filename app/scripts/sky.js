@@ -65,7 +65,7 @@
     Object.values(ratings || {}).forEach(function(r) {
       if (!r || r.r !== 1) return;
       (Array.isArray(r.ids) ? r.ids : []).forEach(function(id) { out.add(id); });
-      ['slip','tights','socks','shoes','hair','glasses','jewelry'].map(function(k) { return (r.acc || {})[k]; }).forEach(function(v) {
+      ['slip','tights','socks','shoes','hair','glasses','jewelry','scarf','hat','gloves','coat'].map(function(k) { return (r.acc || {})[k]; }).forEach(function(v) {
         (Array.isArray(v) ? v : [v]).forEach(function(id) { if (typeof id === 'string') out.add(id); else if (id && typeof id.id === 'string') out.add(id.id); });
       });
     });

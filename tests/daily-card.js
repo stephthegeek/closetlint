@@ -204,3 +204,20 @@ console.log('Daily fortune: stale reminder eligibility and same-day dismissal pr
  assert(failureNotices.some(message=>message.includes('could not be saved')),'failed persistence is not reported as saved');slot.remove();
  console.log('Daily fortune: save failures preserve session state and report the persistence limit.');
 })().catch(error=>{console.error(error);process.exitCode=1});
+
+for(const priorType of ['fortune','do','dont','neglected','color'])for(let i=0;i<80;i++){
+ const day='2026-11-02',history=[{day:'2026-11-01',type:priorType,hash:0}];
+ assert.notEqual(daily.generate({...opts,day,instance:'variety-'+i,history}).type,priorType);
+ assert.notEqual(daily.generate({...opts,day,instance:'empty-variety-'+i,items:[],history}).type,priorType);
+}
+assert.notEqual(daily.generate({...opts,day:'2026-10-31',history:[{day:'2026-10-30',type:'fortune',hash:0}]}).type,'fortune');
+console.log('Daily fortune variety: all types, empty closets, and special dates avoid yesterday’s type.');
+
+{
+ const yesterday=new Date(clock+'T12:00:00Z');yesterday.setUTCDate(yesterday.getUTCDate()-1);
+ const prior=yesterday.toISOString().slice(0,10),cached={version:1,instance:opts.instance,card:{day:clock,type:'color',text:'Cached repeated color.',colors:[]},revealed:true,dismissed:true,history:[{day:prior,type:'color',hash:0}]};
+ const c={...context,state:{...state,profile:{'daily-card':cached}},allItems:()=>opts.items,anyFilter:()=>false};
+ vm.createContext(c);vm.runInContext(fs.readFileSync(require.resolve('../app/scripts/daily-card-ui'),'utf8'),c);c.ClosetLintDailyUI.mount(grid);
+ assert.notEqual(c.state.profile['daily-card'].card.type,'color');assert.equal(c.state.profile['daily-card'].dismissed,true);assert.equal(c.state.profile['daily-card'].revealed,true);
+}
+console.log('Cached consecutive card types refresh without undoing today’s reveal or dismissal.');

@@ -58,7 +58,7 @@ def setup(folder, background=False):
             except (OSError, ValueError):
                 models = folder / 'photo-tools/models'
         env = dict(os.environ, U2NET_HOME=str(models), OMP_NUM_THREADS='2')
-        print('Checking or downloading the background-removal model…', flush=True)
+        print('Checking or downloading the background removal models…', flush=True)
         try:
             subprocess.run([str(python), str(ROOT / 'runtime/background_worker.py'), '--prepare'], env=env, check=True, capture_output=True, text=True)
         except subprocess.CalledProcessError as error:
@@ -76,7 +76,7 @@ def setup(folder, background=False):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data', type=Path, required=True, help='Your existing wardrobe data folder')
-    parser.add_argument('--background', action='store_true', help='Also install background removal and its model')
+    parser.add_argument('--background', action='store_true', help='Also install background removal and its models')
     args = parser.parse_args(argv)
     try:
         setup(args.data, args.background)

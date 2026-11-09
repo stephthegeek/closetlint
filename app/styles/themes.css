@@ -1,14 +1,14 @@
 /* Live component themes. Appearance (data-theme) remains independent of skin. */
 :root[data-skin]{--bg:#f2f1d9;--panel:#e7eacd;--card:#fafae9;--ink:#2f3a29;--ink2:#59664e;--line:#bdc5a4;--sel:#455e32;--selbg:#e0e6c5;--catbg:#e7eacd;--tag:#d9c2f4;--tagink:#302239;--photo:#e5e6d9;--board:#e5e8d0;--danger:#aa3329;--pixel:#8147bc;--lavender:#d9c2f4;--body:'IBM Plex Sans',system-ui,sans-serif;--display:'Pixelify Sans',monospace;--mono:'IBM Plex Mono',ui-monospace,monospace;--emoji-color:grayscale(0);color-scheme:light}
 :root[data-skin=fieldnotes]{--bg:#f6efdf;--panel:#eee9d9;--card:#fffcf3;--ink:#3c4234;--ink2:#62634f;--line:#d6cbb4;--sel:#526347;--selbg:#e7e6cc;--catbg:#eee9d9;--tag:#e7e6cc;--tagink:#3c4234;--photo:#eee7d8;--board:#eee7d8;--body:'DM Sans',system-ui,sans-serif;--display:'Fraunces',Georgia,serif;--emoji-color:grayscale(1)}
-:root[data-skin=editorial]{--bg:#f6ede7;--panel:#eee0df;--card:#fff9f4;--ink:#41303b;--ink2:#755e6a;--line:#d8c6cb;--sel:#6d596c;--selbg:#e8dce4;--catbg:#eee0df;--tag:#e8dce4;--tagink:#41303b;--photo:#f0e7e2;--board:#eee0df;--body:'DM Sans',system-ui,sans-serif;--display:'Newsreader',Georgia,serif}
+:root[data-skin=editorial]{--bg:#f6ede7;--panel:#eee0df;--card:#fff9f4;--ink:#41303b;--ink2:#705a65;--line:#d8c6cb;--sel:#6d596c;--selbg:#e8dce4;--catbg:#eee0df;--tag:#e8dce4;--tagink:#41303b;--photo:#f0e7e2;--board:#eee0df;--body:'DM Sans',system-ui,sans-serif;--display:'Newsreader',Georgia,serif}
 :root[data-skin][data-theme=dark]{--bg:#23271f;--panel:#30382a;--card:#293124;--ink:#eeeecf;--ink2:#b5bca8;--line:#515d46;--sel:#d4eaa0;--selbg:#39432c;--catbg:#30382a;--tag:#c9a8f5;--tagink:#28222f;--photo:#e5e6d9;--board:#30382a;--danger:#ffaaa0;--pixel:#a36be5;--lavender:#c9a8f5;color-scheme:dark}
-:root[data-skin=fieldnotes][data-theme=dark]{--bg:#29271f;--panel:#363327;--card:#302e24;--ink:#f5edda;--ink2:#c2bca5;--line:#615b4a;--sel:#c5d09b;--selbg:#3b4130;--catbg:#363327;--tag:#d5b3a1;--tagink:#30281f;--board:#363327}
-:root[data-skin=editorial][data-theme=dark]{--bg:#28212c;--panel:#382c3b;--card:#302734;--ink:#f3e9e0;--ink2:#c5b3c7;--line:#655267;--sel:#debfdb;--selbg:#453447;--catbg:#382c3b;--tag:#debfdb;--tagink:#28212c;--board:#382c3b}
+:root[data-skin=fieldnotes][data-theme=dark]{--bg:#29271f;--panel:#363327;--card:#302e24;--ink:#f5edda;--ink2:#c9c3ad;--line:#615b4a;--sel:#c5d09b;--selbg:#3b4130;--catbg:#363327;--tag:#d5b3a1;--tagink:#30281f;--board:#363327}
+:root[data-skin=editorial][data-theme=dark]{--bg:#28212c;--panel:#382c3b;--card:#302734;--ink:#f3e9e0;--ink2:#ccbbce;--line:#655267;--sel:#debfdb;--selbg:#453447;--catbg:#382c3b;--tag:#debfdb;--tagink:#28212c;--board:#382c3b}
 @media(prefers-color-scheme:dark){
 :root[data-skin]:not([data-theme=light]){--bg:#23271f;--panel:#30382a;--card:#293124;--ink:#eeeecf;--ink2:#b5bca8;--line:#515d46;--sel:#d4eaa0;--selbg:#39432c;--catbg:#30382a;--tag:#c9a8f5;--tagink:#28222f;--photo:#e5e6d9;--board:#30382a;--danger:#ffaaa0;--pixel:#a36be5;--lavender:#c9a8f5;color-scheme:dark}
-:root[data-skin=fieldnotes]:not([data-theme=light]){--bg:#29271f;--panel:#363327;--card:#302e24;--ink:#f5edda;--ink2:#c2bca5;--line:#615b4a;--sel:#c5d09b;--selbg:#3b4130;--catbg:#363327;--tag:#d5b3a1;--tagink:#30281f;--board:#363327}
-:root[data-skin=editorial]:not([data-theme=light]){--bg:#28212c;--panel:#382c3b;--card:#302734;--ink:#f3e9e0;--ink2:#c5b3c7;--line:#655267;--sel:#debfdb;--selbg:#453447;--catbg:#382c3b;--tag:#debfdb;--tagink:#28212c;--board:#382c3b}}
+:root[data-skin=fieldnotes]:not([data-theme=light]){--bg:#29271f;--panel:#363327;--card:#302e24;--ink:#f5edda;--ink2:#c9c3ad;--line:#615b4a;--sel:#c5d09b;--selbg:#3b4130;--catbg:#363327;--tag:#d5b3a1;--tagink:#30281f;--board:#363327}
+:root[data-skin=editorial]:not([data-theme=light]){--bg:#28212c;--panel:#382c3b;--card:#302734;--ink:#f3e9e0;--ink2:#ccbbce;--line:#655267;--sel:#debfdb;--selbg:#453447;--catbg:#382c3b;--tag:#debfdb;--tagink:#28212c;--board:#382c3b}}
 body{font:400 16px/1.5 var(--body)}.brand{font:500 27px/1 var(--display)}.fine,.count,.rescount,.hint{font-size:14px}.btn,.chip,.tab,.closet-scopes button,.filterhead,.lab-adjust>summary{font-size:15px}.primary-nav :is(button,a){font-size:15px;gap:8px}.primary-nav svg{display:none}.nav-emoji,.scope-emoji{display:inline-block;font:24px/1.3 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;--emoji-edge:drop-shadow(0 0 0 transparent);filter:var(--emoji-color) var(--emoji-edge)}.scope-emoji{font-size:18px;vertical-align:middle}.primary-nav :is(button,a)[aria-current=page]{background:var(--selbg);color:var(--ink);border-color:var(--sel)}.primary-nav :is(button,a){border:1px solid transparent;padding:6px 10px}.closet-heading h2,.labhead h2{font-family:var(--display);font-size:22px;font-weight:500}.closet-scopes{gap:8px}.closet-scopes button{padding:8px 12px}.top{background:var(--bg);gap:12px}.filters,.tray{background:var(--panel)}.main>.tabs .tab{font-size:14px;padding:9px 13px}.main>.tabs{gap:5px;flex-wrap:wrap;overflow:visible}.capcat{font:500 13px/1.4 var(--body);text-transform:none;letter-spacing:0;padding:8px 11px;margin-bottom:5px;background:var(--panel)}.cap :is(b,.piece-title){font:500 15px/1.4 var(--body);padding-bottom:5px}.cap span{font-size:13px}.ph{aspect-ratio:4/5;isolation:isolate;overflow:hidden;background:var(--image-edge,#fff)}.ph img{object-fit:contain;mix-blend-mode:normal}.ph[data-photo-kind=white]{background:#fff}.ph[data-photo-kind=photo]{background:var(--image-edge,#e8e7df)}.keeper-label{display:none;position:absolute;left:9px;bottom:9px;z-index:2;pointer-events:none;background:var(--lavender);color:#302239;padding:4px 7px;font:14px/1.25 'Pixelify Sans',monospace}.is-keeper .keeper-label{display:flex;align-items:center;gap:5px}.keeper-mark{display:inline-block;width:12px;height:11px;background:currentColor;clip-path:polygon(0 18%,18% 18%,18% 0,36% 0,36% 18%,64% 18%,64% 0,82% 0,82% 18%,100% 18%,100% 55%,82% 55%,82% 73%,64% 73%,64% 91%,36% 91%,36% 73%,18% 73%,18% 55%,0 55%)}
 .btn,input,select,textarea,.chip{border-radius:5px}input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{font-size:16px}.btn.primary{background:var(--selbg);color:var(--ink);border-color:var(--sel)}#displayprefs{max-height:88dvh;overflow:auto;width:min(500px,calc(100vw - 24px));border-radius:5px}#displayprefs label{font-size:15px;margin-top:16px}.prefs-range{font-size:14px}#viewprefs{border-color:var(--sel);background:var(--selbg);font-size:14px;white-space:nowrap}.labrate .ratebtn{font:500 15px var(--body)}.labctl .chip,.labmore .btn{font-size:14px}.labhead .fine,.labwhy,.tbadge,.ofbadge{font-size:14px}.labtitle{font-family:var(--display)}.otile{background:var(--card);border-color:var(--line)}.otile b{font:500 15px/1.4 var(--body)}.orole{font-size:13px}.otile .oph{background:var(--photo)}.oph[data-photo-kind=photo]{background:var(--image-edge)}.oph[data-photo-kind=white]{background:#fff}.boardwrap{background:var(--board)}
 :root[data-skin=fieldnotes] .card{border-radius:3px 3px 8px 3px;background:var(--panel)}:root[data-skin=fieldnotes] .main>.tabs .tab{border:1px solid transparent;border-bottom:0;border-radius:7px 7px 0 0}:root[data-skin=fieldnotes] .main>.tabs .tab[aria-selected=true]{background:var(--panel);border-color:var(--line)}:root[data-skin=fieldnotes] .keeper-label{font:22px/1.1 'Caveat',cursive;color:#79594d;background:#f5eddbeb;transform:rotate(-4deg);border-bottom:1px solid #b3947c}:root[data-skin=fieldnotes] .keeper-mark{display:none}
@@ -240,7 +240,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .collection-filter{margin-block:22px}.collection-filter h3{margin-bottom:12px}.collection-filter .chips{gap:8px}
 
 #collection-context:empty,#collection-context-bottom:empty{display:none}
-#collection-context{margin:20px 0}#collection-context h2{font:500 22px/1.4 var(--mono);margin:0 0 10px}
+#collection-context{margin:20px 0}#collection-context h2{font:500 22px/1.4 var(--display);margin:0 0 10px}
 .collection-actions{align-items:center}.collection-actions h2{margin-right:auto}
 :root[data-skin] .card .ph .tag{font:400 12px/1.25 var(--mono);min-width:0;min-height:0;}
 :root[data-skin=workshop] .card .heart{opacity:0;pointer-events:none}
@@ -461,8 +461,8 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .piece-photo-thumb:hover,.piece-photo-thumb:focus-visible{outline:2px solid var(--sel);outline-offset:1px}
 
 /* Fit labels are free text; use exactly the same surface as preference selects. */
-#displayprefs input[type=text]{width:100%;min-height:44px;box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:8px;font:inherit;font-size:16px}
-:root[data-skin=workshop] #displayprefs input[type=text]{border-radius:0;font-family:var(--mono)}
+:is(#displayprefs,#size-reference-settings) input[type=text]{width:100%;min-height:44px;box-sizing:border-box;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:8px;font:inherit;font-size:16px}
+:root[data-skin=workshop] :is(#displayprefs,#size-reference-settings) input[type=text]{border-radius:0;font-family:var(--mono)}
 /* Compact browse controls keep a shared height without enlarging their text. */
 :root[data-skin] .bar :is(.qbox,.sel,.btn){height:38px;min-height:38px;box-sizing:border-box;font-size:14px;line-height:1.3;padding:7px 10px}
 @media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){:root[data-skin] .bar :is(.qbox,.sel,.btn){height:44px;min-height:44px}:root[data-skin] .bar :is(.qbox,.sel){font-size:16px}}
@@ -539,6 +539,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .lab-adjust .recent-wears{flex:0 1 auto;gap:8px;margin:0;min-height:40px}
 .lab-adjust .recent-wears select{background:var(--card);color:var(--ink);border:1px solid var(--line)}
 .jump-top{position:fixed;right:18px;bottom:20px;z-index:35;width:42px;height:42px;padding:0!important;background:color-mix(in srgb,var(--panel) 82%,transparent)!important;backdrop-filter:blur(6px);opacity:.85}
+:root[data-skin] .btn.jump-top{display:inline-flex;align-items:center;justify-content:center;gap:0;line-height:1}
 .jump-top:hover{opacity:1}
 @media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){.jump-top{bottom:calc(76px + env(safe-area-inset-bottom,0px));right:12px}}
 
@@ -548,7 +549,7 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .collection-list{grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),400px));justify-content:start}.collection-summary{min-width:0}.collection-thumbs{grid-template-columns:repeat(4,minmax(0,1fr));max-width:360px;gap:6px}.collection-thumbs img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;background:var(--photo)}.collection-summary h3{margin:16px 0 8px}.collection-summary p{margin:8px 0 16px}
 #view-trip .trips-home-heading{justify-content:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}#view-trip .trips-home-heading h2{margin:0;flex:1 1 240px}.trips-empty{padding:24px 12px;text-align:center;max-width:640px}.empty-fairy{display:block;font-size:88px;line-height:1.3;margin-bottom:18px}
 /* Trips overview: existing events and trip plans, without changing their records. */
-#view-trip.trips-overview{max-width:940px;margin-inline:auto}
+#view-trip.trips-overview,#view-closet.collections-overview{max-width:940px;margin-inline:auto}
 .trips-home-intro{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:32px}.trips-home-intro p{margin:0;max-width:570px}
 .trips-home-intro>.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px}
 .trip-home-group{display:grid;gap:16px;margin:32px 0}.trip-home-group h3{display:flex;align-items:center;gap:10px;margin:0}.trip-home-count{font:500 13px/1.4 var(--body);color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
@@ -561,16 +562,14 @@ html:has(dialog[open]){overflow:hidden;scrollbar-gutter:stable}
 .trip-plan-link{color:var(--ink);text-decoration:none}.trip-plan-link::after{content:'';position:absolute;inset:0;border-radius:inherit;z-index:1}.trip-plan-link:focus-visible{outline:0}.trip-plan-link:focus-visible::after{outline:2px solid var(--sel);outline-offset:3px}
 .trip-plan-timing{font:600 12px/1.4 var(--body);border:1px solid var(--line);border-radius:99px;padding:4px 9px;background:var(--bg);color:var(--ink)}
 .trip-plan-meta{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;overflow-wrap:anywhere}.trip-plan-date{position:relative;z-index:2;color:inherit;text-underline-offset:3px}.trip-plan-date:hover{text-decoration-thickness:2px}.trip-plan-outfit{margin:0}
-.trip-plan-status{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.trip-plan-segments{display:flex;gap:3px;max-width:150px;flex:0 1 112px;height:8px}.trip-plan-segments i{flex:1;background:var(--bg);border:1px solid var(--ink2);border-radius:2px}.trip-plan-segments .planned{background:var(--sel);border-color:var(--sel)}
+.trip-plan-status{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.trip-plan-segments{display:flex;flex-wrap:wrap;gap:3px;width:max-content;min-width:min(112px,100%);max-width:100%;flex:0 1 auto}.trip-plan-segments i{flex:1 0 6px;min-width:6px;height:8px;box-sizing:border-box;background:var(--bg);border:1px solid var(--ink2);border-radius:2px}.trip-plan-segments .planned{background:var(--sel);border-color:var(--sel)}
 .trip-plan-preview{display:grid;gap:6px;min-width:0}.trip-event-thumb{display:grid;place-items:center;aspect-ratio:1.25;padding:6px;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:var(--bg)}.trip-plan-next .trip-event-thumb{aspect-ratio:1.4}.trip-event-thumb .mini{max-height:100%;max-width:100%;pointer-events:none}.trip-plan-preview.suggested .trip-event-thumb{border-style:dashed}.trip-plan-suggested{font:500 10px/1.4 var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:center}
-#view-trip .trip-plan-card:has(.trip-plan-menu[open]){z-index:4}
-.trip-plan-menu{align-self:start;position:relative;z-index:3;background:transparent!important}.trip-plan-menu>summary{display:flex;align-items:center;justify-content:center;list-style:none;cursor:pointer;width:44px;height:44px;padding:0!important;border:1px solid transparent!important;border-radius:8px;line-height:1;letter-spacing:2px;background:transparent!important;color:var(--ink);font-family:var(--body)}.trip-plan-menu>summary::-webkit-details-marker{display:none}.trip-plan-menu>summary::after{display:none!important}.trip-plan-menu>summary:is(:hover,:focus-visible),.trip-plan-menu[open]>summary{border-color:var(--sel)!important;background:var(--bg)!important}.trip-plan-menu>summary:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
-.trip-plan-menu-actions{position:absolute;top:48px;right:0;width:190px;max-width:calc(100vw - 64px);display:grid;gap:4px;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px #0003}
-:root[data-skin] .trip-plan-menu-actions .btn{justify-content:flex-start;text-align:left;min-height:44px;width:100%;margin:0;padding:8px 10px;font-size:14px;line-height:1.4}.trip-plan-menu-actions .danger{border-top:1px solid var(--line)}
-.trip-plan-chevron{position:absolute;right:32px;bottom:20px;width:16px;height:16px;background:var(--muted);mask:var(--ui-svg-right) center/contain no-repeat;pointer-events:none}
+#view-trip .trip-plan-card:has(.trip-plan-menu[aria-expanded=true]){z-index:4}
+.trip-plan-menu{align-self:end;justify-self:end;position:relative;z-index:3}
 #view-trip .trip-home-grid>.trip-plan-no-preview{grid-template-columns:minmax(0,1fr) 44px}
-.trip-home-past{margin-top:32px}.trip-home-past>summary{cursor:pointer;min-height:44px;padding:12px 0;border-radius:8px}.trip-home-past>summary:hover{text-decoration:underline;text-underline-offset:3px}.trip-home-past>summary:focus-visible{outline:2px solid var(--sel)}
-@media(max-width:600px){#view-trip .trips-home-heading h2{flex-basis:100%}#view-trip .trip-home-grid>.trip-plan-card{grid-template-columns:80px minmax(0,1fr) 44px;gap:12px;padding:16px}.trip-plan-title{font-size:17px}.trip-plan-meta{gap:6px 10px}.trip-plan-menu{margin-right:-6px}.trip-plan-chevron{display:none}#view-trip .trip-home-grid>.trip-plan-next{grid-template-columns:minmax(0,1fr) 44px;padding-top:44px}.trip-plan-next .trip-plan-preview{grid-column:1/-1}.trip-plan-next .trip-event-thumb{height:160px;aspect-ratio:auto}.trip-plan-next .trip-event-thumb .mini{width:auto!important;height:100%}.trip-plan-next-label{left:16px;top:14px}.trip-plan-next .trip-plan-menu{position:absolute;right:12px;top:2px}.trip-plan-next .trip-plan-summary{grid-column:1/-1}#view-trip .trip-home-grid>.trip-plan-no-preview{grid-template-columns:minmax(0,1fr) 44px}.trip-plan-next.trip-plan-no-preview .trip-plan-summary{padding-top:8px}.trip-plan-menu-actions{width:180px}.trip-plan-status{gap:8px}}
+.trip-home-past{margin-top:32px}.trip-home-past>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;padding:10px 0}
+@media(max-width:600px){#view-trip .trip-home-grid>.trip-plan-card{grid-template-columns:80px minmax(0,1fr) 44px;gap:12px;padding:16px}.trip-plan-title{font-size:17px}.trip-plan-meta{gap:6px 10px}.trip-plan-chevron{display:none}#view-trip .trip-home-grid>.trip-plan-next{grid-template-columns:minmax(0,1fr) 44px;padding-top:44px}.trip-plan-next .trip-plan-preview{grid-column:1/-1}.trip-plan-next .trip-event-thumb{height:160px;aspect-ratio:auto}.trip-plan-next .trip-event-thumb .mini{width:auto!important;height:100%}.trip-plan-next-label{left:16px;top:14px}.trip-plan-next .trip-plan-menu{grid-column:2}.trip-plan-next .trip-plan-summary{grid-column:1}#view-trip .trip-home-grid>.trip-plan-no-preview{grid-template-columns:minmax(0,1fr) 44px}.trip-plan-next.trip-plan-no-preview .trip-plan-summary{padding-top:8px}.trip-plan-status{gap:8px}}
+
 .purchase-celebration{position:fixed;inset:40% 0 auto;display:grid;place-items:center;z-index:10000;pointer-events:none}.purchase-party{font-size:72px;animation:purchase-pop 1s ease-out both}.purchase-celebration i{position:absolute;width:9px;height:9px;background:var(--sel);animation:purchase-burst 900ms ease-out both;transform:rotate(var(--turn))}.purchase-celebration i:nth-child(3n){background:#a8c88d}.purchase-celebration i:nth-child(3n + 1){background:#c5ade3}@keyframes purchase-pop{0%{opacity:0;transform:scale(.4)}20%{opacity:1;transform:scale(1.15)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.95)}}@keyframes purchase-burst{0%{opacity:1;transform:rotate(var(--turn)) translateY(-18px)}100%{opacity:0;transform:rotate(var(--turn)) translateY(-155px) rotate(90deg)}}
 .purchase-mobile .purchase-party{animation-duration:2s}.purchase-mobile i{animation-duration:1800ms}
 @media(prefers-reduced-motion:reduce){.purchase-party{animation:none}.purchase-celebration i{display:none}}
@@ -597,6 +596,7 @@ details{background:var(--disclosure-body)}details>summary{background:var(--discl
 #view-closet.collections-overview{grid-template-columns:minmax(0,1fr)}
 #view-closet.collections-overview :is(.filters,.sidebar-rail,.sidebar-toggle,.main>.tabs,.main>.bar,.setrow,#noresults,#clearbar,#jump-top){display:none!important}
 #view-closet.collections-overview #collection-context{margin-top:0}
+#view-closet.collections-overview .collection-actions.page-heading{margin-top:0}
 /* A fixed editor frame keeps actions reachable while the membership grid scrolls. */
 #collections-dialog:has(.collection-editor){padding:0;overflow:hidden;width:min(960px,calc(100vw - 24px));max-height:calc(100dvh - 24px)}
 .collection-editor{display:flex;flex-direction:column;box-sizing:border-box;padding:0;height:min(820px,calc(100dvh - 24px));min-height:0}
@@ -663,13 +663,13 @@ details{background:var(--disclosure-body)}details>summary{background:var(--discl
 .cpop .cprow{flex-wrap:wrap;min-width:0}
 .cpop .cprow .btn{flex:0 0 auto;max-width:100%}
 .cpop .cphex{box-sizing:border-box;min-width:80px;max-width:100%;flex:1 1 90px}
-:root[data-skin] .card .wmbtn .button-emoji{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-variant-emoji:emoji;filter:var(--emoji-edge,none)}
+:root[data-skin] .card .wmbtn .button-emoji{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-variant-emoji:emoji;filter:var(--emoji-color,grayscale(0)) var(--emoji-edge,none)}
 @media(max-width:540px){
  .piece-actions{gap:8px;flex-wrap:wrap}
  .piece-actions .btn{min-height:44px;min-width:44px;padding:8px}
 }
 :root[data-skin] .wmbtn:not([aria-pressed=true]){filter:none}
-:root[data-skin] .wmbtn .button-emoji{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-variant-emoji:emoji;filter:var(--emoji-edge,none)}
+:root[data-skin] .wmbtn .button-emoji{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-variant-emoji:emoji;filter:var(--emoji-color,grayscale(0)) var(--emoji-edge,none)}
 
 /* Piece editor: one scroll surface, bounded photos, and an opaque save dock. */
 :root[data-skin] dialog:has(>.dlg){overflow:hidden}
@@ -753,8 +753,6 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 
 /* Visible photo work, with batch progress available while reviewing earlier rows. */
 .photo-work{box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:180px;padding:16px;text-align:center;color:var(--ink2);font:14px/1.5 var(--body)}
-.photo-spinner{box-sizing:border-box;display:block;width:26px;height:26px;flex:none;border:3px solid var(--line);border-top-color:var(--sel);border-radius:50%;animation:photo-work-spin 1s linear infinite}
-.photo-work-waiting .photo-spinner{animation:none;border-style:dotted;border-color:var(--ink2);opacity:.55}
 .background-compare .photo-work,.background-compare .photo-work-error{box-sizing:border-box;height:320px;margin:0}
 .photo-work-error{display:grid;place-items:center;padding:20px;text-align:center;line-height:1.5}
 .tidy-sticky{position:sticky;top:-24px;z-index:2;margin:-24px -24px 0;padding:20px 24px 12px;background:var(--bg);border-bottom:1px solid var(--line)}
@@ -762,7 +760,6 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 .tidy-progress{display:block;box-sizing:border-box;width:100%;height:8px;margin:12px 0 0;accent-color:var(--sel)}
 .tidy-preparation{margin:8px 0 0;line-height:1.5}
 .tidy-progress[hidden],.tidy-preparation[hidden]{display:none}
-@keyframes photo-work-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.photo-spinner{animation:none}}
 @media(max-width:600px){.background-compare .photo-work,.background-compare .photo-work-error{height:220px}}
 @media(max-width:540px){.tidy-sticky{top:-16px;margin:-16px -16px 0;padding:16px 16px 12px}.tidy-pair .photo-work{min-height:210px}}
@@ -779,11 +776,11 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 /* Saved-outfit navigation and tools share one wrapping toolbar. */
 .of-tabrow{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line)}
 :root[data-skin] #view-saved .of-tabrow .labmodes{margin:0!important;border-bottom:0;display:flex;flex-wrap:wrap;gap:0}
-#view-saved .of-tabrow .labmodes .chip{display:inline-flex;align-items:center;gap:10px;min-height:52px;margin:0}
+#view-saved .of-tabrow .labmodes .chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin:0}
 .of-tab-count{font-size:13px;font-weight:400;color:var(--ink2);white-space:nowrap}
 :root[data-skin] #view-saved .of-new{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;margin:0 0 8px;padding:8px 14px;font-size:14px;line-height:1.4;white-space:nowrap}
 .of-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:20px 0 24px}
-.of-search-wrap{display:flex;align-items:center;gap:10px;flex:1 1 220px;min-width:220px;min-height:48px;padding:0 12px;box-sizing:border-box;border:1px solid var(--line);border-radius:var(--radius,6px);background:var(--card);color:var(--ink)}
+.of-search-wrap{display:flex;align-items:center;gap:10px;flex:1 1 120px;min-width:100px;min-height:48px;padding:0 12px;box-sizing:border-box;border:1px solid var(--line);border-radius:var(--radius,6px);background:var(--card);color:var(--ink)}
 .of-search-wrap:focus-within{outline:2px solid var(--sel);outline-offset:2px}
 :root[data-skin] #view-saved .of-toolbar .of-search{flex:1;width:100%;min-width:0;min-height:46px;box-sizing:border-box;margin:0;padding:8px 0;border:0;background:transparent;box-shadow:none;border-radius:0;outline:none;font:400 16px/1.4 var(--body);color:var(--ink)}
 /* Keep suggestions without the browser's dropdown arrow in the search field. */
@@ -791,11 +788,12 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 .of-controls,.of-quickfilters{display:contents}
 .of-sortbar{display:flex;max-width:100%;align-items:center;flex-wrap:wrap;gap:8px}
 :root[data-skin] #view-saved :is(.of-quickfilters .chip,.of-sortbar .btn,.of-sort){display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:48px;margin:0;padding:10px 12px;font-size:14px;line-height:1.4;white-space:nowrap}
-:root[data-skin] #view-saved .of-sort{display:inline-block;width:auto;max-width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-family:var(--body);font-weight:400;text-transform:none;letter-spacing:normal}
+:root[data-skin] #view-saved .of-sort{display:inline-block;field-sizing:content;width:auto;max-width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-family:var(--body);font-weight:400;text-transform:none;letter-spacing:normal}
 :root[data-skin=workshop] #view-saved .of-sort{font-family:var(--mono)}
 .of-filter-count{padding:0 7px;border-radius:99px;background:var(--sel);color:var(--bg);font-size:13px;line-height:1.6}
-@media(max-width:700px){.of-search-wrap{flex-basis:100%;min-width:0}:root[data-skin] #view-saved .of-sort{font-size:16px}}
-@media(max-width:420px){:root[data-skin] #view-saved .of-new{padding:8px 10px;font-size:13px}#view-saved .of-tabrow .labmodes .chip{padding-inline:10px;font-size:14px;gap:6px}.of-tabrow{gap:8px}}
+@media(max-width:700px){:root[data-skin] #view-saved .of-sort{font-size:16px}}
+@media(max-width:700px){:root[data-skin] #view-saved :is(.of-quickfilters .chip,.of-sort){padding-inline:8px;gap:6px}}
+@media(max-width:420px){:root[data-skin] #view-saved .of-new{padding:8px 10px;font-size:13px}#view-saved .of-tabrow .labmodes .chip{padding-inline:10px;gap:8px}.of-tabrow{gap:8px}}
 
 /* Trip outfit names are labels; actions and expandable groups use themed surfaces. */
 #view-trip .toutfit-labels{display:flex;flex-wrap:wrap;gap:6px;align-items:start}
@@ -887,8 +885,6 @@ a.piece-title{color:inherit;text-decoration:none}.xmenu a{text-decoration:none;c
 .wr-photo{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-width:0;min-height:0}
 .wr-photo-status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:12px;background:var(--panel);color:var(--ink2);font:400 13px/1.4 var(--body);text-align:center;box-sizing:border-box}
 .wr-photo-status[hidden]{display:none!important}.wr-photo:is(.loading,.failed)>img{opacity:0}
-.wr-photo.loading .wr-photo-status:before{content:'';width:18px;height:18px;box-sizing:border-box;border:2px solid var(--line);border-top-color:var(--sel);border-radius:50%;animation:wr-photo-spin .9s linear infinite}
-@keyframes wr-photo-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.wr-photo.loading .wr-photo-status:before{animation:none}}
 @media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
  :root:not([data-menu-emoji=off]) .wrjump .wrjump-label,.wrjump>.fine{display:none}
@@ -978,8 +974,7 @@ a.wrname:hover{text-decoration:underline}
  .wrrow:not(.cmp):not(.wrdiv) .wrmeta>.fine{flex:1;min-width:0}
  .wrrow:not(.cmp):not(.wrdiv) .wrpricel{flex:none}
  .wrrow:not(.cmp):not(.wrdiv) .wrmove{flex:0 0 110px;width:110px}
- .wrrow:not(.cmp):not(.wrdiv) .wrchips{grid-column:1/-1;grid-row:4}
- .wrrow:not(.cmp):not(.wrdiv) .wrnote{grid-column:1/-1;grid-row:5}
+ .wrrow:not(.cmp):not(.wrdiv) .wrbody>.wrchips{grid-column:1/-1;grid-row:4}
 }
 
 /* Recent page/dialog controls share readable wrapping and touch targets. */
@@ -1040,15 +1035,18 @@ a.wrname:hover{text-decoration:underline}
 /* Existing trip saves and packing retries share one compact, persistent status. */
 #view-trip .trip-save-heading{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 #view-trip .trip-save-heading>.btn{min-height:44px;white-space:normal}
-#view-trip .trip-setup-save{max-width:640px;margin:20px auto 24px}
+#view-trip .trip-setup-save{margin:20px 0 24px}
 #view-trip .trip-setup-save .trip-save-heading{align-items:flex-end;gap:12px}
-#view-trip .trip-setup-save label{display:grid;gap:6px;flex:1 1 240px;min-width:0;margin:0}
+#view-trip .trip-setup-save label{display:grid;gap:8px;font-size:14px;color:var(--ink2);flex:1 1 240px;min-width:0;max-width:450px;margin:0}
+#view-trip .trip-setup-save .tfh{color:var(--ink)}
 #view-trip .trip-setup-save input{width:100%;box-sizing:border-box;min-height:44px;margin:0}
 #view-trip .trip-setup-save p{margin:8px 0 0}
 #view-trip .trip-save-status{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin-top:8px;min-width:0}
 #view-trip .trip-save-status .fine{overflow-wrap:anywhere}
 #view-trip .trip-save-status .linkbtn{min-height:44px;min-width:44px}
 #view-trip .trip-save-status[hidden],#view-trip .trip-save-status button[hidden]{display:none!important}
+#view-trip .trip-setup-save .trip-save-status{margin:0;min-height:44px;align-self:flex-end;flex:0 1 auto}
+#view-trip .trip-setup-save .trip-save-status .fine{margin:0}
 
 #view-trip .trip-export{margin:12px 0}
 #view-trip .trip-export>summary{min-height:44px;box-sizing:border-box;display:list-item;cursor:pointer;padding:12px}
@@ -1159,16 +1157,21 @@ a.wrname:hover{text-decoration:underline}
 .photo-acquire-actions,.photo-remove-actions{display:flex;gap:8px;flex-wrap:wrap}
 .photo-options-body .photo-replace-tools{margin:10px 0 14px}
 .photo-options-body .photorow{margin:0}
-.photo-options-body>.photo-swatches-wrap{margin:14px 0 0}
+.photo-options-body>.photo-swatches-wrap{margin:0 0 14px}
+.photo-options-body .photo-swatches{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.photo-swatches-controls{flex:0 0 auto;max-width:100%;min-width:0}
+.photo-options-body .photo-swatches-copy{flex:1 1 140px;min-width:0;margin:0;color:var(--ink);font-weight:600;font-size:14px;line-height:1.4}
 .photo-remove-actions{border-top:1px solid var(--line);padding-top:12px;margin-top:14px}
 .photo-options-body .fine:empty{display:none}
 .photo-kind-field{min-width:0;max-width:100%}
 :root[data-skin] .selbar{box-sizing:border-box;width:960px;max-width:calc(100vw - 20px);max-height:50dvh;overflow-y:auto;display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:10px;padding:12px}
 .selection-group{flex-shrink:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0}
+.selection-collections{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0}
+.selection-collection-label{white-space:nowrap}
 .selection-group+.selection-group{border-top:1px solid var(--line);padding-top:10px}
 .selection-selection .selcount{flex:1;margin-right:auto}
 .selection-selection>.selection-done{margin-left:auto}
-:root[data-skin] .selbar .btn{min-height:44px;white-space:normal}
+:root[data-skin] .selbar .btn{box-sizing:border-box;min-height:36px;padding:5px 10px;white-space:normal}
 .selection-status>.danger{margin-left:auto}
 @media(max-width:600px){
  :root[data-skin] .selbar{max-height:44dvh}
@@ -1209,6 +1212,8 @@ a.wrname:hover{text-decoration:underline}
 @media(max-width:600px){
  .photo-acquire-actions>.btn,.photo-remove-actions>.btn{flex:1 1 auto}
  .photo-kind-field{flex:1 1 130px}
+ .selection-collections{flex:1 1 100%}
+ .selection-collections>.btn{flex:1 1 auto}
  .selection-organize>.btn,.selection-helpers>.btn,.selection-status>.btn{flex:1 1 130px}
  .selection-status>.danger{margin-left:0}
 }
@@ -1266,6 +1271,10 @@ a.wrname:hover{text-decoration:underline}
 }
 
 /* Acquisition precision is optional, with the same field spacing at each width. */
+/* Standalone piece choices share one aligned, readable checkbox treatment. */
+label.piece-check,.form label.piece-check{display:flex;align-items:center;gap:10px;min-height:44px;min-width:0;margin:0;font-size:14px;font-weight:400;line-height:1.4;cursor:pointer}
+.piece-check>input[type=checkbox]{appearance:auto;box-sizing:border-box;flex:none;width:18px;height:18px;min-height:18px;max-width:18px;margin:0;padding:0;accent-color:var(--sel);cursor:pointer}
+.piece-check>span{min-width:0}
 .acquisition-fields{display:grid;gap:10px;min-width:0}
 .acquisition-fields>label{margin:0}
 .acquisition-fields .acquisition-approx{display:flex;align-items:center;gap:8px;min-height:44px;font-weight:400}
@@ -1346,7 +1355,7 @@ a.wrname:hover{text-decoration:underline}
 .trip-wizard-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}.trip-wizard-summary{flex:1 1 180px;text-align:center}.trip-wizard-footer>.btn{min-height:44px;margin:0}
 @media(max-width:640px){.trip-days-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.trip-day-cell:nth-child(odd) .trip-day-menu{left:0;right:auto}.trip-day-cell:nth-child(even) .trip-day-menu{left:auto;right:0}.trip-wizard-summary{order:-1;flex-basis:100%}.trip-summary-bar{margin-bottom:24px;padding:12px}.trip-bring-actions{gap:8px}.trip-bring-item{width:100%}.trip-bring-item>span{flex:1}}
 #view-trip .tripform label.trip-check,#view-trip .tripform label.trip-day-toggle{display:flex;align-items:flex-start;gap:12px;color:var(--ink)}#view-trip .tripform label.trip-day-toggle{align-items:center;gap:10px}#view-trip .tripform :is(.trip-check,.trip-day-toggle)>input{width:18px;height:18px;padding:0;flex:none;box-sizing:border-box}.trip-day-menu{overflow:auto;overscroll-behavior:contain}.trip-day-menu.opens-up{top:auto;bottom:calc(100% + 8px)}
-#view-trip .trip-summary-bar,#view-trip .trip-wizard-footer{max-width:640px;margin-left:auto;margin-right:auto;box-sizing:border-box}
+#view-trip .trip-summary-bar,#view-trip .trip-wizard-footer{max-width:100%;margin-left:auto;margin-right:auto;box-sizing:border-box}
 .trip-save-ok{color:#2d6a3b}:root[data-theme=dark] .trip-save-ok{color:#9fd3aa}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .trip-save-ok{color:#9fd3aa}}
 #view-trip .trip-wizard-form .chips>.chip,#view-trip .tripsteps>.chip{min-height:44px;padding:8px 12px;display:inline-flex;align-items:center;justify-content:center;line-height:1.4}
@@ -1415,7 +1424,7 @@ a.wrname:hover{text-decoration:underline}
 /* Header layout must retain conditional actions and the compact Sky share placement. */
 :root[data-skin] :is(.page-heading,.page-actions) [hidden],:root[data-skin] .page-action[hidden]{display:none!important}
 :root[data-skin] #view-saved .of-new.page-action{font-size:14px;padding:8px 14px}
-@media(max-width:820px){:root[data-skin] .sky-heading.page-heading>.sky-share-heading{display:none}}
+
 
 /* Secondary card menus share targets, focus, and overflow behavior across themes. */
 :root[data-skin] .card-more{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;margin:0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;line-height:1;box-sizing:border-box}
@@ -1478,14 +1487,7 @@ a.wrname:hover{text-decoration:underline}
 }
 @media(max-width:380px){.wear-strip-actions .btn:not(.wear-other) .button-emoji{display:none}}
 
-/* Short outfit-filter groups can share a row; color swatches retain the full width. */
-:root[data-skin] #of-filter-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;padding:16px}
-.of-filter-quick,.of-filter-group{grid-column:1/-1;min-width:0}
-.of-filter-label{font-weight:600;color:var(--ink);margin:0 0 8px}
-.of-filter-short{grid-column:span 1}
-#of-filter-options>p{grid-column:1/-1;margin:0}
-#of-filter-options .chips{margin:0;gap:6px}
-@media(max-width:600px){:root[data-skin] #of-filter-options{gap:16px 12px}.of-filter-short{grid-column:1/-1}}
+
 
 /* A small power-up glyph replaces the Wear more rocket only in Soft Hardware. */
 :root[data-skin=workshop] [data-control-icon=E031]{display:inline-block;position:relative;flex:none;width:24px;height:24px;font-size:0!important;line-height:1;filter:none}
@@ -1545,26 +1547,27 @@ a.wrname:hover{text-decoration:underline}
  :root[data-skin] .main>.bar #clearbar{grid-row:3;grid-column:1/-1;justify-self:start}
 }
 
-/* Desktop recovery sits beside the name; its choices open without moving the canvas. */
-@media(min-width:1101px),(min-width:821px) and (hover:hover),(min-width:821px) and (pointer:fine),(min-width:821px) and (pointer:none){
- .toolwrap{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px}
- .toolwrap:has(#board-recovery:empty){grid-template-columns:minmax(0,1fr)}
- .toolwrap #board-calendar{grid-row:1;grid-column:1/-1}
- .toolwrap .board-title-row{grid-row:2;grid-column:1;margin-bottom:8px}
+/* Draft recovery shares the naming row; its choices open below without moving the canvas. */
+ .toolwrap{display:flex;flex-wrap:wrap;column-gap:8px;container-type:inline-size;position:relative;z-index:10}
+ .toolwrap #board-calendar{order:-3;flex:1 0 100%}
+ .toolwrap .board-title-row{order:-2;flex:1 1 160px;min-width:min(100%,160px);width:auto;margin-bottom:8px}
  .toolwrap .board-meta-row{display:contents}
- .toolwrap .board-save-status{grid-row:3;grid-column:1/-1;margin-bottom:8px}
+ .toolwrap .board-save-status{order:-1;flex:1 0 100%;margin-bottom:8px}
  .toolwrap .board-save-status:not(:has(p:not([hidden]):not(:empty),button:not([hidden]))){display:none}
- .toolwrap #board-more{display:block;grid-row:4;grid-column:1/-1;min-width:0}
- .toolwrap .board-recovery{grid-row:2;grid-column:2;align-self:start;margin:0 0 8px;position:relative}
+ .toolwrap #board-more{display:block;order:0;flex:1 0 100%;min-width:0}
+ .toolwrap .board-recovery{order:-2;flex:0 0 auto;align-self:center;margin:0 0 8px auto;position:relative}
+ .calendar-planning .toolwrap .board-title-row{flex-basis:240px;min-width:min(100%,240px)}
+ .toolwrap .board-recovery details>summary{padding-inline:8px;gap:6px;white-space:nowrap}
+ :root[data-menu-emoji=off] .toolwrap .board-title-row{flex-basis:190px;min-width:min(100%,190px)}
+ :root[data-menu-emoji=off] .calendar-planning .toolwrap .board-title-row{flex-basis:260px;min-width:min(100%,260px)}
  .toolwrap .board-recovery details[open]>summary{margin-bottom:0}
- .toolwrap .board-recovery .board-draft-options{position:absolute;right:0;top:calc(100% + 6px);z-index:65;width:min(360px,calc(100vw - 32px));max-height:60dvh;overflow:auto;box-sizing:border-box;padding:8px;background:var(--panel);border:1px solid var(--line);box-shadow:0 8px 24px #0003}
-}
+ .toolwrap .board-recovery .board-draft-options{position:absolute;right:0;top:calc(100% + 6px);z-index:65;width:min(360px,calc(100vw - 32px));width:min(360px,100cqw);max-height:min(60dvh,var(--board-drafts-max-height,60dvh));overflow:auto;box-sizing:border-box;padding:8px;background:var(--panel);border:1px solid var(--line);box-shadow:0 8px 24px #0003}
+
 
 /* Mobile save feedback belongs in the tools heading, outside the wrapping buttons. */
 @media(max-width:820px),(max-width:1100px) and (hover:none) and (pointer:coarse){
  .board-secondary #board-save-inline{display:none}
  .board-more[open] .board-save-summary{display:block}
- .board-secondary #olab{margin-left:0!important}
 }
 
 /* Small accessory overlay glyphs retain the existing button targets. */
@@ -1586,3 +1589,296 @@ a.wrname:hover{text-decoration:underline}
 
 /* Board tool groups sit directly on the page instead of a filled disclosure panel. */
 .toolwrap #board-more,.toolwrap .board-secondary{background:transparent}
+
+/* Bulk editing has the same readable mobile exit as inline title editing. */
+@media (max-width:820px), (max-width:1100px) and (hover:none) and (pointer:coarse){
+ :root[data-skin] .main>.bar:has(#selbtn.editing) #sort{grid-column:1/3}
+ :root[data-skin] .main>.bar:has(#selbtn.editing) #sortdir{grid-column:3}
+ :root[data-skin] .main>.bar:has(#selbtn.editing) #favbtn{grid-column:4}
+ :root[data-skin] .main>.bar:has(#selbtn.editing) #editbtn:not(.editing){grid-row:2;grid-column:5}
+ :root[data-skin] .main>.bar:has(#selbtn.editing) #selbtn.editing{grid-row:3;grid-column:1/-1;white-space:nowrap;padding-inline:16px}
+ :root[data-skin] .main>.bar:has(#selbtn.editing) #editbtn.editing{grid-row:4}
+ :root[data-menu-emoji=off][data-skin] .main>.bar:has(#selbtn.editing) #selbtn.editing{flex:1 0 100%;box-sizing:border-box}
+}
+@media(max-width:360px){
+ :root[data-skin]:not([data-menu-emoji=off]) .main>.bar:has(#selbtn.editing) #sort{grid-column:1/4}
+ :root[data-skin]:not([data-menu-emoji=off]) .main>.bar:has(#selbtn.editing) #sortdir{grid-row:3;grid-column:1}
+ :root[data-skin]:not([data-menu-emoji=off]) .main>.bar:has(#selbtn.editing) #favbtn{grid-row:3;grid-column:2}
+ :root[data-skin]:not([data-menu-emoji=off]) .main>.bar:has(#selbtn.editing) #editbtn:not(.editing){grid-row:3;grid-column:4}
+ :root[data-skin]:not([data-menu-emoji=off]) .main>.bar:has(#selbtn.editing) #selbtn.editing{grid-row:4;grid-column:1/-1}
+ :root[data-skin]:not([data-menu-emoji=off]) .main>.bar:has(#selbtn.editing) #editbtn.editing{grid-row:5}
+}
+
+/* Collection browsing follows the existing Trips rows and action placement. */
+#collection-context>.collection-list{grid-template-columns:minmax(0,1fr)}
+.collection-summary.collection-browse-card{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:start;gap:18px;padding:20px;background:var(--card);border:1px solid var(--line);border-radius:12px;isolation:isolate}
+.collection-browse-card .collection-card-link{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;gap:18px;padding:0!important;min-width:0}
+.collection-browse-card .collection-card-link::after{content:'';position:absolute;inset:0;z-index:1;border-radius:inherit}
+.collection-browse-card .collection-thumbs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;min-width:0}
+.collection-browse-card .collection-thumbs img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;min-width:0;border-radius:6px}
+.collection-card-copy{min-width:0}.collection-card-copy h3{font:600 18px/1.35 var(--display);margin:0 0 8px;overflow-wrap:anywhere}.collection-card-copy p{margin:0 0 10px;overflow-wrap:anywhere}
+.collection-browse-card .collection-card-link .fine{padding:0;min-height:0;display:block}
+.collection-browse-card .collection-card-tools{position:relative;inset:auto;z-index:2;align-self:start}
+:root[data-skin] .collection-browse-card .card-more{background:transparent;border-color:transparent;box-shadow:none;margin:0}
+:root[data-skin] .collection-browse-card .card-more:is(:hover,:focus-visible){background:var(--selbg);border-color:var(--sel)}
+.collection-summary.collection-browse-card:is(:hover,:focus-within){background:color-mix(in srgb,var(--card) 94%,var(--sel) 6%);border-color:var(--sel)}
+.collection-browse-card .collection-card-link:focus-visible{outline:none}.collection-browse-card:has(.collection-card-link:focus-visible){outline:2px solid var(--sel);outline-offset:3px}
+@media(max-width:600px){.collection-summary.collection-browse-card{padding:14px;gap:10px}.collection-browse-card .collection-card-link{grid-template-columns:64px minmax(0,1fr);gap:12px}.collection-card-copy h3{font-size:16px}}
+
+/* Saved outfits share the collection and trip card surfaces. */
+:root[data-skin] .ocard{position:relative;isolation:isolate;border-radius:12px;padding:16px;gap:12px;transition:border-color .16s,background .16s}
+:root[data-skin] .ocard:is(:hover,:focus-within){border-color:var(--sel);background:color-mix(in srgb,var(--card) 94%,var(--sel) 6%)}
+.ocard .oftitle{color:var(--ink);text-decoration:none;text-underline-offset:4px}
+.ocard .oftitle:is(:hover,:focus-visible){text-decoration:underline}
+.ocard .outfit-preview-link:focus-visible,.ocard .oftitle:focus-visible{outline:2px solid var(--sel);outline-offset:3px;border-radius:6px}
+:root[data-skin] .ocard>.actions>.card-more{align-self:stretch;min-height:44px}
+@media(max-width:600px){:root[data-skin] .ocard{padding:14px;gap:10px}}
+
+/* Image exports share a quieter picture emoji and a text-only fallback. */
+.image-export-icon{display:inline-flex;align-items:center;justify-content:center;flex:none;line-height:1}
+:root[data-skin] .image-export-icon>.control-svg{display:none}
+:root[data-skin] .image-export-icon>.image-export-emoji{display:inline-flex;align-items:center;justify-content:center;margin:0;line-height:1;filter:saturate(.35) brightness(.9) var(--emoji-color,grayscale(0)) var(--emoji-edge,drop-shadow(0 0 0 transparent))}
+:root[data-menu-emoji=off] .image-export-icon>.image-export-emoji{display:none!important}
+:root[data-menu-emoji=off] .icon-only .image-export-icon>.control-svg{display:inline-flex!important}
+:root[data-menu-emoji=off] :is(button,a):not(.icon-only) .image-export-icon{display:none}
+
+/* Align supporting photo disclosures with the piece form. */
+#dlg .photo-options{margin-inline:20px;box-sizing:border-box}
+.collection-filter>summary{font-weight:600;cursor:pointer;color:var(--ink)}.collection-filter>.chips{padding:12px 0 0}.collection-filter>.btn{margin-bottom:4px}
+
+
+:root[data-skin] #filters .collection-filter>summary{color:var(--ink);font-weight:600}
+
+/* Category tab preferences retain clear spacing in all appearances. */
+#displayprefs #closet-tab-settings{display:flex;flex-direction:column;align-items:stretch;gap:16px}
+#displayprefs #closet-tab-settings>p{margin:0}
+#displayprefs .closet-tab-selectors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#displayprefs #closet-tab-settings .closet-tab-select{display:flex;flex-direction:column;gap:8px;margin:0;min-width:0}
+#displayprefs .closet-tab-select select{width:100%;min-width:0;box-sizing:border-box}
+#displayprefs #closet-tab-settings>.linkbtn{align-self:flex-start;margin:0}
+@media(max-width:700px){#displayprefs .closet-tab-selectors{grid-template-columns:minmax(0,1fr)}}
+#closet-tabs-status:empty{display:none}
+
+.wr-purchase{font-size:14px;display:grid;gap:8px;margin-top:10px;min-width:0;overflow-wrap:anywhere}
+.wr-purchase p{margin:0}
+.wr-purchase a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.wr-purchase a:hover{color:var(--sel)}
+
+@media(max-width:700px){.wrrow:not(.cmp):not(.wrdiv) .wr-purchase{grid-column:1/-1;grid-row:4}}
+
+.pairing-editor{display:flex;flex-direction:column;gap:16px}
+.pairing-editor>p,.pairing-editor fieldset{margin:0}
+.pairing-editor .pairing-names{overflow-wrap:anywhere}
+.pairing-choice{display:flex;align-items:center;gap:10px;min-height:44px;margin:0}
+.pairing-choice input{margin:0;flex:none}
+.pairing-fields{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.pairing-fields[hidden]{display:none}
+.pairing-fields label{display:grid;gap:8px;margin:0;min-width:0}
+.pairing-fields select{width:100%;min-width:0;box-sizing:border-box;font:16px/1.4 var(--mono);min-height:44px}
+.pairing-row>span{min-width:0;overflow-wrap:anywhere;flex:1 1 180px}
+.pairing-row{gap:8px;flex-wrap:wrap}
+.pairing-editor .dlgactions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px}
+
+/* Keep desktop category menus bounded; unsupported browsers retain native selects. */
+@supports (appearance:base-select){
+ @media (min-width:701px) and (pointer:fine){
+  #displayprefs .closet-tab-selectors select,
+  #displayprefs .closet-tab-selectors select::picker(select){appearance:base-select}
+  #displayprefs .closet-tab-selectors select::picker(select){max-block-size:min(18rem,50dvh);overflow-y:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:4px;box-shadow:0 6px 18px #0003}
+  #displayprefs .closet-tab-selectors option{min-height:36px;padding:7px 10px;white-space:normal;overflow-wrap:anywhere}
+  #displayprefs .closet-tab-selectors option:checked{background:var(--selbg);color:var(--sel)}
+  #displayprefs .closet-tab-selectors option:not(:disabled):hover,
+  #displayprefs .closet-tab-selectors option:not(:disabled):focus-visible{background:var(--sel);color:var(--bg)}
+ }
+}
+
+/* Native disclosure markers use open chevrons; custom menu and plus controls retain their patterns. */
+:where(details)>summary{list-style-type:'›\00a0\00a0'}
+:where(details[open])>summary{list-style-type:'⌄\00a0\00a0'}
+
+/* Full page titles are 15% larger; Sky retains its own responsive scale. */
+:root[data-skin] :is(.labhead,.page-heading):not(.sky-heading):not(.sky-full-head)>h2,
+:root[data-skin] #collection-context>h2,
+:root[data-skin] #collection-context .page-heading>h2{font-size:25.3px}
+:root[data-skin=workshop] :is(.labhead,.page-heading):not(.sky-heading):not(.sky-full-head)>h2,
+:root[data-skin=workshop] #collection-context .page-heading>h2{font-size:32.2px}
+:root[data-skin] .closet-heading h2{font-size:25.3px}
+:root[data-skin=workshop] .closet-heading h2{font-size:20.7px}
+:root[data-skin] .profile-page-head h2,
+:root[data-skin] .batch-workspace .setup-head h2,
+:root[data-skin] .setup-head.page-heading h2{font-size:32.2px}
+:root[data-skin] #closet-oracle .setup-head h2{font-size:clamp(27.6px,4.6vw,36.8px)}
+@media(max-width:600px){
+ :root[data-skin] .setup-head.page-heading h2{font-size:27.6px}
+}
+@media(max-width:700px){
+ :root[data-skin] .batch-workspace .setup-head h2{font-size:28.75px}
+}
+
+/* Linty accompanies the task's real status; he never blocks the page. */
+.loading-linty:not(button){display:flex;align-items:center;gap:10px;min-height:30px;font-size:15px;line-height:1.6}
+span.loading-linty:not(button){display:inline-flex}
+.loading-linty::before,.photo-spinner,.wr-photo.loading .wr-photo-status::before{content:"";display:inline-block;box-sizing:border-box;width:30px;height:30px;flex:none;background:var(--loading-linty) center/contain no-repeat;image-rendering:pixelated;animation:loading-linty-turn 2s linear infinite}
+button.loading-linty::before{width:24px;height:24px;margin-inline-end:8px;vertical-align:middle}
+.loading-linty-queued::before,.photo-work-waiting .photo-spinner{animation:none;opacity:.55}
+.photo-spinner{width:40px;height:36px;border:0;border-radius:0}
+.wr-photo.loading .wr-photo-status::before{width:30px;height:30px;border:0;border-radius:0}
+.photo-work-waiting .photo-spinner{border:0}
+@keyframes loading-linty-turn{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.loading-linty::before,.photo-spinner,.wr-photo.loading .wr-photo-status::before{animation:none}}
+
+.schedule-planned-outfit{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;gap:16px}.schedule-planned-details{display:grid;gap:12px;min-width:0}.schedule-plan-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.schedule-plan-header>.schedule-context{min-width:0;align-self:center;overflow-wrap:anywhere}.schedule-plan-header>.card-more{flex:none}:root[data-skin] .schedule-plan-header>.card-more:not(:hover):not(:focus-visible):not([aria-expanded=true]){background:transparent;border-color:transparent;box-shadow:none}.schedule-wear-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.schedule-worn{display:inline-flex;align-items:center;gap:7px;font:15px/1.5 var(--body)}.schedule-wear-actions .linkbtn{min-height:44px;padding:8px}.histplan>.schedule-wear-actions{margin-top:12px}@media(max-width:600px){.schedule-planned-outfit{grid-template-columns:88px minmax(0,1fr);gap:12px}}
+
+
+
+/* Deleted pieces reuses the surrounding dialog and row surfaces. */
+.deleted-selection-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.deleted-status{margin:10px 0}
+.deleted-selecting .delrow{grid-template-columns:24px 64px minmax(0,1fr) auto}
+.deleted-select{width:24px;height:24px;margin:0;accent-color:var(--sel);flex:none}
+.deleted-protected{margin-top:4px;color:var(--ink2)}
+.deleted-review-list{max-height:40vh;overflow:auto;padding-inline-start:22px;line-height:1.6}
+.deleted-actions{flex-wrap:wrap;gap:10px}
+@media(max-width:540px){
+ .deleted-selecting .delrow{grid-template-columns:24px 52px minmax(0,1fr);align-items:start}
+ .deleted-selecting .delph{width:52px;height:60px}
+ .deleted-selecting .delrow>.btn{grid-column:3;justify-self:start}
+ .delbox .fine{font-size:14px;line-height:1.5}
+ .deleted-actions .btn{white-space:normal}
+}
+
+/* Compensate for Soft Hardware's small pixel display font on collection cards. */
+:root[data-skin=workshop] .collection-card-copy h3{font-size:24px}
+@media(max-width:600px){:root[data-skin=workshop] .collection-card-copy h3{font-size:22px}}
+
+/* Bound the menu on every screen; let longer labels wrap within it. */
+#appmenu.xmenu{width:min(248px,calc(100vw - 24px));min-width:0;max-width:calc(100vw - 24px);box-sizing:border-box}
+#appmenu>:is(button,a),#appmenu>.xpar>button:first-child{min-width:0;padding-inline:12px}
+#appmenu .menu-label{min-width:0;white-space:normal;overflow-wrap:anywhere}
+
+/* Compact selection controls share one row on phones; full labels remain accessible. */
+.selection-short{display:none}
+@media(max-width:600px){.selection-selection{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px}.selection-selection .selcount{margin:0;font-size:14px;overflow-wrap:anywhere}.selection-selection>.selection-done{margin-left:0}:root[data-skin] .selection-selection>.btn{min-width:0;padding-inline:8px;font-size:14px}.selection-selection .selection-full{display:none}.selection-selection .selection-short{display:inline;white-space:nowrap}}
+
+/* Ordinary checkboxes are easier to see; quizzes retain their own illustrated sizes. */
+:root[data-skin] input[type=checkbox]:not(:where(#profile-comfort input)){box-sizing:border-box;width:18px;height:18px;min-width:18px;min-height:18px;max-width:18px;max-height:18px;padding:0;flex-shrink:0;flex-basis:auto;vertical-align:middle;accent-color:var(--sel)}
+
+/* Give ordinary choice labels the same readable size as field values. */
+:root[data-skin] #displayprefs label{font-size:16px;line-height:1.5}
+:root[data-skin] label:has(input:is([type=checkbox],[type=radio])):not(:where(#profile-comfort label)){font-size:16px;line-height:1.5}
+
+/* Choice controls and their clickable labels use the same cursor as other actions. */
+:root[data-skin] input:is([type=checkbox],[type=radio]):enabled,
+:root[data-skin] label:has(input:is([type=checkbox],[type=radio]):enabled),
+:root[data-skin] label:has(+input:is([type=checkbox],[type=radio]):enabled){cursor:pointer}
+:root[data-skin] input:is([type=checkbox],[type=radio]):disabled,
+:root[data-skin] label:has(input:is([type=checkbox],[type=radio]):disabled){cursor:not-allowed}
+
+/* Keep the accepted Profile control sizes independent of ordinary forms. */
+:root[data-skin] #displayprefs input[type=checkbox]{width:20px;height:20px;min-width:20px;min-height:20px;max-width:20px;max-height:20px}
+
+/* Piece editing: compact headings, persistent errors, and bulk change review. */
+:root[data-skin] .piece-editor .titlewrap{display:flex;align-items:flex-start;gap:8px;min-width:0}
+:root[data-skin] .piece-editor .titlewrap h2{flex:1;min-width:0;margin:0}
+:root[data-skin] .piece-editor .piece-rename{flex:none;display:inline-flex;align-items:center;justify-content:center;width:44px;min-height:44px;padding:6px;font-family:var(--body);font-size:22px}
+:root[data-skin] .piece-editor .titleedit{width:100%;box-sizing:border-box}
+:root[data-skin] .piece-outfit-options{display:grid;gap:12px;border:0;border-top:1px solid var(--line);padding:12px 0 0;margin:0;background:transparent}
+:root[data-skin] .piece-outfit-options h3{margin:0;font-size:16px;line-height:1.4}
+:root[data-skin=workshop] .piece-outfit-options h3{font-size:18px}
+:root[data-skin] .piece-field-error{display:block;margin-top:5px;color:var(--ink);font-size:14px;font-weight:400;line-height:1.4}
+:root[data-skin] .piece-field-error[hidden],:root[data-skin] .bulk-edit-form [hidden]{display:none!important}
+:root[data-skin] .photo-save-note{font-size:14px;margin:0 0 10px}
+:root[data-skin] .bulk-text-change{display:grid;gap:8px;min-width:0}
+:root[data-skin] .bulk-edit-form .bulk-scope-hint{display:block;margin:4px 0 0;font-size:14px;font-weight:400;line-height:1.4}
+:root[data-skin] .bulk-edit-footer{position:sticky;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding-top:10px;z-index:2}
+:root[data-skin] .bulk-edit-footer .actions{position:static;border:0;padding:10px 0 0;margin:0}
+:root[data-skin] .bulk-change-summary{margin:0;font-size:14px;line-height:1.5;overflow-wrap:anywhere;max-height:7.5em;overflow-y:auto}
+
+:root[data-skin] .bulk-edit-form .tf-none{color:var(--ink);font-size:14px}
+:root[data-skin] .bulk-edit-form label:not(.piece-check){display:grid;align-items:start;gap:5px;margin:0;font-size:15px;min-width:0}
+:root[data-skin] .bulk-edit-form :is(select,input[type=text]){width:100%;box-sizing:border-box;min-width:0}
+@media(max-width:600px){:root[data-skin] .bulk-edit-form .row2{grid-template-columns:minmax(0,1fr)}}
+
+:root[data-skin] .piece-outfit-options.single-option{border-top:0;padding-top:0}
+
+@media(min-width:601px){
+ :root[data-skin] .selbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto}
+ .selection-selection{display:contents}
+ .selection-selection>.selcount{grid-column:1;grid-row:1}
+ .selection-tools{grid-column:2;grid-row:1}
+ .selection-selection>.selection-done{grid-column:3;grid-row:1}
+ .selection-organize,.selection-status{grid-column:1/-1}
+}
+/* Mobile bulk actions leave the selected pieces visible until tools are needed. */
+.selection-toggle{display:none!important}
+.selection-tools{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:600px){
+ :root[data-skin] .selbar{gap:8px;padding:8px;max-height:50dvh}
+ .selection-selection{display:flex;flex-wrap:nowrap;order:3;gap:8px}
+ .selection-selection .selcount{flex:1;min-width:0;font-size:14px}
+ :root[data-skin] .selbar .selection-toggle{display:inline-flex!important}
+ .selection-selection>.selection-done{margin-left:0}
+ .selection-tools{order:0}
+ .selection-organize{order:1}
+ .selection-status{order:2}
+ .selection-group+.selection-group{padding-top:0;border-top:0}
+ .selbar.actions-open .selection-selection{border-top:1px solid var(--line);padding-top:8px}
+ .selbar:not(.actions-open)>:is(.selection-tools,.selection-organize,.selection-status){display:none}
+ .selection-tools>.btn{flex:1}
+ .selection-tools .selection-full{display:none}
+ .selection-tools .selection-short{display:inline;white-space:nowrap}
+ :root[data-skin] .selbar .btn{font-size:14px;line-height:1.3}
+}
+/* Collections shares the filter disclosure surface and inset content. */
+#filters .collection-filter>.collection-filter-body{padding:10px}
+#filters .collection-filter-body>.chips{padding:0;margin:0 0 10px;gap:8px}
+#filters .collection-filter-body>.btn{margin:0}
+
+@media(min-width:601px){.selection-collections{margin-left:auto;justify-content:flex-end}}
+
+/* Optional installation experiment: separate from the existing action rows. */
+:root[data-skin] .photo-model-retry{display:block;width:max-content;max-width:100%;padding:3px 0;margin:6px 0 0;border:0;border-radius:0;background:none;color:var(--ink2);font:14px/1.4 var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+:root[data-skin] .photo-model-retry:hover{color:var(--ink)}
+:root[data-skin] .photo-model-retry:disabled{opacity:.5;cursor:wait}
+.photo-model-retry[hidden]{display:none!important}
+
+/* Keep the product link beside its editable URL, including narrow piece dialogs. */
+:root[data-skin] .product-link-field{display:flex;align-items:stretch;gap:8px;min-width:0}
+:root[data-skin] .product-link-field>input{flex:1 1 auto;min-width:0;width:100%}
+:root[data-skin] .product-link-open{display:inline-flex;flex:none;align-items:center;justify-content:center;min-width:44px;padding:8px;align-self:center}
+:root[data-skin] .product-link-open[hidden]{display:none}
+
+/* Compact ordering choice for the photo batch start screen. */
+.tidy-order{display:grid;gap:8px;justify-items:start;margin:20px 0;min-width:0}
+
+/* Keep the Trips title and its primary action together on narrow screens too. */
+:root[data-skin] #view-trip .trips-home-heading{flex-wrap:nowrap;align-items:center;gap:12px}
+:root[data-skin] #view-trip .trips-home-heading>h2{flex:1 1 0;min-width:0}
+:root[data-skin] #view-trip .trips-home-heading>.page-actions{flex:0 0 auto;margin-left:auto}
+:root[data-skin] #view-trip .trips-home-heading .btn{white-space:nowrap}
+
+/* Shared secondary menus: collection-sized dots and one subtle menu surface. */
+:root[data-skin=workshop] #xmenu>button{font-family:var(--mono)}
+:root[data-skin] .trip-plan-card>.trip-plan-menu{background:transparent;border-color:transparent;box-shadow:none;margin:0}
+:root[data-skin] .trip-plan-card>.trip-plan-menu:is(:hover,:focus-visible,[aria-expanded=true]){background:var(--selbg);border-color:var(--sel)}
+/* Outfits and Lab share a compact filter surface; sort stays in the toolbar. */
+:root[data-skin] .outfit-filters{margin:0 0 18px;border-radius:var(--radius,0px);padding:0}
+:root[data-skin] #view-saved .outfit-filter-summary{display:inline-flex;align-items:center;gap:8px;min-height:48px;margin:0;padding:10px 12px;font-size:14px;white-space:nowrap}
+.outfit-filter-summary::after{content:'';display:block;width:18px;height:18px;background:currentColor;mask:var(--ui-svg-plus) center/contain no-repeat}
+.outfit-filter-summary[aria-expanded=true]::after{mask-image:var(--ui-svg-minus)}
+:root[data-skin] .outfit-filters .ofpanel{display:flex;align-items:center;flex-wrap:wrap;border:0;margin:0;padding:12px;background:transparent;border-radius:0;gap:10px}
+.outfit-filters .lab-control-group{margin-inline-end:14px}
+.of-filter-toggles{display:flex;align-items:center;flex-wrap:wrap;gap:10px;min-width:0}
+.of-filter-choices{flex-basis:100%;display:flex;align-items:center;gap:10px;min-width:0}
+.of-filter-choices .recent-wears{flex:0 1 auto;flex-wrap:wrap;min-width:0}
+.of-filter-choices .fine{font-family:var(--body)}
+.of-filter-choices select{max-width:100%;min-width:0}
+.of-filter-colors{flex-basis:100%;display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+.of-filter-colors .chips{margin:0;gap:6px}
+.of-toolbar:has(.outfit-filter-summary[aria-expanded=true]){margin-bottom:8px}
+
+
+/* Native controls retain their surface colors; only the app-owned status glyph follows emoji styling. */
+#view-wrank .wr-intent-wrap{position:relative;display:inline-flex;flex:none;width:152px;max-width:100%;align-items:center}
+#view-wrank .wr-intent-wrap>.wrmove.wr-intent{flex:none;width:100%;min-width:0;max-width:100%;box-sizing:border-box;min-height:38px;border-radius:999px;padding:6px 30px 6px 36px;background-color:var(--selbg);font:500 15px/1.4 var(--body)}
+#view-wrank .wr-intent-icon{position:absolute;inset-inline-start:12px;top:50%;transform:translateY(-50%);z-index:1;pointer-events:none;font:18px/1.3 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif}

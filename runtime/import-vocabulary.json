@@ -288,7 +288,6 @@
         "kitten",
         "ballet",
         "loafer",
-        "slip-on",
         "bootie",
         "clog",
         "blouse",
@@ -471,7 +470,7 @@
     },
     {
       "key": "pattern",
-      "label": "Pattern",
+      "label": "Pattern / subject",
       "multi": true,
       "vocab": [
         "tortoiseshell",
@@ -568,7 +567,6 @@
       "multi": false,
       "vocab": [
         "sleeveless",
-        "strapless",
         "cap",
         "short",
         "three-quarter",
@@ -596,10 +594,14 @@
         "midi",
         "maxi",
         "short",
+        "short shorts",
+        "mid thigh",
+        "bermuda",
         "capri",
         "ankle",
         "full length",
         "choker",
+        "short",
         "medium",
         "long"
       ],
@@ -608,6 +610,8 @@
         "Bottoms",
         "One-pieces",
         "Outerwear",
+        "Activewear",
+        "Swimwear",
         "Loungewear",
         "Jewelry",
         "Workwear & uniforms",
@@ -679,14 +683,6 @@
       ],
       "categories": [
         "Footwear"
-      ],
-      "subcategories": [
-        "Sneakers",
-        "Boots",
-        "Sandals",
-        "Slippers",
-        "Flats",
-        "Heels"
       ]
     },
     {
@@ -747,7 +743,8 @@
         "antiqued",
         "blackened",
         "brushed",
-        "hammered"
+        "hammered",
+        "matte"
       ],
       "groups": [
         {
@@ -778,11 +775,11 @@
             "antiqued",
             "blackened",
             "brushed",
-            "hammered"
+            "hammered",
+            "matte"
           ]
         }
       ],
-      "description": "Optional. Metal tones describe appearance, not material.",
       "categories": [
         "Jewelry",
         "Watches",
