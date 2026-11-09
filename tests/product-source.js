@@ -41,3 +41,27 @@ for(const meta of ['Tops','Bottoms','Outerwear','Underwear','Jewelry','Footwear'
 }
 assert.equal(actions.filter(a=>a[0]==='store').length,10);assert.equal(actions.filter(a=>a[0]==='delete').length,10);assert.equal(actions.filter(a=>a[0]==='patch'&&a[2].stored===false).length,10);
 console.log('Piece management: consistent storage, return, donation, visibility, and Delete commands across clothing, jewelry, and accessory categories.');
+
+// The adjacent link follows unsaved edits and never opens an unsafe or missing URL.
+{
+ctx.el=(tag,attrs,...children)=>new Field(tag,attrs||{},...children);
+const input=new Field('input',{value:'https://example.com/old'}),field=ctx.productLinkField(input),anchor=field.children[1].children[1];
+assert.equal(anchor.href,'https://example.com/old');assert.equal(anchor.hidden,false);assert.equal(anchor.target,'_blank');assert.equal(anchor.rel,'noopener noreferrer');
+input.value='https://example.com/new';input.dispatchEvent({type:'input'});assert.equal(anchor.href,input.value,'new value is usable before saving');
+for(const url of ['','invalid','javascript:alert(1)','https://user:password@example.com']){input.value=url;input.dispatchEvent({type:'input'});assert.equal(anchor.hidden,true);assert.equal(anchor.href,undefined)}
+input.value='https://example.com/restored';input.dispatchEvent({type:'change'});assert.equal(anchor.hidden,false);assert.equal(anchor.href,input.value);
+console.log('Product link: current field value, new-tab target, missing/invalid URLs, credential URLs, and autofill changes pass.');
+
+}
+
+// Import store choices use the same picker and update the request draft on every input.
+const setupSource=fs.readFileSync(__dirname+'/../app/scripts/setup.js','utf8');
+vm.runInContext(setupSource.slice(setupSource.indexOf('function setupStoreInput('),setupSource.indexOf('function setupInput(')),stores);
+let previews=0,dirty=0;stores.setupScopePreview=()=>previews++;stores.setupSourcesChanged=()=>dirty++;stores.allItems=()=>[{source:'Temu'},{source:'Local Market'}];
+const draft={store:'Temu',sources:[{}]},field=stores.setupStoreInput(draft),storeInput=field.children[1].children[0].children[0],storeList=field.children[1].children[1];
+assert.equal(field.tag,'div','the picker is not nested in a label with multiple controls');
+assert.equal(field.children[0].for,storeInput.id);assert.equal(storeInput['data-setup-focus'],'store');assert.equal(storeInput['aria-label'],'Store (optional)');
+storeInput.focus();storeList.children[0].onclick();assert.equal(draft.store,'Local Market');assert.equal(previews,1);assert.equal(dirty,1);
+storeInput.value='New shop';storeInput.dispatchEvent(new stores.Event('input'));assert.equal(draft.store,'New shop');
+storeInput.value='';storeInput.dispatchEvent(new stores.Event('input'));assert.equal(draft.store,'','blank keeps the request open to any store');
+console.log('Import Store: shared previous-store suggestions, new names, optional blank scope, draft updates, and focus/label association pass.');

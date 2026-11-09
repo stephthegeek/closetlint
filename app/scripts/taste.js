@@ -76,6 +76,14 @@ function labTastePatterns(stats,positive,entries){
   });
   return selected;
 }
+// The same bounded cards feed the Lab summary and Almanac's daily spotlight.
+function labTasteCards(entries,stats){
+ if(entries.length<8)return [];
+ stats=stats||labStats(entries);
+ var pieces=Object.keys(stats).filter(function(f){return f.indexOf('p:')===0&&stats[f].loved>=2}).sort(function(a,b){return stats[b].loved-stats[a].loved||stats[b].n-stats[a].n||a.localeCompare(b)}).slice(0,3);
+ function cards(features,kind){return features.map(function(f){return {kind:kind,feature:f,stats:stats[f]}})}
+ return cards(labTastePatterns(stats,true,entries),'positive').concat(cards(pieces,'piece'),cards(labTastePatterns(stats,false,entries),'passed'));
+}
 var _labTasteEvidenceRefresh=null;
 function labTasteExamples(feature,launcher){
   var d=el('dialog',{class:'taste-examples','aria-labelledby':'taste-example-title'}),page=0;
@@ -123,18 +131,18 @@ function labTasteEvidenceButton(feature,count){
 }
 function labTasteView(v,entries){
   v.setAttribute('data-taste-algorithm-version',LAB_TASTE_SUMMARY_VERSION);
-  var map=byId();entries=entries||labRatingEntries(map);var stats=labStats(entries),n=entries.length;
+  var map=byId();entries=entries||labRatingEntries(map);var stats=labStats(entries),n=entries.length,cards=labTasteCards(entries,stats);
   v.appendChild(el('p',{class:'taste-intro fine',text:'A few strongest patterns from '+n+' rated outfits, using your pieces’ current tags. Each outfit counts once per pattern. Accessories appear in the examples but do not drive these patterns.'}));
   if(n<8){v.appendChild(el('p',{class:'labempty',text:'Rate a few more outfits to start spotting patterns. Aim for at least 8; so far: '+n+'.'}));labBlocksBox(v);return}
   function patterns(title,positive){
-    var section=el('section',{class:'tastebox taste-section'},el('h3',{text:title})),features=labTastePatterns(stats,positive,entries);
+    var section=el('section',{class:'tastebox taste-section'},el('h3',{text:title})),features=cards.filter(function(c){return c.kind===(positive?'positive':'passed')}).map(function(c){return c.feature});
     if(!positive)section.appendChild(el('p',{class:'fine',text:'A pass is about the whole combination. These patterns do not mean you dislike every piece, color, or style in it.'}));
     if(!features.length)section.appendChild(el('p',{class:'fine',text:'No clear pattern yet. Keep rating a mix of outfits.'}));
     if(features.length)labTastePagedGrid(section,features,'taste-patterns',positive?'tastePositivePage':'tastePassedPage',positive?'Positive patterns':'Passed patterns',function(f){
       var x=stats[f],card=el('article',{class:'taste-pattern'},el('h4',{text:labFeatName(f)}));
       if(f.indexOf('c:')===0||f.indexOf('cp:')===0){
         var swatches=el('div',{class:'taste-swatches'});
-        f.slice(f.indexOf(':')+1).split('+').forEach(function(color){var swatch=el('span',{class:'taste-color',text:colLabel(color)}),dot=el('span',{class:'taste-color-dot','aria-hidden':'true'});dot.style.background=COLORS[color]||color;swatch.prepend(dot);swatches.appendChild(swatch)});card.appendChild(swatches);
+        f.slice(f.indexOf(':')+1).split('+').forEach(function(color){var swatch=el('span',{class:'taste-color',text:colLabel(color)}),dot=el('span',{class:'taste-color-dot','aria-hidden':'true'});dot.style.background=colorTagPaint(color);swatch.prepend(dot);swatches.appendChild(swatch)});card.appendChild(swatches);
       }
       card.appendChild(el('p',{class:'taste-counts',text:labRatingSummary(x)}));
       if(x.n<6)card.appendChild(el('p',{class:'fine',text:'Early pattern · '+x.n+' outfits'}));
@@ -143,7 +151,7 @@ function labTasteView(v,entries){
     v.appendChild(section);
   }
   patterns('What’s working for you',true);
-  var pieces=Object.keys(stats).filter(function(f){return f.indexOf('p:')===0&&stats[f].loved>=2}).sort(function(a,b){return stats[b].loved-stats[a].loved||stats[b].n-stats[a].n||a.localeCompare(b)}).slice(0,3);
+  var pieces=cards.filter(function(c){return c.kind==='piece'}).map(function(c){return c.feature});
   if(pieces.length){
     var section=el('section',{class:'tastebox taste-section'},el('h3',{text:'Pieces you keep loving'}));
     labTastePagedGrid(section,pieces,'taste-pieces','tastePiecesPage','Favorite pieces',function(f){var p=map[f.slice(2)],x=stats[f],card=el('article',{class:'taste-piece'},labTile(p,catLabel(p)),el('p',{class:'taste-counts',text:labRatingSummary(x)}),labTasteEvidenceButton(f,x.n));return card});

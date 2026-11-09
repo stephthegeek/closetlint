@@ -16,6 +16,7 @@ import base64
 import concurrent.futures
 import signal
 import threading
+import select
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'runtime'))
@@ -67,6 +68,33 @@ class HostedTests(unittest.TestCase):
             conn.request(method, path, body=body, headers={'Host': 'closet.example.test', **(headers or {})})
             response = conn.getresponse()
             return response.status, response.read(), {k.lower(): v for k, v in response.getheaders()}
+
+    def test_scoped_title_suggestions_over_hosted_gateway(self):
+        page = self.call('GET', '/')[1]
+        config = json.loads(re.search(rb'window.ClosetLintLocal=(.*?);</script>', page)[1])
+        auth = {'X-ClosetLint-Token': config['token'], 'Origin': 'https://closet.example.test', 'If-Match': '"' + write_version(None) + '"'}
+        record = json.dumps({'name': 'Synthetic cluttered tee title', 'meta': 'Tops', 'colors': ['black'], 'wears': ['2026-10-31']}).encode()
+        self.assertEqual(self.call('PUT', '/api/doc/custom/synthetic', record, auth)[0], 200)
+        before = json.loads(self.call('GET', '/api/state', headers=auth)[1])
+        body = json.dumps({'instance': config['instance'], 'request': 'title-check', 'mode': 'titles', 'pieces': [{'id': 'c-synthetic', 'fields': [{'key': 'name'}]}]}).encode()
+        self.assertEqual(self.call('POST', '/api/details/prepare', body)[0], 403)
+        status, raw, _ = self.call('POST', '/api/details/prepare', body, auth)
+        self.assertEqual(status, 200, raw)
+        staged = json.loads(raw)
+        self.assertTrue(Path(staged['folder']).is_relative_to(self.data))
+        self.assertNotIn('wears', json.dumps(staged))
+        query = '/api/details/prepare?instance=' + config['instance'] + '&request=title-check&check=1'
+        status, raw, _ = self.call('GET', query, headers=auth)
+        self.assertEqual(status, 400)
+        self.assertIn(b'No suggestions yet', raw)
+        result = {'format': 'closetlint-tidy-details/v1', 'instance': config['instance'], 'requestId': 'title-check', 'pieces': [{'id': 'c-synthetic', 'changes': {'name': 'Black tee'}}]}
+        (Path(staged['folder']) / 'results.json').write_text(json.dumps(result))
+        status, raw, _ = self.call('GET', query, headers=auth)
+        self.assertEqual(status, 200, raw)
+        self.assertEqual(json.loads(raw), result)
+        self.assertEqual(self.call('GET', query.replace(config['instance'], 'wrong'), headers=auth)[0], 400)
+        after = json.loads(self.call('GET', '/api/state', headers=auth)[1])
+        self.assertEqual(after, before)
 
     def test_origin_token_save_retry_backup_and_restart(self):
         status, page, headers = self.call('GET', '/')
@@ -122,6 +150,28 @@ class HostedTests(unittest.TestCase):
         self.assertNotIn(b'MaxListenersExceededWarning', self.process_output[1],
                          'streaming backpressure must not accumulate connection listeners')
         self.start()
+
+    def test_rejected_photo_upload_is_consumed_before_response(self):
+        # Browsers/proxies may stop uploading once an early rejection arrives.
+        # The shared pipe cannot wait to drain that stopped upload afterward.
+        page = self.call('GET', '/')[1]
+        config = json.loads(re.search(rb'window.ClosetLintLocal=(.*?);</script>', page)[1])
+        body = b'x' * (1024 * 1024 + 812)
+        with contextlib.closing(http.client.HTTPConnection('127.0.0.1', self.port, timeout=5)) as conn:
+            conn.putrequest('POST', '/api/assets', skip_host=True)
+            for key, value in {'Host': 'closet.example.test', 'Content-Length': str(len(body)),
+                               'X-ClosetLint-Token': 'stale-token'}.items():
+                conn.putheader(key, value)
+            conn.endheaders(body[:32768])
+            readable, _, _ = select.select([conn.sock], [], [], .2)
+            self.assertFalse(readable, 'Do not expose a rejection while the browser is still uploading')
+            conn.send(body[32768:])
+            response = conn.getresponse()
+            self.assertEqual(response.status, 403)
+            response.read()
+        after = self.call('GET', '/')[1]
+        self.assertEqual(json.loads(re.search(rb'window.ClosetLintLocal=(.*?);</script>', after)[1])['token'], config['token'])
+        self.assertEqual(Store(self.data).state()['photos'], 0, 'Rejected upload never creates a photo')
 
     def test_calendar_photo_burst_waits_without_dropping_images(self):
         config = json.loads(re.search(rb'window.ClosetLintLocal=(.*?);</script>', self.call('GET', '/')[1])[1])

@@ -205,6 +205,27 @@
     watchBoardSave: function (fn) { saveListeners.push(fn); try { fn(copy(boardStatus)); } catch (e) {} return function () { saveListeners = saveListeners.filter(function (f) { return f !== fn; }); }; },
     retryBoardSave: function () { if (!boardDirty || restoring || boardFlight || boardStatus.conflict) return; boardRetries = 0; boardState('retrying'); saveBoardSoon(0); },
     flush: flush,
+    deletedPieces: function (action, values) {
+      if (!config.permanentDeletion) return Promise.reject(new Error('Update and restart Closet Lint to use permanent deletion.'));
+      var job = function () { return jsonRequest('/api/deleted-pieces', 'POST', Object.assign({}, values, {action: action, instance: config.instance})); };
+      return ready.then(flush).then(function () {
+        if (action !== 'delete') return job();
+        return write(function () { return job().then(function (receipt) {
+          return request('/api/state').then(function (r) { return r.json(); }).then(function (data) {
+            if (data.instance !== config.instance) throw new Error('The wardrobe changed. Reopen your original wardrobe.');
+            ['profile', 'custom', 'edits'].forEach(function (col) { cache[col] = copy(data.collections[col]); recordVersions[col] = data.writeVersions && data.writeVersions.collections[col] || {}; });
+            ['profile', 'custom', 'edits'].forEach(emit);
+            return receipt;
+          }).catch(function () { throw new Error('Deletion was saved, but this tab could not refresh. Retry the same request to update this view.'); });
+        }); }, true);
+      });
+    },
+    detailsPrepare: function (values) {
+      return ready.then(flush).then(function () { return jsonRequest('/api/details/prepare', 'POST', Object.assign({}, values, {instance: config.instance})); });
+    },
+    detailsCheck: function (id) {
+      return request('/api/details/prepare?instance=' + encodeURIComponent(config.instance) + '&request=' + encodeURIComponent(id) + '&check=1').then(function (r) { return r.json(); });
+    },
     photoPrepare: function (action, values) {
       var job = function () { return jsonRequest('/api/photos/prepare', 'POST', Object.assign({}, values, {action: action, instance: config.instance})); };
       return ready.then(flush).then(function () {
@@ -219,6 +240,7 @@
         }); }, true);
       });
     },
+    photoPrepareList: function () { return request('/api/photos/prepare?instance=' + encodeURIComponent(config.instance) + '&list=1').then(function (r) { return r.json(); }); },
     photoPrepareRead: function (id, options) {
       var path = '/api/photos/prepare?instance=' + encodeURIComponent(config.instance) + '&request=' + encodeURIComponent(id);
       Object.keys(options || {}).forEach(function (key) { path += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(options[key]); });
@@ -242,7 +264,7 @@
     importSourceRemove: function (batch, id) { return importSourceRequest(sourcePath(batch) + '&id=' + encodeURIComponent(id), {method: 'DELETE'}); },
     importSourceBlob: function (batch, id) { return importSourceRequest(sourcePath(batch) + '&id=' + encodeURIComponent(id), {}, true); },
     backgroundStatus: function () { return request('/api/photos/background-status').then(function (r) { return r.json(); }); },
-    removeBackground: function (photoId) { return request('/api/photos/remove-background', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({photoId: photoId})}).then(function (r) { return r.blob(); }); },
+    removeBackground: function (photoId, pieceId, model) { return request('/api/photos/remove-background', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({photoId: photoId, pieceId: pieceId, model: model})}).then(function (r) { var model=r.headers.get('X-ClosetLint-Background-Model');return r.blob().then(function (blob) { blob.processing=model==='isnet-general-use'?'rembg-isnet-general-use-mask':'rembg-u2net-mask';return blob; }); }); },
     fullBackup: function () {
       notify('Preparing a full backup, including catalog and photos…');
       return ready.then(flush).then(function () { return request('/api/backup'); }).then(function (r) { return r.blob(); }).then(function (blob) {

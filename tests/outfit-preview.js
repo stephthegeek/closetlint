@@ -22,7 +22,7 @@ function fixture(){
  const d=fixture();let release;const drawn=[],canvases=[];
  Object.assign(d.ctx,{BOARD_AR:4/3,byIdA:()=>({b:{id:'b',photo:'synthetic'}}),needProc:()=>false,loadImg:()=>new Promise(r=>release=()=>r({width:100,height:100})),document:{createElement(){const g=new Proxy({fillRect(){},drawImage(...args){drawn.push(args)},createLinearGradient:()=>({addColorStop(){}})},{get:(o,k)=>k in o?o[k]:()=>{}});const c={getContext:()=>g,toBlob:f=>f({type:'image/png'})};canvases.push(c);return c}},Path2D:function(){}});
  vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/board-design.js','utf8'),d.ctx);
- const owner=d.state.board;const rendering=d.ctx.outfitImage({name:'Snapshot',pieces:[{id:'b',x:2,y:3,w:40,z:1}],st:{ar:'1:1'}});await Promise.resolve();d.state.board={name:'Other board',pieces:[]};release();await rendering;assert.equal(canvases[0].width,1600);assert.equal(canvases[0].height,1600);assert.equal(drawn.at(-1)[3],640);assert.equal(owner.name,'Working draft');
+ const owner=d.state.board;const rendering=d.ctx.outfitImage({name:'Snapshot',pieces:[{id:'b',x:2,y:3,w:40,z:1}],st:{ar:'1:1'}});for(let i=0;i<10&&!release;i++)await Promise.resolve();assert(release);d.state.board={name:'Other board',pieces:[]};release();await rendering;assert.equal(canvases[0].width,1600);assert.equal(canvases[0].height,1600);assert.equal(drawn.at(-1)[3],640);assert.equal(owner.name,'Working draft');
  console.log('Outfit previews/recovery: view isolation, repeated switches, reload, original text/design, failed checkpoint, explicit-save guard, and detached image export pass.');
 })().catch(e=>{console.error(e);process.exit(1)});
 
@@ -33,7 +33,20 @@ function fixture(){
  f.ctx.el=el;f.ctx.$=id=>nodes[id]||(nodes[id]=el('div'));
  f.state.boardKey='active';f.state.previousBoardKey='older';f.state.boardDrafts=[{key:'older',board:{name:'Weekend',pieces:[]}},{key:'recent',board:{name:'Dinner',pieces:[]}}];
  let opened;f.ctx.returnWorkspace=key=>opened=key;f.ctx.paintWorkspaceRecovery();
- const recovery=nodes['board-recovery'];assert.equal(recovery.children.length,1);const menu=recovery.children[0];assert.equal(menu.tag,'details');assert.equal(menu.children[0].text,'Other drafts (2)');
+ const recovery=nodes['board-recovery'];assert.equal(recovery.children.length,1);const menu=recovery.children[0];assert.equal(menu.tag,'details');assert.equal(menu.children[0].text,'Drafts (2)');
  menu.children[1].children[0].onclick();assert.equal(opened,'recent');menu.children[1].children[1].onclick();assert.equal(opened,'older');
  f.state.boardDrafts=[];f.ctx.paintWorkspaceRecovery();assert.equal(recovery.children.length,0,'no draft control when there is nothing to resume');
+}
+
+// Pending work must not evict a just-rendered image before it can decode.
+{
+ const revoked=[],c={URL:{revokeObjectURL:url=>revoked.push(url)}};vm.createContext(c);
+ const design=fs.readFileSync(__dirname+'/../app/scripts/board-design.js','utf8');
+ const a=design.indexOf('function outfitMiniTrim('),b=design.indexOf('function outfitMiniShow(',a);
+ vm.runInContext('var outfitMiniCache=new Map();'+design.slice(a,b),c);
+ for(let i=0;i<60;i++)c.outfitMiniCache.set(i,{url:null});
+ c.outfitMiniCache.get(0).url='first';c.outfitMiniTrim();assert.equal(revoked.length,0,'queued placeholders cannot force eviction of the first ready image');
+ for(let i=1;i<60;i++)c.outfitMiniCache.get(i).url='url-'+i;
+ c.outfitMiniTrim();assert.equal(c.outfitMiniCache.size,48);assert.equal(revoked.length,12);assert(!c.outfitMiniCache.has(0));assert(c.outfitMiniCache.has(59));
+ console.log('Composition cache: pending work preserves the first decoded preview, bounded ready images evict oldest URLs.');
 }

@@ -47,7 +47,8 @@ function laundryCareForm(it,onPhotos){
   if(!laundryClothing(it))return null;
   var care=it.care||{},body=el('div',{class:'origbody care-body'}),summary=el('summary',{text:'Care'}),node=el('details',{class:'origin care-section'},summary,body);
   function field(label,values,value){var select=el('select',{'aria-label':label});[['','Not set']].concat(values.map(function(v){return [v,v]})).forEach(function(v){select.appendChild(el('option',{value:v[0],text:v[1]}))});if(value&&values.indexOf(value)<0)select.appendChild(el('option',{value:value,text:value}));select.value=value||'';body.appendChild(el('label',null,label,select));return select}
-  var wash=field('Washing',['Machine wash cold','Machine wash warm','Machine wash hot','Hand wash cold','Hand wash','Dry clean only','Do not wash'],care.wash),dry=field('Drying',['Tumble dry low','Tumble dry medium','Tumble dry','Hang to dry','Lay flat to dry','Do not tumble dry'],care.dry),note=el('textarea',{'aria-label':'Care note',rows:'2',maxlength:'1000',value:care.note||''});
+  var wash=field('Washing',['Machine wash cold','Machine wash warm','Machine wash hot','Machine wash gentle','Hand wash cold','Hand wash','Dry clean only','Do not wash'],care.wash),dry=field('Drying',['Tumble dry low','Tumble dry medium','Tumble dry','Hang to dry','Lay flat to dry','Do not tumble dry'],care.dry),wrinkle=field('Wrinkle upkeep',['Usually ready to wear','Sometimes needs steaming or ironing','Usually needs steaming or ironing'],care.wrinkleUpkeep),note=el('textarea',{'aria-label':'Care note',rows:'2',maxlength:'1000',value:care.note||''});
+  body.appendChild(el('p',{class:'fine',text:'How it usually comes out of your closet, including creases from storage.'}));
   note.value=care.note||'';body.appendChild(el('label',null,'Care note',note));
   var uploading=false,photos=el('div',{class:'care-label-links'}),file=el('input',{type:'file',accept:'image/*',class:'hide','data-care-upload':'true','aria-label':'Add care label photo'}),status=el('p',{class:'fine',role:'status'}),add=el('button',{class:'btn small',type:'button',text:'📷 Add care label photo',onclick:function(){file.click()}});
   function paint(){photos.textContent='';piecePhotos(it).filter(function(p){return p.kind==='carelabel'}).forEach(function(p,i){photos.appendChild(el('button',{class:'care-label-thumb',type:'button','aria-label':'View care label '+(i+1),onclick:function(){openLightbox(Object.assign({},it,{photo:p.src}))}},el('img',{src:photoThumbnail(p.src),alt:'Care label '+(i+1),loading:'lazy',decoding:'async'})))});var atLimit=piecePhotos(it).filter(function(p){return p.photoId}).length>=12;add.disabled=uploading||!state.assets||atLimit;add.title=atLimit?'12-photo limit reached. Remove a photo first.':!state.assets?'Photo storage unavailable.':'';summary.textContent='Care'}
@@ -55,7 +56,7 @@ function laundryCareForm(it,onPhotos){
   file.addEventListener('change',function(){var f=file.files&&file.files[0];if(!f||uploading)return;uploading=true;paint();status.textContent='Saving photo…';
     return laundryUploadLabel(it,f).then(function(ok){if(ok){status.textContent='Care label saved';toast('Care label saved. Tiny scroll acquired.');paint();if(onPhotos)onPhotos()}else status.textContent='Photo not saved. Try again.'}).catch(function(e){status.textContent=e.message||'Photo not saved. Try again.'}).finally(function(){uploading=false;file.value='';paint()});
   });
-  body.append(photos,add,file,status);paint();return {node:node,refreshPhotos:paint,read:function(){return {wash:wash.value,dry:dry.value,note:note.value.trim().slice(0,1000)}}};
+  body.append(photos,add,file,status);paint();return {node:node,refreshPhotos:paint,read:function(){return {wash:wash.value,dry:dry.value,wrinkleUpkeep:wrinkle.value,note:note.value.trim().slice(0,1000)}}};
 }
 function laundryUploadLabel(it,file){
   if(needDb()||!state.assets)return Promise.resolve(false);
@@ -80,7 +81,7 @@ function laundryBoardNotice(){
 }
 function laundryLabControls(ctl,L){
   if(!laundryEnabled())return;
-  ctl.appendChild(chip('🧺 Ready to wear only',L.readyOnly!==false,function(){L.readyOnly=L.readyOnly===false;try{localStorage.setItem('closetlint.labready.v1',L.readyOnly?'1':'0')}catch(e){}L.cur=null;labRender()}));
+  ctl.appendChild(chip('🧺 Ready to wear',L.readyOnly!==false,function(){L.readyOnly=L.readyOnly===false;try{localStorage.setItem('closetlint.labready.v1',L.readyOnly?'1':'0')}catch(e){}L.cur=null;labRender()}));
 }
 function laundryLabSkipped(ctl,L){
   if(!laundryEnabled()||L.readyOnly===false)return;

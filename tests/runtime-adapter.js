@@ -53,6 +53,14 @@ const clone=value=>JSON.parse(JSON.stringify(value));
   await assert.rejects(failingContext.window.ClosetLintRuntime.use('db'),/Offline/);
   assert.match(failingContext.window.ClosetLintRuntime.error,/not being saved/);
   await assert.rejects(failingContext.window.ClosetLintRuntime.fullBackup(),/Offline/);
+  const photoRequests=[];
+  const photoContext={...ctx,window:{ClosetLintLocal:{token:'photo-test'},addEventListener(){}},fetch:async(url,options)=>{
+    photoRequests.push(JSON.parse(options.body));return {ok:true,headers:{get:()=> 'isnet-general-use'},blob:async()=>({size:10})};
+  }};
+  vm.createContext(photoContext);vm.runInContext(fs.readFileSync(path.join(__dirname,'../runtime/browser.js'),'utf8'),photoContext);
+  const cutout=await photoContext.window.ClosetLintRuntime.removeBackground('saved-photo','c-ring');
+  assert.deepEqual(photoRequests,[{photoId:'saved-photo',pieceId:'c-ring'}]);
+  assert.equal(cutout.processing,'rembg-isnet-general-use-mask','server model identity reaches photo review');
   // A temporary autosave failure must recover without leaving flush permanently blocked.
   function boardFixture(){
     const state={failures:0,status:0,writes:[],notices:[],timers:new Map(),events:{},serial:0};

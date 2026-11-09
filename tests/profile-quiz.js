@@ -1,0 +1,44 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const profile=fs.readFileSync(__dirname+'/../app/scripts/profile.js','utf8'),comfort=fs.readFileSync(__dirname+'/../app/scripts/comfort-zone.js','utf8');
+function el(tag,attrs,...children){return {tag,...attrs,children:children.flat(Infinity).filter(x=>x!=null),appendChild(child){this.children.push(child);return child}}}
+function all(node){return [node,...(node.children||[]).filter(n=>typeof n==='object').flatMap(all)]}
+const bookmarks=new Map(),ctx={Date,el,state:{profile:{}},todayStr:()=> '2026-11-03',toast:()=>assert.fail('unexpected toast'),sessionStorage:{getItem:key=>bookmarks.get(key)??null,setItem:(key,value)=>bookmarks.set(key,value),removeItem:key=>bookmarks.delete(key)}};
+vm.createContext(ctx);vm.runInContext(comfort,ctx);
+function fn(name){var start=profile.indexOf('function '+name+'(');return profile.slice(start,profile.indexOf('\nfunction ',start+1))}
+vm.runInContext(['profileQuizChoice','profileQuizOpen','profileQuizCard','profileButton','profileCardHeader'].map(fn).join('\n'),ctx);
+ctx.window={ClosetLintLocal:{instance:'test-wardrobe'}};ctx.comfortRender=()=>{};ctx.comfortFocus=()=>{};ctx.openProfile=tab=>{ctx.comfortPark();ctx.destination=tab};
+const C=ctx.ClosetLintComfort,answer=value=>({version:1,status:'answered',value}),skip={version:1,status:'skipped'};
+const before=JSON.stringify(ctx.state),picks=Array.from({length:C.topics.length},(_,i)=>ctx.profileQuizChoice('2026-11-'+String(i+1).padStart(2,'0')).topic.id);
+assert.equal(new Set(picks).size,C.topics.length,'all current topics rotate through local calendar days');
+assert.equal(ctx.profileQuizChoice('2026-11-01').topic.id,ctx.profileQuizChoice('2026-11-01').topic.id,'refresh stable');
+assert.notEqual(ctx.profileQuizChoice('2026-11-01').topic.id,ctx.profileQuizChoice('2026-11-02').topic.id,'DST does not repeat a day');
+let card=ctx.profileQuizCard(),choice=ctx.profileQuizChoice(ctx.todayStr());
+assert(all(card).some(n=>n.text===choice.topic.name));assert.equal(all(card).find(n=>n.class==='almanac-quiz-question').text,choice.topic.questions[0].title);assert(!all(card).some(n=>n.text===choice.topic.intro));assert(all(card).some(n=>n.text===choice.topic.questions.length+' quick rounds'));
+all(card).find(n=>n.text==='Start quiz').onclick();assert.equal(ctx.destination,'comfort');assert.equal(ctx.comfortSession.topic,choice.topic.id);assert.equal(ctx.comfortSession.index,0);
+assert.equal(JSON.stringify(ctx.state),before,'opening/rendering never writes or invents quiz answers');
+ctx.comfortPaused={};ctx.comfortSession=null;bookmarks.clear();
+ctx.state.profile={'comfort-room':answer('roomy'),'comfort-stretch':skip};
+assert.equal(ctx.profileQuizChoice('2026-11-03').topic.id,'fabric','unfinished started quiz takes priority');
+card=ctx.profileQuizCard();assert(all(card).some(n=>n.text==='1 of 5 answered · 1 skipped'));assert.equal(all(card).filter(n=>n.class==='comfort-progress-answered').length,1);assert.equal(all(card).filter(n=>n.class==='comfort-progress-skipped').length,1);
+all(card).find(n=>n.text==='Continue quiz').onclick();assert.equal(ctx.comfortSession.index,1,'resume first unreviewed question');
+ctx.comfortSession.draft='soft';ctx.comfortPark();card=ctx.profileQuizCard();all(card).find(n=>n.text==='Continue quiz').onclick();assert.equal(ctx.comfortSession.draft,'soft','preserve paused unsaved visual/choice draft');
+ctx.comfortPark();ctx.comfortPaused={};card=ctx.profileQuizCard();all(card).find(n=>n.text==='Continue quiz').onclick();assert.equal(ctx.comfortSession.index,1,'resume stored place after reload');
+ctx.comfortSession=null;ctx.comfortPaused={};bookmarks.clear();ctx.comfortBookmark('fabric',4);
+card=ctx.profileQuizCard();const teaser=all(card).find(n=>n.class==='almanac-quiz-question');assert.equal(teaser.text,C.question('drape').title,'first unreviewed question, not later bookmark');teaser.onclick();assert.equal(ctx.comfortSession.index,1,'teaser opens the exact displayed question');
+ctx.comfortSession=null;ctx.comfortPaused={fabric:{topic:'fabric',index:4,draft:{neck:'hard'},initial:'null'}};ctx.window.confirm=()=>false;
+ctx.profileQuizOpen('fabric',1);assert.equal(ctx.comfortPaused.fabric.draft.neck,'hard','cancel preserves a different unfinished draft');assert.equal(ctx.comfortSession,null);
+ctx.window.confirm=()=>true;ctx.profileQuizOpen('fabric',1);assert.equal(ctx.comfortSession.index,1,'confirmed switch opens the teased question');
+ctx.comfortSession=null;ctx.comfortPaused={};bookmarks.clear();
+ctx.state.profile=Object.fromEntries(C.topics[0].questions.map(q=>['comfort-'+q.id,skip]));
+for(let d=1;d<=8;d++)assert.notEqual(ctx.profileQuizChoice('2026-11-0'+d).topic.id,'fabric','all skipped counts as reviewed without nagging');
+ctx.state.profile=Object.fromEntries(C.questions.map(q=>['comfort-'+q.id,answer('any')]));
+assert.equal(ctx.profileQuizChoice(ctx.todayStr()),null);card=ctx.profileQuizCard();assert(all(card).some(n=>n.text==='All caught up, nice!'));assert(!all(card).some(n=>n.text==='Start quiz'||n.text==='Continue quiz'));
+const atmosphere=all(card).find(n=>n.tag==='button'&&n.text&&n.text.endsWith('See my atmosphere'));assert(atmosphere,'completed quizzes retain an atmosphere action');atmosphere.onclick();assert.equal(ctx.destination,'comfort');
+all(card).find(n=>n.text==='All quizzes ↗').onclick();assert.equal(ctx.destination,'comfort');
+ctx.state.profile=Object.fromEntries(C.questions.map(q=>['comfort-'+q.id,skip]));assert.equal(ctx.profileQuizChoice(ctx.todayStr()),null);
+ctx.state.profile['comfort-room']={version:99,status:'answered',value:'close'};assert.equal(ctx.profileQuizChoice(ctx.todayStr()).topic.id,'fabric','invalid/cleared answer makes its topic available again');
+ctx.state.db={};ctx.setupLoaded={profile:false};card=ctx.profileQuizCard();assert(all(card).some(n=>n.text==='Reading your quiz progress…'));assert(!all(card).some(n=>n.text==='Start quiz'));ctx.setupLoaded.profile=true;
+assert(!all(ctx.profileQuizCard()).some(n=>n.text==='Reading your quiz progress…'));
+C.topics.push({id:'future',name:'Future quiz',intro:'New questions',emoji:'✨',questions:[{id:'future-question'}]});ctx.state.profile=Object.fromEntries(C.questions.map(q=>['comfort-'+q.id,answer('any')]));assert.equal(ctx.profileQuizChoice(ctx.todayStr()).topic.id,'future','new topics need no Almanac hardcoding');C.topics.pop();
+assert(!profile.includes('profileQuizPlaceholder'),'live card replaces the placeholder');
+console.log('Almanac quizzes: daily rotation, started priority, live progress, no assumed answers, draft/bookmark resume, skipped/completed states, loading, exact question teasers, draft protection, and navigation pass.');

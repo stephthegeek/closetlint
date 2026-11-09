@@ -185,7 +185,7 @@
     },
     {
       "id": "holiday-themed",
-      "tag": "Holiday-themed",
+      "tag": "Holiday-Themed",
       "house": "bright",
       "sky": {
         "x": 0.715,
@@ -211,7 +211,7 @@
     },
     {
       "id": "y2k",
-      "tag": "Y2k",
+      "tag": "Y2K",
       "house": "bright",
       "sky": {
         "x": 0.91,
@@ -250,7 +250,7 @@
     },
     {
       "id": "dark-academia",
-      "tag": "Dark academia",
+      "tag": "Dark Academia",
       "house": "scholar",
       "sky": {
         "x": 0.453,

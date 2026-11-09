@@ -65,8 +65,6 @@ The app limits full backup archives to 512 MiB and individual uploaded photos to
 
 Full backups exclude browser-only unfinished work, optional photo tool installations, and separate AI assistant working files. Finish or preserve those separately before moving.
 
-## Manual update and rollback checklist
+## Updating
 
-Back up and keep the previous app package. Deploy the new code with the same private data folder and hosting settings, then refresh and check saving, photos, and access protection. For recovery, preserve newer work and use the previous app with a separately restored pre-update backup.
-
-See [updating](GETTING-STARTED.md#updating-and-moving) for moving or reverting installations, and the [adapter reference](../deploy/siteground/README.md) for deployment details.
+Back up, deploy the new code with the same private data folder and hosting settings, then refresh and check saving, photos, and access protection. See the [adapter reference](../deploy/siteground/README.md) for maintenance and recovery details.

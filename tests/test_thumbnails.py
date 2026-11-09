@@ -119,6 +119,36 @@ class ThumbnailTests(unittest.TestCase):
             self.assertIsNone(cache.wait_for(self.asset_id, ('application/json', b'{}')))
         cache.close()
 
+    def test_cold_wait_hashes_original_once(self):
+        cache = self.cache()
+        cache.running = True
+        with patch.object(cache, 'path', wraps=cache.path) as path:
+            self.assertIsNone(cache.wait_for(self.asset_id, ('image/png', PNG), timeout=.12))
+        self.assertEqual(path.call_count, 1, 'polling must reuse the same source digest')
+        cache.close()
+
+    def test_restore_or_deletion_during_cold_wait_never_serves_old_preview(self):
+        for change in ('restore', 'delete'):
+            cache = self.cache()
+            cache.running = True
+            target = cache.path(self.asset_id, PNG)
+            def interrupt():
+                cache.folder.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(WEBP)
+                if change == 'restore':
+                    cache.refresh()
+                else:
+                    cache.discard([self.asset_id])
+            timer = threading.Timer(.02, interrupt)
+            timer.start()
+            try:
+                with self.subTest(change=change):
+                    self.assertIsNone(cache.wait_for(self.asset_id, ('image/png', PNG)))
+            finally:
+                timer.join()
+                cache.close()
+            target.unlink(missing_ok=True)
+
     def test_failed_or_missing_codec_and_timeout_keep_original_available(self):
         for result in (SimpleNamespace(returncode=3), SimpleNamespace(returncode=1)):
             cache = self.cache()

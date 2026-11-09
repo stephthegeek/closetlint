@@ -27,7 +27,7 @@ def main():
     contents = {str(p.relative_to(ROOT)): p.read_bytes() for p in files}
     contents.pop('package-lock.json', None)
     contents['package.json'] = (json.dumps({
-        'name': 'closetlint-personal-host', 'version': '0.0.2', 'private': True,
+        'name': 'closetlint-personal-host', 'version': json.loads((ROOT / 'package.json').read_text())['version'], 'private': True,
         'main': 'server.cjs', 'engines': {'node': '>=22'},
         'scripts': {'build': 'node --check deploy/siteground/gateway.cjs', 'start': 'node server.cjs'},
     }, indent=2) + '\n').encode()

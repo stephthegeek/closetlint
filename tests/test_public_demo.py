@@ -49,6 +49,14 @@ class PublicDemoTests(unittest.TestCase):
         target = self.root / 'site'
         self.assertEqual(build(self.store, self.review, target), 12)
         page = (target / 'index.html').read_text()
+        from server import quiz_photo_files
+        expected = quiz_photo_files()
+        self.assertEqual({p.name for p in (target / 'assets/quiz-photos').iterdir()}, set(expected))
+        for name, source in expected.items():
+            self.assertEqual((target / 'assets/quiz-photos' / name).read_bytes(), source.read_bytes())
+        photos = json.loads(re.search(r'var ClosetLintQuizPhotos=(.*?);\n', page).group(1))
+        self.assertTrue(all(sheet['src'].startswith('assets/quiz-photos/') for sheet in photos.values()))
+
         for secret in ('PRIVATE PRESCRIPTION', 'PRIVATE ORDER TITLE', 'PRIVATE BRA',
                        'example.test/account', '2026-10-19', '123.45'):
             self.assertNotIn(secret, page)

@@ -3,6 +3,8 @@ var ClosetLintIcons=(function(){
  'use strict';
  var choices={"NEW-stashed":{"shared":"🗄️","ribbon":"🗄️","utility":"🗄️","oddments":"🗄️"},"E027":{"shared":"📦","ribbon":"📦","utility":"📦","oddments":"📦"},"E001":{"shared":"👕","ribbon":"👚","utility":"👖","oddments":"👕"},"E002":{"shared":"👟","ribbon":"👠","utility":"👞","oddments":"👟"},"E003":{"shared":"💍","ribbon":"💍","utility":"📿","oddments":"💎"},"E006":{"shared":"👗","ribbon":"👗","utility":"👔","oddments":"🧥"},"E007":{"shared":"🧑‍🔬","ribbon":"👩‍🔬","utility":"👨‍🔬","oddments":"🧪"},"E013":{"shared":"🪄","ribbon":"🪄","utility":"🪄","oddments":"🪄"},"E014":{"shared":"🪄","ribbon":"🪄","utility":"🪄","oddments":"🪄"},"E026":{"shared":"🎁","ribbon":"🎁","utility":"🎁","oddments":"🎁"},"E030":{"shared":"📐","ribbon":"📐","utility":"📐","oddments":"📐"},"E031":{"shared":"🚀","ribbon":"🚀","utility":"🚀","oddments":"🚀"},"E059":{"shared":"🖼️","ribbon":"🖼️","utility":"🖼️","oddments":"🖼️"},"NEW-accessorize":{"shared":"🖌️","ribbon":"🖌️","utility":"🖌️","oddments":"🖌️"},"NEW-setup-wizard":{"shared":"🧙","ribbon":"🧙‍♀️","utility":"🧙‍♂️","oddments":"🧙"},"NEW-trip-fairy":{"shared":"🧚","ribbon":"🧚‍♀️","utility":"🧚‍♂️","oddments":"🧚"},"NEW-wishlist-other":{"shared":"👜","ribbon":"👜","utility":"🎒","oddments":"🧳"}};
  function get(key,pack){var row=choices[key];return row&&(row[{femme:'ribbon',masc:'utility',other:'oddments'}[pack]]||row.shared)||''}
+ var categories={"Tops":["👚","👕","👕"],"Bottoms":["👖"],"One-pieces":["👗","🧍","🧍"],"Outerwear":["🧥"],"Underwear":["🩲"],"Swimwear":["👙","🩳","🩳"],"Loungewear":["🛋️"],"Activewear":["🎽"],"Costumes":["🎭"],"Footwear":["👠","👞","👟"],"Legwear":["🧦"],"Hats":["👒","🧢","🧢"],"Bags":["👜","🎒","🎒"],"Hair accessories":["🎀","🪮","🪮"],"Glasses":["👓"],"Other accessories":["🧣"],"Jewelry":["💍","📿","💎"],"Watches":["⌚"],"Workwear & uniforms":["🦺"],"Cultural & traditional garments":["🌐"],"Lingerie":["👙"]};
+ function category(meta,pack){var row=categories[meta];return row&&(row[{femme:0,masc:1,other:2}[pack]]||row[0])||''}
  function key(glyph,label,classes){
   if(['🧑‍🔬','👩‍🔬','👨‍🔬'].indexOf(glyph)>=0)return 'E007';
   if(['🧙','🧙‍♀️','🧙‍♂️'].indexOf(glyph)>=0&&!/trip wizard/i.test(label))return 'NEW-setup-wizard';
@@ -68,9 +70,11 @@ var ClosetLintIcons=(function(){
   heart:'M12 21L3 12A5.5 5.5 0 0 1 12 4a5.5 5.5 0 0 1 9 8z',
   diamond:'M12 2l10 10-10 10L2 12z M12 7v10 M7 12h10',
   flower:'M12 22V10 M12 17C5 17 4 12 4 12c6 0 8 5 8 5 M12 14c6 0 8-5 8-5-6 0-8 5-8 5 M9 3a3 3 0 0 1 6 0a3 3 0 0 1 3 5a3 3 0 0 1-6 3a3 3 0 0 1-6-3a3 3 0 0 1 3-5',
+  agenda:'M4 5h2v2H4z M10 6h10 M4 11h2v2H4z M10 12h10 M4 17h2v2H4z M10 18h10',
+  calendar:'M4 5h16v16H4z M4 10h16 M8 3v4 M16 3v4 M8 14h2 M14 14h2 M8 17h2 M14 17h2',
   city:'M3 21V3h18v18z M7 7h2 M15 7h2 M7 11h2 M15 11h2 M10 21v-6h4v6'
  };
- var glyphs={'🔤':'text','🖼':'image','🧹':'arrange','🎨':'palette','☰':'menu','★':'star','☆':'star','☑':'select','☐':'select','⚙':'settings','↔':'flip-x','↕':'flip-y','↻':'refresh','↺':'undo','⟳':'refresh','⟲':'undo','🔄':'refresh','🔃':'refresh','🔁':'refresh','↑':'arrow-up','↓':'arrow-down','←':'arrow-left','→':'arrow-right','↗':'external','⬆':'arrow-up','⬇':'arrow-down','➡':'arrow-right','⬅':'arrow-left','↩':'undo','🔽':'chevron-down','🔼':'chevron-up','‹':'chevron-left','›':'chevron-right','▾':'chevron-down','▴':'chevron-up','▸':'chevron-right','◂':'chevron-left','➕':'plus','＋':'plus','+':'plus','➖':'minus','−':'minus','×':'close','✕':'close','✖':'close','✗':'close','✓':'check','✔':'check','✅':'check','✂':'scissors','✏':'edit','📷':'camera','📸':'camera','📋':'copy','🔗':'link','📥':'download','📤':'upload','🔍':'search','🔎':'search','🖨':'print','⛶':'expand','⤢':'expand'};
+ var glyphs={'🔤':'text','🖼':'image','🧹':'arrange','🎨':'palette','☰':'menu','★':'star','☆':'star','☑':'select','☐':'select','⚙':'settings','↔':'flip-x','↕':'flip-y','↻':'refresh','↺':'undo','⟳':'refresh','⟲':'undo','🔄':'refresh','🔃':'refresh','🔁':'refresh','↑':'arrow-up','↓':'arrow-down','←':'arrow-left','→':'arrow-right','↗':'external','⬆':'arrow-up','⬇':'arrow-down','➡':'arrow-right','⬅':'arrow-left','↩':'undo','🔽':'chevron-down','🔼':'chevron-up','‹':'chevron-left','›':'chevron-right','▾':'chevron-down','▴':'chevron-up','▸':'chevron-right','◂':'chevron-left','➕':'plus','＋':'plus','+':'plus','➖':'minus','−':'minus','×':'close','✕':'close','✖':'close','✗':'close','✓':'check','✔':'check','✅':'check','✂':'scissors','📷':'camera','📸':'camera','📋':'copy','🔗':'link','📥':'download','📤':'upload','🔍':'search','🔎':'search','🖨':'print','⛶':'expand','⤢':'expand'};
  function utility(glyph,label){
   var raw=String(glyph).replace(/[\uFE0E\uFE0F]/g,'');
   if(raw==='📷'&&/has photo/i.test(label||'')||raw==='🖼'&&/export image/i.test(label||''))return '';
@@ -88,6 +92,9 @@ var ClosetLintIcons=(function(){
   [['viewBox','0 0 24 24'],['width','20'],['height','20'],['fill','none'],['stroke','currentColor'],['stroke-width','1.8'],['stroke-linecap','round'],['stroke-linejoin','round'],['focusable','false']].forEach(function(a){svg.setAttribute(a[0],a[1])});
   path.setAttribute('d',paths[name]);svg.appendChild(path);span.appendChild(svg);return span;
  }
+ function imageExportIcon(){
+  var wrap=document.createElement('span'),emoji=document.createElement('span');wrap.className='image-export-icon';wrap.setAttribute('aria-hidden','true');emoji.className='button-emoji image-export-emoji';emoji.textContent='🖼️';wrap.appendChild(emoji);wrap.appendChild(node('image'));return wrap;
+ }
  function draw(ctx,name,x,y,size,color){
   ctx.save();ctx.translate(x,y);ctx.scale(size/24,size/24);ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke(new Path2D(paths[name]));ctx.restore();
  }
@@ -97,13 +104,16 @@ var ClosetLintIcons=(function(){
   var nodes=Array.from(control.querySelectorAll('.button-emoji,.emo,.menu-emoji,.setup-option-icon,.control-emoji'));
   if(control.matches&&control.matches('.control-emoji'))nodes.unshift(control);
   nodes.forEach(function(icon){
+   if(icon.closest&&icon.closest('[data-ui-emoji],[data-native-emoji],[data-user-content]'))return;
+   var meta=icon.getAttribute('data-category-icon');if(meta){var glyph=category(meta,pack);if(icon.textContent!==glyph)icon.textContent=glyph;return}
+   if(icon.closest&&icon.closest('.image-export-icon'))return;
    if(icon.querySelector&&icon.querySelector('.control-svg'))return;
-   var name=utility(icon.textContent,label);
+   var name=control.id==='editbtn'?'edit':utility(icon.textContent,label);
    if(name&&control.matches&&control.matches('button,a.btn,[role="menuitem"],.rot,.prot')){icon.textContent='';icon.appendChild(node(name));icon.classList.remove('text-symbol');icon.classList.add('utility-icon');return}
    var id=icon.getAttribute('data-control-icon')||key(icon.textContent,label,control.className),value=get(id,pack);
    if(!value)return;icon.setAttribute('data-control-icon',id);if(icon.textContent!==value)icon.textContent=value;
   });
  }
- return {get:get,key:key,apply:apply,utility:utility,node:node,draw:draw,paths:paths};
+ return {category:category,get:get,key:key,apply:apply,utility:utility,node:node,imageExportIcon:imageExportIcon,draw:draw,paths:paths};
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=ClosetLintIcons;

@@ -173,11 +173,11 @@ function oracleRuntime(){return window.ClosetLintRuntime||null}
 function oracleHosted(s){return !!(s&&s.access&&s.access.hosted||window.ClosetLintLocal&&window.ClosetLintLocal.hosted)}
 function oracleAccessStatus(s){
   var hosted=oracleHosted(s);
-  if(s.accessBusy)return hosted?'Checking hosted installation…':'Checking local access…';
+  if(s.accessBusy)return hosted?'Checking hosted installation…':'Checking local installation…';
   if(s.accessError)return s.accessError;
-  if(!s.access)return hosted?'Hosted installation has not been checked.':'Local access has not been checked.';
-  var label=hosted?'Hosted installation':'Local access';
-  return (s.access.verified?'✓ '+label+' verified':label+' not previously verified')+' · '+s.access.computer;
+  if(!s.access)return hosted?'Hosted installation has not been checked.':'Local installation has not been checked.';
+  var label=hosted?'Hosted installation':'Local installation';
+  return ('✓ '+label+' identity checked')+' · '+s.access.computer;
 }
 async function oracleLoadAccess(){
   var s=oracleSession,runtime=oracleRuntime();if(!s||s.accessBusy)return;
@@ -188,18 +188,18 @@ async function oracleLoadAccess(){
     var info=await runtime.oracleAccess();if(oracleSession!==s)return;
     if(window.ClosetLintLocal&&info.instance!==window.ClosetLintLocal.instance)throw Error('The wardrobe changed. Reopen the original installation.');
     info=Object.assign({},info,{hosted:!!(info.hosted||window.ClosetLintLocal&&window.ClosetLintLocal.hosted)});if(info.hosted&&!info.origin&&window.location)info.origin=window.location.origin;
-    s.access=info;if(info.verified&&!info.hosted&&!s.routeTouched&&s.step==='ask')s.route='local';
-  }catch(e){if(oracleSession===s){s.access=null;s.prepared=null;s.accessError=e.status===404?'Update or restart the wardrobe service to enable assistant requests, or use the download option.':e.message||'Could not check wardrobe access. Retry or download a summary.'}}
+    s.access=info;
+  }catch(e){if(oracleSession===s){s.access=null;s.accessError=e.status===404?'Update or restart the wardrobe service to enable assistant requests, or use the download option.':e.message||'Could not check wardrobe access. Retry or download a summary.'}}
   finally{if(oracleSession===s){s.accessBusy=false;drawOracle(true)}}
 }
 function oracleRoutes(body){
   var s=oracleSession,local=setupStorage().direct,route=el('fieldset',{class:'oracle-fieldset oracle-routes'},el('legend',{text:'How would you like to continue?'}));if(!local)s.route='chat';
   function choice(value,label,help){var radio=oracleRadio('oracle-route-'+value,'oracle-route',label,s.route===value,function(){s.route=value;s.routeTouched=true;try{localStorage.setItem(oracleRouteKey(),value)}catch(e){}s.message='';drawOracle(true)});radio.classList.add('oracle-route-choice');radio.lastChild.appendChild(el('span',{class:'oracle-route-help',text:help}));return radio}
   if(local){
-    route.appendChild(choice('local',oracleHosted(s)?'Use an assistant with server access':'Use my local assistant',oracleHosted(s)?'Requires an assistant with approved SSH access to this hosting server.':'Read the chosen context with one request in your local assistant conversation.'));
+    route.appendChild(choice('local',oracleHosted(s)?'Use an assistant with server access':'Use my local assistant',oracleHosted(s)?'Use an AI assistant with approved SSH access to the server running this closet.':'Use an AI assistant with file access to the computer running this closet.'));
     route.appendChild(el('p',{class:'fine oracle-access',role:'status',text:oracleAccessStatus(s)}));
-    if(s.access)route.appendChild(el('p',{class:'fine',text:oracleHosted(s)?'This checks the hosted installation, not your assistant’s SSH access. Use downloads unless your assistant already has an approved connection.':s.access.verified?'Verified for this installation during setup. Each request checks the wardrobe identity again.':'Your request will check this wardrobe before reading. Allow local folder access in your assistant if prompted.'}));
-    var recheck=oracleButton('Recheck access',oracleLoadAccess);recheck.disabled=!!s.accessBusy;route.appendChild(recheck);
+    if(s.access)route.appendChild(el('p',{class:'fine',text:'This checks the wardrobe identity. Selecting this option does not connect your AI assistant. Use downloads unless it already has '+(oracleHosted(s)?'approved SSH access to this server.':'file access to this computer.')}));
+    var recheck=oracleButton('Recheck installation',oracleLoadAccess);recheck.disabled=!!s.accessBusy;route.appendChild(recheck);
   }
   route.appendChild(choice('chat','Download for an AI chat','Save a summary and optional photos to attach in ChatGPT, Claude, or another chat.'));
   route.appendChild(oracleButton('Help me choose',function(){s.guideBack=s.step;s.step='guide';drawOracle()}));body.appendChild(route);
@@ -233,9 +233,9 @@ function oracleHandoff(body,actions){
     var photoIds=oracleLocalPhotoIds(s);
     if(photoIds.length)body.appendChild(el('details',null,el('summary',{text:'Included photos · '+photoIds.length}),el('ul',null,...s.photoOptions.slice(0,12).map(function(p){return el('li',{text:p.title})}))));
     body.appendChild(el('p',{class:'fine',text:'Preparing saves a snapshot in this wardrobe’s private folder with your question, chosen details, and any selected photos. It does not change pieces or send anything to an AI service. Prepare a new summary after wardrobe changes.'}));
-    if(s.prepared){
+    if(s.prepared&&s.access&&!s.accessError&&s.prepared.instance===s.access.instance){
       var request=ClosetLintOracle.local(snap,photoIds.length>0,s.access,s.prepared);
-      body.append(el('section',{class:'setup-note'},el('h3',{text:'Your request is ready'}),el('p',{text:(oracleHosted(s)?'Paste it into the assistant conversation with approved SSH access to '+s.access.computer:'Paste it into your local assistant conversation on '+s.access.computer)+'. Your answer stays in that conversation.'}),oracleButton('Copy request for my assistant',function(){return oracleCopy(request,'oracle-prompt')},true),el('details',null,el('summary',{text:'Preview request'}),oracleTextArea('oracle-prompt',request))));
+      body.append(el('section',{class:'setup-note'},el('h3',{text:'My request'}),el('p',{text:(oracleHosted(s)?'Paste it into the assistant conversation with approved SSH access to '+s.access.computer:'Paste it into your local assistant conversation on '+s.access.computer)+'. Your answer stays in that conversation.'}),oracleButton('Copy request for my assistant',function(){return oracleCopy(request,'oracle-prompt')},true),el('details',null,el('summary',{text:'Preview request'}),oracleTextArea('oracle-prompt',request))));
     }else{
       var prepare=oracleButton(s.localBusy?'Preparing…':oracleHosted(s)?'Prepare hosted request':'Prepare local request',oraclePrepareLocal,true);prepare.disabled=!!s.localBusy||!s.access||s.accessBusy;body.appendChild(prepare);
     }
@@ -251,7 +251,7 @@ function oracleHandoff(body,actions){
     var downloads=el('div',{class:'oracle-inline'},oracleButton('Download wardrobe summary',oracleDownloadContext,true));if(s.photos){var photoButton=oracleButton('Download '+s.photoIds.length+' photos',oracleDownloadPhotos);photoButton.disabled=!s.photoIds.length;downloads.appendChild(photoButton)}
     body.append(el('ol',{class:'oracle-share-steps'},el('li',null,el('h3',{text:'Save your wardrobe summary'}),el('p',{text:'This text file contains the pieces and details you chose. Download any selected photos too.'}),downloads,el('p',{class:'fine',text:'closet-context-'+snap.date+'.md · '+snap.pieces.length+' pieces'})),el('li',null,el('h3',{text:'Copy your question'}),el('p',{text:'This also copies a short explanation to help your assistant use the wardrobe summary.'}),oracleButton('Copy question for my AI chat',function(){return oracleCopy(oraclePromptText(s),'oracle-prompt')}),el('details',null,el('summary',{text:'See what will be copied'}),oracleTextArea('oracle-prompt',oraclePromptText(s)))),el('li',null,el('h3',{text:'Open your AI chat'}),el('p',{text:'Use the chat’s attach or upload button to add your wardrobe summary and any photos. Paste the copied question, and send.'}))),el('details',{class:'oracle-text-alternative'},el('summary',{text:'Prefer to paste a shorter summary?'}),el('p',{text:'Copy a shorter wardrobe summary together with your question. Paste it directly into your AI chat. It includes titles, categories, and tags, but no photos, outfits, trips, sizes, wear history, purchase details, or notes.'}),oracleButton('Copy summary as text',function(){return oracleCopy(ClosetLintOracle.compact(snap))})));
   }
-  body.append(el('div',{id:'oracle-copy-fallback',hidden:true,class:'setup-note'}),el('div',{id:'oracle-downloaded',hidden:true,class:'setup-note'}),el('p',{class:'fine',text:'You’ll finish in your AI assistant. Closet Lint prepares the files and text; it doesn’t send them for you.'}),el('p',{class:'fine',text:'Done saves only the date, chosen group, and piece count as a reminder in this browser. Your question and closet content are not stored in that reminder.'}));if(s.downloaded)oracleDownloadedNote(s);
+  body.append(el('div',{id:'oracle-copy-fallback',hidden:true,class:'setup-note'}),el('div',{id:'oracle-downloaded',hidden:true,class:'setup-note'}),el('p',{class:'fine',text:'After you send the request, continue in your AI assistant conversation. Your answer stays there; there is nothing to upload or check back here. Closet Lint does not send the request for you.'}),el('p',{class:'fine',text:'You can choose Done once you’ve sent the request. Returning to Ask the Oracle lets you prepare a new summary; only the previous date, group, and piece count are remembered in this browser.'}));if(s.downloaded)oracleDownloadedNote(s);
   actions.append(oracleButton('Back',function(){if(s.busy||s.localBusy)return;s.step='ask';s.prepared=null;s.message='';drawOracle()}),oracleButton('Done',function(){if(s.busy||s.localBusy)return;oracleRemember(s);if(oracleClose()!==false)oracleSession=null},true));
   if(s.localBusy)actions.querySelectorAll('button').forEach(function(button){button.disabled=true});
 }

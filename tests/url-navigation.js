@@ -21,3 +21,14 @@ const missing=c.createClosetHistory({history:otherHistory,location:missingLocati
 console.log('URL history: parser, deep links, cancel/restore Back, Forward, filters/scroll, branching, safe missing routes, and no history writes on rejected navigation pass.');
 
 assert.equal(c.parseClosetRoute('#/sky/extra'),null,'Sky is a page, not an arbitrary record route');
+
+c.COLORS={black:'#1b1b1b','hot pink':'#ff2e93'};
+assert.equal(c.closetRouteHash({type:'closet',category:'all',color:'hot pink'}),'#/closet?color=hot%20pink');assert.equal(c.parseClosetRoute('#/closet?color=hot%20pink').color,'hot pink');assert.equal(c.parseClosetRoute('#/closet?color=not-a-color'),null);
+console.log('Color search links encode known color names and reject unknown filters.');
+const photoRoute='#/assistant/photos/batch-123?instance=wardrobe&workflow=file';
+assert.equal(c.closetRouteHash(c.parseClosetRoute(photoRoute)),photoRoute);
+for(const route of ['#/assistant/photos/a','#/assistant/photos/%2F?instance=w&workflow=file','#/assistant/photos/a?instance=w&workflow=bad','#/assistant/photos/a?instance=&workflow=local'])assert.equal(c.parseClosetRoute(route),null);
+c.window={location:{href:'https://closet.example/app?private=value#/old'}};
+assert.match(c.assistantHandoffReturnText('import','Check import'),/https:\/\/closet.example\/app#\/import/);
+assert(!c.assistantHandoffReturnText('import','Check import').includes('private=value'));
+console.log('Assistant return routes: exact request/instance/workflow, malformed-link rejection, and clean workspace URLs pass.');

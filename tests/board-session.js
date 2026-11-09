@@ -39,3 +39,39 @@ console.log('Board session: detached draft/save/recovery copies, saved-record is
  state.board={pieces:[{id:'b'}]};timer();assert.equal(ghosts,0,'an expired long-press cannot create a ghost on the next board');events.pointermove({pointerId:1,clientX:20,clientY:20});assert.equal(old.pieces[0].px,undefined);events.pointerup({pointerId:1});assert.equal(persists,0);
 }
 console.log('Board gestures: owning-pointer edits, stale-board isolation, delayed collage callbacks, and listener cleanup pass.');
+// Whole-outfit deletion uses the actual session module and saved-record Undo helper.
+(async()=>{
+ const clone=v=>JSON.parse(JSON.stringify(v));
+ function deletionFixture(saved){
+  const board={id:saved?'look':null,name:'Review outfit',pieces:[{id:'a',x:1,y:2,w:30,z:1}],notes:'Unsaved note'};
+  const state={board,boardKey:saved?'outfit:look':'draft:review',boardDrafts:[],capsDone:true,outfits:{},outfitHistory:{}};
+  const records={outfits:{},outfitHistory:{}};if(saved){records.outfits.look={...clone(board),notes:'Saved note',wearLog:[{d:'2026-11-01',ids:['a']}]};state.outfits=clone(records.outfits)}
+  const actions=[],writes=[],messages=[];let confirmation,fail='',blocked;
+  state.db={collection:col=>({doc:id=>({set:async value=>{writes.push(['set',col,id]);if(fail===col+'.set')throw Error('Synthetic disk full');records[col][id]=clone(value)},delete:async()=>{writes.push(['delete',col,id]);if(blocked)await blocked;if(fail===col+'.delete')throw Error('Synthetic offline');delete records[col][id]}})})};
+  const ctx={state,window:{ClosetLintRuntime:{setBoard:value=>records.board=clone(value)}},$:()=>null,toast:m=>messages.push(m),toastAct:(m,l,callback)=>actions.push({m,l,callback}),askConfirm:(m,l,callback)=>confirmation=callback,renderBoard(){},paintOMeta(){},console};
+  vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+'/../app/scripts/board-session.js','utf8'),ctx);
+  const html=fs.readFileSync(__dirname+'/../app/closet-lint.html','utf8'),start=html.indexOf('function deleteSavedDocument(');vm.runInContext(html.slice(start,html.indexOf('\nfunction ',start+1)),ctx);ctx.paintBoardSaveStatus=()=>{};
+  return {ctx,state,records,actions,writes,messages,confirm:()=>confirmation(),hasConfirmation:()=>!!confirmation,setFail:v=>fail=v,setBlock:v=>blocked=v};
+ }
+ for(const saved of [false,true]){
+  const f=deletionFixture(saved),{ctx,state}=f,original=clone(state.board),key=state.boardKey;
+  state.boardDrafts=[{key,board:clone(original)},{key:'draft:other',board:{name:'Keep',pieces:[]}}];
+  ctx.deleteBoardOutfit();assert(f.hasConfirmation());assert.equal(state.board.name,original.name,'opening confirmation does not delete');assert.equal(f.writes.length,0);
+  await f.confirm();assert.equal(state.board.pieces.length,0);assert.equal(state.boardDrafts.length,1);assert.equal(state.boardDrafts[0].key,'draft:other');assert.equal(f.records.board.pieces.length,0,'empty board is persisted');
+  if(saved){assert.equal(f.records.outfits.look,undefined);assert.equal(f.records.outfitHistory.look.wearLog.length,1,'recorded wear survives outfit deletion');assert.deepEqual(f.writes.slice(0,2),[['set','outfitHistory','look'],['delete','outfits','look']]);f.setFail('outfits.set');await f.actions.at(-1).callback();assert.equal(f.actions.at(-1).l,'Retry');assert.equal(state.board.pieces.length,0);f.setFail('')}
+  await f.actions.at(-1).callback();assert.equal(JSON.stringify(state.board),JSON.stringify(original),'Undo restores unsaved board edits as well as the saved record');assert(state.boardDrafts.some(d=>d.key===key));assert.equal(f.records.board.name,original.name);
+  if(saved){assert.equal(f.records.outfits.look.notes,'Saved note');assert.equal(state.board.notes,'Unsaved note')}
+ }
+ for(const fail of ['outfitHistory.set','outfits.delete']){
+  const f=deletionFixture(true),before=JSON.stringify(f.state.board);f.setFail(fail);f.ctx.deleteBoardOutfit();await f.confirm();assert.equal(JSON.stringify(f.state.board),before);assert(f.records.outfits.look,'failure preserves saved outfit');assert.equal(f.state.boardSaving,false);assert.equal(f.actions.length,0);
+ }
+ for(const saved of [false,true]){
+  const f=deletionFixture(saved);f.ctx.deleteBoardOutfit();f.state.board.notes='New edit';await f.confirm();assert.equal(f.writes.length,0,'stale confirmation cannot delete newer edits');
+  f.ctx.deleteBoardOutfit();await f.confirm();f.state.board.name='Newer work';f.state.board.pieces.push({id:'b',x:2,y:3,w:40,z:1});await f.actions.at(-1).callback();assert.equal(f.state.board.name,'Newer work','Undo never replaces newer board work');
+  assert(saved?f.records.outfits.look:f.state.boardDrafts.some(d=>d.board.name==='Review outfit'),'restored outfit remains reachable');
+ }
+ {
+  const f=deletionFixture(true);let release;f.setBlock(new Promise(r=>release=r));f.ctx.deleteBoardOutfit();const deleting=f.confirm();await Promise.resolve();await Promise.resolve();assert.equal(f.state.boardSaving,true);assert.equal(f.ctx.freshBoard(),false,'a pending delete blocks switching boards');release();await deleting;assert.equal(f.state.boardSaving,false);
+ }
+ console.log('Whole-outfit deletion: confirmation, stale edits, draft/saved Undo, preserved wear history, failed deletion/restore retry, newer work and pending-write guards pass.');
+})().catch(e=>{console.error(e);process.exitCode=1});

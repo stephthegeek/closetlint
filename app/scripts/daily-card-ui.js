@@ -20,8 +20,9 @@ var ClosetLintDailyUI=(function(){
   var day=todayStr(),old=memory||state.profile[key],instance=identity();
   var sameDay=old&&old.instance===instance&&old.card&&old.card.day===day,cachedPiece=old&&old.card&&old.card.pieceId&&allItems().find(function(p){return p.id===old.card.pieceId});
   var stalePiece=old&&old.card&&old.card.pieceId&&(!ClosetLintDaily.isActivePiece(cachedPiece)||old.card.type==='do'&&cachedPiece.stored);
-  if(old&&old.version===1&&old.instance===instance&&old.card&&old.card.day===day&&typeof old.card.text==='string'&&Object.prototype.hasOwnProperty.call(names,old.card.type)&&Array.isArray(old.card.colors)&&!stalePiece)return old;
-  var history=old&&old.instance===instance&&Array.isArray(old.history)?old.history.filter(function(h){var age=ClosetLintDaily.daysSince(h.day,day);return age!==null&&age<=30}).slice(-30):[];
+  var repeatsYesterday=old&&old.card&&Array.isArray(old.history)&&old.history.some(function(h){return h.day<day&&ClosetLintDaily.daysSince(h.day,day)===1&&h.type===old.card.type});
+  if(!repeatsYesterday&&old&&old.version===1&&old.instance===instance&&old.card&&old.card.day===day&&typeof old.card.text==='string'&&Object.prototype.hasOwnProperty.call(names,old.card.type)&&Array.isArray(old.card.colors)&&!stalePiece)return old;
+  var history=old&&old.instance===instance&&Array.isArray(old.history)?old.history.filter(function(h){var age=ClosetLintDaily.daysSince(h.day,day);return h.day<day&&age!==null&&age<=30}).slice(-30):[];
   var month=Number(day.slice(5,7)),season=month>=3&&month<=5?'spring':month>=6&&month<=8?'summer':month>=9&&month<=11?'fall':'winter';
   var card=ClosetLintDaily.generate({day:day,instance:instance,items:allItems(),season:season,history:state.pub?[]:history,lines:DAILY_LINES,outfits:Object.keys(state.outfits||{}).map(function(id){var o=state.outfits[id];return Array.isArray(o.pieces)?o.pieces.map(function(p){return typeof p==='string'?p:p.id}):[]})});
   var next={version:1,instance:instance,card:card,revealed:!!(sameDay&&old.revealed),dismissed:!!(sameDay&&old.dismissed),slots:{},history:history.concat({day:day,type:card.type,hash:card.hash,pieceId:card.pieceId}).slice(-30)};
@@ -53,7 +54,7 @@ var ClosetLintDailyUI=(function(){
   var frontFace=el('span',{class:'daily-face daily-front'});
   var item=card.pieceId&&byId()[card.pieceId];
   if(item&&!item.wish&&!item.hidden&&!item.removed&&!item.donate&&realPhoto(item))frontFace.appendChild(el('img',{src:item.photo,alt:'',class:'daily-photo',loading:'lazy'}));
-  if(card.colors&&card.colors.length){var swatches=el('span',{class:'daily-swatches'});card.colors.forEach(function(c){var swatch=el('span',{class:'daily-swatch',text:typeof colLabel==='function'?colLabel(c):c});var hex=typeof COLORS!=='undefined'&&COLORS[c];if(hex&&/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)){swatch.style.setProperty('--daily-color',hex);swatch.style.setProperty('--daily-ink',swatchInk(hex))}swatches.appendChild(swatch)});frontFace.appendChild(swatches)}
+  if(card.colors&&card.colors.length){var swatches=el('span',{class:'daily-swatches'});card.colors.forEach(function(c){var swatch=el('span',{class:'daily-swatch',text:typeof colLabel==='function'?colLabel(c):c});var hex=typeof COLORS!=='undefined'&&COLORS[c];if(hex&&/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)){swatch.style.background=colorTagPaint(c);swatch.style.setProperty('--daily-color',hex);swatch.style.setProperty('--daily-ink',swatchInk(hex))}swatches.appendChild(swatch)});frontFace.appendChild(swatches)}
   frontFace.appendChild(el('span',{class:'daily-line',text:card.text}));frontFace.appendChild(el('span',{class:'daily-signature',text:'— Linty'}));
   var flip=el('button',{type:'button',class:'daily-flip',onclick:function(){r.revealed=!r.revealed;persist(r);paint()}},el('span',{class:'daily-turn'},backFace,frontFace));
   var dismiss=el('button',{type:'button',class:'daily-dismiss','aria-label':'Dismiss Linty’s fortune until tomorrow',text:'×',onclick:function(){r.dismissed=true;persist(r);renderGrid()}});

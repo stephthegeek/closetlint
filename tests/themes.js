@@ -4,7 +4,7 @@ const source=fs.readFileSync(path.join(__dirname,'../app/closet-lint.html'),'utf
 const shell=source.split('/* ---------- Closet Lint shell behavior ---------- */')[1].split('/* ---------- end Closet Lint shell behavior ---------- */')[0];
 const icons=source.slice(source.indexOf('function applyThemeIcons('),source.indexOf('function initWardrobeMounts('));
 const nodes=new Map();function node(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',attrs:{},setAttribute(k,v){this.attrs[k]=v},removeAttribute(k){delete this.attrs[k]},querySelector(){return node(id+'-icon')}});return nodes.get(id)}
-const writes=[],ctx={$:node,document:{documentElement:node('root'),querySelector:()=>node('owned-icon')},localStorage:{getItem:()=>JSON.stringify({theme:'light',density:3}),setItem:(key,value)=>writes.push([key,JSON.parse(value)])},toast(){throw Error('Unexpected storage failure')}};
+const writes=[],ctx={$:node,document:{documentElement:node('root'),querySelector:()=>node('owned-icon'),querySelectorAll:()=>[]},localStorage:{getItem:()=>JSON.stringify({theme:'light',density:3}),setItem:(key,value)=>writes.push([key,JSON.parse(value)])},toast(){throw Error('Unexpected storage failure')}};
 vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../app/scripts/control-icons.js'),'utf8')+'\n'+shell+'\n'+icons,ctx);
 let prefs=ctx.readDisplayPrefs();assert.equal(prefs.theme,'light');assert.equal(prefs.density,3);assert.equal(prefs.skin,'workshop','existing view choices migrate to default Soft Hardware');
 ctx.applyDisplayPrefs({...prefs,skin:'fieldnotes',icons:'other',emoji:'grayscale',edge:'outline'});
@@ -66,7 +66,7 @@ const unrelatedBefore=[...browserData];
 ctx.localStorage={getItem:key=>browserData.get(key)||null,setItem:(key,value)=>browserData.set(key,value)};
 ctx.applyDisplayPrefs({theme:'dark',skin:'editorial',density:3,photo:'light',menuEmoji:false,emoji:'grayscale',edge:'outline',icons:'other',dailyCard:false,sizeReferenceName:'My usual UK size'});
 ctx.storeDisplayPrefs();
-ctx.resetDisplayPrefs();
+ctx.renderClosetTabSettings=()=>{};ctx.renderTabs=()=>{};ctx.resetDisplayPrefs();
 const resetPrefs=ctx.readDisplayPrefs();
 assert.equal(JSON.stringify(resetPrefs),JSON.stringify(ctx.cleanDisplayPrefs({sizeReferenceName:'My usual UK size'})));
 assert.deepEqual([...browserData].filter(([key])=>key!=='closetlint.display.v1'),unrelatedBefore);
@@ -82,16 +82,16 @@ ctx.storeDisplayPrefs();
 const storedBeforeFailure=browserData.get('closetlint.display.v1'),resetNotices=[];
 ctx.localStorage.setItem=()=>{throw Error('storage denied')};
 ctx.toast=message=>resetNotices.push(message);
-ctx.resetDisplayPrefs();
+ctx.renderClosetTabSettings=()=>{};ctx.renderTabs=()=>{};ctx.resetDisplayPrefs();
 assert.equal(node('root').attrs['data-theme'],undefined);
 assert.equal(browserData.get('closetlint.display.v1'),storedBeforeFailure);
 assert.match(node('display-prefs-status').textContent,/for this visit/);
 assert.equal(resetNotices.length,1);
 console.log('Display reset: defaults, preserved fit reference and unrelated data, reload, and storage-failure feedback passed.');
 
-// Browser-restored form values must not disagree with the theme currently rendered.
-Object.assign(ctx,{renderCategorySettings(){},fillWardrobeSettings(){},laundryFillSettings(){}});
-node('root').getAttribute=k=>node('root').attrs[k];node('displayprefs').showModal=()=>{};node('site-theme').focus=()=>{};
-vm.runInContext(source.match(/function openDisplayPrefs\(\)\{[^\n]+/)[0],ctx);
-node('root').attrs['data-skin']='editorial';node('site-theme').value='workshop';ctx.openDisplayPrefs();assert.equal(node('site-theme').value,'editorial','opening settings reflects the visible Night Bloom theme');
-console.log('Settings theme selection resynchronizes with the rendered theme on open.');
+// The restored Profile settings route reflects the rendered theme on each visit.
+let settingsRoute;ctx.openProfile=tab=>{settingsRoute=tab};
+vm.runInContext(source.match(/function openDisplayPrefs\(\)\{[^\n]+/)[0],ctx);ctx.openDisplayPrefs();assert.equal(settingsRoute,'settings');
+const profile=fs.readFileSync(__dirname+'/../app/scripts/profile.js','utf8');
+assert.match(profile,/else \{\$\('site-theme'\)\.value=document.documentElement.getAttribute\('data-skin'\)\|\|readDisplayPrefs\(\)\.skin/);
+console.log('Settings route and theme selection resynchronize with the rendered theme on open.');

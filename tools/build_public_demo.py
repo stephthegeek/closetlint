@@ -30,7 +30,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'runtime'))
 from storage import Store, decode, media_type, require_safe_pillow
-from server import content_policy
+from server import content_policy, quiz_photo_files
 from piece_import import KINDS
 
 VOCAB = json.loads((ROOT / 'runtime/import-vocabulary.json').read_text(encoding='utf-8'))
@@ -414,6 +414,10 @@ def build(store, review_folder, out, site='generic', link_peer=False):
     page = (ROOT / 'app/closet-lint.html').read_text(encoding='utf-8')
     for key, value in (('catalog', catalog), ('tags', {}), ('bundles', []), ('pubdata', snapshot)):
         page = embed(page, key, value)
+    quiz = out / 'assets/quiz-photos'
+    quiz.mkdir(parents=True)
+    for name, source in quiz_photo_files().items():
+        (quiz / name).write_bytes(source.read_bytes())
     (out / 'index.html').write_text(page, encoding='utf-8')
     policy = content_policy(page)
     (out / '.htaccess').write_text('<IfModule mod_headers.c>\n'

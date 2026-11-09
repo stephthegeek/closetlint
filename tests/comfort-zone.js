@@ -1,0 +1,133 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(__dirname+'/../app/scripts/comfort-zone.js','utf8');
+const ctx={state:{profile:{}},console};vm.createContext(ctx);vm.runInContext(source,ctx);const C=ctx.ClosetLintComfort;
+const answer=value=>({version:1,status:'answered',value});
+assert.equal(C.topics.length,8);assert.equal(C.questions.length,41);
+for(const id of ['jewelrydetails','earrings','necklacelength','jewelrystatement'])assert.equal(C.question(id).defaultIncluded,true);
+for(const q of C.questions)assert.equal(C.read({},q.id),null,'no default answer');
+assert.equal(C.read({'comfort-stretch':answer('bogus')},'stretch'),null);
+assert.equal(C.read({'comfort-heel':answer(NaN)},'heel'),null);
+assert.equal(C.read({'comfort-heel':answer(-1)},'heel'),null);
+assert.equal(C.read({'comfort-textures':answer({madeup:'hard'})},'textures'),null);
+assert.equal(C.read({'comfort-palette':answer([])},'palette'),null);
+assert.equal(C.read({'comfort-palette':answer(['invented'])},'palette'),null);
+assert.equal(JSON.stringify(C.read({'comfort-palette':answer(['jewel','earthy','jewel'])},'palette').value),JSON.stringify(['jewel','earthy']));
+assert.equal(C.read({'comfort-colorlimits':answer({red:'love'})},'colorlimits'),null);
+assert.equal(C.read({'comfort-colorlimits':answer({red:'hard',floral:'avoid'})},'colorlimits').value.red,'hard');
+assert.equal(C.label(C.question('colorlimits'),C.read({'comfort-colorlimits':answer('none')},'colorlimits')),'Nothing to rule out');
+const picked=(selected,importance='prefer')=>({selected,importance});
+assert.equal(C.read({'comfort-toes':answer(picked(['madeup']))},'toes'),null);
+assert.equal(C.read({'comfort-toes':answer(picked(['round','round']))},'toes'),null);
+assert.equal(C.read({'comfort-toes':answer(picked(['round'],'invented'))},'toes'),null);
+assert(C.read({'comfort-toes':answer(picked([],'only'))},'toes'));
+assert.equal(C.read({'comfort-heels':answer({...picked(['block']),order:['stiletto'],ranked:true})},'heels'),null);
+assert(C.read({'comfort-heels':answer({...picked(['block']),order:['block'],ranked:false})},'heels'));
+for(const strength of ['prefer','strong','only']){
+ const pref={'comfort-fastenings':answer(picked(['slip-on'],strength))};
+ const found=C.evidence(pref,{meta:'Footwear',shoefeat:['lace-up']});
+ assert.equal(found.length,strength==='prefer'?0:1);
+ if(found.length)assert.equal(found[0].strength,strength==='only'?'hard':'strong');
+ assert.equal(C.evidence(pref,{meta:'Footwear',shoefeat:['slip-on']}).length,0,'acceptable is not loved');
+ assert.equal(C.evidence(pref,{meta:'Footwear'}).length,0,'missing field is neutral');
+}
+assert.equal(C.evidence({'comfort-patterns':answer(picked(['floral'],'only'))},{pattern:['striped']})[0].strength,'hard');
+assert.equal(C.evidence({'comfort-colorlimits':answer(picked(['blue'],'strong'))},{colors:['red']})[0].kind,'warn');
+assert.equal(C.read({'comfort-heels':answer({block:'love',stiletto:'hard'})},'heels').value.stiletto,'hard','legacy ratings preserved');
+assert.match(C.label(C.question('patterns'),C.read({'comfort-patterns':answer(picked(['floral'],'only'))},'patterns')),/Only these work/);
+const profile={'comfort-room':answer('roomy'),'comfort-stretch':{version:1,status:'skipped'},'comfort-textures':answer({lace:'hard',velvet:'love'})};
+const p=C.progress(profile,C.topics[0]);assert.equal(p.answered,2);assert.equal(p.reviewed,3);assert.equal(p.total,5);
+let evidence=C.evidence(profile,{material:['lace','velvet']});assert.equal(evidence.length,2);assert.equal(evidence.find(r=>r.key==='textures:lace').strength,'hard');assert.equal(evidence.find(r=>r.key==='textures:velvet').kind,'good');
+assert.equal(C.evidence(profile,{}).length,0,'unknown piece attributes remain neutral');
+assert.equal(C.evidence({'comfort-textures':answer('any')},{material:['lace']}).length,0);
+assert.equal(C.evidence({'comfort-unknown':answer({zip:'hard'})},{shoefeat:['zip']}).length,0);
+assert.equal(C.evidence({'comfort-fastenings':answer({zip:'hard'})},{meta:'Tops',details:['zipper']}).length,0,'shoe preference does not apply to a garment zipper');
+assert.equal(C.evidence({'comfort-fastenings':answer({zip:'hard'})},{meta:'Footwear',shoefeat:['zip']})[0].kind,'warn');
+assert.equal(C.evidence({'comfort-stretch':answer('lots')},{stretch:['non-stretch']}).length,1);
+assert.equal(C.evidence({'comfort-stretch':answer('lots')},{stretch:['non-stretch','high stretch']}).length,0,'contradictory attributes do not produce a confident warning');
+for(const height of ['unknown','about 4','2-4',''])assert.equal(C.evidence({'comfort-heel':answer(3)},{meta:'Footwear',heelIn:height}).length,0);
+assert.equal(C.evidence({'comfort-heel':answer(3)},{meta:'Footwear',heelIn:'4-5'}).length,1);
+
+const metals={selected:['silver','gold'],order:['silver','gold'],ranked:true,importance:'only'};
+assert.equal(C.read({'comfort-metaltones':answer({...metals,order:['silver','silver']})},'metaltones'),null);
+assert.equal(C.read({'comfort-earrings':answer('none')},'earrings').value,'none');
+assert.equal(C.evidence({'comfort-metaltones':answer(metals)},{meta:'Jewelry',colors:['silver']})[0].kind,'good');
+assert.equal(C.evidence({'comfort-metaltones':answer({...metals,ranked:false})},{meta:'Jewelry',colors:['silver']}).length,0);
+assert.equal(C.evidence({'comfort-metaltones':answer(metals)},{meta:'Jewelry',jmetal:['rose gold']})[0].strength,'hard');
+assert.equal(C.evidence({'comfort-metaltones':answer(metals)},{meta:'Jewelry',jmetal:['sterling silver']}).length,0,'material does not invent color');
+assert.equal(C.evidence({'comfort-jewelrymaterials':answer({plated:'hard'})},{meta:'Jewelry',colors:['gold']}).length,0,'color does not invent material');
+assert.equal(C.evidence({'comfort-jewelrymaterials':answer({plated:'hard'})},{meta:'Jewelry',jmetal:['plated']}).length,0,'retired generic plated category stays neutral');
+assert.equal(C.evidence({'comfort-jewelrymaterials':answer({'sterling silver':'hard'})},{meta:'Jewelry',jmetal:['sterling silver']})[0].strength,'hard');
+assert.equal(C.evidence({'comfort-earrings':answer({selected:['cartilage'],importance:'only'})},{meta:'Jewelry',sub:'Earrings',kind:'stud',eartags:['cartilage']}).length,0,'cartilage studs satisfy cartilage selection');
+assert.equal(C.evidence({'comfort-earrings':answer({selected:['cartilage'],importance:'only'})},{meta:'Jewelry',sub:'Earrings',kind:'cuff / clip-on'}).length,0,'ambiguous cuff / clip-on tag stays neutral');
+assert.equal(C.evidence({'comfort-earrings':answer('none')},{meta:'Jewelry',sub:'Earrings'})[0].kind,'warn');
+assert.equal(C.evidence({'comfort-earrings':answer('none')},{meta:'Jewelry',sub:'Necklaces'}).length,0);
+assert.equal(C.evidence({'comfort-necklacelength':answer({selected:['long'],importance:'only'})},{meta:'Jewelry',sub:'Necklaces',length:'choker'})[0].strength,'hard');
+assert.equal(C.evidence({'comfort-jewelrydetails':answer({selected:['plain'],importance:'only'})},{meta:'Jewelry'}).length,0,'missing details do not mean plain metal');
+
+const rangeAnswer={selected:['color','accessories'],importance:'only'};
+assert.equal(C.read({'comfort-rangeanchor':answer('bogus')},'rangeanchor'),null);
+assert(C.read({'comfort-rangeareas':answer(rangeAnswer)},'rangeareas'));
+assert(C.read({'comfort-rangeareas':answer({selected:[],importance:'prefer'})},'rangeareas'));
+assert(C.read({'comfort-rangeoccasions':answer([])},'rangeoccasions'));
+assert.equal(C.read({'comfort-rangeoccasions':answer(['invented'])},'rangeoccasions'),null);
+assert.equal(C.evidence({'comfort-rangeareas':answer(rangeAnswer),'comfort-rangetrends':answer('pass')},{meta:'Jewelry',looks:['sporty'],colors:['red']}).length,0,'openness never invents a wishlist mismatch');
+const rangeProfile={'comfort-rangeanchor':answer('one'),'comfort-rangeeveryday':{version:1,status:'skipped'}};
+assert.equal(C.progress(rangeProfile,C.topics.find(t=>t.id==='range')).answered,1);
+assert.equal(C.progress(rangeProfile,C.topics.find(t=>t.id==='range')).reviewed,2);
+
+assert.equal(C.read({'comfort-dressfastenings':answer({buttons:'love'})},'dressfastenings'),null);
+const dress={'comfort-dressfastenings':answer({buttons:'hard',zips:'fine'}),'comfort-dressdetails':answer({tassels:'avoid'}),'comfort-dresspockets':answer('essential'),'comfort-dressonepiece':answer('hard')};
+assert.equal(C.evidence(dress,{meta:'Tops',details:['button-front']})[0].strength,'hard');
+assert.equal(C.evidence(dress,{meta:'Tops',details:['zipper']}).length,0);
+assert.equal(C.evidence(dress,{meta:'Jewelry',details:['button-front','tassels']}).length,0,'garment choices do not leak to jewelry');
+assert.equal(C.evidence(dress,{meta:'Footwear',details:['buckles']}).length,0,'shoe preferences remain separate');
+assert.equal(C.evidence(dress,{meta:'Tops',details:['tassels']})[0].kind,'warn');
+assert.equal(C.evidence(dress,{meta:'Tops',details:[]}).length,0,'missing pocket tag remains unknown');
+assert.equal(C.evidence(dress,{meta:'Tops',details:['pockets']})[0].kind,'good');
+assert.equal(C.evidence(dress,{meta:'One-pieces',sub:'Dresses'}).length,0,'jumpsuit preference does not flag dresses');
+assert.equal(C.evidence(dress,{meta:'One-pieces',sub:'Jumpsuits & rompers'})[0].strength,'hard');
+const before=JSON.stringify(profile);C.evidence(profile,{wish:false,wears:['2026-11-02']});assert.equal(JSON.stringify(profile),before,'piece changes never update answers');
+const nav=fs.readFileSync(__dirname+'/../app/scripts/navigation.js','utf8');vm.runInContext(nav.slice(0,nav.indexOf('function installClosetRoutes(')),ctx);assert.equal(ctx.parseClosetRoute('#/profile/comfort').id,'comfort');
+(async()=>{
+ let writes=0,fail=true;ctx.comfortRender=()=>{};ctx.comfortFocus=()=>{};ctx.toast=()=>{};ctx.state.db={collection(name){assert.equal(name,'profile');return {doc(id){assert.equal(id,'comfort-occasion');return {async set(record){writes++;if(fail)throw Error('offline');ctx.state.profile[id]=record},async delete(){delete ctx.state.profile[id]}}}}}};
+ ctx.comfortSession={topic:'feet',index:6,draft:'same',initial:'null',base:'null',busy:false};await ctx.comfortSave('save');assert.equal(ctx.state.profile['comfort-occasion'],undefined);assert.equal(ctx.comfortSession.draft,'same');assert.match(ctx.comfortSession.error,/Could not save/);
+ fail=false;await ctx.comfortSave('save');assert.equal(ctx.state.profile['comfort-occasion'].value,'same');assert.equal(ctx.comfortSession,null);
+ ctx.comfortSession={topic:'feet',index:6,draft:'short',initial:'null',base:'null',busy:false};await ctx.comfortSave('save');assert.equal(writes,2,'stale draft cannot overwrite a newer answer');assert.equal(ctx.comfortSession.conflict,true);
+ ctx.comfortSession={topic:'feet',index:6,draft:'short',initial:'null',base:ctx.comfortRaw('occasion'),busy:false};await ctx.comfortSave('clear');assert.equal(ctx.state.profile['comfort-occasion'],undefined);
+ console.log('Comfort zone: explicit answers, skips, validation, conservative evidence, route, save retry, stale draft protection and clear pass.');
+})().catch(e=>{console.error(e);process.exitCode=1});
+
+// Non-applicability is explicit, readable, and never a hard exclusion or a guessed zero.
+for(const id of ['heel','heels','necklacelength','skirtlength']){
+ const record=C.read({['comfort-'+id]:answer('none')},id);assert(record);assert.match(C.label(C.question(id),record),/don’t wear/);
+}
+assert.equal(C.read({'comfort-room':answer('none')},'room'),null);
+for(const id of ['visiblelayers','layerfit','toplength','skirtlength','coveragedetails'])assert.equal(C.question(id).defaultIncluded,true);
+assert.equal(C.evidence({'comfort-heel':answer('none')},{meta:'Footwear',heelIn:2})[0].strength,'strong');
+assert.equal(C.evidence({'comfort-heel':answer('none')},{meta:'Footwear'}).length,0);
+assert.equal(C.evidence({'comfort-heel':answer(0)},{meta:'Footwear',heelIn:2}).some(x=>x.key==='heels:none'),false);
+assert.equal(C.evidence({'comfort-necklacelength':answer('none')},{meta:'Jewelry',sub:'Necklaces'})[0].strength,'strong');
+assert.equal(C.evidence({'comfort-necklacelength':answer('none')},{meta:'Jewelry',sub:'Earrings'}).length,0);
+const layerProfile={'comfort-toplength':answer(picked(['regular'],'only')),'comfort-skirtlength':answer(picked(['midi'],'strong')),'comfort-coveragedetails':answer(picked(['cutouts'],'only')),'comfort-visiblelayers':answer(picked([],'only'))};
+assert.equal(C.evidence(layerProfile,{meta:'Tops',length:'crop'})[0].key,'toplength:crop');
+assert.equal(C.evidence(layerProfile,{meta:'Jewelry',sub:'Necklaces',length:'long'}).length,0);
+assert.equal(C.evidence(layerProfile,{meta:'Bottoms',sub:'Skirts',length:'mini'})[0].key,'skirtlength:mini');
+assert.equal(C.evidence(layerProfile,{meta:'Bottoms',sub:'Pants',length:'mini'}).length,0);
+assert.equal(C.evidence(layerProfile,{meta:'Tops',neckline:['plunging']})[0].strength,'hard');
+assert.equal(C.evidence(layerProfile,{meta:'Tops',material:['sheer']}).length,0,'visible-layer preference does not judge sheer pieces without outfit context');
+
+const careProfile={'comfort-careeffort':answer({hand:'hard',cleaner:'avoid',gentle:'hard',iron:'hard'}),'comfort-caredrying':answer({hang:'avoid',flat:'hard'}),'comfort-caredelicate':answer('no')};
+assert.equal(C.read({'comfort-careeffort':answer({iron:'occasion'})},'careeffort').value.iron,'occasion');
+assert.match(C.label(C.question('careeffort'),C.read({'comfort-careeffort':answer({iron:'occasion'})},'careeffort')),/Worth it occasionally/);
+assert.equal(C.evidence(careProfile,{care:{wash:'Hand wash cold',dry:'Lay flat to dry'}}).filter(r=>r.strength==='hard').length,2);
+assert.equal(C.evidence(careProfile,{material:['linen','lace'],care:{wash:'Machine wash cold',note:'delicate, iron'}}).length,0,'no guessed ironing, delicate cycle, or durability');
+assert.equal(C.evidence({'comfort-careeffort':answer({hand:'fine',cleaner:'occasion'})},{care:{wash:'Dry clean only'}}).length,0,'acceptance is not a love or warning');
+assert.equal(C.evidence(careProfile,{care:{dry:'Do not tumble dry'}}).length,0,'no dryer does not prove which drying method');
+const duplicatePrint=C.evidence({'comfort-patterns':answer(picked(['floral'],'strong')),'comfort-colorlimits':answer({stripes:'hard'})},{pattern:['striped']});assert.equal(duplicatePrint.length,1);assert.equal(duplicatePrint[0].strength,'hard');
+assert.equal(C.evidence({'comfort-heel':answer(0),'comfort-heels':answer('none')},{meta:'Footwear',heelIn:3}).length,1);
+
+assert.equal(C.evidence(careProfile,{care:{wash:'Machine wash gentle',wrinkleUpkeep:'Usually needs steaming or ironing'}}).length,2);
+assert.equal(C.evidence({'comfort-caredelicate':answer('easy')},{care:{wash:'Hand wash'}})[0].key,'caredelicate');
+assert.equal(C.evidence(careProfile,{care:{wash:'Hand wash'}}).length,1,'specific care warning wins over general upkeep');
+assert.equal(C.evidence(careProfile,{care:{wrinkleUpkeep:'Usually ready to wear'}}).length,0);
+assert.equal(C.evidence(careProfile,{care:{wrinkleUpkeep:'unknown',note:'wrinkled'}}).length,0);

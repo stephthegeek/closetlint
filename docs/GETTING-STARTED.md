@@ -39,7 +39,7 @@ Open Closet Lint and follow the optional setup steps. You can return through **M
 
 A photo and a name are enough to start. Add details when they are useful to you. Sizes, measurements, purchase dates, and prices can remain unknown. Acquisition dates can be a year, month, or exact day, and can be marked approximate.
 
-Closet details and category choices save with your wardrobe and its backups. Display preferences save separately in each browser. Change either later in **Menu → View settings**. Use **Show all categories…** while adding a piece to choose a category outside your starter list.
+Closet details and category choices save with your wardrobe and its backups. Display preferences save separately in each browser. Change either later in **Menu → Settings**. Use **Show all categories…** while adding a piece to choose a category outside your starter list.
 
 ## Optional: try the sample collection
 
@@ -114,18 +114,8 @@ For readiness checks, run `python3 tools/check_setup.py --data ../closet-lint` (
 
 ## Updating and moving
 
-### Update
+Save your work and export a full backup. Stop the app, replace its code while keeping your wardrobe data folder, and start it with the same `--data` path. Refresh and check your pieces and photos. For hosting, also retain the existing hosting settings and access protection.
 
-1. Save open work and export a full backup. Keep the previous app folder.
-2. Stop the server, unzip the new app into a separate folder, and start it with the same `--data` path. Keep the wardrobe folder unchanged; run only one server against it.
-3. Refresh your tabs and check your pieces and photos.
-
-For a hosted installation, back up first, deploy the app while keeping its private data folder and settings, then check that the new version is running.
-
-### Recovery or moving
-
-To revert, export any newer work, stop the app, and restore the pre-update backup into a separate wardrobe using the previous app. Older versions may not read newer data correctly.
-
-To move computers, install the app and restore a full backup into a new wardrobe folder. Check it before removing the original copy. Browser preferences and optional photo tools need separate setup.
+To move computers, restore a full backup into a new wardrobe and verify it before removing the original. Browser preferences and optional photo tools need separate setup. Contributor recovery checks are covered in [release preparation](../CONTRIBUTING.md#release-preparation).
 
 For everyday features, see [Using Closet Lint](USING-CLOSET-LINT.md). For bulk imports, product photo requests, and Oracle conversations, see [AI assistant imports and Oracle](AI-ASSISTANT.md).

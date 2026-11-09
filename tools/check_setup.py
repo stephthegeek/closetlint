@@ -34,6 +34,7 @@ def check(folder):
     result['photoCheck'] = packages
     result['importsReady'] = bool(packages.get('packages', {}).get('Pillow', {}).get('ready'))
     result['backgroundReady'] = False
+    result['jewelryBackgroundReady'] = False
     if config and packages.get('packages') and all(p['ready'] for p in packages['packages'].values()):
         from background_removal import settings
         background = settings(folder)
@@ -42,8 +43,10 @@ def check(folder):
             try:
                 verify_model(model_path(Path(background['models'])))
                 result['backgroundReady'] = True
+                verify_model(model_path(Path(background['models']), 'isnet-general-use'), 'isnet-general-use')
+                result['jewelryBackgroundReady'] = True
             except (OSError, ValueError):
-                result['modelProblem'] = 'The background-removal model is missing or damaged.'
+                result['modelProblem'] = 'A background removal model is missing or damaged.'
     result['startCommand'] = command([sys.executable, str(ROOT / 'runtime/server.py'), '--data', str(folder)])
     result['photoSetupCommand'] = setup_command(folder)
     result['backgroundSetupCommand'] = setup_command(folder, background=True)
@@ -66,7 +69,8 @@ def report(result):
         print('Your existing background-removal environment can also be used for photo imports.')
     elif not result['photoEnvironment'] and result['importsReady']:
         print('Photo imports are available in this Python. The setup command below creates a separate environment if you prefer.')
-    if not result['importsReady'] or not result['backgroundReady']:
+    print('Jewelry background removal: ' + ('ready' if result.get('jewelryBackgroundReady') else 'needs photo setup'))
+    if not result['importsReady'] or not result['backgroundReady'] or not result.get('jewelryBackgroundReady'):
         checked = result['photoCheck']
         if checked.get('error'):
             print(checked['error'])

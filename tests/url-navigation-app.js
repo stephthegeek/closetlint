@@ -8,10 +8,10 @@ function fixture(hash='',install=true){
  const hist=win.history={pushState(state,x,url){stack.splice(pos+1);stack.push({state,url});pos++;location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},replaceState(state,x,url){stack[pos]={state,url};location.hash=url.includes('#')?url.slice(url.indexOf('#')):''},go(delta){pos+=delta;assert(pos>=0&&pos<stack.length);location.hash=stack[pos].url.includes('#')?stack[pos].url.slice(stack[pos].url.indexOf('#')):'';this.state=stack[pos].state;(listeners.popstate||[]).forEach(f=>f({state:this.state}));(listeners.hashchange||[]).forEach(f=>f({}))},back(){this.go(-1)},forward(){this.go(1)}};
  const scratch={id:null,name:'My working pile',pieces:[{id:'a',x:1,y:2,w:30,z:1}]},saved={id:'o1',name:'Dinner',pieces:[{id:'b',x:5,y:6,w:40,z:1}]};
  const state={tab:'all',capsDone:false,db:{},pub:false,board:scratch,outfits:{o1:saved},trips:{t1:{name:'Weekend',settings:{dest:'Home'},plan:{}}},q:'',collectionFilter:{},of:{},fantasy:false};
- const ctx={openImport(){state.importOpened=(state.importOpened||0)+1},openTidyPhotos(){state.tidyOpened=(state.tidyOpened||0)+1},releaseOutfitPreview(){},paintWorkspaceRecovery(){},skyRender(){},window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},renderOracle(){ctx.oracleSession=ctx.oracleSession||{question:''}},oracleLeave(){},oracleSession:null,labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
+ const ctx={COLORS:{black:'#1b1b1b','hot pink':'#ff2e93'},openImport(){state.importOpened=(state.importOpened||0)+1},openTidyDetails(){state.tidyDetailsOpened=(state.tidyDetailsOpened||0)+1},openTidyPhotos(){state.tidyOpened=(state.tidyOpened||0)+1},releaseOutfitPreview(){},paintWorkspaceRecovery(){},skyRender(){},window:win,document:{querySelector:()=>null,querySelectorAll:()=>Object.values(nodes).filter(n=>n.open),addEventListener(){}},URLSearchParams,requestAnimationFrame:f=>f(),state,setupLoaded:{},MULTI_KEYS:[],SET_KEYS:[],$:node,localStorage:{setItem(){}},oMetaFrom:()=>({}),boardSig:b=>JSON.stringify(b.pieces),askConfirm(){throw Error('legacy asynchronous guard should not run during routing')},isClosetTab:t=>['all','clothing','accessories','jewelry','offduty'].includes(t),byId:()=>({a:{id:'a'},b:{id:'b'}}),byIdA:()=>({a:{id:'a'},b:{id:'b'}}),collectionList:()=>[{id:'c1',name:'Faves'}],setFantasy:v=>state.fantasy=v,toast:m=>notices.push(m),todayStr:()=> '2026-10-19',tripPlanOut:p=>p,tripPlanIn:p=>p,wearAny:()=>false,resetFilterState(){state.q='';state.collectionFilter={};state.collectionManager=false},syncNavigation(){},renderTabs(){},renderFilters(){},renderGrid(){},renderTray(){},renderBoard(){},renderSaved(){},tripRender(){},wrRender(){},renderOracle(){ctx.oracleSession=ctx.oracleSession||{question:''}},oracleLeave(){},oracleSession:null,labRender(){},hiddenItems:()=>[],storedItems:()=>[],donateItems:()=>[],inTab:()=>true,
  openEdit(it){const d=node('dlg');d.fields=[{name:'name',type:'text',value:it.id,getAttribute(){return ''},closest(){return null}}];d.showModal()},openAdd(){const d=node('dlg');d.fields=[];d.images=[];d.showModal()},openOutfitDetails(){node('dlg').showModal()}};
  vm.createContext(ctx);
- vm.runInContext(['paintBoardSaveStatus','adoptBoard','copyBoardPieces','boardDocument','setTab','persistBoard','workspaceKey','workspaceSnapshot','ofOpen','outfitEditorDirty','boardNeedsProtection','boardHasContent','tripNew','tripSettings','tripHasUnsaved','tripCancelPending','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar','openHiddenView'].map(fn).join('\n')+'\n'+routes,ctx);
+ vm.runInContext('var boardUndoHistories=new WeakMap();\n'+['boardUndoSnapshot','boardUndoFor','boardUndoInputKey','boardUndoRemember','paintBoardUndo','boardUndoLast','paintBoardSaveStatus','adoptBoard','copyBoardPieces','boardDocument','setTab','persistBoard','workspaceKey','workspaceSnapshot','ofOpen','outfitEditorDirty','boardNeedsProtection','boardHasContent','tripNew','tripSettings','tripHasUnsaved','tripCancelPending','tripLeave','tripOpen','closeDlg','collectionBrowse','openCollections','openCalendar','openHiddenView'].map(fn).join('\n')+'\n'+routes,ctx);
  if(install)ctx.installClosetRoutes();
  return {ctx,state,scratch,saved,writes,prompts,notices,win,hist,stack,node,setAllow:v=>allow=v,ready(){state.capsDone=true;['edits','custom','outfits','profile','trips'].forEach(k=>ctx.setupLoaded[k]=true);win.ClosetLintRoutes.ready()}};
 }
@@ -136,7 +136,7 @@ console.log('Public Sky alias: default landing, normal-view URLs, Back/Forward, 
 {
  const f=fixture('#/oracle',false),{ctx,state,node}=f,renders=[];
  Object.assign(ctx,{photoPreviewError(){},maybeStartSetup(){},labRefresh(){},tripData(){},wrData(){},oracleUpdateScope(){},editFocusInGrid:()=>false,initShell(){},wireBoard(){},restoreBoard(){},loadBundles(){}});
- ctx.localStorage.getItem=()=> 'clothing';
+ ctx.localStorage.getItem=()=> 'clothing';ctx.closetTabVisible=()=>true;
  ctx.renderGrid=()=>renders.push('closet');ctx.renderOracle=()=>renders.push('oracle');
  vm.runInContext(fn('initialTab')+'\n'+fn('onDataInner'),ctx);
  const boot=html.match(/\ninitShell\(\);\n[\s\S]*?\ninstallClosetRoutes\(\);/);assert(boot);vm.runInContext(boot[0],ctx);
@@ -221,4 +221,48 @@ console.log('Startup: no provisional page, hydration gating, queued navigation, 
  const f=fixture('#/sky'),{ctx,state,win}=f;f.ready();
  ctx.openHiddenView();assert.equal(state.tab,'all','Hidden leaves Sky for Closet');assert.equal(win.location.hash,'#/closet');assert.equal(state.showHidden,true);assert.equal(state.showStored,false);assert.equal(state.showDonate,false);
  ctx.setTab('clothing');ctx.openHiddenView();assert.equal(state.tab,'clothing','Hidden keeps the current browse category');assert.equal(state.showHidden,true);
+}
+
+
+{
+ const f=fixture('#/profile/settings'),{ctx,state,hist,win}=f;state.profile={};ctx.renderProfile=()=>{};vm.runInContext(fn('openProfile'),ctx);f.ready();
+ assert.equal(state.tab,'profile');assert.equal(state.profileTab,'settings');assert.match(ctx.document.title,/Profile/);
+ let formValue='saved';const dialog=f.node('cdlg');dialog.showModal();win.ClosetLintRoutes.trackDialog(dialog,()=>formValue);formValue='unsaved';f.setAllow(false);assert.equal(ctx.openProfile('sizes'),false);assert.equal(state.profileTab,'settings','cancelled tab switch leaves the selected tab intact');assert.equal(win.location.hash,'#/profile/settings');win.ClosetLintRoutes.cleanDialog(dialog);dialog.close();f.setAllow(true);
+ const board=JSON.stringify(state.board);ctx.openProfile('sizes');assert.equal(win.location.hash,'#/profile/sizes');
+ ctx.openProfile('almanac');assert.equal(win.location.hash,'#/profile');hist.back();assert.equal(state.profileTab,'sizes');hist.forward();assert.equal(state.profileTab,'almanac');
+ ctx.openEdit({id:'a'});ctx.closeDlg();assert.equal(state.tab,'profile');assert.equal(state.profileTab,'almanac');
+ ctx.setTab('sky');hist.back();assert.equal(state.tab,'profile');assert.equal(JSON.stringify(state.board),board);
+ assert.equal(ctx.parseClosetRoute('#/profile/unknown'),null);
+ console.log('Profile: Settings deep links, all three tabs, Back/Forward, piece return, Sky return and board isolation pass.');
+}
+
+{
+ const f=fixture('#/closet?color=hot%20pink');f.state.q='old search';f.state.fav=true;f.ready();assert.equal(f.state.tab,'all');assert.equal(f.state.colors['hot pink'],true);assert.equal(f.state.q,'');assert.equal(f.state.collectionFilter&&Object.keys(f.state.collectionFilter).length,0);assert.equal(f.state.showStored,false);assert.equal(f.win.location.hash,'#/closet?color=hot%20pink');
+ console.log('Linked color searches survive direct loading and clear unrelated browse scopes.');
+}
+
+
+// Almanac links share the same page transition path as the main navigation.
+for(const target of ['lab','trip','sky','all','saved']){
+ const f=fixture('#/profile'),{ctx,state,win,hist}=f;ctx.renderProfile=()=>{};state.profile={};f.ready();
+ win.scrollY=940;win.ClosetLintRoutes.capture();ctx.setTab(target);
+ assert.equal(win.scrollY,0,'Almanac link to '+target+' starts at the top');
+ win.scrollY=260;win.ClosetLintRoutes.capture();hist.back();assert.equal(state.tab,'profile');assert.equal(win.scrollY,940,'Back returns to the Almanac card');
+ hist.forward();assert.equal(state.tab,target);assert.equal(win.scrollY,260,'Forward restores destination position');
+}
+{
+ const f=fixture('#/profile'),{ctx,win,hist}=f;ctx.renderProfile=()=>{};f.state.profile={};f.ready();win.scrollY=940;win.ClosetLintRoutes.capture();ctx.tripOpen('t1');assert.equal(win.scrollY,0,'linked trip/event detail starts at top');hist.back();assert.equal(win.scrollY,940);
+ ctx.openEdit({id:'a'});assert.equal(win.scrollY,940,'piece modal retains Almanac scroll underneath');ctx.closeDlg();assert.equal(win.scrollY,940);
+}
+console.log('Almanac links: new Lab, trip/event, Sky, closet and outfit pages start at top; Back/Forward and piece modals retain their positions.');
+
+{
+ const f=fixture('#/closet'),{ctx,state,hist}=f;f.ready();
+ state.q='blue';state.showStored=true;state.where={bin:true};state.showHidden=true;state.fav=true;state.sort='name';state.sortRev=true;
+ ctx.window.ClosetLintRoutes.home();assert.equal(state.q,'');assert.equal(state.showStored,false);assert.equal(state.showHidden,false);assert.equal(Object.keys(state.where).length,0);assert.equal(state.fav,true);assert.equal(state.sort,'name');assert.equal(state.sortRev,true);
+ hist.back();assert.equal(state.q,'blue');assert.equal(state.showStored,true);assert.equal(state.where.bin,true);assert.equal(state.showHidden,true);
+ hist.forward();assert.equal(state.q,'');assert.equal(state.showStored,false);assert.equal(state.fav,true);
+ ctx.openEdit({id:'a'});f.node('dlg').fields[0].value='Unsaved';f.setAllow(false);state.q='keep me';
+ assert.equal(ctx.window.ClosetLintRoutes.home(),false);assert.equal(state.q,'keep me','cancelled navigation preserves filters and edits');assert.equal(f.node('dlg').open,true);
+ console.log('Logo home: temporary scopes cleared, Favorites/sort retained, Back/Forward restored, and cancelled navigation preserved.');
 }

@@ -12,7 +12,7 @@ Closet Lint is a single-user application for use on your computer, with optional
 
 Do not put credentials, payment details, or raw email contents into import files. Review what you share with an AI assistant or publish. Photos from backups or other sources may retain metadata; background removal does not guarantee anonymity.
 
-Destination and weather lookup can contact Open-Meteo. City search sends the typed destination; weather sends coordinates and a historical date range. Wardrobe records and actual travel dates are not sent. Manual entry remains available. See [third-party services](docs/THIRD-PARTY.md).
+City suggestions and weather lookup can contact Open-Meteo. City search sends the typed city or destination. Almanac forecasts send location coordinates; trip weather averages also use a generic historical date range. Wardrobe records and actual travel dates are not sent. You can leave the Almanac city blank or enter trip weather manually. See [third-party services](docs/THIRD-PARTY.md).
 
 ## Reporting
 

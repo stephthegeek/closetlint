@@ -69,3 +69,22 @@ function wireRecentWearDay(){
   function arm(){var next=new Date();next.setHours(24,0,0,100);setTimeout(function(){refresh();arm()},Math.max(1000,next.getTime()-Date.now()))}
   window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});arm();
 }
+
+// Capture the transition before publishing a successful wear save.
+function wearFirstOuting(changes,fallback){
+  var pieces;
+  return changes.some(function(change){
+    var key=change.collection==='edits'?'wears':change.collection==='outfits'?'wearLog':null;
+    if(!key||!Array.isArray(change.value[key])||!change.value[key].length)return false;
+    if(key==='wears'&&!pieces)pieces=typeof byIdA==='function'?byIdA():{};
+    var before=key==='wears'?(pieces[change.id]||fallback||{}):(state.outfits||{})[change.id]||{};
+    if(key==='wears')before=Object.assign({},before,(state.edits||{})[change.id]||{});
+    return !(before[key]||[]).length;
+  });
+}
+var firstOutingTimer=null;
+function celebrateFirstOuting(){
+  if(firstOutingTimer!==null||(typeof profileFirstWearToastPending!=='undefined'&&profileFirstWearToastPending))return;
+  // Let the caller finish its ordinary save message before showing the splash.
+  firstOutingTimer=setTimeout(function(){firstOutingTimer=null;toast('🎉 First outing!');celebratePurchase(typeof toastHost==='function'?toastHost().parentNode:null)},0);
+}

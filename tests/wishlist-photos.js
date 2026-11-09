@@ -10,13 +10,18 @@ console.log('Wishlist photos: preview URLs, lazy ranking images, high-priority c
 
 // Detail controls nested inside a pick card must not submit an accidental preference.
 let picks=[],opened=[];
-Object.assign(ctx,{wrNote:()=>'',wrChips:()=>[],catLabel:()=> 'Top',wrPick:r=>picks.push(r),openEdit:x=>opened.push(x)});
-vm.runInContext(fn('wrCard'),ctx);
+Object.assign(ctx,{wrNote:()=>'',wrChips:()=>[],wrBalanced:()=>[],wrChipEl:c=>new Node('span',c),wrState:()=>({busy:false}),catLabel:()=> 'Top',wrPick:r=>picks.push(r),openEdit:x=>opened.push(x)});
+vm.runInContext(fn('wrPriceText')+'\n'+fn('wrCard'),ctx);
+for(const [price,text] of [[23.97,'$23.97'],[0,'$0.00'],[14,'$14.00'],[undefined,'Price not set'],['12','Price not set'],[-1,'Price not set'],[NaN,'Price not set'],[Infinity,'Price not set']]){
+ const priced=ctx.wrCard({...item,id:'priced',price},1);assert.equal(priced.children.find(n=>n.class==='wrcost').text,text);assert(priced['aria-label'].endsWith(', '+text),'screen reader choice includes the same price');
+}
+
 const card=ctx.wrCard({...item,id:'a'},1),info=card.children.at(-1);
 const event=target=>({key:'Enter',target,preventDefault(){this.prevented=true},stopPropagation(){this.stopped=true}});
 card.onkeydown.call(card,event(info));assert.equal(picks.length,0,'Enter on Open details must not rate the comparison');
 card.onkeydown.call(card,{...event(info),key:' '});assert.equal(picks.length,0,'Space on Open details must not rate the comparison');
 info.onclick(event(info));assert.equal(opened.length,1);
+card.onclick({target:{closest:()=>({tagName:'A'})}});assert.equal(picks.length,0,'a similarity link inside the card must not submit a preference');
 card.onkeydown.call(card,event(card));assert.deepEqual(picks,[1],'card itself remains keyboard-selectable');
 // Incoming data refreshes evidence without replacing a valid displayed pair.
 let current={mode:'battle',cur:{a:{id:'a',name:'Old'},b:{id:'b'}},hist:[],battles:0},fresh=[{id:'a',name:'Updated'},{id:'b',name:'Other'}],drawn=[],pairs=0,renders=0;
@@ -26,3 +31,9 @@ ctx.wrData();assert.equal(renders,1);assert.equal(pairs,0,'data changes retain t
 current._drag=true;ctx.wrData();assert.equal(renders,1,'incoming data does not interrupt drag reordering');current._drag=false;
 fresh=[{id:'c'},{id:'d'}];ctx.wrData();assert.equal(pairs,1,'a removed pair member is replaced through the existing selection path');
 console.log('Wishlist comparisons: keyboard details do not rate, data refresh retains valid pair IDs and uses current records, and unavailable pairs are replaced.');
+
+// Older wardrobes may retain assistant-note records; rendering must ignore them.
+Object.assign(ctx,{wrState:()=>({compact:false}),wrLabSlot:()=>null,wrPurchaseFacts:()=>({matches:[],previews:[]}),wrNote:()=>{throw Error('Legacy notes must not be read')}});
+vm.runInContext(fn('wrPurchaseEl'),ctx);
+const legacyCard=ctx.wrPurchaseEl(item);assert.equal(legacyCard.children.length,0);assert.equal(legacyCard.hidden,true);
+console.log('Wishlist ignores legacy assistant notes and leaves no empty disclosure.');
