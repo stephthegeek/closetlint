@@ -35,8 +35,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Check JavaScript dependency advisories
         run: npm audit --audit-level=moderate
-      - name: Install optional photo-import dependency and auditor
-        run: python -m pip install -r runtime/requirements-import.txt pip-audit==2.10.1
+      - name: Install optional photo dependencies and auditor
+        run: python -m pip install -r runtime/requirements-import.txt -r runtime/requirements-background.txt pip-audit==2.10.1
       - name: Check optional Python dependency advisories
         run: pip-audit -r runtime/requirements-import.txt -r runtime/requirements-background.txt
       - name: Run synthetic tests without a browser
