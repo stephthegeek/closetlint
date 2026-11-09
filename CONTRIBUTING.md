@@ -185,9 +185,9 @@ Write for someone deciding what the release adds to their everyday use:
 
 ### Current 0.5 scope
 
-The current source includes My almanac and Profile, Comfort zone quizzes, Wishlist preference evidence, seasonal Lab and coverage improvements, outfit naming styles, faithful outfit previews, board editing controls, scheduling, closet tabs, and import/photo workflow improvements. [Draft release notes](docs/RELEASE-NOTES.md) summarize the changes for users.
+The current source includes My almanac and Profile, Comfort zone quizzes, Wishlist preference evidence, seasonal Lab and coverage improvements, outfit naming styles, faithful outfit previews, board editing controls, scheduling, closet tabs, and import/photo workflow improvements. [Release notes](docs/RELEASE-NOTES.md) summarize the changes for users.
 
-The latest published release is [0.4.0](https://github.com/stephthegeek/closetlint/releases/tag/v0.4.0). Local implementation, private hosted deployment, owner acceptance, and public release are separate states. Trello holds the working task status; dated verification records belong in the [development archive](docs/archive/DEVELOPMENT-RECORDS.md).
+The latest published release is [0.5.0](https://github.com/stephthegeek/closetlint/releases/tag/v0.5.0). Local implementation, private hosted deployment, owner acceptance, and public release are separate states. Trello holds the working task status; dated verification records belong in the [development archive](docs/archive/DEVELOPMENT-RECORDS.md).
 
 ### Verification status
 
@@ -195,7 +195,7 @@ The 8 November candidate checks passed 112 JavaScript and source synchronization
 
 The Wishlist performance correction passed the full source/runtime checks and a large synthetic wardrobe browser review. The checked update is deployed to the private review installation with verified record/photo preservation, access protection, backups, and an outside copy. That deployment is separate from public release. The earlier public audit archive predates this correction and is superseded by the final 0.5 package preparation.
 
-Release scope is closed except for confirmed blockers. Final preparation reconciles version metadata, rebuilds and verifies the exact data-free archives, completes the isolated hosted update/rollback check, and runs GitHub CI on the release branch. Keep the release notes marked Unreleased until publication is explicitly approved. Reuse checks only when the relevant source bytes and dependencies are unchanged; record any narrow follow-up checks with their provenance.
+The final release branch passed GitHub CI, including minimum Python startup, dependency audits, all unit tests, packing PDF pagination, accessibility and interaction browser checks, public source boundaries, and history secret scanning. The final hosted package passed an isolated update, restart, backup, restore, and rollback rehearsal on the separate test host using synthetic data over its private pipe transport. The public password gate was preserved; that final rehearsal did not exercise a signed-in public hosting lifecycle. Publication was approved on 8 November 2026. Reuse checks only when the relevant source bytes and dependencies are unchanged; record narrow follow-up checks with their provenance.
 
 ### Deferred work
 

@@ -1,4 +1,4 @@
-# Closet Lint 0.5.0 · Unreleased
+# Closet Lint 0.5.0 · 8 November 2026
 
 A new view of your wardrobe habits, short quizzes to explore your preferences, and easier ways to plan outfits and compare wishlist finds.
 
@@ -24,7 +24,7 @@ Alongside that visualization, find upcoming trips and scheduled outfits, wardrob
 - **Outfit boards:** saved thumbnails show the complete design. Adjust controls and session Undo make editing easier.
 - **Imports and photos:** easier return to unfinished work, clearer saved results and photo follow-up, and improved background removal for jewelry and eyewear.
 
-This version is unreleased; final package checks and publication are pending. See [Using Closet Lint](USING-CLOSET-LINT.md) for feature guidance.
+See [Using Closet Lint](USING-CLOSET-LINT.md) for feature guidance.
 
 # Closet Lint 0.4.0
 

@@ -2,15 +2,13 @@
 
 **A wardrobe goblin who lives in your closet and knows where everything is.**
 
-Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. Organize your pieces, put outfits together, and plan what to wear, all in your browser. See your month of outfits in color, settle wishlist battles, and discover your wardrobe’s personality through your Style Sky. It’s free, with no account or subscription.
+Closet Lint is a personal wardrobe app for shopping your closet like a store where you already own everything. Organize your pieces, put outfits together, and plan what to wear, all in your browser. See your month of outfits in color, settle wishlist battles, and discover your wardrobe’s personality through your style Sky. It’s free, with no account or subscription.
 
 ![Closet Lint showing wardrobe photos and season, color, and aesthetic filters in the Soft Hardware dark theme.](docs/images/closet-lint-preview.png)
 
-> **Latest release: [Closet Lint 0.4.0](https://github.com/stephthegeek/closetlint/releases/tag/v0.4.0).** See the [release notes](docs/RELEASE-NOTES.md).
+> **Latest release: [Closet Lint 0.5.0](https://github.com/stephthegeek/closetlint/releases/tag/v0.5.0).** See the [release notes](docs/RELEASE-NOTES.md).
 
 ## What's included
-
-The features below describe the current source, including changes being prepared for 0.5. The latest published download is 0.4.0.
 
 ### Organize your wardrobe
 
@@ -31,12 +29,13 @@ The features below describe the current source, including changes being prepared
 
 - 📖 **My almanac:** see your month in color through a beautiful calendar of the outfits you wore, with wardrobe highlights, upcoming plans, and optional local sky and weather.
 - 😶‍🌫️ **Comfort zone:** eight fun, short quizzes that help shape wishlist rankings and Outfit Lab ideas around your preferences.
-- 🌌 **Your Style Sky:** wardrobe constellations, Sun, Moon, and Rising readings, and shareable charts. Explore styles related to your own closet.
+- 🌌 **Your Sky:** wardrobe constellations, Sun, Moon, and Rising readings, and shareable charts. Explore styles related to your own closet.
 - 🪬 **Linty’s daily fortune card:** daily readings, wardrobe nudges, and color omens.
 
 ### Make it your own
 
 - 🎨 **Themes:** three distinct looks, each with light and dark modes.
+- 👚 **Icons and categories:** masc, femme, and gender neutral icon packs, plus customizable clothing categories to suit your wardrobe.
 
 ### Optional: Bring Your Own AI Assistant
 
