@@ -1,0 +1,25 @@
+name: Docker checks
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  container:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Build image with CPU photo tools
+        run: docker build --pull --tag closetlint:test .
+      - name: Exercise the actual container and persistent volume
+        run: python3 deploy/docker/smoke.py --image closetlint:test
+      - name: Check Compose configuration
+        run: docker compose config --quiet

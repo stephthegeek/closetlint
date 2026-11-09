@@ -72,6 +72,8 @@ You'll need Python 3.10 or newer (check with `python3 --version`, or `py -3 --ve
 
 Keep the terminal open while you use the app; closing it stops the server.
 
+Docker users can use the [Docker installation](docs/GETTING-STARTED.md#run-with-docker), which includes Python and photo libraries.
+
 The [Getting started guide](docs/GETTING-STARTED.md) covers setup, phone access on home Wi-Fi, a sample wardrobe, and updates. See [Using Closet Lint](docs/USING-CLOSET-LINT.md) for everyday features.
 
 For access away from home, read the [experimental hosting notes](docs/WEB-HOSTING.md). Hosting requires separate HTTPS, password protection, and backups. The current adapter has provider limitations; it is not yet a generally supported installation option. Local installation still needs only Python and a browser.
