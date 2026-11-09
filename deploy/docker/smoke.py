@@ -148,7 +148,7 @@ def exercise(image=None, models=False):
                 for model in ('u2net', 'isnet-general-use'):
                     run('docker', 'exec', ident, 'python', 'runtime/background_worker.py',
                         'app/assets/demo/01-black-tee.jpg', '/tmp/' + model + '.png', model)
-                    result = command("from pathlib import Path;from PIL import Image;p=Path('/tmp/" + model + ".png');assert p.read_bytes().startswith(b'\\x89PNG\\r\\n\\x1a\\n');i=Image.open(p);assert i.mode=='RGBA';print('inference-ok')")
+                    result = command("from pathlib import Path;from PIL import Image;p=Path('/tmp/" + model + ".png');assert p.read_bytes().startswith(bytes.fromhex('89504e470d0a1a0a'));i=Image.open(p);assert i.mode=='RGBA';print('inference-ok')")
                     assert result == 'inference-ok'
             stop()
             after = start()
