@@ -66,6 +66,16 @@ Developer checks and remaining verification are documented in [contributor check
 
 ## Testing
 
+### Publishing a Docker preview
+
+The separate `Publish Docker preview` workflow runs only when a numbered `codex/docker-preview-0.5.0.N` branch is pushed. Keep the reviewed packaging on `codex/docker-0.5.0`; update `compose.preview.yaml` to the matching `0.5.0-docker-preview.N` image first. Wait for Source and security checks and Docker checks to pass on the exact commit, then create the numbered preview branch at that commit. An unpublished failed preview can be corrected on its numbered branch. Leave published preview branches fixed; use a new number for another preview. No merge, GitHub Release, stable image tag, or `latest` image is created by this workflow.
+
+The build uses the exact released v0.5.0 application plus the reviewed Docker packaging. Both native CPU architectures must pass the container and model checks before the combined preview is published. Existing preview versions are not replaced. The final native runner jobs pull without registry credentials and follow the Compose instructions, including automatic model setup and reuse of the persistent cache. Make the GHCR package public before these jobs run, and verify their results before sharing the instructions. Publishing from a public repository alone does not establish public package visibility.
+
+Docker starts model preparation in a background thread without delaying HTTP readiness. Download failures leave the app usable; a restart retries missing models. Set `CLOSETLINT_PREPARE_MODELS=0` to disable preparation for an intentionally offline installation or a non-model test. Normal Compose setup needs only `docker compose up -d`.
+
+### Local checks
+
 With Node/npm and Python available:
 
 ```bash
@@ -222,3 +232,14 @@ Gap counts compare the relevant category (necklace traits use necklaces), includ
 Style expansion requires an established owned Sky reading, an explicit aesthetic tag on the candidate, a curated connection to an owned star with at least three contributors and strength of 0.25, and at least two independent signature evidence families on the candidate. A style already well represented elsewhere in the closet does not qualify. The best quiz gap contributes at most three ranking points; style expansion contributes at most 0.75, with a combined cap of three. A negative quiz signal, missing required layer, or size conflict suppresses the bonus. Saved personal boosts and intentions are unchanged. Run `node tests/wishlist-gaps.js` for boundary, evidence, grouping, and preservation checks.
 
 Wishlist chip selection and display use the same `wrChipPriority` order: up to four available chips, plus a fifth only when its priority is at least 60. This presentation score is separate from purchase ranking. Positive clothing lengths, fit/stretch, sole flexibility, care, and ordinary buttons/zips/slip-on fastenings rank lower; negative utility evidence keeps its warning priority. A mixed group inherits its most interesting trait and shows that trait first. Pockets use the ordinary quiz preference tier, like prints and textures, without a dedicated boost. Lab outfit evidence distinguishes loved (88) from liked (86); mixed counts share one chip, with each distinct combination counted once. Utility-only gap chips do not bypass these rules; explicit top three picks retain extra priority.
+
+
+## Docker packaging
+
+The container wrapper uses the local runtime without changing its Host, Origin, browser token or write-version checks. The internal listener uses all container interfaces; Compose publishes only `127.0.0.1:6684`. The process runs as UID/GID 10001 with a read only root filesystem, a private writable `/data` volume and temporary `/tmp`. It holds a per-volume process lock and exits visibly on conflicting photo configuration or storage permissions. Photo dependencies ship in the image; model downloads are explicit, checksum verified and retained in `/data`.
+
+`python deploy/docker/smoke.py --image closetlint:test` tests actual HTTP saves, stale-write protection, assets, photo libraries, assistant request visibility, graceful stop, container replacement, and backup/restore using a disposable volume. Omitting `--image` checks the wrapper locally with a disposable folder and port; it does not certify Docker. The Docker workflow runs the actual image on native AMD64 and ARM64 runners. Keep architecture claims tied to successful runs. Model inference uses the existing tested worker; startup must not download weights.
+
+Build recipes and CPU dependency pins receive Dependabot reviews. Source archives include the Docker inputs. Keep private wardrobes, model weights, environments and credentials outside the build context; review `.dockerignore` with the actual `COPY` inputs.
+
+The image publication workflow accepts only an existing published stable release and combines its exact application source with reviewed packaging from the workflow revision. This permits initial 0.5.0 packaging without moving its existing Git tag. Each architecture must build and pass the same disposable checks before the combined version becomes available. Temporary architecture tags identify a workflow run. Existing version tags are not overwritten; a deliberate rebuild tag policy needs review before replacing an image. Manual publication runs only from main; initial image publication is a separate owner review step. The workflow also supports future published release events. GitHub package permissions and initial public package visibility must be verified at first publication. No automatic update of user installations is configured.

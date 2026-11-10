@@ -1,0 +1,26 @@
+# Allow only public application inputs into the build context.
+**
+!Dockerfile
+!app/
+!app/**
+!runtime/
+!runtime/**
+!tools/
+!tools/**
+!deploy/
+!deploy/docker/
+!deploy/docker/start.py
+!deploy/docker/health.py
+!deploy/docker/requirements.txt
+!LICENSE
+!NOTICE
+!README.md
+!package.json
+**/__pycache__/**
+**/*.pyc
+**/*.sqlite3*
+**/*.onnx
+**/*.zip
+**/.env*
+**/venv/**
+**/.venv/**

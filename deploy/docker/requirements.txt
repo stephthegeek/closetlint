@@ -1,0 +1,4 @@
+# CPU photo tools; model weights are prepared explicitly and kept in /data.
+Pillow==13.0.0
+numpy==2.5.4
+onnxruntime==1.31.0

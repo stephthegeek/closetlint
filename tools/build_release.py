@@ -21,10 +21,11 @@ TYPES = {'app':{'.html','.css','.js','.svg'},'runtime':{'.py','.js','.json','.tx
 
 
 def selected_files(root=ROOT):
-    paths = [root / 'README.md', root / 'CONTRIBUTING.md', root / 'package.json', root / '.gitignore', root / 'package-lock.json', root / 'SECURITY.md', root / 'AI-USE-AND-SECURITY.md']
+    paths = [root / 'README.md', root / 'CONTRIBUTING.md', root / 'package.json', root / '.gitignore', root / 'Dockerfile', root / '.dockerignore', root / 'compose.yaml', root / 'compose.preview.yaml', root / 'package-lock.json', root / 'SECURITY.md', root / 'AI-USE-AND-SECURITY.md']
     paths += [p for p in (root / '.github').rglob('*.yml') if p.is_file()]
     paths += [root / 'docs' / n for n in DOCS]
     paths += [root / 'deploy/siteground' / n for n in ('README.md','build_package.py','gateway.cjs','rehearse_update.py','start.py')]
+    paths += [p for p in (root / 'deploy/docker').rglob('*') if p.is_file() and p.suffix in ('.py', '.txt') and '__pycache__' not in p.parts]
     paths += [root / 'docs/images/closet-lint-preview.png']
     paths += [root / 'app/assets/linty' / n for n in ART]
     paths += [root / 'app/assets/demo' / n for n in DEMO]

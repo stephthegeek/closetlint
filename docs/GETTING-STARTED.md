@@ -2,6 +2,46 @@
 
 This guide covers running Closet Lint on your computer and opening it in your web browser. Your wardrobe and photos are saved on that computer. For access away from home, see the [experimental hosting notes](WEB-HOSTING.md); hosting has additional requirements and is not yet a generally supported installation option.
 
+## Run with Docker
+
+### Try the Docker preview
+
+The Docker preview runs Closet Lint 0.5.0 with experimental Docker packaging. You need Docker Desktop running, or Docker Engine with Compose. You do not need Python, Git, or the app source. Intel/AMD computers and Apple Silicon/ARM computers use the same file and commands.
+
+1. Create a folder named `closetlint-preview`.
+2. Download [the preview Compose file](https://raw.githubusercontent.com/stephthegeek/closetlint/codex/docker-preview-0.5.0.2/compose.preview.yaml) into that folder and name it **compose.yaml**. Make sure it is not saved as `compose.yaml.txt`.
+3. Open a terminal in that folder and run:
+
+   ```sh
+   docker compose up -d
+   ```
+
+4. Open **http://localhost:6684** and set up your closet. Background removal models download automatically in the background; photo tools become available when setup finishes.
+
+The app image downloads on first start. Background removal models stay saved in your Docker volume and are reused on later starts. If a model download fails, the app stays usable; restart the container after restoring your connection to retry. Check progress with `docker compose logs -f closetlint` (Ctrl+C leaves the app running).
+
+Stop the preview with `docker compose stop`. Start it again with `docker compose up -d`. Run these commands from the same folder. Your pieces and photos stay in a separate Docker volume when you stop or replace the container. Use **Export backup** to keep a copy outside Docker. Avoid `docker compose down -v`, which deletes the saved wardrobe.
+
+The preview opens only on this computer. If port 6684 is already in use, stop the other Closet Lint instance or change `127.0.0.1:6684:6684` to `127.0.0.1:6685:6684` in compose.yaml and open **http://localhost:6685** instead. For startup problems, run `docker compose logs --tail=100 closetlint`.
+
+### Build from source
+
+Docker is an alternative to installing Python and photo libraries yourself. Install [Docker Desktop](https://docs.docker.com/get-started/get-docker/) or Docker Engine with Compose, then run these commands from the Closet Lint source folder:
+
+```sh
+docker compose up -d --build
+```
+
+After the build finishes, open **http://localhost:6684**. Background removal models download automatically in the background. Docker runs the app in the background. Stop it with `docker compose stop`; start it again with `docker compose up -d`. To inspect startup problems, use `docker compose logs closetlint`.
+
+Your wardrobe, photos, unfinished assistant requests and downloaded models live in the separate `wardrobe` Docker volume. Recreating the container keeps that volume. Use **Export backup** and keep a copy outside Docker. To move an existing wardrobe, start with the new Docker volume and use **Restore backup**; keep your original data folder and stop the original app first. Do not run two instances against the same storage. Commands that delete volumes, including `docker compose down -v`, delete that saved storage.
+
+Photo libraries are included, and first startup prepares the background removal models automatically. Models stay in the volume through restarts and app updates. Docker starts with access from this computer only; phone or public server access needs separate network and access protection configuration.
+
+For AI assistant imports, the download/upload route works normally. Direct access requires your AI assistant to have explicitly authorized access to run commands inside this container. Paths such as `/data` are inside Docker. For example, an authorized assistant can run a command using `docker compose exec -T closetlint python tools/check_setup.py --data /data`; it must still verify the wardrobe and request identity. Docker does not give an AI assistant access automatically. See [AI assistant imports](AI-ASSISTANT.md).
+
+To update a source build, export a backup, replace the source folder while keeping the Compose project name and volume, then run `docker compose up -d --build`. Refresh and verify your wardrobe. Keep the same containing folder name so Compose selects the same volume.
+
 ## Start the app
 
 You’ll need Python 3.10 or newer, a web browser, and the downloaded Closet Lint folder. Python isn’t included on every computer. Check with `python3 --version` on Linux or macOS, or `py -3 --version` on Windows. If it isn’t installed, [download Python](https://www.python.org/downloads/). Python 3.13 is suitable for both the app and its optional photo tools.
