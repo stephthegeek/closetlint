@@ -62,6 +62,7 @@ def exercise(image=None, models=False):
             if image:
                 run('docker', 'run', '-d', '--name', ident, '--read-only', '--tmpfs', '/tmp:rw,size=268435456',
                     '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges',
+                    '-e', 'CLOSETLINT_PREPARE_MODELS=' + ('1' if models else '0'),
                     '-p', '127.0.0.1:6684:6684', '--mount', 'source=' + volume + ',target=/data', image)
             else:
                 process = subprocess.Popen([sys.executable, str(ROOT / 'deploy/docker/start.py'),
@@ -131,8 +132,9 @@ def exercise(image=None, models=False):
             setup = json.loads(command("import sys,json;sys.path.insert(0,'tools');import check_setup;print(json.dumps(check_setup.check(" + repr(folder) + ")))"))
             assert setup['appReady'] and setup['importsReady']
             assert all(p['ready'] for p in setup['photoCheck']['packages'].values())
-            assert not setup['backgroundReady'], 'Models must not download during startup'
-            assert not json.loads(request('/api/photos/background-status'))['available']
+            if not models:
+                assert not setup['backgroundReady'], 'Explicit opt-out must avoid downloads'
+                assert not json.loads(request('/api/photos/background-status'))['available']
             # A prepared request is visible to an explicitly authorized container command.
             prepared = json.loads(request('/api/details/prepare', {'instance': before['instance'],
                 'request': 'details-docker-test', 'mode': 'titles', 'pieces': [{'id': 'c-docker-piece', 'fields': []}]}, 'POST'))
@@ -144,7 +146,17 @@ def exercise(image=None, models=False):
                 run('docker', 'exec', ident, 'python', 'deploy/docker/health.py')
             if models:
                 assert image, 'Actual model preparation runs inside the image'
-                run('docker', 'exec', ident, 'python', 'runtime/background_worker.py', '--prepare')
+                for _ in range(180):
+                    ready = json.loads(command("import sys,json;sys.path.insert(0,'tools');import check_setup;print(json.dumps(check_setup.check('/data')))"))
+                    if ready['backgroundReady'] and ready['jewelryBackgroundReady']:
+                        break
+                    time.sleep(2)
+                else:
+                    print(run('docker', 'logs', ident))
+                    raise AssertionError('Automatic model preparation did not finish')
+                model_stamp_script = "from pathlib import Path;import json;print(json.dumps({str(p):p.stat().st_mtime_ns for p in Path('/data/photo-tools/models').rglob('*.onnx')},sort_keys=True))"
+                model_stamps = command(model_stamp_script)
+                assert len(json.loads(model_stamps)) == 2, model_stamps
                 for model in ('u2net', 'isnet-general-use'):
                     run('docker', 'exec', ident, 'python', 'runtime/background_worker.py',
                         'app/assets/demo/01-black-tee.jpg', '/tmp/' + model + '.png', model)
@@ -157,6 +169,15 @@ def exercise(image=None, models=False):
             assert request('/_blob/' + photo) == PNG
             if models:
                 assert json.loads(request('/api/photos/background-status'))['available']
+                for _ in range(60):
+                    logs = run('docker', 'logs', ident)
+                    if 'Background removal ready.' in logs:
+                        break
+                    time.sleep(.5)
+                else:
+                    raise AssertionError('Saved model verification did not finish')
+                assert 'Downloading background removal model:' not in logs, logs
+                assert command(model_stamp_script) == model_stamps, 'Restart must reuse saved model files'
             # Exercise the ordinary restore confirmation into this disposable wardrobe.
             preview = json.loads(request('/api/restore/preview', backup, 'POST'))
             request('/api/restore/apply', {'ticket': preview['ticket'], 'confirm': 'replace-wardrobe'}, 'POST')
@@ -181,6 +202,6 @@ def exercise(image=None, models=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--image', help='Build image first; omit to check the startup wrapper locally')
-    parser.add_argument('--models', action='store_true', help='Explicitly prepare and exercise both models inside Docker')
+    parser.add_argument('--models', action='store_true', help='Verify automatic first-run preparation, inference and model cache reuse inside Docker')
     args = parser.parse_args()
     exercise(args.image, args.models)

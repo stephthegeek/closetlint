@@ -130,10 +130,15 @@ jobs:
           DOCKER_CONFIG: ${{ runner.temp }}/anonymous-docker
         run: |
           mkdir -p "$DOCKER_CONFIG"
-          docker compose -f compose.preview.yaml pull
-          docker compose -f compose.preview.yaml up -d --wait
-          docker compose -f compose.preview.yaml exec -T closetlint python runtime/background_worker.py --prepare
-          docker compose -f compose.preview.yaml exec -T closetlint python tools/check_setup.py --data /data --json > "$RUNNER_TEMP/setup.json"
+          docker compose -f compose.preview.yaml up -d
+          for attempt in $(seq 1 180); do
+            if docker compose -f compose.preview.yaml exec -T closetlint python tools/check_setup.py --data /data --json > "$RUNNER_TEMP/setup.json" 2>/dev/null; then
+              if python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(not all(d[k] for k in ("appReady","backgroundReady","jewelryBackgroundReady")))' "$RUNNER_TEMP/setup.json"; then
+                break
+              fi
+            fi
+            sleep 2
+          done
           python3 - <<'PYCODE'
           import json, os, pathlib
           result = json.loads((pathlib.Path(os.environ['RUNNER_TEMP']) / 'setup.json').read_text())

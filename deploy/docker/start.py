@@ -25,7 +25,7 @@ class ContainerHandler(runtime.Handler):
 
 
 def configure_photos(folder):
-    """Use the image's libraries; model preparation remains an explicit action."""
+    """Use the image's libraries and persistent model cache."""
     target = folder / 'photo-tools.json'
     expected = {'python': sys.executable, 'models': str(folder / 'photo-tools/models')}
     if target.exists() or target.is_symlink():
@@ -39,6 +39,26 @@ def configure_photos(folder):
         temporary.replace(target)
     finally:
         temporary.unlink(missing_ok=True)
+
+
+def prepare_models(folder):
+    """Prepare both models once per startup, reusing verified persistent files."""
+    import background_worker as worker
+    home = folder / 'photo-tools/models'
+    ready = True
+    for model in worker.MODELS:
+        cached = worker.model_path(home, model).is_file()
+        print(('Checking saved' if cached else 'Downloading') + ' background removal model: ' + model, flush=True)
+        try:
+            worker.prepare(home, model)
+        except (OSError, ValueError) as error:
+            ready = False
+            print('Background removal setup could not finish for ' + model + ': ' + str(error) +
+                  '. The app remains usable. Check your connection and restart the container to retry.',
+                  file=sys.stderr, flush=True)
+    if ready:
+        print('Background removal ready. Saved models will be reused on later starts.', flush=True)
+    return ready
 
 
 def main(argv=None):
@@ -71,6 +91,8 @@ def main(argv=None):
         signal.signal(signal.SIGTERM, stop)
         signal.signal(signal.SIGINT, stop)
         print('Closet Lint ready. Open http://localhost:' + str(args.port) + '/', flush=True)
+        if os.environ.get('CLOSETLINT_PREPARE_MODELS', '0') == '1':
+            threading.Thread(target=prepare_models, args=(folder,), daemon=True, name='photo-model-setup').start()
         try:
             httpd.serve_forever()
         finally:

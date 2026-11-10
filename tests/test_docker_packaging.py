@@ -1,4 +1,6 @@
 """Container maintenance boundaries using disposable files and a tiny Git repo."""
+import hashlib
+import io
 import importlib.util
 import json
 import os
@@ -35,6 +37,37 @@ class DockerPackagingTests(unittest.TestCase):
             before = target.read_bytes()
             start.configure_photos(folder)
             self.assertEqual(target.read_bytes(), before)
+
+    def test_automatic_model_setup_downloads_once_and_reuses_verified_cache(self):
+        start = module('start')
+        import background_worker as worker
+        payload = b'tiny verified model fixture'
+        spec = ('https://fixture.invalid/model', hashlib.sha256(payload).hexdigest(), 1, (), ())
+        with tempfile.TemporaryDirectory() as temporary, patch.dict(worker.MODELS, {'u2net': spec, 'isnet-general-use': spec}, clear=True):
+            folder = Path(temporary)
+            with patch.object(worker, 'urlopen', side_effect=lambda *a, **kw: io.BytesIO(payload)) as download:
+                self.assertTrue(start.prepare_models(folder))
+                self.assertEqual(download.call_count, 2)
+            files = list(folder.rglob('*.onnx'))
+            before = {str(p): (p.read_bytes(), p.stat().st_mtime_ns) for p in files}
+            with patch.object(worker, 'urlopen', side_effect=OSError('offline')) as download:
+                self.assertTrue(start.prepare_models(folder))
+                download.assert_not_called()
+            self.assertEqual({str(p): (p.read_bytes(), p.stat().st_mtime_ns) for p in files}, before)
+
+    def test_automatic_setup_failure_is_nonfatal_and_retryable(self):
+        start = module('start')
+        import background_worker as worker
+        payload = b'recovered model'
+        spec = ('https://fixture.invalid/model', hashlib.sha256(payload).hexdigest(), 1, (), ())
+        with tempfile.TemporaryDirectory() as temporary, patch.dict(worker.MODELS, {'u2net': spec}, clear=True):
+            folder = Path(temporary)
+            with patch.object(worker, 'urlopen', side_effect=OSError('offline')), patch('sys.stderr', new_callable=io.StringIO) as errors:
+                self.assertFalse(start.prepare_models(folder))
+                self.assertIn('app remains usable', errors.getvalue())
+            self.assertEqual(list(folder.rglob('*.onnx')), [])
+            with patch.object(worker, 'urlopen', return_value=io.BytesIO(payload)):
+                self.assertTrue(start.prepare_models(folder))
 
     def test_publication_context_uses_release_app_and_only_packaging_overlay(self):
         release = module('release_context')
