@@ -1,5 +1,7 @@
 name: Publish Docker preview
-on: create
+on:
+  push:
+    branches: ['codex/docker-preview-*']
 permissions:
   contents: read
 concurrency:
@@ -7,7 +9,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   preview:
-    if: github.repository == 'stephthegeek/closetlint' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'codex/docker-preview-')
+    if: github.repository == 'stephthegeek/closetlint' && startsWith(github.ref, 'refs/heads/codex/docker-preview-')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -79,7 +81,7 @@ jobs:
           ARCH: ${{ matrix.architecture }}
         run: |
           printf '%s' "$GH_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
-          image="ghcr.io/$GITHUB_REPOSITORY:preview-build-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$ARCH"
+          image="ghcr.io/$GITHUB_REPOSITORY:preview-build-$GITHUB_RUN_ID-$ARCH"
           docker tag closetlint:preview "$image"
           docker push "$image"
   publish:
@@ -104,11 +106,42 @@ jobs:
             cat "$RUNNER_TEMP/manifest-error" >&2
             exit 1
           fi
-          docker manifest create "$image:$VERSION" "$image:preview-build-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-amd64" "$image:preview-build-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-arm64"
-          docker manifest push "$image:$VERSION"
+          docker buildx imagetools create --tag "$image:$VERSION" "$image:preview-build-$GITHUB_RUN_ID-amd64" "$image:preview-build-$GITHUB_RUN_ID-arm64"
           {
             echo 'Docker preview published: `'
             echo "$image:$VERSION"
             echo '`'
             echo 'Verify public package visibility and an anonymous pull before sharing the installation instructions.'
           } >> "$GITHUB_STEP_SUMMARY"
+  verify-public-install:
+    needs: [preview, publish]
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Follow the installation instructions without registry credentials
+        env:
+          DOCKER_CONFIG: ${{ runner.temp }}/anonymous-docker
+        run: |
+          mkdir -p "$DOCKER_CONFIG"
+          docker compose -f compose.preview.yaml pull
+          docker compose -f compose.preview.yaml up -d --wait
+          docker compose -f compose.preview.yaml exec -T closetlint python runtime/background_worker.py --prepare
+          docker compose -f compose.preview.yaml exec -T closetlint python tools/check_setup.py --data /data --json > "$RUNNER_TEMP/setup.json"
+          python3 - <<'PYCODE'
+          import json, os, pathlib
+          result = json.loads((pathlib.Path(os.environ['RUNNER_TEMP']) / 'setup.json').read_text())
+          assert all(result[key] for key in ('appReady', 'wardrobeExists', 'importsReady', 'backgroundReady', 'jewelryBackgroundReady')), result
+          print('Public Compose installation and both background removal models are ready.')
+          PYCODE
+      - name: Remove only this runner's disposable installation
+        if: always()
+        env:
+          DOCKER_CONFIG: ${{ runner.temp }}/anonymous-docker
+        run: docker compose -f compose.preview.yaml down --volumes
