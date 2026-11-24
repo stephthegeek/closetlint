@@ -18,7 +18,7 @@
     "test:outfit-previews": "node tests/outfit-thumbnails-browser.js"
   },
   "devDependencies": {
-    "axe-core": "4.14.0",
+    "axe-core": "4.14.1",
     "playwright": "^1.50.0"
   },
   "license": "GPL-3.0-or-later"
